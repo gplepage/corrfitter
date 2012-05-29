@@ -1,0 +1,7 @@
+include makefile README INSTALLATION COPYING MANIFEST.in dataset.py
+
+graft doc
+graft tests
+exclude tests/*.tmp
+recursive-exclude doc/source/_build *
+prune dist build

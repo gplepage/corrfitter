@@ -1,0 +1,48 @@
+:mod:`corrfitter` - Least-Squares Fit to Correlators
+=====================================================
+
+.. moduleauthor:: G.P. Lepage <g.p.lepage@cornell.edu>
+
+.. |CorrFitter| replace:: :class:`corrfitter.CorrFitter`
+.. |Corr2| replace:: :class:`corrfitter.Corr2`
+.. |Corr3| replace:: :class:`corrfitter.Corr3`
+.. |BaseModel| replace:: :class:`corrfitter.BaseModel`
+.. |Dataset| replace:: :class:`gdev.Dataset`
+.. |GDev| replace:: :class:`gdev.GDev`
+
+.. automodule:: corrfitter
+   :synopsis: Least-squares fitter for correlators.
+
+
+Correlator Model Objects
+-------------------------
+Correlator objects describe theoretical models that are fit to
+correlator data by varying the models' parameters. 
+
+A model object's parameters are specified through priors for the fit. A
+model assigns labels to each of its parameters (or arrays of related
+parameters), and these labels are used to identify the corresponding
+parameters in the prior. Parameters can be shared by more than one model
+object.
+
+A model object also specifies the data that it is to model. The data is 
+identified by the data tag that labels it in the input file or |Dataset|.
+
+.. autoclass:: corrfitter.Corr2
+   :members:
+   
+.. autoclass:: corrfitter.Corr3
+   :members:
+   
+.. autoclass:: corrfitter.BaseModel
+   :members:
+
+
+|CorrFitter| Objects
+---------------------
+|CorrFitter| objects are wrappers for :func:`lsqfit.nonlinear_fit()` which
+is used to fit a collection of models to a collection of Monte Carlo data.
+
+.. autoclass:: corrfitter.CorrFitter
+   :members:
+

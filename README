@@ -1,0 +1,25 @@
+corrfitter
+----------
+
+This directory contains code for manipulating correlators and other Monte
+Carlo 'data' (eg, as in lattice QCD). The main module is:
+
+corrfitter.py - Defines class CorrFitter for fitting the t dependence of 
+		2 and 3 point correlators, described by Corr2 and Corr3 respectively.
+	
+Information on how to install the library is in the file INSTALLATION.
+
+Documentation on how to use this module is in doc/html/index.html (html
+version, which is the better one) and doc/corrfitter.pdf (pdf version, for 
+printing).
+
+To test the module try 'make test-all'.
+
+The test files (.py files) in tests/ are also examples of how to use 
+corrfitter. See the tests/README for more information.
+
+
+
+Created by G. Peter Lepage on 2008-02-12.
+Copyright (c) 2008,2010,2011 G. Peter Lepage (Cornell University). 
+All rights reserved.

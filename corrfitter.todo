@@ -1,0 +1,3 @@
+- Add a median() function (like in lsqfit.Accumulator) to Dataset.
+
+- Fix assemble(): doesn't work now if template contains reg-expression symbols (like +) since the template elements are used as regular expressions in one place (grep()) but later as literal strings. Must be all the same.
