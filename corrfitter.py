@@ -637,11 +637,11 @@ class BaseModel(object):
         corresponding to the model. Plots are not made for a model 
         that doesn't specify this attribute.
         
-    .. method:: _builddata(self,data)
+    .. method:: _builddata(self, data)
         
         Construct fit data, possibly using data stored in ``data``. The 
         format of the data must correspond to that returned by 
-        ``self.fitfcn(x,p)`` (usually a one-dimensional array).
+        ``self.fitfcn(x, p)`` (usually a one-dimensional array).
         
     :param datatag: Tag used to label correlator in the input |Dataset|.
     :type datatag: string
@@ -651,38 +651,39 @@ class BaseModel(object):
         self.datatag = datatag  # label
         self._abscissa = None   # for plots
     ##
-    def fitfcn(self,x,p,nterm=None):
+    def fitfcn(self, p, nterm=None):
         """ Compute fit function for x and fit parameters p. """
         raise NotImplementedError("fitfcn not defined")
     ##
-    def _builddata(self,data):
+    def builddata(self, data):
         """ Construct fit data. 
             
         Format of output must be same as format for fitfcn output.
         """
-        raise NotImplementedError("_builddata not defined")
+        raise NotImplementedError("builddata not defined")
     ##
-    def _priorsize(self):
+    def priorsize(self, nterm=None):
         """ Return dict containing number of entries for each prior label. """
         return {}
     ##
-    def _param(self,p,default=None):
+    def _param(self, p, default=None):
         """ Parse fit-parameter label --- utility function. """
-        if isinstance(p,tuple):
+        if isinstance(p, tuple):
             return p
         else:
-            return (p,default)
+            return (p, default)
     ##
-    def _dE(self,dE,logdE):
-        """ Parse fit-parameter label for energy differences --- utility fcn. """
+    def _dE(self, dE, logdE):
+        """ Parse fit-parameter label for E differences --- utility fcn. """
         if dE is None:
-            assert logdE is not None,"must specify dE"
-            logdE = self._param(logdE,None)
+            assert logdE is not None, "must specify dE"
+            logdE = self._param(logdE, None)
             for x in logdE:
-                assert (x is None or x[:3]=='log'),"logdE label must begin with 'log'"
+                assert (x is None or x[:3] == 'log'), \
+                    "logdE label must begin with 'log'"
             return logdE
         else:
-            return self._param(dE,None)
+            return self._param(dE, None)
     ##              
 ##
 
@@ -692,15 +693,15 @@ class Corr2(BaseModel):
     |Corr2| models the ``t`` dependence of a 2-point correlator ``Gab(t)``
     using ::
         
-        Gab(t) = sn * sum_i an[i]*bn[i] * fn(En[i],t)
-               + so * sum_i ao[i]*bo[i] * fo(Eo[i],t)
+        Gab(t) = sn * sum_i an[i]*bn[i] * fn(En[i], t)
+               + so * sum_i ao[i]*bo[i] * fo(Eo[i], t)
         
     where ``sn`` and ``so`` are typically ``-1``, ``0``, or ``1`` and ::
         
-        fn(E,t) =  exp(-E*t) + exp(-E*(tp-t)) # periodic
+        fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # periodic
                or  exp(-E*t)                  # if tp is None (nonperiodic)
         
-        fo(E,t) = (-1)**t * fn(E,t)
+        fo(E, t) = (-1)**t * fn(E, t)
         
     The fit parameters for the non-oscillating piece of ``Gab`` (first term)
     are ``an[i]``, ``bn[i]``, and ``dEn[i]`` where::
@@ -717,7 +718,7 @@ class Corr2(BaseModel):
     :param datatag: Tag used to label correlator in the input |Dataset|.
     :type datatag: string
     :param a: Fit-parameter label for source amplitude ``an``, or a two-tuple 
-        of labels for source amplitudes ``(an,ao)``. Each label represents an
+        of labels for source amplitudes ``(an, ao)``. Each label represents an
         array of amplitudes. Replacing either label by ``None`` causes the
         corresponding term in the correlator function to be dropped. Fit
         parameters with labels that begin with "log" are replaced by their
@@ -726,7 +727,7 @@ class Corr2(BaseModel):
         must then be positive.
     :type a: string, or two-tuple of strings or ``None``
     :param b: Fit-parameter label for source amplitude ``bn``, or a two-tuple 
-        of labels for source amplitudes ``(bn,bo)``. Each label represents an
+        of labels for source amplitudes ``(bn, bo)``. Each label represents an
         array of amplitudes. Replacing either label by ``None`` causes the
         corresponding term in the correlator function to be dropped. Fit
         parameters with labels that begin with "log" are replaced by their
@@ -735,7 +736,7 @@ class Corr2(BaseModel):
         must then be positive.
     :type b: string, or two-tuple of strings or ``None``
     :param dE: Fit-parameter label for intermediate-state energy differences
-        ``dEn``, or two-tuple of labels for the differences ``(dEn,dEo)``.
+        ``dEn``, or two-tuple of labels for the differences ``(dEn, dEo)``.
         Each label represents an array of energy differences. Replacing either
         label by ``None`` causes the corresponding term in the correlator
         function to be dropped. Fit parameters with labels that begin with
@@ -744,7 +745,7 @@ class Corr2(BaseModel):
         energy differences, which differences must then be positive.
     :type dE: string, or two-tuple of strings or ``None``
     :param s: Overall factor ``sn``, or two-tuple of overall factors 
-        ``(sn,so)``. 
+        ``(sn, so)``. 
     :type s: number or two-tuple of numbers
     :param tdata: The ``t``\s corresponding to data entries in the input
         |Dataset|.
@@ -761,27 +762,27 @@ class Corr2(BaseModel):
         averaged with the ``self.datatag`` data before fitting.
     :type othertags: sequence of strings
     """
-    def __init__(self,datatag,tdata,tfit,a,b,dE=None,logdE=None,    #):
-                    s=1.0,tp=None,othertags=None):
+    def __init__(self, datatag, tdata, tfit, a, b, dE=None, logdE=None,    #):
+                    s=1.0, tp=None, othertags=None):
         super(Corr2, self).__init__(datatag)
         self.a = self._param(a)
         self.b = self._param(b)
-        self.dE = self._dE(dE,logdE)
+        self.dE = self._dE(dE, logdE)
         self.tdata = list(tdata)
         self.tp = tp
-        self.s = self._param(s,-1.)
+        self.s = self._param(s, -1.)
         ## verify and compress tfit ##
         ntfit = []
         for t in tfit:
             if tp is None:
-                assert t in tdata,("tfit incompatible with tdata: "
+                assert t in tdata, ("tfit incompatible with tdata: "
                                   +str(tfit)+" "+str(tdata))
                 ntfit.append(t)
             else:
-                t1,t2 = sorted([t,tp-t])
+                t1, t2 = sorted([t, tp-t])
                 if t1 in ntfit or t2 in ntfit:
                     continue
-                assert (t>=0 and t<tp),"illegal t in tfit: "+str(t)
+                assert (t >= 0 and t < tp), "illegal t in tfit: "+str(t)
                 if t1 in tdata:
                     ntfit.append(t1)
                 elif t2 in tdata:
@@ -794,16 +795,16 @@ class Corr2(BaseModel):
         self.othertags = othertags
         self._abscissa = self.tfit
     ##
-    def _priorsize(self,nterm):
+    def priorsize(self, nterm):
         priorsize = {}
-        for ai,bi,dEi,ntermi in zip(self.a,self.b,self.dE,nterm):
-            for x in [ai,bi,dEi]:
+        for ai, bi, dEi, ntermi in zip(self.a, self.b, self.dE, nterm):
+            for x in [ai, bi, dEi]:
                 if x is None:
                     continue
                 priorsize[x] = (ntermi,)
         return priorsize         
     ##
-    def _builddata(self,data):
+    def builddata(self, data):
         """ Assemble fit data from dictionary ``data``. 
             
         Extracts parts of array ``data[self.datatag]`` that are needed for
@@ -822,42 +823,43 @@ class Corr2(BaseModel):
             ndata = [] 
             for t in self.tfit:
                 idt = tdata.index(t)
-                if tp is None or tp-t not in tdata or t==tp-t:
+                if tp is None or tp-t not in tdata or t == tp-t:
                     ndata.append(odata[idt])
                 else:
                     ndata.append(lsqfit.wavg([odata[idt],
                                               odata[tdata.index(tp-t)]]))
             ans.append(ndata)
-        fdata = numpy.array(ans[0]) if len(ans)==1 else lsqfit.wavg(ans)
+        fdata = numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
         return fdata 
     ##
-    def fitfcn(self,p,nterm=None):
+    def fitfcn(self, p, nterm=None):
         """ Return fit function for parameters ``p``. (Ingores ``x``.) """
         ans = 0.0
         t = self.tfit
         tp_t = None if self.tp is None else self.tp-t
         if nterm is None:
-            nterm = (None,None)
+            nterm = (None, None)
         ofac = (self.s[0],
-                (0.0 if self.s[1]==0.0 else self.s[1]*(-1)**t))
-        for ai,bi,dEi,ofaci,ntermi in zip(self.a,self.b,self.dE,ofac,nterm):
+                (0.0 if self.s[1] == 0.0 else self.s[1]*(-1)**t))
+        for ai, bi, dEi, ofaci, ntermi in zip(self.a, self.b, 
+                                              self.dE, ofac, nterm):
             if ai is None or bi is None or dEi is None:
                 continue
             if ntermi is not None:
-                if ntermi==0:
+                if ntermi == 0:
                     continue
-                ai = (p[ai][:ntermi] if ai[:3]!='log' 
+                ai = (p[ai][:ntermi] if ai[:3] != 'log' 
                         else gvar.exp(p[ai][:ntermi]))
-                bi = (p[bi][:ntermi] if bi[:3]!='log' 
+                bi = (p[bi][:ntermi] if bi[:3] != 'log' 
                         else gvar.exp(p[bi][:ntermi]))
-                dEi = (p[dEi][:ntermi] if dEi[:3]!='log' 
+                dEi = (p[dEi][:ntermi] if dEi[:3] != 'log' 
                         else gvar.exp(p[dEi][:ntermi]))
             else:   
-                 ai = p[ai] if ai[:3]!='log' else gvar.exp(p[ai])
-                 bi = p[bi] if bi[:3]!='log' else gvar.exp(p[bi])
-                 dEi = p[dEi] if dEi[:3]!='log' else gvar.exp(p[dEi])
+                ai = p[ai] if ai[:3] != 'log' else gvar.exp(p[ai])
+                bi = p[bi] if bi[:3] != 'log' else gvar.exp(p[bi])
+                dEi = p[dEi] if dEi[:3] != 'log' else gvar.exp(p[dEi])
             sumdE = 0.0
-            for a,b,dE in zip(ai,bi,dEi):
+            for a, b, dE in zip(ai, bi, dEi):
                 sumdE += dE
                 ans += ofaci*a*b*((gvar.exp(-sumdE*t)) if tp_t is None else 
                               (gvar.exp(-sumdE*t)+gvar.exp(-sumdE*tp_t)) )
@@ -866,12 +868,12 @@ class Corr2(BaseModel):
 ##
 
 class Corr3(BaseModel):
-    """ Three-point correlators ``Gavb(t,T) = <b(T) V(t) a(0)>``.
+    """ Three-point correlators ``Gavb(t, T) = <b(T) V(t) a(0)>``.
         
     |Corr3| models the ``t`` dependence of a 3-point correlator
-    ``Gavb(t,T)`` using ::
+    ``Gavb(t, T)`` using ::
         
-        Gavb(t,T) = 
+        Gavb(t, T) = 
          sum_i,j san*an[i]*fn(Ean[i],t)*Vnn[i,j]*sbn*bn[j]*fn(Ebn[j],T-t)
         +sum_i,j san*an[i]*fn(Ean[i],t)*Vno[i,j]*sbo*bo[j]*fo(Ebo[j],T-t)
         +sum_i,j sao*ao[i]*fo(Eao[i],t)*Von[i,j]*sbn*bn[j]*fn(Ebn[j],T-t)
@@ -879,10 +881,10 @@ class Corr3(BaseModel):
        
     where ::
         
-        fn(E,t) =  exp(-E*t) + exp(-E*(tp-t)) # periodic
+        fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # periodic
                or  exp(-E*t)                  # if tp is None (nonperiodic)
         
-        fo(E,t) = (-1)**t * fn(E,t)
+        fo(E, t) = (-1)**t * fn(E, t)
         
     The fit parameters for the non-oscillating piece of ``Gavb`` (first term)
     are ``Vnn[i,j]``, ``an[i]``, ``bn[j]``, ``dEan[i]`` and ``dEbn[j]`` where,
@@ -1010,18 +1012,19 @@ class Corr3(BaseModel):
         correlators are not periodic.
     :type tpb: integer or ``None``
     """
-    def __init__(self,datatag,T,tdata,tfit,          #):
-                Vnn,a,b,dEa=None,dEb=None,logdEa=None,logdEb=None,sa=1.,sb=1.,
-                Vno=None,Von=None,Voo=None,transpose_V=False,
-                symmetric_V=False,tpa=None,tpb=None):
+    def __init__(self, datatag, T, tdata, tfit,          #):
+                 Vnn, a, b, dEa=None, dEb=None, logdEa=None, logdEb=None, 
+                 sa=1., sb=1.,
+                 Vno=None, Von=None, Voo=None, transpose_V=False,
+                 symmetric_V=False, tpa=None, tpb=None):
         super(Corr3, self).__init__(datatag)
         self.a = self._param(a)
-        self.dEa = self._dE(dEa,logdEa)
-        self.sa = self._param(sa,-1.)
+        self.dEa = self._dE(dEa, logdEa)
+        self.sa = self._param(sa, -1.)
         self.b = self._param(b)
-        self.dEb = self._dE(dEb,logdEb)
-        self.sb = self._param(sb,-1.)
-        self.V = [[Vnn,Vno],[Von,Voo]]
+        self.dEb = self._dE(dEb, logdEb)
+        self.sb = self._param(sb, -1.)
+        self.V = [[Vnn, Vno], [Von, Voo]]
         self.transpose_V = transpose_V
         self.symmetric_V = symmetric_V
         self.T = T
@@ -1031,16 +1034,16 @@ class Corr3(BaseModel):
         ## verify tfit ##
         ntfit = []
         for t in tfit:
-            if t>=0 and t<=T:
+            if t >= 0 and t <= T:
                 ntfit.append(t)
         ##
         self.tfit = numpy.array(ntfit)
         self._abscissa = self.tfit
     ##
-    def _priorsize(self,nterm):
+    def priorsize(self, nterm):
         priorsize = {}
-        for toplist in [(self.a,self.dEa,nterm),
-                        (self.b,self.dEb,nterm)]:
+        for toplist in [(self.a, self.dEa, nterm),
+                        (self.b, self.dEb, nterm)]:
             for labellist in zip(*toplist):
                 ntermi = labellist[-1]
                 labellist = labellist[:-1]
@@ -1048,16 +1051,17 @@ class Corr3(BaseModel):
                     if label is None:
                         continue
                     if label in priorsize:
-                        assert priorsize[label]==(ntermi,),("mismatched nterm for "+label)
+                        assert priorsize[label] == (ntermi,), \
+                            ("mismatched nterm for "+label)
                     priorsize[label] = (ntermi,)
         for i in range(2):
             for j in range(2):
                 if self.V[i][j] is None:
                     continue
-                priorsize[self.V[i][j]] = (nterm[i],nterm[j])
+                priorsize[self.V[i][j]] = (nterm[i], nterm[j])
         return priorsize         
     ##
-    def _builddata(self,data):
+    def builddata(self, data):
         """ Assemble fit data from dictionary ``data``. 
             
         Extracts parts of array ``data[self.datatag]`` that are needed for
@@ -1073,60 +1077,60 @@ class Corr3(BaseModel):
             ndata.append(odata[idt])
         return numpy.array(ndata)
     ##
-    def fitfcn(self,p,nterm=None):
+    def fitfcn(self, p, nterm=None):
         """ Return fit function for parameters ``p``. """
         ta = self.tfit
         tb = self.T-self.tfit
         tp_ta = None if self.tpa is None else self.tpa-ta
         tp_tb = None if self.tpb is None else self.tpb-tb
         if nterm is None:
-            nterm = (None,None)
+            nterm = (None, None)
         ## initial and final propagators ##
         aprop = []  # aprop[i][j] i= n or o; j=excitation level
-        ofac = (self.sa[0],(0.0 if self.sa[1]==0.0 else self.sa[1]*(-1)**ta))
-        for ai,dEai,ofaci,ntermai in zip(self.a,self.dEa,ofac,nterm):
+        ofac = (self.sa[0], (0.0 if self.sa[1] == 0.0 else self.sa[1]*(-1)**ta))
+        for ai, dEai, ofaci, ntermai in zip(self.a, self.dEa, ofac, nterm):
             if ai is None:
                 aprop.append(None)
                 continue
             ans = []
             sumdE = 0.0
             if ntermai is None:
-                ai =  p[ai] if ai[:3]!='log' else gvar.exp(p[ai])
-                dEai = p[dEai] if dEai[:3]!='log' else gvar.exp(p[dEai])
+                ai =  p[ai] if ai[:3] != 'log' else gvar.exp(p[ai])
+                dEai = p[dEai] if dEai[:3] != 'log' else gvar.exp(p[dEai])
             else:
-                if ntermai<=0:
+                if ntermai <= 0:
                     aprop.append(None)
                     continue
-                ai =  (p[ai][:ntermai] if ai[:3]!='log' 
+                ai =  (p[ai][:ntermai] if ai[:3] != 'log' 
                             else gvar.exp(p[ai][:ntermai]))
-                dEai = (p[dEai][:ntermai] if dEai[:3]!='log' 
+                dEai = (p[dEai][:ntermai] if dEai[:3] != 'log' 
                             else gvar.exp(p[dEai][:ntermai]))
-            for a,dE in zip(ai,dEai):
+            for a, dE in zip(ai, dEai):
                 sumdE += dE
                 ans.append(ofaci*a*((gvar.exp(-sumdE*ta)) 
                         if tp_ta is None else 
                         (gvar.exp(-sumdE*ta)+gvar.exp(-sumdE*tp_ta))))
             aprop.append(ans)
         bprop = []
-        ofac = (self.sb[0],(0.0 if self.sb[1]==0.0 else self.sb[1]*(-1)**tb))
-        for bi,dEbi,ofaci,ntermbi in zip(self.b,self.dEb,ofac,nterm):
+        ofac = (self.sb[0], (0.0 if self.sb[1] == 0.0 else self.sb[1]*(-1)**tb))
+        for bi, dEbi, ofaci, ntermbi in zip(self.b, self.dEb, ofac, nterm):
             if bi is None:
                 bprop.append(None)
                 continue
             ans = []
             sumdE = 0.0
             if ntermbi is None:
-                bi = p[bi] if bi[:3]!='log' else gvar.exp(p[bi])
-                dEbi = p[dEbi] if dEbi[:3]!='log' else gvar.exp(p[dEbi])
+                bi = p[bi] if bi[:3] != 'log' else gvar.exp(p[bi])
+                dEbi = p[dEbi] if dEbi[:3] != 'log' else gvar.exp(p[dEbi])
             else:
-                if ntermbi<=0:
+                if ntermbi <= 0:
                     bprop.append(None)
                     continue
-                bi = (p[bi][:ntermbi] if bi[:3]!='log' 
+                bi = (p[bi][:ntermbi] if bi[:3] != 'log' 
                             else gvar.exp(p[bi][:ntermbi]))
-                dEbi = (p[dEbi][:ntermbi] if dEbi[:3]!='log' 
+                dEbi = (p[dEbi][:ntermbi] if dEbi[:3] != 'log' 
                             else gvar.exp(p[dEbi][:ntermbi]))
-            for b,dE in zip(bi,dEbi):
+            for b, dE in zip(bi, dEbi):
                 sumdE += dE
                 ans.append(ofaci*b*((gvar.exp(-sumdE*tb)) 
                         if tp_tb is None else 
@@ -1135,31 +1139,32 @@ class Corr3(BaseModel):
         ##
         ## combine propagators with vertices ##
         ans = 0.0
-        for i,(apropi,Vi) in enumerate(zip(aprop,self.V)):
+        for i, (apropi, Vi) in enumerate(zip(aprop, self.V)):
             if apropi is None:
                 continue
-            for j,(bpropj,Vij) in enumerate(zip(bprop,Vi)):
+            for j, (bpropj, Vij) in enumerate(zip(bprop, Vi)):
                 if bpropj is None or Vij is None:
                     continue
-                V = gvar.exp(p[Vij]) if Vij[:3]=='log' else p[Vij]
-                if i==j and self.symmetric_V:
+                V = gvar.exp(p[Vij]) if Vij[:3] == 'log' else p[Vij]
+                if i == j and self.symmetric_V:
                     ## unpack symmetric matrix V ##
                     na = len(apropi)
                     nb = len(bpropj)
-                    assert na==nb,"Vnn and Voo must be square matrices if symmetric"
+                    assert na == nb, \
+                        "Vnn and Voo must be square matrices if symmetric"
                     iterV = iter(V)
-                    V = numpy.empty((na,nb),dtype=V.dtype)
+                    V = numpy.empty((na, nb), dtype=V.dtype)
                     for k in range(na):
-                        for l in range(k,nb):
-                            V[k,l] = iterV.next()
-                            if k!=l:
-                                V[l,k] = V[k,l]
+                        for l in range(k, nb):
+                            V[k, l] = iterV.next()
+                            if k != l:
+                                V[l, k] = V[k, l]
                     ##
                 if self.transpose_V or (i>j and self.symmetric_V):
                     V = V.T
-                for ak,Vk in zip(apropi,V):
+                for ak, Vk in zip(apropi, V):
                     acc = 0.0
-                    for bl,Vkl in zip(bpropj,Vk):
+                    for bl, Vkl in zip(bpropj, Vk):
                         acc += Vkl*bl
                     ans += ak*acc
         ##
@@ -1182,11 +1187,11 @@ class CorrFitter(object):
         to both the correlator data (``svdcut[0]``) and to the prior
         (``svdcut[1]``).
     :type svdcut: number or ``None`` or 2-tuple
-    :param svdnum: At most ``svdnum`` eigenmodes are retained in the (rescaled) 
-        data covariance matrix; the modes with the smallest eigenvalues are
-        discarded. ``svdnum`` is ignored if it is set to ``None``. If
-        ``svdnum`` is a 2-tuple, *svd* cuts are applied to both the correlator
-        data (``svdnum[0]``) and to the prior (``svdnum[1]``).
+    :param svdnum: At most ``svdnum`` eigenmodes are retained in the 
+        (rescaled) data covariance matrix; the modes with the smallest
+        eigenvalues are discarded. ``svdnum`` is ignored if it is set to
+        ``None``. If ``svdnum`` is a 2-tuple, *svd* cuts are applied to both
+        the correlator data (``svdnum[0]``) and to the prior (``svdnum[1]``).
     :type svdnum: integer or ``None`` or 2-tuple
     :param tol: Tolerance used in :func:`lsqfit.nonlinear_fit` for the 
         least-squares fits (default=1e-10).
@@ -1211,8 +1216,8 @@ class CorrFitter(object):
         above).
     :type ratio: boolean
     """
-    def __init__(self,models,svdcut=None,svdnum=None,tol=1e-10, #):
-                maxit=500,nterm=None,mc=None,ratio=True):
+    def __init__(self, models, svdcut=None, svdnum=None, tol=1e-10, #):
+                maxit=500, nterm=None, mc=None, ratio=True):
         super(CorrFitter, self).__init__()
         self.models = models
         self.svdcut = svdcut
@@ -1223,9 +1228,9 @@ class CorrFitter(object):
         self.dset = None
         self.mc = mc
         self.ratio = ratio
-        self.nterm = nterm if isinstance(nterm,tuple) else (nterm,None)
+        self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
     ##
-    def fitfcn(self,xdummy,p,nterm=None):
+    def fitfcn(self, xdummy, p, nterm=None):
         """ Composite fit function. 
             
         :param p: Fit parameters.
@@ -1244,24 +1249,24 @@ class CorrFitter(object):
         if nterm is None:
             nterm = self.nterm
         for m in self.models:
-            ans[m.datatag] = m.fitfcn(p,nterm=nterm)
+            ans[m.datatag] = m.fitfcn(p, nterm=nterm)
         return ans
     ## 
-    def builddata(self,data,prior):
+    def builddata(self, data, prior):
         """ Build fit data, corrected for marginalized terms. """
         fitdata = {}
         for m in self.models:
-            fitdata[m.datatag] = m._builddata(data)
+            fitdata[m.datatag] = m.builddata(data)
         ## remove marginal fit parameters ##
         nterm = self.nterm
         if self.mc is None:
             ## use priors to remove marginal parameters ##
-            if nterm == (None,None):
+            if nterm == (None, None):
                 return fitdata
             else:
                 for m in self.models:
-                    ftrunc = m.fitfcn(prior,nterm=nterm)
-                    fall = m.fitfcn(prior,nterm=None)
+                    ftrunc = m.fitfcn(prior, nterm=nterm)
+                    fall = m.fitfcn(prior, nterm=None)
                     if not self.ratio:
                         diff = ftrunc-fall
                         fitdata[m.datatag] += diff 
@@ -1273,19 +1278,19 @@ class CorrFitter(object):
             ## use Monte Carlo estimates to remove marginal parameters ## 
             dset = gvar.Dataset()
             ds2 = gvar.Dataset()
-            if nterm == (None,None):
+            if nterm == (None, None):
                 return fitdata
             for p in prior.raniter(self.mc):
                 for m in self.models:
                     tag = m.datatag
-                    ftrunc = m.fitfcn(p,nterm=nterm)
-                    fall = m.fitfcn(p,nterm=None)
+                    ftrunc = m.fitfcn(p, nterm=nterm)
+                    fall = m.fitfcn(p, nterm=None)
                     if not self.ratio:
                         df = ftrunc-fall
                     else:
                         df = ftrunc/fall
-                    dset.append(tag,df)
-            df = gvar.avg_data(dset,spread=True)
+                    dset.append(tag, df)
+            df = gvar.avg_data(dset, spread=True)
             for m in self.models:
                 tag = m.datatag
                 if not self.ratio:
@@ -1296,37 +1301,39 @@ class CorrFitter(object):
         ##
         return fitdata
     ##
-    def buildprior(self,prior):
+    def buildprior(self, prior):
         """ Build correctly sized prior for fit. """
         priorsize = {}
         for m in self.models:
-            mpsize = m._priorsize(self.nterm)
+            mpsize = m.priorsize(self.nterm)
             for k in mpsize:
                 if k in priorsize:
-                    assert priorsize[k]==mpsize[k],("mismatched nterm for "+k)
+                    assert priorsize[k] == mpsize[k], \
+                        ("mismatched nterm for "+k)
                 else:
                     priorsize[k] = mpsize[k]
         newprior = {}
         for k in priorsize:
-            assert k in prior,"missing prior: "+k
-            if len(priorsize[k])==1:
+            assert k in prior, "missing prior: "+k
+            if len(priorsize[k]) == 1:
                 nterm = priorsize[k][0]
                 newprior[k] = prior[k] if nterm is None else prior[k][:nterm]
             else:
-                nterma,ntermb = priorsize[k]
-                newprior[k] = prior[k] if nterma is None else prior[k][:nterma,:]
+                nterma, ntermb = priorsize[k]
+                newprior[k] = (prior[k] if nterma is None 
+                               else prior[k][:nterma, :])
                 if ntermb is not None:
-                    newprior[k] = newprior[k][:,:ntermb]
-            # if newprior[k].size==0:
+                    newprior[k] = newprior[k][:, :ntermb]
+            # if newprior[k].size == 0:
             #     del newprior[k]
         nprior = gvar.BufferDict()
         for k in prior:
             if k in newprior:
-                nprior.add(k,newprior[k])
+                nprior.add(k, newprior[k])
         return nprior
     ##
-    def lsqfit(self,data,prior,p0=None,print_fit=True,    #):
-            svdcut=None,svdnum=None,tol=None,maxit=None,**args):
+    def lsqfit(self, data, prior, p0=None, print_fit=True,    #):
+            svdcut=None, svdnum=None, tol=None, maxit=None, **args):
         """ Compute least-squares fit of the correlator models to data.
             
         :param data: Input data. The ``datatag``\s from the 
@@ -1377,16 +1384,17 @@ class CorrFitter(object):
         if tol is None:
             tol = self.tol
         self.last_prior = prior
-        data = self.builddata(data,prior)
+        data = self.builddata(data, prior)
         prior = self.buildprior(prior)
-        self.fit = lsqfit.nonlinear_fit(data=(None,data),p0=p0,fcn=self.fitfcn,
-                                   prior=prior,svdcut=svdcut,svdnum=svdnum,
-                                   reltol=tol,abstol=tol,maxit=maxit,**args)
+        self.fit = lsqfit.nonlinear_fit(
+            data=(None, data), p0=p0, fcn=self.fitfcn,
+            prior=prior, svdcut=svdcut, svdnum=svdnum,
+            reltol=tol, abstol=tol, maxit=maxit, **args)
         if print_fit:
             print(self.fit.format())
         return self.fit
     ##
-    def bootstrap_iter(self,datalist=None,n=None):
+    def bootstrap_iter(self, datalist=None, n=None):
         """ Iterator that creates bootstrap copies of a |CorrFitter| fit using 
         bootstrap data from list ``data_list``.
             
@@ -1405,9 +1413,9 @@ class CorrFitter(object):
                 ... analyze fit parameters in fit.p ...
                     
         :param data_list: Collection of bootstrap ``data`` sets for fitter. If
-                ``None``, the data_list is generated internally using the means
-                and standard deviations of the fit data (assuming gaussian
-                statistics).
+                ``None``, the data_list is generated internally using the 
+                means and standard deviations of the fit data (assuming
+                gaussian statistics).
         :type data_list: sequence or iterator or ``None``
         :param n: Maximum number of iterations if ``n`` is not ``None``;
                 otherwise there is no maximum.
@@ -1417,8 +1425,9 @@ class CorrFitter(object):
                 ``data_list``.
         """
         if datalist is not None:
-            datalist = ((None,self.builddata(d,self.last_prior)) for d in datalist)
-        for bs_fit in self.fit.bootstrap_iter(n,datalist=datalist):
+            datalist = ((None, self.builddata(d, self.last_prior)) 
+                        for d in datalist)
+        for bs_fit in self.fit.bootstrap_iter(n, datalist=datalist):
             yield bs_fit
     ##
     def collect_fitresults(self):
@@ -1433,8 +1442,8 @@ class CorrFitter(object):
                 Gth(t)  = fit function for G(t) with best-fit parameters
                 dGth(t) = uncertainties in Gth(t)
         """
-        x,corr = self.fit.data
-        corrth = self.fit.fcn(x,self.fit.p)
+        x, corr = self.fit.data
+        corrth = self.fit.fcn(x, self.fit.p)
         ans = {}
         keys = []
         for m in self.models:
@@ -1445,8 +1454,8 @@ class CorrFitter(object):
             c = corr[tag]
             cth = corrth[tag]
             keys.append(tag)
-            ans[tag] = (x,gvar.mean(c),gvar.sdev(c),
-                        gvar.mean(cth),gvar.sdev(cth))
+            ans[tag] = (x, gvar.mean(c), gvar.sdev(c),
+                        gvar.mean(cth), gvar.sdev(cth))
         self.keys = keys
         return ans
     ##
@@ -1467,43 +1476,43 @@ class CorrFitter(object):
         # keys.sort()
         fig = plt.figure()
         idx = [0]
-        def plotdata(idx,fig=fig,keys=keys,data=data):
-            if idx[0]>=len(keys):
+        def plotdata(idx, fig=fig, keys=keys, data=data):
+            if idx[0] >= len(keys):
                 idx[0] = len(keys)-1
-            elif idx[0]<0:
+            elif idx[0] < 0:
                 idx[0] = 0
             i = idx[0]
             k = keys[i]
-            t,g,dg,gth,dgth = data[k]
+            t, g, dg, gth, dgth = data[k]
             fig.clear()
             plt.title("%d) %s   (press 'n', 'p', 'q' or a digit)"
-                        % (i,k))
+                        % (i, k))
             ax = fig.add_subplot(111)
             ax.set_ylabel(k+' / '+'fit')
             # ax.set_xlabel('t')
-            ax.errorbar(t,g/gth,dg/gth,fmt='o')
-            ax.plot(t,numpy.ones(len(t),float),'r-')
-            ax.plot(t,1+dgth/gth,'r--')
-            ax.plot(t,1-dgth/gth,'r--') 
+            ax.errorbar(t, g/gth, dg/gth, fmt='o')
+            ax.plot(t, numpy.ones(len(t), float), 'r-')
+            ax.plot(t, 1+dgth/gth, 'r--')
+            ax.plot(t, 1-dgth/gth, 'r--') 
             plt.draw()
             # fig.draw()
         ##
-        def onpress(event,idx=idx):
+        def onpress(event, idx=idx):
             try:    # digit?
                 idx[0] = int(event.key)
             except ValueError:
-                if event.key=='n':
+                if event.key == 'n':
                     idx[0] += 1
-                elif event.key=='p':
+                elif event.key == 'p':
                     idx[0] -= 1
-                elif event.key=='q':
+                elif event.key == 'q':
                     plt.close()
                     return
                 else:
                     return
             plotdata(idx)
         ##
-        fig.canvas.mpl_connect('key_press_event',onpress)
+        fig.canvas.mpl_connect('key_press_event', onpress)
         plotdata(idx)
         plt.show()
     ##
