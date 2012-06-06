@@ -22,5 +22,6 @@ Tiny changes to accommodate changes introduced in lsqfit 4.2:
 - removed module dataset as it is no longer needed by corrfitter, which now
   uses gvar.Dataset and gvar.avg_data instead. A simplified replacement for
   the old module is included (called dataset.py) for use with old code. It is
-  not installed by 'make install'; to use it install it by hand in the same
-  directory as the old code.
+  not installed by 'make install'; it can be installed if needed (for old
+  code) using, for example, "python dataset-setup.py install --user". Don't
+  install it if you don't have old code.

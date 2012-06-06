@@ -1,6 +1,7 @@
 from corrfitter import Corr2,CorrFitter
 from lsqfit import wavg
-from gvar import gvar,log,exp,evalcov,mean,sdev,BufferDict,avg_data,Dataset
+from gvar import gvar,log,exp,evalcov,mean,sdev,BufferDict
+from gvar.dataset import Dataset,avg_data
 import lsqfit
 import gvar as gd
 import time

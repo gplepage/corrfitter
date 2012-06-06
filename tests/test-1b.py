@@ -10,7 +10,8 @@ Copyright (c) 2010/2011 Cornell University. All rights reserved.
 
 import os
 from corrfitter import Corr2,Corr3,CorrFitter
-from gvar import gvar,log,exp,ranseed,Dataset,avg_data,BufferDict
+from gvar import gvar,log,exp,ranseed,BufferDict
+from gvar.dataset import Dataset,avg_data,bootstrap_iter
 from numpy import array,arange,sum
 
 import lsqfit
@@ -55,7 +56,7 @@ def bootstrap_last_fit(fitter,dset,nbootstrap):
     ranseed((1950,2000))
     print '\nNumber of bootstrap iterations =',nbootstrap,'\n'
     bs_output = Dataset()    # results accumulated here
-    bs_datalist = (avg_data(d) for d in dset.bootstrap_iter(NBOOTSTRAP))
+    bs_datalist = (avg_data(d) for d in bootstrap_iter(dset,NBOOTSTRAP))
     for bs_fit in fitter.bootstrap_iter(bs_datalist):
         p = bs_fit.pmean
         bs_output.append('etas:dE',exp(p['log(etas:dE)']))

@@ -9,7 +9,8 @@ Copyright (c) 2010/2011 Cornell University. All rights reserved.
 
 import os
 from corrfitter import Corr2,Corr3,CorrFitter
-from gvar import gvar,log,exp,Dataset,avg_data,BufferDict
+from gvar import gvar,log,exp,BufferDict
+from gvar.dataset import Dataset,avg_data
 from numpy import array,arange
 
 import lsqfit
