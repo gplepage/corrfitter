@@ -13,7 +13,7 @@
 
 Version 3.2 (2012-05-06)
 ------------------------
-Tiny changes to accommodate changes introduced in lsqfit 4.2:
+Changes to accommodate changes introduced in lsqfit 4.2:
 
 - svdcut and svdnum can be 2-tuples now.
 
@@ -23,5 +23,6 @@ Tiny changes to accommodate changes introduced in lsqfit 4.2:
   uses gvar.Dataset and gvar.avg_data instead. A simplified replacement for
   the old module is included (called dataset.py) for use with old code. It is
   not installed by 'make install'; it can be installed if needed (for old
-  code) using, for example, "python dataset-setup.py install --user". Don't
-  install it if you don't have old code.
+  code) using "make install-dataset" 
+  (or "python dataset-setup.py install --user"). Don't install it if you don't
+  have old code.

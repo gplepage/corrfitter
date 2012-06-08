@@ -1,6 +1,6 @@
 ============================== nterm = 8   nterm_prior = 8    MC = None True
 Least Square Fit:
-  chi2/dof [dof] = 0.91 [113]    Q = 0.76    logGBF = -193.18    itns = 242
+  chi2/dof [dof] = 0.91 [113]    Q = 0.76    logGBF = -193.18    itns = 1
 
 Parameters:
            logl_ -0.681 +-   0.002           (   -0.92 +-        1)
@@ -69,5 +69,5 @@ correlators:
 using last fit
 
 
-t=7.0 ====
+t=0.4 ====
 

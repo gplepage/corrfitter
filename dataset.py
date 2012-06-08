@@ -163,6 +163,7 @@ def tabulate_avg(avgout,format=(6,3)):
     return '\n'.join(table)
 ##    
     
+
 if __name__ == '__main__':
     import gvar
     gvar.ranseed((1950,1))

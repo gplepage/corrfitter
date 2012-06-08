@@ -4,5 +4,7 @@ include dataset.py dataset-setup.py
 graft doc
 graft tests
 exclude tests/*.tmp
+exclude tests/*.pyc
+exclude tests/*.p
 recursive-exclude doc/source/_build *
 prune dist build

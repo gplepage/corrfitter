@@ -23,7 +23,14 @@ try:
 except ImportError:
     DISPLAYPLOTS = False
 
-TEST = True         # testing mode?
+TEST = True        # testing mode? (True, False, or "dump")
+
+if TEST:
+    NEXP_LIST = [3]
+    TEST_FILENAME = 'test-1t.testp'
+    P0_TEST = lsqfit.nonlinear_fit.load_parameters(TEST_FILENAME)
+else:
+    NEXP_LIST = [2,3,4,5,6,7,8]
 
 def main():
     # dfile = "coarse_3pt_etas_etas_kinCth1.10.576.bint8"  # data file
@@ -32,14 +39,15 @@ def main():
     pfile = "test-1t.p" # last fit
     fitter = CorrFitter(models=build_models())
     # fitdata = fitter.compute_fitdata(dfile)
-    nexp_list = NEXP_TEST if TEST else [2,3,4,5,6,7,8]
     p0 = P0_TEST if TEST else pfile
-    for nexp in nexp_list:
+    for nexp in NEXP_LIST:
         print '========================== nexp =',nexp
         prior = build_prior(nexp)
         fit = fitter.lsqfit(data=data,prior=prior,p0=p0,svdcut=1e-4,maxit=2000)
         print_results(fit,prior,data)
         print '\n\n'
+        if TEST == "dump":
+            fit.dump_pmean(TEST_FILENAME)
     if DISPLAYPLOTS:
         fitter.display_plots()
 ##
@@ -84,25 +92,25 @@ def build_prior(nexp):
     """ build prior """
     prior = BufferDict()
     ## Ds ##
-    prior.add('Ds:a',[gvar(0.01,1.0) for i in range(nexp)])
-    prior.add('log(Ds:dE)',[log(gvar(0.5,0.5)) for i in range(nexp)])
+    prior['Ds:a'] = [gvar(0.01,1.0) for i in range(nexp)]
+    prior['log(Ds:dE)'] = [log(gvar(0.5,0.5)) for i in range(nexp)]
     prior['log(Ds:dE)'][0] = log(gvar(1.30,0.2))
-    prior.add('Ds:ao',[gvar(0.01,1.0) for i in range(nexp)])
-    prior.add('log(Ds:dEo)',[log(gvar(0.5,0.5)) for i in range(nexp)])
+    prior['Ds:ao'] = [gvar(0.01,1.0) for i in range(nexp)]
+    prior['log(Ds:dEo)'] = [log(gvar(0.5,0.5)) for i in range(nexp)]
     prior['log(Ds:dEo)'][0] = log(gvar(1.40,0.2))
     ##
     ## etas ##
-    prior.add('etas:a',[gvar(0.01,1.0) for i in range(nexp)])
-    prior.add('log(etas:dE)',[log(gvar(0.5,0.5)) for i in range(nexp)])
+    prior['etas:a'] = [gvar(0.01,1.0) for i in range(nexp)]
+    prior['log(etas:dE)'] = [log(gvar(0.5,0.5)) for i in range(nexp)]
     prior['log(etas:dE)'][0] = log(gvar(0.67,0.2))
-    prior.add('etas:ao',[gvar(0.01,1.0) for i in range(nexp)])
-    prior.add('log(etas:dEo)',[log(gvar(0.5,0.5)) for i in range(nexp)])
+    prior['etas:ao'] = [gvar(0.01,1.0) for i in range(nexp)]
+    prior['log(etas:dEo)'] = [log(gvar(0.5,0.5)) for i in range(nexp)]
     prior['log(etas:dEo)'][0] = log(gvar(0.88,0.2))
     ## V ##
-    prior.add('Vno',[[gvar(0.01,1.0) for i in range(nexp)] for j in range(nexp)])
-    prior.add('Vnn',[[gvar(0.01,1.0) for i in range(nexp)] for j in range(nexp)])
-    prior.add('Voo',[[gvar(0.01,1.0) for i in range(nexp)] for j in range(nexp)])
-    prior.add('Von',[[gvar(0.01,1.0) for i in range(nexp)] for j in range(nexp)])
+    prior['Vno'] = [[gvar(0.01,1.0) for i in range(nexp)] for j in range(nexp)]
+    prior['Vnn'] = [[gvar(0.01,1.0) for i in range(nexp)] for j in range(nexp)]
+    prior['Voo'] = [[gvar(0.01,1.0) for i in range(nexp)] for j in range(nexp)]
+    prior['Von'] = [[gvar(0.01,1.0) for i in range(nexp)] for j in range(nexp)]
     return prior
 ##
 
@@ -146,7 +154,6 @@ def build_models():
     return models
 ##    
 
-NEXP_TEST = [3]
 P0_TEST = {'etas:ao': [0.06832113722650532, -0.04856424525422174,
 0.13244215104455168], 'Vno': [[-0.15780975926841767, -0.10138450970109109,
 0.03754390993676524], [-0.03028043405104003, -0.0014422366769212467,

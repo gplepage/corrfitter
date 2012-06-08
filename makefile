@@ -3,14 +3,20 @@
 # Created by G. Peter Lepage on 2011-09-22.
 # Copyright (c) 2011 Cornell University. All rights reserved.
 
+PYTHON = python
+
 install:
-	python setup.py install --user	--record installed-files
+	python setup.py install --user	--record files-corrfitter.$(PYTHON)
 
 install-sys:
-	python setup.py install	--record installed-files
+	python setup.py install	--record files-corrfitter.$(PYTHON)
 
 uninstall :			# not sure this works --- be careful
-	cat installed-files | xargs rm -rf
+	- cat files-corrfitter.$(PYTHON) | xargs rm -rf
+	- cat files-dataset.$(PYTHON) | xargs rm -rf
+
+install-dataset:
+	python dataset-setup.py install --user --record files-dataset.$(PYTHON)
 
 .PHONY : tests
 

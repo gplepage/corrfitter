@@ -1,6 +1,6 @@
 ========================== nexp = 1   ratio = True
 Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.76 [69]    Q = 0.93    logGBF = -74.778    itns = 6
+  chi2/dof [dof] = 0.76 [69]    Q = 0.93    logGBF = -74.778    itns = 1
 
 Parameters:
     log(etas:a)_ -1.521 +-   0.001           (    -1.2 +-        1)
@@ -43,7 +43,7 @@ Partial % Errors:
 
 ========================== nexp = 1   ratio = False
 Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.9 [69]    Q = 0.71    logGBF = -77.234    itns = 6
+  chi2/dof [dof] = 0.9 [69]    Q = 0.71    logGBF = -77.234    itns = 1
 
 Parameters:
     log(etas:a)_ -1.521 +-   0.001           (    -1.2 +-        1)

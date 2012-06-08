@@ -22,6 +22,12 @@ try:
 except ImportError:
     DISPLAYPLOTS = False
 
+TEST = True        # testing mode? (True, False, or "dump")
+
+if TEST:
+    TEST_FILENAME = 'test-ups.testp'
+    P0_TEST = lsqfit.nonlinear_fit.load_parameters(TEST_FILENAME)
+
 def main():
     dfile = 'ups.bin24'     # input data file
     svdcut = 1e-3          # needed even without marginalization
@@ -34,7 +40,7 @@ def main():
     if USE_MARGINALIZATION:
         prior = make_prior(NTERM_PRIOR)
     starttime = time.clock()
-    p0 = None
+    p0 = P0_TEST if TEST else None
     ntermlist = [4] if USE_MARGINALIZATION else [8]
     for nterm in ntermlist:
         if not USE_MARGINALIZATION:
@@ -54,6 +60,8 @@ def main():
             p0 = fit.pmean
         print '\nt=%.1f ====' % (time.clock()-starttime)
         print
+        if TEST == 'dump':
+            fit.dump_pmean(TEST_FILENAME)
     if DISPLAY_PLOTS:
         fitter.display_plots()
 ##
@@ -96,11 +104,11 @@ def make_prior(nterm):
     prior = BufferDict()
     c0 = 0.1
     dc = 1.0
-    prior.add('logl',[log(gvar(0.4,0.4)) for i in range(nterm)])
-    prior.add('g',numpy.array([gvar(c0,dc) for i in range(nterm)]))
-    prior.add('e',[gvar(c0,dc) for i in range(nterm)])
-    prior.add('d',[gvar(c0,dc) for i in range(nterm)])
-    prior.add('logdE',log([gvar(0.5,0.5) for i in range(nterm)]))
+    prior['logl'] = [log(gvar(0.4,0.4)) for i in range(nterm)]
+    prior['g'] = numpy.array([gvar(c0,dc) for i in range(nterm)])
+    prior['e'] = [gvar(c0,dc) for i in range(nterm)]
+    prior['d'] = [gvar(c0,dc) for i in range(nterm)]
+    prior['logdE'] = log([gvar(0.5,0.5) for i in range(nterm)])
     prior['logdE'][0] = log(gvar(.256,0.1))
     return prior
 ##

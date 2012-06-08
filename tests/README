@@ -8,6 +8,6 @@ test-1s.py	- Symmetric form factor (Ds->Ds)
 test-1t.py	- Transposed form factors (Ds->etas and etas->D)
 test-ups.py - 4x4 matrix fit (upsilon)
 
-The makefile runs the tests ("make tests") and illustrates how to run the
-individual scripts. The test-case output from each test is in the
+The makefile runs the tests ("make test-all") and illustrates how to run
+the individual scripts. The test-case output from each test is in the
 corresponding .out file (test-1.out, test-1m.out, etc).

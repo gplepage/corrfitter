@@ -22,14 +22,23 @@ NBOOTSTRAP = 4              # number of bootstraps: 4 okay; 50 really good
 
 DISPLAYPLOTS = False        # display plots at end of fitting
 
-P0 = {}
-P0[True] = dict([('log(etas:a)', array([-1.52132077])), ('log(etas:dE)', array([-0.87652893])), ('log(Ds:a)', array([-1.5379696])), ('log(Ds:dE)', array([ 0.18376377])), ('log(Ds:ao)', array([-2.59384428])), ('log(Ds:dEo)', array([ 0.37794027])), ('Vnn', array([[ 0.76905768]])), ('Vno', array([[-0.7629936]]))])
-P0[False] = dict([('log(etas:a)', array([-1.52128644])), ('log(etas:dE)', array([-0.8765244])), ('log(Ds:a)', array([-1.53828898])), ('log(Ds:dE)', array([ 0.18373669])), ('log(Ds:ao)', array([-2.63514295])), ('log(Ds:dEo)', array([ 0.3728692])), ('Vnn', array([[ 0.76630814]])), ('Vno', array([[-0.71139104]]))])
-
 try: 
     import matplotlib
 except ImportError:
     DISPLAYPLOTS = False
+#
+
+TEST = "dump"         # testing mode? (True, False, or "dump")
+
+P0 = {}
+if TEST:
+    TEST_FILENAME = 'test-1b.testp'
+    P0[True] = lsqfit.nonlinear_fit.load_parameters(TEST_FILENAME)
+    P0[False] = P0[True]
+else:
+    P0[True] = dict([('log(etas:a)', array([-1.52132077])), ('log(etas:dE)', array([-0.87652893])), ('log(Ds:a)', array([-1.5379696])), ('log(Ds:dE)', array([ 0.18376377])), ('log(Ds:ao)', array([-2.59384428])), ('log(Ds:dEo)', array([ 0.37794027])), ('Vnn', array([[ 0.76905768]])), ('Vno', array([[-0.7629936]]))])
+    P0[False] = dict([('log(etas:a)', array([-1.52128644])), ('log(etas:dE)', array([-0.8765244])), ('log(Ds:a)', array([-1.53828898])), ('log(Ds:dE)', array([ 0.18373669])), ('log(Ds:ao)', array([-2.63514295])), ('log(Ds:dEo)', array([ 0.3728692])), ('Vnn', array([[ 0.76630814]])), ('Vno', array([[-0.71139104]]))])
+    
 
 def main():
     dfile = "coarse_3pt_etas_Ds.bint8"  # data file
@@ -44,6 +53,8 @@ def main():
     fit = fitter.lsqfit(data=data,prior=prior,p0=P0[ratio])
     print_results(fit)
     print '\n'
+    if TEST == "dump":
+        fit.dump_pmean(TEST_FILENAME)
     bootstrap_last_fit(fitter,dset,NBOOTSTRAP)
     ##
     ## bootstrap of fit ##
@@ -105,21 +116,21 @@ def build_prior(nexp):
     """ build prior """
     prior = BufferDict()
     ## etas ##
-    prior.add('log(etas:a)',[log(gvar(0.3,0.3)) for i in range(nexp)])
-    prior.add('log(etas:dE)',[log(gvar(0.5,0.5)) for i in range(nexp)])
+    prior['log(etas:a)'] = [log(gvar(0.3,0.3)) for i in range(nexp)]
+    prior['log(etas:dE)'] = [log(gvar(0.5,0.5)) for i in range(nexp)]
     prior['log(etas:dE)'][0] = log(gvar(0.4,0.2))
     ##
     ## Ds ##
-    prior.add('log(Ds:a)',[log(gvar(0.3,0.3)) for i in range(nexp)])
-    prior.add('log(Ds:dE)',[log(gvar(0.5,0.5)) for i in range(nexp)])
+    prior['log(Ds:a)'] = [log(gvar(0.3,0.3)) for i in range(nexp)]
+    prior['log(Ds:dE)'] = [log(gvar(0.5,0.5)) for i in range(nexp)]
     prior['log(Ds:dE)'][0] = log(gvar(1.2,0.2))
-    prior.add('log(Ds:ao)',[log(gvar(0.1,0.1)) for i in range(nexp)])
-    prior.add('log(Ds:dEo)',[log(gvar(0.5,0.5)) for i in range(nexp)])
+    prior['log(Ds:ao)'] = [log(gvar(0.1,0.1)) for i in range(nexp)]
+    prior['log(Ds:dEo)'] = [log(gvar(0.5,0.5)) for i in range(nexp)]
     prior['log(Ds:dEo)'][0] = log(exp(prior['log(Ds:dE)'][0])+gvar(0.3,0.3))
     ##
     ## V ##
-    prior.add('Vnn',[[gvar(0.1,1.0) for i in range(nexp)] for j in range(nexp)])
-    prior.add('Vno',[[gvar(0.1,1.0) for i in range(nexp)] for j in range(nexp)])
+    prior['Vnn'] = [[gvar(0.1,1.0) for i in range(nexp)] for j in range(nexp)]
+    prior['Vno'] = [[gvar(0.1,1.0) for i in range(nexp)] for j in range(nexp)]
     return prior
 ##
 
