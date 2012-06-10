@@ -3,8 +3,6 @@ tests/*.pyc
 *.p
 tests/*.p
 doc/source/_build/
-doc/html/
-doc/corrfitter.pdf
 MANIFEST
 tests/*.tmp
 build/
