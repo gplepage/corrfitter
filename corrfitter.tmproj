@@ -3,14 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>setup.py</string>
+	<string>.gitignore</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>corrfitter.py</string>
 			<key>lastUsed</key>
-			<date>2012-06-10T21:27:50Z</date>
+			<date>2012-06-10T21:49:05Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -31,9 +31,7 @@
 					<key>filename</key>
 					<string>setup.py</string>
 					<key>lastUsed</key>
-					<date>2012-06-10T21:28:01Z</date>
-					<key>selected</key>
-					<true/>
+					<date>2012-06-10T21:49:10Z</date>
 				</dict>
 				<dict>
 					<key>filename</key>
@@ -45,31 +43,39 @@
 					<key>filename</key>
 					<string>MANIFEST.in</string>
 					<key>lastUsed</key>
-					<date>2012-06-06T23:29:36Z</date>
+					<date>2012-06-10T21:44:24Z</date>
+				</dict>
+				<dict>
+					<key>filename</key>
+					<string>.gitignore</string>
+					<key>lastUsed</key>
+					<date>2012-06-10T21:53:17Z</date>
+					<key>selected</key>
+					<true/>
 				</dict>
 				<dict>
 					<key>filename</key>
 					<string>README</string>
 					<key>lastUsed</key>
-					<date>2012-06-06T23:37:38Z</date>
+					<date>2012-06-10T21:53:17Z</date>
 				</dict>
 				<dict>
 					<key>filename</key>
 					<string>INSTALLATION</string>
 					<key>lastUsed</key>
-					<date>2012-06-06T23:39:02Z</date>
+					<date>2012-06-10T21:50:35Z</date>
 				</dict>
 				<dict>
 					<key>filename</key>
 					<string>COPYING</string>
 					<key>lastUsed</key>
-					<date>2012-06-06T02:44:43Z</date>
+					<date>2012-06-10T21:49:24Z</date>
 				</dict>
 				<dict>
 					<key>filename</key>
 					<string>makefile</string>
 					<key>lastUsed</key>
-					<date>2012-06-06T23:41:13Z</date>
+					<date>2012-06-10T21:46:29Z</date>
 				</dict>
 			</array>
 			<key>expanded</key>
@@ -100,6 +106,20 @@
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
+		<key>.gitignore</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>5</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>CHANGES</key>
 		<dict>
 			<key>caret</key>
@@ -133,30 +153,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>35</integer>
+				<integer>6</integer>
 				<key>line</key>
-				<integer>31</integer>
+				<integer>16</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>31</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>32</integer>
-			</dict>
 		</dict>
 		<key>MANIFEST.in</key>
 		<dict>
@@ -177,9 +181,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>18</integer>
+				<integer>57</integer>
 				<key>line</key>
-				<integer>15</integer>
+				<integer>20</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -191,29 +195,29 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>28</integer>
+				<integer>38</integer>
 				<key>line</key>
-				<integer>20</integer>
+				<integer>1292</integer>
 			</dict>
 			<key>columnSelection</key>
 			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>595</integer>
 			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>17</integer>
 				<key>line</key>
-				<integer>2</integer>
+				<integer>1292</integer>
 			</dict>
 			<key>selectTo</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>38</integer>
 				<key>line</key>
-				<integer>21</integer>
+				<integer>1292</integer>
 			</dict>
 		</dict>
 		<key>dataset-setup.py</key>
@@ -344,16 +348,16 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>12</integer>
 		</dict>
 		<key>setup.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>20</integer>
+				<integer>46</integer>
 				<key>line</key>
-				<integer>32</integer>
+				<integer>41</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -518,20 +522,6 @@
 				<integer>56</integer>
 			</dict>
 		</dict>
-		<key>tests/test-1b.tmp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
 		<key>tests/test-1m.falsep</key>
 		<dict>
 			<key>caret</key>
@@ -589,20 +579,6 @@
 				<key>line</key>
 				<integer>52</integer>
 			</dict>
-		</dict>
-		<key>tests/test-1m.tmp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
 		</dict>
 		<key>tests/test-1m.truep</key>
 		<dict>
@@ -706,20 +682,6 @@
 				<integer>49</integer>
 			</dict>
 		</dict>
-		<key>tests/test-1t.tmp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
 		<key>tests/test-ups.out</key>
 		<dict>
 			<key>caret</key>
@@ -778,20 +740,6 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>tests/test-ups.tmp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
 		<key>tests/ups.bin24</key>
 		<dict>
 			<key>caret</key>
@@ -813,7 +761,6 @@
 		<string>COPYING</string>
 		<string>tests/test-ups.py</string>
 		<string>tests/test-ups.testp</string>
-		<string>tests/test-ups.tmp</string>
 		<string>tests/ups.bin24</string>
 		<string>tests/test-ups.out</string>
 		<string>tests/test-1.py</string>
@@ -823,14 +770,11 @@
 		<string>tests/test-1b.py</string>
 		<string>tests/test-1t.out</string>
 		<string>tests/test-1b.out</string>
-		<string>tests/test-1b.tmp</string>
 		<string>tests/test-1m.py</string>
-		<string>tests/test-1m.tmp</string>
 		<string>tests/test-1s.py</string>
 		<string>tests/test-1s.out</string>
 		<string>tests/coarse_3pt_1link_Ds_and_etas_kinCth1.10.576.bint8</string>
 		<string>tests/test-1t.py</string>
-		<string>tests/test-1t.tmp</string>
 		<string>tests/makefile</string>
 		<string>corrfitter.py</string>
 		<string>dataset.py</string>
@@ -840,6 +784,7 @@
 		<string>CHANGES</string>
 		<string>setup.py</string>
 		<string>README</string>
+		<string>.gitignore</string>
 		<string>doc/source/index.rst</string>
 		<string>doc/source/Makefile</string>
 		<string>doc/source/conf.py</string>
@@ -852,6 +797,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{547, 104}, {561, 774}}</string>
+	<string>{{131, 79}, {561, 774}}</string>
 </dict>
 </plist>

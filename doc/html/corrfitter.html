@@ -150,7 +150,7 @@ tag.) The data can be analyzed using class <tt class="xref py py-class docutils 
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">gvar</span>
 
 <span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">gvar</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">gvar</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">gvar</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">gvar</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Then <tt class="docutils literal"><span class="pre">data</span> <span class="pre">=</span> <span class="pre">make_data('mcfile')</span></tt> creates a dictionary where, as discussed

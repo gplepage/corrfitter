@@ -15,14 +15,14 @@ Version 3.2 (2012-05-06)
 ------------------------
 Changes to accommodate changes introduced in lsqfit 4.2:
 
-- svdcut and svdnum can be 2-tuples now.
+- svdcut and svdnum can be 2-tuples now (see lsqfit.nonlinear_fit)
 
 - GPrior replaced by gvar.BufferDict
 
 - removed module dataset as it is no longer needed by corrfitter, which now
-  uses gvar.Dataset and gvar.avg_data instead. A simplified replacement for
-  the old module is included (called dataset.py) for use with old code. It is
-  not installed by 'make install'; it can be installed if needed (for old
-  code) using "make install-dataset" 
-  (or "python dataset-setup.py install --user"). Don't install it if you don't
-  have old code.
+  uses gvar.dataset.Dataset and gvar.dataset.avg_data instead. A simplified
+  replacement for the old module is included (called dataset.py) for use
+  with old code. It is not installed by 'make install'; it can be installed
+  if needed (for old code) using "make install-dataset" (or "python
+  dataset-setup.py install --user"). Don't install it if you don't have old
+  code.
