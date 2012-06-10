@@ -62,6 +62,7 @@ def main():
         print
         if TEST == 'dump':
             fit.dump_pmean(TEST_FILENAME)
+    dummy = gvar(1,0)
     if DISPLAY_PLOTS:
         fitter.display_plots()
 ##

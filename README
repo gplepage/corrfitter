@@ -18,8 +18,10 @@ To test the module try 'make test-all'.
 The test files (.py files) in tests/ are also examples of how to use 
 corrfitter. See the tests/README for more information.
 
+This module requires the lsqfit and gvar python packages.
+
 
 
 Created by G. Peter Lepage on 2008-02-12.
-Copyright (c) 2008,2010,2011 G. Peter Lepage (Cornell University). 
+Copyright (c) 2008-12 G. Peter Lepage (Cornell University). 
 All rights reserved.

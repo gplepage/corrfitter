@@ -2,7 +2,7 @@
 ------------
 This module contains tools that facilitate least-squares fits, as functions
 of time ``t``, of simulation (or other statistical) data for 2-point and
-3-point correlators of the form ::
+3-point correlators of the form::
     
     Gab(t)    =  <b(t) a(0)>
     Gavb(t,T) =  <b(T) V(t) a(0)>
@@ -28,15 +28,15 @@ same source and sink (``a``), and ``Gab`` which has source ``a`` and
 where ``data['Gaa']`` and ``data['Gab']`` are one-dimensional arrays
 containing values for ``Gaa(t)`` and ``Gab(t)``, respectively, with
 ``t=0,1,2...63``. Each array element in ``data['Gaa']`` and ``data['Gab']``
-is a gaussian deviate of type |GDev|, and specifies the mean and standard
+is a gaussian deviate of type |GVar|, and specifies the mean and standard
 deviation for the corresponding data point::
     
-    >> print data['Gaa']
+    >>> print data['Gaa']
     [0.159791 +- 4.13311e-06 0.0542088 +- 3.06973e-06 ... ]
-    >> print data['Gab']
+    >>> print data['Gab']
     [0.156145 +- 1.83572e-05 0.102335 +- 1.5199e-05 ... ]
     
-|GDev|\s can also capture any statistical correlations between different
+|GVar|\s can also capture any statistical correlations between different
 pieces of data.
     
 We want to fit this data to the following formulas::
@@ -93,15 +93,15 @@ the simulation creates a file called ``'mcfile'`` with layout ::
 where each line is one Monte Carlo measurement for one or the other
 correlator, as indicated by the tags at the start of each line. (Lines for
 ``Gab`` may be interspersed with lines for ``Gaa`` since every line has a
-tag.) The data can be analyzed using class :class:`gvar.Dataset`::
+tag.) The data can be analyzed using class :class:`gvar.dataset.Dataset`::
     
     import gvar
     
     def make_data(filename):
-        return gvar.avg_data(gvar.Dataset(filename))
+        return gvar.dataset.avg_data(gvar.dataset.Dataset(filename))
     
 Then ``data = make_data('mcfile')`` creates a dictionary where, as discussed
-above, ``data['Gaa']`` is an array of |GDev|\s obtained by averaging over the
+above, ``data['Gaa']`` is an array of |GVar|\s obtained by averaging over the
 ``Gaa`` data in the ``'mcfile'``, and ``data['Gab']`` is a similar array for
 the ``Gab`` correlator.
     
@@ -154,7 +154,7 @@ equivalent.
 ____________________
 This routine defines the fit parameters that correspond to each fit-parameter
 label used in ``make_models()`` above. It also assigns *a priori* values to
-each parameter, expressed in terms of gaussian deviates (|GDev|\s), with a
+each parameter, expressed in terms of gaussian deviates (|GVar|\s), with a
 mean and standard deviation. The prior is built using class 
 :class:`gvar.BufferDict`::
     
@@ -170,7 +170,7 @@ mean and standard deviation. The prior is built using class
     
 (:class:`gvar.BufferDict` can be replaced by an ordinary Python dictionary;
 it is used here because it remembers the order in which the keys are added.)
-``make_prior(N)`` associates arrays of ``N`` gaussian deviates (|GDev|\s) with
+``make_prior(N)`` associates arrays of ``N`` gaussian deviates (|GVar|\s) with
 each fit-parameter label, enough for ``N`` terms in the fit function. These
 are the *a priori* values for the fit parameters, and they can be retrieved
 using the label: setting ``prior=make_prior(N)``, for example, implies that
@@ -264,7 +264,7 @@ fit reported by ``print_results(fit,prior,data)``: for example, ::
     
 The best-fit values from the fit are contained in ``fit.p`` and are accessed
 using the labels defined in the prior and the |Corr2| models. Variables like
-``a[0]`` and ``E[0]`` are |GDev| objects that contain means and standard
+``a[0]`` and ``E[0]`` are |GVar| objects that contain means and standard
 deviations, as well as information about any correlations that might exist
 between different variables (which is relevant for computing functions of the
 parameters, like ``b[0]/a[0]`` in this example). 
@@ -522,7 +522,7 @@ and ``'dE'`` energies. It then makes ``10`` bootstrap copies of the original
 input data, and fits each using the best-fit parameters from the original fit
 as the starting point for the bootstrap fit. The variation in the best-fit
 parameters from fit to fit is an indication of the uncertainty in those
-parameters. This example uses a :class:`gvar.Dataset` object ``bs`` to
+parameters. This example uses a :class:`gvar.dataset.Dataset` object ``bs`` to
 accumulate the results from each bootstrap fit, which are computed using the
 best-fit values of the parameters (ignoring their standard deviations). Other
 functions of the fit parameters could be included as well. At the end
@@ -576,14 +576,14 @@ procedure is to multiply the data by ``G(t,p,N)/G(t,p,max(N,Nmax))`` where:
 time ``t``; ``N`` is the number of exponentials specified in the models;
 ``Nmax`` is the number of exponentials specified in the prior; and here
 parameters ``p`` are set equal to their values in the prior (correlated
-|GDev|\s).
+|GVar|\s).
     
 An alternative implementation for the data correction is to add
 ``G(t,p,N)-G(t,p,max(N,Nmax))`` to the data. This implementation is selected
 when parameter ``ratio`` in |CorrFitter| is set to ``False``. Results are
 similar to the other implementation, though perhaps a little less robust.
     
-The correction factor (or term) is evaluated using |GDev| arithmetic with the
+The correction factor (or term) is evaluated using |GVar| arithmetic with the
 prior values for the parameters. Alternatively this factor may be estimated
 using a Monte Carlo simulation by setting |CorrFitter| parameter ``mc`` equal
 to the number of Monte Carlo samples to be used. The default is ``mc=None``,
@@ -810,7 +810,7 @@ class Corr2(BaseModel):
         Extracts parts of array ``data[self.datatag]`` that are needed for
         the fit, as specified by ``self.tp`` and ``self.tfit``. The entries
         in the (1-D) array ``data[self.datatag]`` are assumed to be
-        |GDev|\s and correspond to the ``t``s in ``self.tdata``.
+        |GVar|\s and correspond to the ``t``s in ``self.tdata``.
         """
         tags = [self.datatag]
         if self.othertags is not None:
@@ -1066,7 +1066,7 @@ class Corr3(BaseModel):
             
         Extracts parts of array ``data[self.datatag]`` that are needed for
         the fit, as specified by ``self.tfit``. The entries in the (1-D)
-        array ``data[self.datatag]`` are assumed to be |GDev|\s and
+        array ``data[self.datatag]`` are assumed to be |GVar|\s and
         correspond to the ``t``s in ``self.tdata``.
         """
         odata = data[self.datatag]
@@ -1276,8 +1276,8 @@ class CorrFitter(object):
             ##
         else:
             ## use Monte Carlo estimates to remove marginal parameters ## 
-            dset = gvar.Dataset()
-            ds2 = gvar.Dataset()
+            dset = gvar.dataset.Dataset()
+            ds2 = gvar.dataset.Dataset()
             if nterm == (None, None):
                 return fitdata
             for p in prior.raniter(self.mc):
@@ -1290,7 +1290,7 @@ class CorrFitter(object):
                     else:
                         df = ftrunc/fall
                     dset.append(tag, df)
-            df = gvar.avg_data(dset, spread=True)
+            df = gvar.dataset.avg_data(dset, spread=True)
             for m in self.models:
                 tag = m.datatag
                 if not self.ratio:
@@ -1338,7 +1338,7 @@ class CorrFitter(object):
             
         :param data: Input data. The ``datatag``\s from the 
             correlator models are used as data labels, with 
-            ``data[datatag]`` being a 1-d array of |GDev|\s 
+            ``data[datatag]`` being a 1-d array of |GVar|\s 
             corresponding to correlator values.
         :type data: dictionary
         :param prior: Bayesian prior for the fit parameters used in the 

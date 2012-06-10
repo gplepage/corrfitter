@@ -12,6 +12,9 @@ To install:
 	Alternatively 'make install-sys' will install the files in the 
 	appropriate system-level python directory, instead of a user directory. 
 	This requires superuser permission usually.
+	
+	N.B. Distutils commands like 'python setup.py install --user' can be
+	used instead of 'make install'.
 		
 3. (Optional) Use 'make test-all' to run a series of tests that verify that 
 	the major components of corrfitter and dataset are working.
