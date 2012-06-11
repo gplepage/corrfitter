@@ -10,7 +10,7 @@ setup(name='corrfitter',
     py_modules=['corrfitter'],
     requires=["lsqfit (>=4.2)"],
     platforms=["Unix"],
-    url="https://github.com/gplepage/lsqfit.git",
+    url="https://github.com/gplepage/corrfitter.git",
     long_description="""\
     This module contains tools that facilitate least-squares fits, as functions
     of time ``t``, of simulation (or other statistical) data for 2-point and
