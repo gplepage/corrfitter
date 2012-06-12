@@ -462,8 +462,8 @@ The same ``V``\s are specified for the second correlator, but setting
 in the fit for that correlator.
     
 The second special case is for fits to ``a->V->a`` where source and sink
-are the same. In that case, ``Vnn`` and ``Voo`` are symmetric matrices, 
-and ``Von`` is the transpose of ``Vno``. The model for such a case would look
+are the same. In that case, ``Vnn`` and ``Voo`` are symmetric matrices, and
+``Von`` is the transpose of ``Vno``. The model for such a case would look
 like::
     
     Corr3(datatag="aVbT15",T=15,tdata=range(16),tfit=range(16),

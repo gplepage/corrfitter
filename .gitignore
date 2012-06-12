@@ -8,3 +8,4 @@ tests/*.tmp
 build/
 dist/
 installed-files
+corrfitter.todo
