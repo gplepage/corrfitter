@@ -6,10 +6,10 @@ setup(name='corrfitter',
     description='Utilities for fitting correlators in lattice QCD.',
     author='G. Peter Lepage, Cornell University',
     author_email='g.p.lepage@cornell.edu',
-    license='GPLv3',
+    license='GPLv3+',
     py_modules=['corrfitter'],
     requires=["lsqfit (>=4.2)"],
-    platforms=["Unix"],
+    platforms="Any",
     url="https://github.com/gplepage/corrfitter.git",
     long_description="""\
     This module contains tools that facilitate least-squares fits, as functions
@@ -45,7 +45,6 @@ setup(name='corrfitter',
         'Operating System :: POSIX',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.2',
         'Topic :: Scientific/Engineering :: Physics'
         ]
     

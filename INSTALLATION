@@ -15,6 +15,9 @@ To install:
 	
 	N.B. Distutils commands like 'python setup.py install --user' can be
 	used instead of 'make install'.
+	
+	Note: use 'make install-dataset' if the old dataset.py is needed (for
+	legacy code; use gvar.dataset for new code).
 		
 3. (Optional) Use 'make test-all' to run a series of tests that verify that 
 	the major components of corrfitter and dataset are working.
@@ -25,15 +28,16 @@ To install:
 	order to use CorrFitter.display_plots() for plots of the fits.
 
 
-Note: corrfitter uses Python's Distutils package and so one can use the 
-related commands: eg, 'python setup.py install --user' instead of 
-'make install'.
+To uninstall:
 
-Note: use 'make install-dataset' if the old dataset.py is needed (for
-legacy code; use gvar.dataset for new code).
+1. 'make uninstall' (probably) uninstalls most of what was installed.
 
-Note: 'make uninstall' (probably) uninstalls most of what was installed.
+
+Problems:
+
+	Contact Peter Lepage: g.p.lepage@cornell.edu
+
  
-Created by G. Peter Lepage on 2008-02-12.
-Copyright (c) 2008,2010,2011 G. Peter Lepage (Cornell University). 
+Created by G. Peter Lepage (Cornell University) on 2008-02-12.
+Copyright (c) 2008,2010,2011 G. Peter Lepage. 
 All rights reserved.
