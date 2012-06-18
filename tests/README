@@ -10,4 +10,8 @@ test-ups.py - 4x4 matrix fit (upsilon)
 
 The makefile runs the tests ("make test-all") and illustrates how to run
 the individual scripts. The test-case output from each test is in the
-corresponding .out file (test-1.out, test-1m.out, etc).
+corresponding .out file (test-1.out, test-1m.out, etc). 
+
+Each code has a flag TEST that is set to True by default. This puts the
+code in a special "testing" mode. Changing TEST to False causes it to run
+in a more standard mode.
