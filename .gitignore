@@ -10,3 +10,5 @@ dist/
 installed-files
 corrfitter.todo
 corrfitter.tmproj
+files-corrfitter.python*
+files-dataset.python*
