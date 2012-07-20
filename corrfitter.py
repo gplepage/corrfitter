@@ -608,7 +608,7 @@ and often less accurate.
 import lsqfit
 import gvar
 import numpy
-__version__ = '3.2'
+__version__ = '3.2.1'
 
 class BaseModel(object):
     """ Base class for correlator models. 
