@@ -10,12 +10,11 @@ Copyright (c) 2010/2011 Cornell University. All rights reserved.
 import os
 import pickle
 from corrfitter import Corr2,Corr3,CorrFitter
-from gvar import gvar,log,exp,BufferDict
+from gvar import gvar,log,exp,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data
 from numpy import array,arange
 import lsqfit
-##
-lsqfit.nonlinear_fit.fmt_parameter = '%7.3f +- %7.3f'
+
 
 DISPLAYPLOTS = True         # display plots at end of fitting
 try: 
@@ -76,9 +75,9 @@ def print_results(fit,prior,data):
     ## error budget ##
     outputs = dict(Vnn=fit.p['Vnn'][0,0],Vno=fit.p['Vno'][0,0],
                  Eetas=dEetas[0],EDs=dEDs[0])
-    inputs = {'stat.':data}         # statistical errors in data
+    inputs = {'stat.':data, 'svd':fit.svdcorrection} # statistical errors in data
     inputs.update(prior)            # all entries in prior, separately
-    print fit.fmt_partialsdev(outputs,inputs,ndigit=3)
+    print fmt_errorbudget(outputs,inputs,ndigit=3)
     ##
 ##
 

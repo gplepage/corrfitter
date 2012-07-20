@@ -16,7 +16,6 @@ from numpy import array,arange,sum
 
 import lsqfit
 
-lsqfit.nonlinear_fit.fmt_parameter = '%7.3f +- %7.3f'
 
 NBOOTSTRAP = 4              # number of bootstraps: 4 okay; 50 really good
 

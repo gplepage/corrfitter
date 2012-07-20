@@ -1,6 +1,6 @@
 from corrfitter import Corr2,CorrFitter
 from lsqfit import wavg
-from gvar import gvar,log,exp,evalcov,mean,sdev,BufferDict
+from gvar import gvar,log,exp,evalcov,mean,sdev,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data
 import lsqfit
 import gvar as gd
@@ -8,7 +8,6 @@ import time
 import numpy
 from numpy import linalg
 
-lsqfit.nonlinear_fit.fmt_parameter = '%7.3f +- %7.3f'
 
 NTERM_PRIOR = 8             # number of terms in prior
 MC = None
@@ -96,7 +95,7 @@ def print_results(fitter,prior,data):
     outputs = dict(E0=E[0])
     if len(E)>1:
         outputs['dE1'] = E[1]
-    print fit.fmt_partialsdev(outputs,inputs,ndigit=3)
+    print fmt_errorbudget(outputs,inputs,ndigit=3)
     ##
     print '\ncorrelators:\n   ',[m.datatag for m in fitter.models]
 ##

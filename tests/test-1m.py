@@ -10,13 +10,11 @@ Copyright (c) 2010/2011 Cornell University. All rights reserved.
 
 import os
 from corrfitter import Corr2,Corr3,CorrFitter
-from gvar import gvar,log,exp,BufferDict
+from gvar import gvar,log,exp,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data
 from numpy import array,arange
 
 import lsqfit
-
-lsqfit.nonlinear_fit.fmt_parameter = '%7.3f +- %7.3f'
 
 DISPLAYPLOTS = False         # display plots at end of fitting
 
@@ -75,7 +73,7 @@ def print_results(fit,prior,data):
                  Eetas=dEetas[0],EDs=dEDs[0])
     inputs = {'stat.':[data[k] for k in data]} # statistical errors in data
     inputs.update(prior)                       # all entries in prior
-    print fit.fmt_partialsdev(outputs,inputs,ndigit=3)
+    print fmt_errorbudget(outputs,inputs,ndigit=3)
     ##
 ##
 

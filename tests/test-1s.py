@@ -9,13 +9,11 @@ Copyright (c) 2010/2011 Cornell University. All rights reserved.
 
 import os
 from corrfitter import Corr2,Corr3,CorrFitter
-from gvar import gvar,log,exp,evalcov,BufferDict
+from gvar import gvar,log,exp,evalcov,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data
 from numpy import array,arange,dot
 
 import lsqfit
-
-lsqfit.nonlinear_fit.fmt_parameter = '%7.3f +- %7.3f'
 
 DISPLAYPLOTS = False         # display plots at end of fitting
 try: 
@@ -62,7 +60,7 @@ def print_results(fit,prior,data):
     outputs = {'V':V}
     inputs = {'stat':data}          # all data statistical errors
     inputs.update(prior)            # all parts of the prior, separately
-    print fit.fmt_partialsdev(outputs,inputs)
+    print fmt_errorbudget(outputs,inputs)
 ##
 
 def fmtlist(x):
