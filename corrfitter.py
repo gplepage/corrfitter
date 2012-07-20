@@ -606,7 +606,7 @@ and often less accurate.
 # GNU General Public License for more details.
 
 import lsqfit
-import gvar
+import gvar as _gvar
 import numpy
 __version__ = '3.2.1'
 
@@ -849,20 +849,20 @@ class Corr2(BaseModel):
                 if ntermi == 0:
                     continue
                 ai = (p[ai][:ntermi] if ai[:3] != 'log' 
-                        else gvar.exp(p[ai][:ntermi]))
+                        else _gvar.exp(p[ai][:ntermi]))
                 bi = (p[bi][:ntermi] if bi[:3] != 'log' 
-                        else gvar.exp(p[bi][:ntermi]))
+                        else _gvar.exp(p[bi][:ntermi]))
                 dEi = (p[dEi][:ntermi] if dEi[:3] != 'log' 
-                        else gvar.exp(p[dEi][:ntermi]))
+                        else _gvar.exp(p[dEi][:ntermi]))
             else:   
-                ai = p[ai] if ai[:3] != 'log' else gvar.exp(p[ai])
-                bi = p[bi] if bi[:3] != 'log' else gvar.exp(p[bi])
-                dEi = p[dEi] if dEi[:3] != 'log' else gvar.exp(p[dEi])
+                ai = p[ai] if ai[:3] != 'log' else _gvar.exp(p[ai])
+                bi = p[bi] if bi[:3] != 'log' else _gvar.exp(p[bi])
+                dEi = p[dEi] if dEi[:3] != 'log' else _gvar.exp(p[dEi])
             sumdE = 0.0
             for a, b, dE in zip(ai, bi, dEi):
                 sumdE += dE
-                ans += ofaci*a*b*((gvar.exp(-sumdE*t)) if tp_t is None else 
-                              (gvar.exp(-sumdE*t)+gvar.exp(-sumdE*tp_t)) )
+                ans += ofaci*a*b*((_gvar.exp(-sumdE*t)) if tp_t is None else 
+                              (_gvar.exp(-sumdE*t)+_gvar.exp(-sumdE*tp_t)) )
         return ans
     ##
 ##
@@ -1095,21 +1095,21 @@ class Corr3(BaseModel):
             ans = []
             sumdE = 0.0
             if ntermai is None:
-                ai =  p[ai] if ai[:3] != 'log' else gvar.exp(p[ai])
-                dEai = p[dEai] if dEai[:3] != 'log' else gvar.exp(p[dEai])
+                ai =  p[ai] if ai[:3] != 'log' else _gvar.exp(p[ai])
+                dEai = p[dEai] if dEai[:3] != 'log' else _gvar.exp(p[dEai])
             else:
                 if ntermai <= 0:
                     aprop.append(None)
                     continue
                 ai =  (p[ai][:ntermai] if ai[:3] != 'log' 
-                            else gvar.exp(p[ai][:ntermai]))
+                            else _gvar.exp(p[ai][:ntermai]))
                 dEai = (p[dEai][:ntermai] if dEai[:3] != 'log' 
-                            else gvar.exp(p[dEai][:ntermai]))
+                            else _gvar.exp(p[dEai][:ntermai]))
             for a, dE in zip(ai, dEai):
                 sumdE += dE
-                ans.append(ofaci*a*((gvar.exp(-sumdE*ta)) 
+                ans.append(ofaci*a*((_gvar.exp(-sumdE*ta)) 
                         if tp_ta is None else 
-                        (gvar.exp(-sumdE*ta)+gvar.exp(-sumdE*tp_ta))))
+                        (_gvar.exp(-sumdE*ta)+_gvar.exp(-sumdE*tp_ta))))
             aprop.append(ans)
         bprop = []
         ofac = (self.sb[0], (0.0 if self.sb[1] == 0.0 else self.sb[1]*(-1)**tb))
@@ -1120,21 +1120,21 @@ class Corr3(BaseModel):
             ans = []
             sumdE = 0.0
             if ntermbi is None:
-                bi = p[bi] if bi[:3] != 'log' else gvar.exp(p[bi])
-                dEbi = p[dEbi] if dEbi[:3] != 'log' else gvar.exp(p[dEbi])
+                bi = p[bi] if bi[:3] != 'log' else _gvar.exp(p[bi])
+                dEbi = p[dEbi] if dEbi[:3] != 'log' else _gvar.exp(p[dEbi])
             else:
                 if ntermbi <= 0:
                     bprop.append(None)
                     continue
                 bi = (p[bi][:ntermbi] if bi[:3] != 'log' 
-                            else gvar.exp(p[bi][:ntermbi]))
+                            else _gvar.exp(p[bi][:ntermbi]))
                 dEbi = (p[dEbi][:ntermbi] if dEbi[:3] != 'log' 
-                            else gvar.exp(p[dEbi][:ntermbi]))
+                            else _gvar.exp(p[dEbi][:ntermbi]))
             for b, dE in zip(bi, dEbi):
                 sumdE += dE
-                ans.append(ofaci*b*((gvar.exp(-sumdE*tb)) 
+                ans.append(ofaci*b*((_gvar.exp(-sumdE*tb)) 
                         if tp_tb is None else 
-                        (gvar.exp(-sumdE*tb)+gvar.exp(-sumdE*tp_tb))))
+                        (_gvar.exp(-sumdE*tb)+_gvar.exp(-sumdE*tp_tb))))
             bprop.append(ans)
         ##
         ## combine propagators with vertices ##
@@ -1145,7 +1145,7 @@ class Corr3(BaseModel):
             for j, (bpropj, Vij) in enumerate(zip(bprop, Vi)):
                 if bpropj is None or Vij is None:
                     continue
-                V = gvar.exp(p[Vij]) if Vij[:3] == 'log' else p[Vij]
+                V = _gvar.exp(p[Vij]) if Vij[:3] == 'log' else p[Vij]
                 if i == j and self.symmetric_V:
                     ## unpack symmetric matrix V ##
                     na = len(apropi)
@@ -1205,11 +1205,11 @@ class CorrFitter(object):
         to ``None``, the number is specified by the number of parameters in
         the prior.
     :type nterm: number or ``None``; or two-tuple of numbers or ``None``
-    :param mc: Number of Monte Carlo samples to use to estimate fit-data 
-        corrections when the prior specifies more terms than are used in the
-        fit. Setting ``mc=None`` (the default) results implies that Monte
-        Carlo estimates are not used.
-    :type mc: integer or ``None``
+    # :param mc: Number of Monte Carlo samples to use to estimate fit-data 
+    #     corrections when the prior specifies more terms than are used in the
+    #     fit. Setting ``mc=None`` (the default) results implies that Monte
+    #     Carlo estimates are not used.
+    # :type mc: integer or ``None``
     :param ratio: If ``True`` (the default), use ratio corrections for fit 
         data when the prior specifies more terms than are used in the fit. If
         ``False``, use difference corrections (see implementation notes,
@@ -1217,7 +1217,7 @@ class CorrFitter(object):
     :type ratio: boolean
     """
     def __init__(self, models, svdcut=None, svdnum=None, tol=1e-10, #):
-                maxit=500, nterm=None, mc=None, ratio=True):
+                maxit=500, nterm=None, ratio=True): # mc=None, ratio=True):
         super(CorrFitter, self).__init__()
         self.models = models
         self.svdcut = svdcut
@@ -1226,7 +1226,7 @@ class CorrFitter(object):
         self.maxit = maxit
         self.fit = None
         self.dset = None
-        self.mc = mc
+        # self.mc = mc
         self.ratio = ratio
         self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
     ##
@@ -1259,7 +1259,7 @@ class CorrFitter(object):
             fitdata[m.datatag] = m.builddata(data)
         ## remove marginal fit parameters ##
         nterm = self.nterm
-        if self.mc is None:
+        if True: # self.mc is None:
             ## use priors to remove marginal parameters ##
             if nterm == (None, None):
                 return fitdata
@@ -1274,30 +1274,30 @@ class CorrFitter(object):
                         ratio = ftrunc/fall
                         fitdata[m.datatag] *= ratio 
             ##
-        else:
-            ## use Monte Carlo estimates to remove marginal parameters ## 
-            dset = gvar.dataset.Dataset()
-            ds2 = gvar.dataset.Dataset()
-            if nterm == (None, None):
-                return fitdata
-            for p in prior.raniter(self.mc):
-                for m in self.models:
-                    tag = m.datatag
-                    ftrunc = m.fitfcn(p, nterm=nterm)
-                    fall = m.fitfcn(p, nterm=None)
-                    if not self.ratio:
-                        df = ftrunc-fall
-                    else:
-                        df = ftrunc/fall
-                    dset.append(tag, df)
-            df = gvar.dataset.avg_data(dset, spread=True)
-            for m in self.models:
-                tag = m.datatag
-                if not self.ratio:
-                    fitdata[tag] += df[tag]
-                else:
-                    fitdata[tag] *= df[tag]
-            ##
+        # else:
+        #     ## use Monte Carlo estimates to remove marginal parameters ## 
+        #     dset = _gvar.dataset.Dataset()
+        #     ds2 = _gvar.dataset.Dataset()
+        #     if nterm == (None, None):
+        #         return fitdata
+        #     for p in prior.raniter(self.mc):
+        #         for m in self.models:
+        #             tag = m.datatag
+        #             ftrunc = m.fitfcn(p, nterm=nterm)
+        #             fall = m.fitfcn(p, nterm=None)
+        #             if not self.ratio:
+        #                 df = ftrunc-fall
+        #             else:
+        #                 df = ftrunc/fall
+        #             dset.append(tag, df)
+        #     df = _gvar.dataset.avg_data(dset, spread=True)
+        #     for m in self.models:
+        #         tag = m.datatag
+        #         if not self.ratio:
+        #             fitdata[tag] += df[tag]
+        #         else:
+        #             fitdata[tag] *= df[tag]
+        #     ##
         ##
         return fitdata
     ##
@@ -1326,7 +1326,7 @@ class CorrFitter(object):
                     newprior[k] = newprior[k][:, :ntermb]
             # if newprior[k].size == 0:
             #     del newprior[k]
-        nprior = gvar.BufferDict()
+        nprior = _gvar.BufferDict()
         for k in prior:
             if k in newprior:
                 nprior.add(k, newprior[k])
@@ -1454,8 +1454,8 @@ class CorrFitter(object):
             c = corr[tag]
             cth = corrth[tag]
             keys.append(tag)
-            ans[tag] = (x, gvar.mean(c), gvar.sdev(c),
-                        gvar.mean(cth), gvar.sdev(cth))
+            ans[tag] = (x, _gvar.mean(c), _gvar.sdev(c),
+                        _gvar.mean(cth), _gvar.sdev(cth))
         self.keys = keys
         return ans
     ##

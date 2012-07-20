@@ -1,4 +1,4 @@
-============================== nterm = 8   nterm_prior = 8    MC = None True
+============================== nterm = 8   nterm_prior = 8    RATIO = True
 Least Square Fit:
   chi2/dof [dof] = 0.91 [113]    Q = 0.76    logGBF = -193.18    itns = 1
 

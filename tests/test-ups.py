@@ -10,7 +10,6 @@ from numpy import linalg
 
 
 NTERM_PRIOR = 8             # number of terms in prior
-MC = None
 RATIO = True
 
 USE_MARGINALIZATION = False  # run mode
@@ -46,9 +45,9 @@ def main():
             prior = make_prior(nterm)
         fitter = CorrFitter(models=models,svdcut=svdcut,
                             nterm=nterm if USE_MARGINALIZATION else None,
-                            mc=MC,ratio=RATIO,maxit=10000)
+                            ratio=RATIO,maxit=10000)
         print 30*'=','nterm =',nterm,'  nterm_prior =',len(prior['logdE']),
-        print '   MC =',MC,RATIO
+        print '   RATIO =',RATIO
         fit = fitter.lsqfit(prior=prior,data=data,p0=p0,svdnum=svdnum)
         # print fit
         print_results(fitter,prior,data)
