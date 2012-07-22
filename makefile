@@ -6,17 +6,17 @@
 PYTHON = python
 
 install:
-	python setup.py install --user	--record files-corrfitter.$(PYTHON)
+	$(PYTHON) setup.py install --user	--record files-corrfitter.$(PYTHON)
 
 install-sys:
-	python setup.py install	--record files-corrfitter.$(PYTHON)
+	$(PYTHON) setup.py install	--record files-corrfitter.$(PYTHON)
 
 uninstall :			# not sure this works --- be careful
 	- cat files-corrfitter.$(PYTHON) | xargs rm -rf
 	- cat files-dataset.$(PYTHON) | xargs rm -rf
 
 install-dataset:
-	python dataset-setup.py install --user --record files-dataset.$(PYTHON)
+	$(PYTHON) dataset-setup.py install --user --record files-dataset.$(PYTHON)
 
 .PHONY : tests
 
@@ -27,7 +27,7 @@ test-corrfitter:
 	$(MAKE) -C tests test-corrfitter
 
 sdist:			# source distribution
-	python setup.py sdist
+	$(PYTHON) setup.py sdist
 
 corrfitter.tz:	# everything distribution
 	make clean
@@ -49,7 +49,7 @@ doc-pdf:		# pdf version of documentation (in doc/)
 doc-all: doc-html doc-pdf
 
 %.so : %.pyx
-	python $*-setup.py build_ext --inplace
+	$(PYTHON) $*-setup.py build_ext --inplace
 
 clean:
 	cd tests; make clean; cd ..
