@@ -30,12 +30,12 @@ containing values for ``Gaa(t)`` and ``Gab(t)``, respectively, with
 ``t=0,1,2...63``. Each array element in ``data['Gaa']`` and ``data['Gab']``
 is a gaussian deviate of type |GVar|, and specifies the mean and standard
 deviation for the corresponding data point::
-    
+        
     >>> print data['Gaa']
     [0.159791 +- 4.13311e-06 0.0542088 +- 3.06973e-06 ... ]
     >>> print data['Gab']
     [0.156145 +- 1.83572e-05 0.102335 +- 1.5199e-05 ... ]
-    
+        
 |GVar|\s can also capture any statistical correlations between different
 pieces of data.
     

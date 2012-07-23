@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2.1 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.2',
+        VERSION:     '3.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.2 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.2.1 documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -47,7 +47,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.2.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -497,8 +497,8 @@ would look something like:</p>
 <tt class="docutils literal"><span class="pre">transpose_V=True</span></tt> means that the transpose of each matrix is used
 in the fit for that correlator.</p>
 <p>The second special case is for fits to <tt class="docutils literal"><span class="pre">a-&gt;V-&gt;a</span></tt> where source and sink
-are the same. In that case, <tt class="docutils literal"><span class="pre">Vnn</span></tt> and <tt class="docutils literal"><span class="pre">Voo</span></tt> are symmetric matrices, 
-and <tt class="docutils literal"><span class="pre">Von</span></tt> is the transpose of <tt class="docutils literal"><span class="pre">Vno</span></tt>. The model for such a case would look
+are the same. In that case, <tt class="docutils literal"><span class="pre">Vnn</span></tt> and <tt class="docutils literal"><span class="pre">Voo</span></tt> are symmetric matrices, and
+<tt class="docutils literal"><span class="pre">Von</span></tt> is the transpose of <tt class="docutils literal"><span class="pre">Vno</span></tt>. The model for such a case would look
 like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">Corr3</span><span class="p">(</span><span class="n">datatag</span><span class="o">=</span><span class="s">&quot;aVbT15&quot;</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span><span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span>
     <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span><span class="n">Vno</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span><span class="n">Von</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span><span class="n">Voo</span><span class="o">=</span><span class="s">&#39;Voo&#39;</span><span class="p">,</span><span class="n">symmetric_V</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
@@ -948,7 +948,7 @@ format of the data must correspond to that returned by
 is used to fit a collection of models to a collection of Monte Carlo data.</p>
 <dl class="class">
 <dt id="corrfitter.CorrFitter">
-<em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">CorrFitter</tt><big>(</big><em>models</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=1e-10</em>, <em>maxit=500</em>, <em>nterm=None</em>, <em>mc=None</em>, <em>ratio=True</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">CorrFitter</tt><big>(</big><em>models</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=1e-10</em>, <em>maxit=500</em>, <em>nterm=None</em>, <em>ratio=True</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Nonlinear least-squares fitter for a collection of correlators.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -979,17 +979,25 @@ functions; or two-tuple of numbers indicating how many terms to fit
 for each of the non-oscillating and oscillating pieces in fits. If set
 to <tt class="docutils literal"><span class="pre">None</span></tt>, the number is specified by the number of parameters in
 the prior.</li>
-<li><strong>mc</strong> (integer or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; Number of Monte Carlo samples to use to estimate fit-data 
-corrections when the prior specifies more terms than are used in the
-fit. Setting <tt class="docutils literal"><span class="pre">mc=None</span></tt> (the default) results implies that Monte
-Carlo estimates are not used.</li>
-<li><strong>ratio</strong> (<em>boolean</em>) &#8211; If <tt class="docutils literal"><span class="pre">True</span></tt> (the default), use ratio corrections for fit 
-data when the prior specifies more terms than are used in the fit. If
-<tt class="docutils literal"><span class="pre">False</span></tt>, use difference corrections (see implementation notes,
-above).</li>
 </ul>
 </td>
 </tr>
+</tbody>
+</table>
+<p># :param mc: Number of Monte Carlo samples to use to estimate fit-data 
+#     corrections when the prior specifies more terms than are used in the
+#     fit. Setting <tt class="docutils literal"><span class="pre">mc=None</span></tt> (the default) results implies that Monte
+#     Carlo estimates are not used.
+# :type mc: integer or <tt class="docutils literal"><span class="pre">None</span></tt>
+:param ratio: If <tt class="docutils literal"><span class="pre">True</span></tt> (the default), use ratio corrections for fit</p>
+<blockquote>
+<div>data when the prior specifies more terms than are used in the fit. If
+<tt class="docutils literal"><span class="pre">False</span></tt>, use difference corrections (see implementation notes,
+above).</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
 </tbody>
 </table>
 <dl class="method">
@@ -1220,7 +1228,7 @@ least-squares fits (default=1e-10).</li>
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.2.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
