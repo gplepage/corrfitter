@@ -193,15 +193,15 @@ if __name__ == '__main__':
     d.copy(d2)
     med = d.gdev()
     for k in med:
-        print k,med[k]
+        print( k,med[k])
     avg = d.avg()
     for k in avg:
-        print k,avg
-    print d.nmeas()
+        print( k,avg)
+    print( d.nmeas())
     nd = d.assemble(['y','y'],'yy')
-    print nd.avg()
+    print( nd.avg())
     nd = d.grep('x|y')
-    print nd.keys()
+    print( nd.keys())
         
     output = """    
     y [-10.0069 +- 0.00632473 -8.98159 +- 0.00949937]

@@ -11,6 +11,13 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version 3.2.1    2012-07-22
+---------------------------
+This version updates the output from the tests to deal with format changes
+in lsqfit 4.2.3. The code (corrfitter.py, not necessarily the test files)
+seems to work with python3 but this has not been carefully explored yet.
+
+
 Version 3.2 (2012-05-06)
 ------------------------
 Changes to accommodate changes introduced in lsqfit 4.2:

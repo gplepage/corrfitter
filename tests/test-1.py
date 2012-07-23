@@ -7,6 +7,8 @@ Created by Peter Lepage on 2010-11-26.
 Copyright (c) 2010/2011 Cornell University. All rights reserved.
 """
 
+from __future__ import print_function   # makes this work for python2 and 3
+
 import os
 import pickle
 from corrfitter import Corr2,Corr3,CorrFitter
@@ -38,11 +40,11 @@ def main():
     fitter = CorrFitter(models=build_models())
     p0 = P0_TEST if TEST else pfile
     for nexp in NEXP_LIST:
-        print '========================== nexp =',nexp
+        print('========================== nexp =',nexp)
         prior = build_prior(nexp)
         fit = fitter.lsqfit(data=data,prior=prior,p0=p0) # pfile)
         print_results(fit,prior,data)
-        print '\n\n'
+        print('\n\n')
         if TEST == 'dump':
             fit.dump_pmean(TEST_FILENAME)
     if DISPLAYPLOTS:
@@ -53,31 +55,31 @@ def print_results(fit,prior,data):
     """ print out additional results from the fit """
     ## etas parameters ##
     dEetas = exp(fit.p['log(etas:dE)'])
-    print 'etas:dE =',fmtlist(dEetas[:3])
-    print ' etas:E =',fmtlist([sum(dEetas[:i+1]) for i in range(3)])
+    print('etas:dE =',fmtlist(dEetas[:3]))
+    print(' etas:E =',fmtlist([sum(dEetas[:i+1]) for i in range(3)]))
     aetas = exp(fit.p['log(etas:a)'])
-    print ' etas:a =',fmtlist(aetas[:3])
-    print
+    print(' etas:a =',fmtlist(aetas[:3]))
+    print()
     ##
     ## Ds parameters ##
     dEDs = exp(fit.p['log(Ds:dE)'])
-    print 'Ds:dE =',fmtlist(dEDs[:3])
-    print ' Ds:E =',fmtlist([sum(dEDs[:i+1]) for i in range(3)])
+    print('Ds:dE =',fmtlist(dEDs[:3]))
+    print(' Ds:E =',fmtlist([sum(dEDs[:i+1]) for i in range(3)]))
     aDs = exp(fit.p['log(Ds:a)'])
-    print ' Ds:a =',fmtlist(aDs[:3])
-    print
+    print(' Ds:a =',fmtlist(aDs[:3]))
+    print()
     ##
     ## vertices ##
-    print 'etas->V->Ds  =',fit.p['Vnn'][0,0].fmt()
-    print 'etas->V->Dso =',fit.p['Vno'][0,0].fmt()
-    print
+    print('etas->V->Ds  =',fit.p['Vnn'][0,0].fmt())
+    print('etas->V->Dso =',fit.p['Vno'][0,0].fmt())
+    print()
     ##
     ## error budget ##
     outputs = dict(Vnn=fit.p['Vnn'][0,0],Vno=fit.p['Vno'][0,0],
                  Eetas=dEetas[0],EDs=dEDs[0])
     inputs = {'stat.':data, 'svd':fit.svdcorrection} # statistical errors in data
     inputs.update(prior)            # all entries in prior, separately
-    print fmt_errorbudget(outputs,inputs,ndigit=3)
+    print(fmt_errorbudget(outputs,inputs,ndigit=3))
     ##
 ##
 

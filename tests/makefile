@@ -1,9 +1,11 @@
+PYTHON = python
+
 tests test-all:
 	make test-corrfitter
 
 test-corrfitter:
 	### Test corrfitter: Corr2 and Corr3
-	python test-1.py > test-1.tmp	# few sec
+	$(PYTHON) test-1.py > test-1.tmp	# few sec
 	diff -w -I 't=' test-1.tmp test-1.out
 	python test-1m.py > test-1m.tmp	# few sec
 	diff -w -I 't=' test-1m.tmp test-1m.out
