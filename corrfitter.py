@@ -622,7 +622,7 @@ class BaseModel(object):
         correlator in the input |Dataset|. The ``datatag`` is stored in the
         |BaseModel| and is passed to it at initiation.
         
-    .. method:: fitfcn(self,x,p)
+    .. method:: fitfcn(self, p, nterm)
         
         Compute the model's fit function as a function of parameters ``p``.
         This function should return correlator values in the same format
@@ -1046,7 +1046,6 @@ class Corr3(BaseModel):
                         (self.b, self.dEb, nterm)]:
             for labellist in zip(*toplist):
                 ntermi = labellist[-1]
-                labellist = labellist[:-1]
                 for label in labellist[:-1]:
                     if label is None:
                         continue
@@ -1230,7 +1229,7 @@ class CorrFitter(object):
         self.ratio = ratio
         self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
     ##
-    def fitfcn(self, xdummy, p, nterm=None):
+    def fitfcn(self, p, nterm=None):
         """ Composite fit function. 
             
         :param p: Fit parameters.
@@ -1387,7 +1386,7 @@ class CorrFitter(object):
         data = self.builddata(data, prior)
         prior = self.buildprior(prior)
         self.fit = lsqfit.nonlinear_fit(
-            data=(None, data), p0=p0, fcn=self.fitfcn,
+            data=data, p0=p0, fcn=self.fitfcn,
             prior=prior, svdcut=svdcut, svdnum=svdnum,
             reltol=tol, abstol=tol, maxit=maxit, **args)
         if print_fit:
@@ -1425,7 +1424,7 @@ class CorrFitter(object):
                 ``data_list``.
         """
         if datalist is not None:
-            datalist = ((None, self.builddata(d, self.last_prior)) 
+            datalist = (self.builddata(d, self.last_prior) 
                         for d in datalist)
         for bs_fit in self.fit.bootstrap_iter(n, datalist=datalist):
             yield bs_fit
@@ -1442,8 +1441,8 @@ class CorrFitter(object):
                 Gth(t)  = fit function for G(t) with best-fit parameters
                 dGth(t) = uncertainties in Gth(t)
         """
-        x, corr = self.fit.data
-        corrth = self.fit.fcn(x, self.fit.p)
+        corr = self.fit.data
+        corrth = self.fit.fcn(self.fit.p)
         ans = {}
         keys = []
         for m in self.models:
