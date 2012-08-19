@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2.1 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2.2 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.2.1',
+        VERSION:     '3.2.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.2.1 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.2.2 documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -47,7 +47,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.2.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -888,7 +888,7 @@ correlator in the input <tt class="xref py py-class docutils literal"><span clas
 
 <dl class="method">
 <dt id="corrfitter.BaseModel.fitfcn">
-<tt class="descname">fitfcn</tt><big>(</big><em>self</em>, <em>x</em>, <em>p</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel.fitfcn" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fitfcn</tt><big>(</big><em>self</em>, <em>p</em>, <em>nterm</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel.fitfcn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the model&#8217;s fit function as a function of parameters <tt class="docutils literal"><span class="pre">p</span></tt>.
 This function should return correlator values in the same format
 used for the input data (usually a one-dimensional array).</p>
@@ -1089,7 +1089,7 @@ pan and save using the window controls.</p>
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.fitfcn">
-<tt class="descname">fitfcn</tt><big>(</big><em>xdummy</em>, <em>p</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.fitfcn" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.fitfcn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Composite fit function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1228,7 +1228,7 @@ least-squares fits (default=1e-10).</li>
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.2.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
