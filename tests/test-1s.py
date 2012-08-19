@@ -40,7 +40,7 @@ def main():
     for nexp in NEXP_LIST:
         print '========================== nexp =',nexp
         prior = build_prior(nexp)
-        fit = fitter.lsqfit(data=data,prior=prior,p0=p0)
+        fit = fitter.lsqfit(data=data,prior=prior,p0=p0,debug=True)
         print_results(fit,prior,data)
         print '\n\n'
         if TEST == 'dump':

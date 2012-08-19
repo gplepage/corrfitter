@@ -608,7 +608,7 @@ and often less accurate.
 import lsqfit
 import gvar as _gvar
 import numpy
-__version__ = '3.2.1'
+__version__ = '3.2.2'
 
 class BaseModel(object):
     """ Base class for correlator models. 
@@ -1084,7 +1084,7 @@ class Corr3(BaseModel):
         tp_tb = None if self.tpb is None else self.tpb-tb
         if nterm is None:
             nterm = (None, None)
-        ## initial and final propagators ##
+        ## initial and final propagators ## 
         aprop = []  # aprop[i][j] i= n or o; j=excitation level
         ofac = (self.sa[0], (0.0 if self.sa[1] == 0.0 else self.sa[1]*(-1)**ta))
         for ai, dEai, ofaci, ntermai in zip(self.a, self.dEa, ofac, nterm):
