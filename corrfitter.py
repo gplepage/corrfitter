@@ -1016,7 +1016,8 @@ class Corr3(BaseModel):
                  Vnn, a, b, dEa=None, dEb=None, logdEa=None, logdEb=None, 
                  sa=1., sb=1.,
                  Vno=None, Von=None, Voo=None, transpose_V=False,
-                 symmetric_V=False, tpa=None, tpb=None):
+                 symmetric_V=False, tpa=None, tpb=None,
+                 othertags=None):
         super(Corr3, self).__init__(datatag)
         self.a = self._param(a)
         self.dEa = self._dE(dEa, logdEa)
@@ -1039,6 +1040,7 @@ class Corr3(BaseModel):
         ##
         self.tfit = numpy.array(ntfit)
         self._abscissa = self.tfit
+        self.othertags = othertags
     ##
     def priorsize(self, nterm):
         priorsize = {}
@@ -1068,13 +1070,19 @@ class Corr3(BaseModel):
         array ``data[self.datatag]`` are assumed to be |GVar|\s and
         correspond to the ``t``s in ``self.tdata``.
         """
-        odata = data[self.datatag]
-        tdata = self.tdata
-        ndata = []
-        for t in self.tfit:
-            idt = tdata.index(t)
-            ndata.append(odata[idt])
-        return numpy.array(ndata)
+        tags = [self.datatag]
+        if self.othertags is not None:
+            tags.extend(self.othertags)
+        ans = []
+        for tag in tags:
+            odata = data[tag]
+            tdata = self.tdata
+            ndata = []
+            for t in self.tfit:
+                idt = tdata.index(t)
+                ndata.append(odata[idt])
+            ans.append(ndata)
+        return numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
     ##
     def fitfcn(self, p, nterm=None):
         """ Return fit function for parameters ``p``. """
