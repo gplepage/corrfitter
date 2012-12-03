@@ -11,15 +11,28 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version 3.2.3 -- 2012-12-03
+===========================
+This version now works with python 3, which seems slightly faster than 
+python 2 but not so much that one needs to convert immediately. Other
+changes:
+
+- Anti-periodic correlators can now be fit by specifying a negative tp in
+  Corr2 (and, less usefully, Corr3).
+
+- The test code was rewritten to make it compliant with python 3. This
+  entails using new serialization code in lsqfit v4.2.6. The tests will
+  fail with earlier version of lsqfit.
+
 Version 3.2.1    2012-07-22
----------------------------
+===========================
 This version updates the output from the tests to deal with format changes
 in lsqfit 4.2.3. The code (corrfitter.py, not necessarily the test files)
 seems to work with python3 but this has not been carefully explored yet.
 
 
 Version 3.2 (2012-05-06)
-------------------------
+========================
 Changes to accommodate changes introduced in lsqfit 4.2:
 
 - svdcut and svdnum can be 2-tuples now (see lsqfit.nonlinear_fit)
