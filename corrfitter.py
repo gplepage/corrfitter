@@ -373,11 +373,14 @@ Variations
 ----------
 Any 2-point correlator can be turned into a periodic function of ``t`` by
 specifying the period through parameter ``tp``. Doing so causes the 
-replacement ::
+replacement (for ``tp>0``) ::
     
     exp(-E[i]*t)   ->   exp(-E[i]*t) + exp(-E[i]*(tp-t))
     
-in the fit function.
+in the fit function. If ``tp`` is negative, the function is replaced by 
+an anti-periodic function with period ``abs(tp)`` and (for ``tp<0``)::
+    
+    exp(-E[i]*t)   ->   exp(-E[i]*t) - exp(-E[i]*(abs(tp)-t))
     
 Also (or alternatively) oscillating terms can be added to the fit by
 modifying parameter ``s`` and by specifying sources, sinks and energies for
@@ -608,7 +611,8 @@ and often less accurate.
 import lsqfit
 import gvar as _gvar
 import numpy
-__version__ = '3.2.2'
+import math
+__version__ = '3.2.3'
 
 class BaseModel(object):
     """ Base class for correlator models. 
@@ -698,8 +702,9 @@ class Corr2(BaseModel):
         
     where ``sn`` and ``so`` are typically ``-1``, ``0``, or ``1`` and ::
         
-        fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # periodic
-               or  exp(-E*t)                  # if tp is None (nonperiodic)
+        fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # tp>0 -- periodic
+               or   exp(-E*t) - exp(-E*(-tp-t))# tp<0 -- anti-periodic
+               or   exp(-E*t)                  # if tp is None (nonperiodic)
         
         fo(E, t) = (-1)**t * fn(E, t)
         
@@ -711,9 +716,11 @@ class Corr2(BaseModel):
         
     and therefore ``En[i] = sum_j=0..i dEn[j]``.
         
-    When ``tp is not None``, the correlator is assumed to be symmetrical
-    about ``tp/2``, with ``Gab(t)=Gab(tp-t)``. Data from ``t>tp/2`` is
-    averaged with the corresponding data from ``t<tp/2`` before fitting.
+    When ``tp is not None`` and positive, the correlator is assumed to be
+    symmetrical about ``tp/2``, with ``Gab(t)=Gab(tp-t)``. Data from
+    ``t>tp/2`` is averaged with the corresponding data from ``t<tp/2``
+    before fitting. When ``tp`` is negative, the correlator is assumed to
+    be anti-symetrical about ``-tp/2``.
         
     :param datatag: Tag used to label correlator in the input |Dataset|.
     :type datatag: string
@@ -753,10 +760,11 @@ class Corr2(BaseModel):
     :param tfit: List of ``t``\s to use in the fit. Only data with these
         ``t``\s (all of which should be in ``tdata``) is used in the fit.
     :type tfit: list of integers
-    :param tp: If not ``None``, the correlator is assumed to be periodic
-        with ``Gab(t)=Gab(tp-t)``. Setting ``tp=None`` implies that the
-        correlator is not periodic, but rather continues to fall 
-        exponentially as ``t`` is increased indefinitely.
+    :param tp: If not ``None`` and positive, the correlator is assumed to 
+        be periodic with ``Gab(t)=Gab(tp-t)``. If negative, the correlator
+        is assumed to be anti-periodic with ``Gab(t)=-Gab(-tp-t)``. Setting
+        ``tp=None`` implies that the correlator is not periodic, but rather
+        continues to fall exponentially as ``t`` is increased indefinitely.
     :type tp: integer or ``None``
     :param othertags: List of additional data tags for data to be
         averaged with the ``self.datatag`` data before fitting.
@@ -779,10 +787,10 @@ class Corr2(BaseModel):
                                   +str(tfit)+" "+str(tdata))
                 ntfit.append(t)
             else:
-                t1, t2 = sorted([t, tp-t])
+                t1, t2 = sorted([t, abs(tp)-t])
                 if t1 in ntfit or t2 in ntfit:
                     continue
-                assert (t >= 0 and t < tp), "illegal t in tfit: "+str(t)
+                assert (t >= 0 and t < abs(tp)), "illegal t in tfit: "+str(t)
                 if t1 in tdata:
                     ntfit.append(t1)
                 elif t2 in tdata:
@@ -817,6 +825,9 @@ class Corr2(BaseModel):
             tags.extend(self.othertags)
         tdata = self.tdata
         tp = self.tp
+        if tp is not None:
+            pfac = math.copysign(1,tp)
+            tp = abs(tp)
         ans = []
         for tag in tags:
             odata = data[tag]
@@ -827,7 +838,7 @@ class Corr2(BaseModel):
                     ndata.append(odata[idt])
                 else:
                     ndata.append(lsqfit.wavg([odata[idt],
-                                              odata[tdata.index(tp-t)]]))
+                                              pfac*odata[tdata.index(tp-t)]]))
             ans.append(ndata)
         fdata = numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
         return fdata 
@@ -836,7 +847,15 @@ class Corr2(BaseModel):
         """ Return fit function for parameters ``p``. (Ingores ``x``.) """
         ans = 0.0
         t = self.tfit
-        tp_t = None if self.tp is None else self.tp-t
+        if self.tp is None:
+            tp_t = None
+        elif self.tp >= 0:
+            tp_t = self.tp - t
+            pfac = 1
+        else:
+            tp_t = -self.tp - t
+            pfac = -1
+        # tp_t = None if self.tp is None else self.tp-t
         if nterm is None:
             nterm = (None, None)
         ofac = (self.s[0],
@@ -862,7 +881,7 @@ class Corr2(BaseModel):
             for a, b, dE in zip(ai, bi, dEi):
                 sumdE += dE
                 ans += ofaci*a*b*((_gvar.exp(-sumdE*t)) if tp_t is None else 
-                              (_gvar.exp(-sumdE*t)+_gvar.exp(-sumdE*tp_t)) )
+                              (_gvar.exp(-sumdE*t)+pfac*_gvar.exp(-sumdE*tp_t)) )
         return ans
     ##
 ##
@@ -881,8 +900,9 @@ class Corr3(BaseModel):
        
     where ::
         
-        fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # periodic
-               or  exp(-E*t)                  # if tp is None (nonperiodic)
+        fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # tp>0 -- periodic
+               or   exp(-E*t) - exp(-E*(-tp-t))# tp<0 -- anti-periodic
+               or   exp(-E*t)                  # if tp is None (nonperiodic)
         
         fo(E, t) = (-1)**t * fn(E, t)
         
@@ -1003,13 +1023,15 @@ class Corr3(BaseModel):
     :param tfit: List of ``t``\s to use in the fit. Only data with these
         ``t``\s (all of which should be in ``tdata``) is used in the fit.
     :type tfit: list of integers
-    :param tpa: If not ``None``, the ``a->V`` correlator is assumed to be 
-        periodic with period ``tpa``. Setting ``tpa=None`` implies that the
-        correlators are not periodic.
+    :param tpa: If not ``None`` and positive, the ``a->V`` correlator is 
+        assumed to be periodic with period ``tpa``. If negative, the
+        correlator is anti-periodic with period ``-tpa``. Setting
+        ``tpa=None`` implies that the correlators are not periodic.
     :type tpa: integer or ``None``
-    :param tpb: If not ``None``, the ``V->b`` correlator is assumed to be 
-        periodic with period ``tpb``. Setting ``tpb=None`` implies that the
-        correlators are not periodic.
+    :param tpb: If not ``None`` and positive, the ``V->b`` correlator is 
+        assumed to be periodic with period ``tpb``. If negative, the
+        correlator is periodic with period ``-tpb``. Setting ``tpb=None``
+        implies that the correlators are not periodic.
     :type tpb: integer or ``None``
     """
     def __init__(self, datatag, T, tdata, tfit,          #):
@@ -1088,8 +1110,25 @@ class Corr3(BaseModel):
         """ Return fit function for parameters ``p``. """
         ta = self.tfit
         tb = self.T-self.tfit
-        tp_ta = None if self.tpa is None else self.tpa-ta
-        tp_tb = None if self.tpb is None else self.tpb-tb
+        if self.tpa is None:
+            tp_ta = None
+        elif self.tpa >= 0:
+            tp_ta = self.tpa - ta
+            pafac = 1
+        else:
+            tp_ta = -self.tpa - ta
+            pafac = -1
+        #
+        if self.tpb is None:
+            tp_tb = None
+        elif self.tpb >= 0:
+            tp_tb = self.tpb - tb
+            pbfac = 1
+        else:
+            tp_tb = -self.tpb - tb
+            pbfac = -1
+        # tp_ta = None if self.tpa is None else self.tpa-ta
+        # tp_tb = None if self.tpb is None else self.tpb-tb
         if nterm is None:
             nterm = (None, None)
         ## initial and final propagators ## 
@@ -1116,7 +1155,7 @@ class Corr3(BaseModel):
                 sumdE += dE
                 ans.append(ofaci*a*((_gvar.exp(-sumdE*ta)) 
                         if tp_ta is None else 
-                        (_gvar.exp(-sumdE*ta)+_gvar.exp(-sumdE*tp_ta))))
+                        (_gvar.exp(-sumdE*ta)+pafac*_gvar.exp(-sumdE*tp_ta))))
             aprop.append(ans)
         bprop = []
         ofac = (self.sb[0], (0.0 if self.sb[1] == 0.0 else self.sb[1]*(-1)**tb))
@@ -1141,7 +1180,7 @@ class Corr3(BaseModel):
                 sumdE += dE
                 ans.append(ofaci*b*((_gvar.exp(-sumdE*tb)) 
                         if tp_tb is None else 
-                        (_gvar.exp(-sumdE*tb)+_gvar.exp(-sumdE*tp_tb))))
+                        (_gvar.exp(-sumdE*tb)+pbfac*_gvar.exp(-sumdE*tp_tb))))
             bprop.append(ans)
         ##
         ## combine propagators with vertices ##
@@ -1163,7 +1202,7 @@ class Corr3(BaseModel):
                     V = numpy.empty((na, nb), dtype=V.dtype)
                     for k in range(na):
                         for l in range(k, nb):
-                            V[k, l] = iterV.next()
+                            V[k, l] = next(iterV)
                             if k != l:
                                 V[l, k] = V[k, l]
                     ##
@@ -1212,11 +1251,6 @@ class CorrFitter(object):
         to ``None``, the number is specified by the number of parameters in
         the prior.
     :type nterm: number or ``None``; or two-tuple of numbers or ``None``
-    # :param mc: Number of Monte Carlo samples to use to estimate fit-data 
-    #     corrections when the prior specifies more terms than are used in the
-    #     fit. Setting ``mc=None`` (the default) results implies that Monte
-    #     Carlo estimates are not used.
-    # :type mc: integer or ``None``
     :param ratio: If ``True`` (the default), use ratio corrections for fit 
         data when the prior specifies more terms than are used in the fit. If
         ``False``, use difference corrections (see implementation notes,
@@ -1281,30 +1315,6 @@ class CorrFitter(object):
                         ratio = ftrunc/fall
                         fitdata[m.datatag] *= ratio 
             ##
-        # else:
-        #     ## use Monte Carlo estimates to remove marginal parameters ## 
-        #     dset = _gvar.dataset.Dataset()
-        #     ds2 = _gvar.dataset.Dataset()
-        #     if nterm == (None, None):
-        #         return fitdata
-        #     for p in prior.raniter(self.mc):
-        #         for m in self.models:
-        #             tag = m.datatag
-        #             ftrunc = m.fitfcn(p, nterm=nterm)
-        #             fall = m.fitfcn(p, nterm=None)
-        #             if not self.ratio:
-        #                 df = ftrunc-fall
-        #             else:
-        #                 df = ftrunc/fall
-        #             dset.append(tag, df)
-        #     df = _gvar.dataset.avg_data(dset, spread=True)
-        #     for m in self.models:
-        #         tag = m.datatag
-        #         if not self.ratio:
-        #             fitdata[tag] += df[tag]
-        #         else:
-        #             fitdata[tag] *= df[tag]
-        #     ##
         ##
         return fitdata
     ##
@@ -1496,11 +1506,13 @@ class CorrFitter(object):
                         % (i, k))
             ax = fig.add_subplot(111)
             ax.set_ylabel(k+' / '+'fit')
+            ax.set_xlim(min(t)-1,max(t)+1)
             # ax.set_xlabel('t')
-            ax.errorbar(t, g/gth, dg/gth, fmt='o')
+            ii = (gth != 0.0)       # check for exact zeros (eg, antiperiodic)
+            ax.errorbar(t[ii], g[ii]/gth[ii], dg[ii]/gth[ii], fmt='o')
             ax.plot(t, numpy.ones(len(t), float), 'r-')
-            ax.plot(t, 1+dgth/gth, 'r--')
-            ax.plot(t, 1-dgth/gth, 'r--') 
+            ax.plot(t[ii], 1+dgth[ii]/gth[ii], 'r--')
+            ax.plot(t[ii], 1-dgth[ii]/gth[ii], 'r--') 
             plt.draw()
             # fig.draw()
         ##

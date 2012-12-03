@@ -5,8 +5,10 @@
 test-1m.py -- tests marginalization
 
 Created by Peter Lepage on 2010-11-26.
-Copyright (c) 2010/2011 Cornell University. All rights reserved.
+Copyright (c) 2010-2012 Cornell University. All rights reserved.
 """
+
+from __future__ import print_function   # makes this work for python2 and 3
 
 import os
 from corrfitter import Corr2,Corr3,CorrFitter
@@ -22,10 +24,10 @@ TEST = True        # run test case: True, False, or "dump"
 
 if TEST:
     TEST_FILE = {True:"test-1m.truep", False:"test-1m.falsep"}
-    P0_TEST = {                                                 #
-         True : lsqfit.nonlinear_fit.load_parameters(TEST_FILE[True]),
-         False: lsqfit.nonlinear_fit.load_parameters(TEST_FILE[False])
-     }
+    P0_TEST = {}
+    for ratio in [True,False]:
+     with open(TEST_FILE[ratio], "r") as f:
+         P0_TEST[ratio] = BufferDict.load(f, use_json=True)
 else:
     P0_TEST = {True:None, False:None}
 
@@ -43,12 +45,13 @@ def main():
     # ratio = True
     # for nexp in [1,2,3,4,5,6][:1]:
         fitter = CorrFitter(models=build_models(),nterm=(nexp,nexp),ratio=ratio)
-        print '========================== nexp =',nexp,'  ratio =',ratio
+        print('========================== nexp =',nexp,'  ratio =',ratio)
         fit = fitter.lsqfit(data=data,prior=prior,p0=P0_TEST[ratio])
         print_results(fit,prior,data)
-        print '\n\n'
+        print('\n\n')
         if TEST == "dump":
-            fit.dump_pmean(TEST_FILE[ratio])
+            with open(TEST_FILE[ratio], "w") as f:
+                fit.pmean.dump(f, use_json=True)
     if DISPLAYPLOTS:
         fitter.display_plots()
 ##
@@ -56,24 +59,24 @@ def main():
 def print_results(fit,prior,data):
     """ print out additional results from the fit """
     dEetas = exp(fit.p['log(etas:dE)'])
-    print 'etas:dE =',fmtlist(dEetas[:3])
-    print ' etas:E =',fmtlist([sum(dEetas[:i+1]) for i in range(3)])
-    print ' etas:a =',fmtlist(exp(fit.p['log(etas:a)']))
+    print('etas:dE =',fmtlist(dEetas[:3]))
+    print(' etas:E =',fmtlist([sum(dEetas[:i+1]) for i in range(3)]))
+    print(' etas:a =',fmtlist(exp(fit.p['log(etas:a)'])))
     dEDs = exp(fit.p['log(Ds:dE)'])
-    print
-    print 'Ds:dE =',fmtlist(dEDs[:3])
-    print ' Ds:E =',fmtlist([sum(dEDs[:i+1]) for i in range(3)])
-    print ' Ds:a =',fmtlist(exp(fit.p['log(Ds:a)']))
-    print
-    print 'etas->V->Ds =',fit.p['Vnn'][0,0].fmt()
-    print 'etas->V->Dso =',fit.p['Vno'][0,0].fmt()
-    print
+    print()
+    print('Ds:dE =',fmtlist(dEDs[:3]))
+    print(' Ds:E =',fmtlist([sum(dEDs[:i+1]) for i in range(3)]))
+    print(' Ds:a =',fmtlist(exp(fit.p['log(Ds:a)'])))
+    print()
+    print('etas->V->Ds =',fit.p['Vnn'][0,0].fmt())
+    print('etas->V->Dso =',fit.p['Vno'][0,0].fmt())
+    print()
     ## error budget ##
     outputs = dict(Vnn=fit.p['Vnn'][0,0],Vno=fit.p['Vno'][0,0],
                  Eetas=dEetas[0],EDs=dEDs[0])
     inputs = {'stat.':[data[k] for k in data]} # statistical errors in data
     inputs.update(prior)                       # all entries in prior
-    print fmt_errorbudget(outputs,inputs,ndigit=3)
+    print(fmt_errorbudget(outputs,inputs,ndigit=3))
     ##
 ##
 

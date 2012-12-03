@@ -5,8 +5,10 @@
 test-1b.py -- tests bootstrap and marginalization
 
 Created by Peter Lepage on 2010-11-26.
-Copyright (c) 2010/2011 Cornell University. All rights reserved.
+Copyright (c) 2010-2012 Cornell University. All rights reserved.
 """
+
+from __future__ import print_function   # makes this work for python2 and 3
 
 import os
 from corrfitter import Corr2,Corr3,CorrFitter
@@ -27,12 +29,14 @@ except ImportError:
     DISPLAYPLOTS = False
 #
 
-TEST = "dump"         # testing mode? (True, False, or "dump")
+TEST = True         # testing mode? (True, False, or "dump")
 
 P0 = {}
+
 if TEST:
     TEST_FILENAME = 'test-1b.testp'
-    P0[True] = lsqfit.nonlinear_fit.load_parameters(TEST_FILENAME)
+    with open(TEST_FILENAME,"r") as f:
+        P0[True] = BufferDict.load(f, use_json=True)
     P0[False] = P0[True]
 else:
     P0[True] = dict([('log(etas:a)', array([-1.52132077])), ('log(etas:dE)', array([-0.87652893])), ('log(Ds:a)', array([-1.5379696])), ('log(Ds:dE)', array([ 0.18376377])), ('log(Ds:ao)', array([-2.59384428])), ('log(Ds:dEo)', array([ 0.37794027])), ('Vnn', array([[ 0.76905768]])), ('Vno', array([[-0.7629936]]))])
@@ -48,12 +52,13 @@ def main():
     ratio = True
     ## original fit ##
     fitter = CorrFitter(models=build_models(),nterm=(nexp,nexp),ratio=ratio)
-    print '========================== nexp =',nexp,'  ratio =',ratio
+    print('========================== nexp =',nexp,'  ratio =',ratio)
     fit = fitter.lsqfit(data=data,prior=prior,p0=P0[ratio])
     print_results(fit)
-    print '\n'
+    print('\n')
     if TEST == "dump":
-        fit.dump_pmean(TEST_FILENAME)
+        with open(TEST_FILENAME, "w") as f:
+            fit.pmean.dump(f, use_json=True)
     bootstrap_last_fit(fitter,dset,NBOOTSTRAP)
     ##
     ## bootstrap of fit ##
@@ -64,7 +69,7 @@ def main():
 def bootstrap_last_fit(fitter,dset,nbootstrap):
     fit = fitter.fit        # last fit done by fitter
     ranseed((1950,2000))
-    print '\nNumber of bootstrap iterations =',nbootstrap,'\n'
+    print('\nNumber of bootstrap iterations =',nbootstrap,'\n')
     bs_output = Dataset()    # results accumulated here
     bs_datalist = (avg_data(d) for d in bootstrap_iter(dset,NBOOTSTRAP))
     for bs_fit in fitter.bootstrap_iter(bs_datalist):
@@ -77,34 +82,34 @@ def bootstrap_last_fit(fitter,dset,nbootstrap):
         bs_output.append('Vno',p['Vno'])
     bs_med = avg_data(bs_output,median=True,spread=True)
     bs_gvar = avg_data(bs_output,spread=True)
-    print "%10s  %20s  %20s  %20s"%('label','bs-median','bs-gvar','fit')
-    print 76*'-'
+    print("%10s  %20s  %20s  %20s"%('label','bs-median','bs-gvar','fit'))
+    print(76*'-')
     for lbl in ['etas:dE','etas:a','Ds:dE','Ds:a']:
         loglbl = 'log('+lbl+')'
-        print "%10s  %20s  %20s  %20s" % (lbl,fmtlist(bs_med[lbl]),
+        print("%10s  %20s  %20s  %20s" % (lbl,fmtlist(bs_med[lbl]),
                                     fmtlist(bs_gvar[lbl]),
-                                    fmtlist(exp(fit.p[loglbl])))
+                                    fmtlist(exp(fit.p[loglbl]))))
     lbl = 'Vnn'
-    print "%10s  %20s  %20s  %20s" % (lbl,fmtlist(bs_med[lbl][0]),
-                            fmtlist(bs_gvar[lbl][0]),fmtlist(fit.p[lbl][0]))
+    print("%10s  %20s  %20s  %20s" % (lbl,fmtlist(bs_med[lbl][0]),
+                            fmtlist(bs_gvar[lbl][0]),fmtlist(fit.p[lbl][0])))
     lbl = 'Vno'
-    print "%10s  %20s  %20s  %20s" % (lbl,fmtlist(bs_med[lbl][0]),
-                            fmtlist(bs_gvar[lbl][0]),fmtlist(fit.p[lbl][0]))
+    print("%10s  %20s  %20s  %20s" % (lbl,fmtlist(bs_med[lbl][0]),
+                            fmtlist(bs_gvar[lbl][0]),fmtlist(fit.p[lbl][0])))
 ##
       
 def print_results(fit):
     """ print out additional results from the fit """
     dEetas = exp(fit.p['log(etas:dE)'])
-    print 'etas:dE =',fmtlist(dEetas[:3])
-    print ' etas:E =',fmtlist([sum(dEetas[:i+1]) for i in range(3)])
-    print ' etas:a =',fmtlist(exp(fit.p['log(etas:a)']))
+    print('etas:dE =',fmtlist(dEetas[:3]))
+    print(' etas:E =',fmtlist([sum(dEetas[:i+1]) for i in range(3)]))
+    print(' etas:a =',fmtlist(exp(fit.p['log(etas:a)'])))
     dEDs = exp(fit.p['log(Ds:dE)'])
-    print
-    print 'Ds:dE =',fmtlist(dEDs[:3])
-    print ' Ds:E =',fmtlist([sum(dEDs[:i+1]) for i in range(3)])
-    print ' Ds:a =',fmtlist(exp(fit.p['log(Ds:a)']))
-    print
-    print 'etas->V->Ds =',fit.p['Vnn'][0,0].fmt()
+    print()
+    print('Ds:dE =',fmtlist(dEDs[:3]))
+    print(' Ds:E =',fmtlist([sum(dEDs[:i+1]) for i in range(3)]))
+    print(' Ds:a =',fmtlist(exp(fit.p['log(Ds:a)'])))
+    print()
+    print('etas->V->Ds =',fit.p['Vnn'][0,0].fmt())
 ##
 
 def fmtlist(x):

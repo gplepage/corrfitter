@@ -1,8 +1,9 @@
 To install:
 
 1. If not already installed, install the entire lsqfit system and the other 
-	libraries needed for it. The lsqfit and corrfitter codes works for 
-	Python 2.6 and 2.7 (but not for Python 3 or Python 2.5 or earlier).
+	libraries needed for it. The lsqfit and corrfitter codes work for 
+	Python 2.6 and 2.7 and 3.2 (and later). Python 3 may run slightly faster
+	than Python 2 now.
 
 2. Use 'make install' to copy the relevant files into your Python. The 	
 	files are installed in a standard directory (that Python knows about) in 
@@ -18,9 +19,18 @@ To install:
 	
 	Note: use 'make install-dataset' if the old dataset.py is needed (for
 	legacy code; use gvar.dataset for new code).
+	
+	Note: To install corrfitter for an alternative version of python, say
+	python3 for example, use 'make PYTHON=python3 install'. Python's standard
+	directories are structured in such a way that it is necessary to do a
+	separate installation for each python version that will use corrfitter.
 		
 3. (Optional) Use 'make test-all' to run a series of tests that verify that 
-	the major components of corrfitter and dataset are working.
+	the major components of corrfitter and dataset are working. (These are not
+	great tests because roundoff error can cause small changes to occur on
+	different hardware, causing some tests to fail. So it is not uncommon for
+	some of the tests to fail even if everything is alright --- the answers
+	that come out will be close to the ones in the .out file.)
 
 4. (Optional) Use 'make clean' to erase work files and directories.
 

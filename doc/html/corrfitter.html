@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2.2 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2.3 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.2.2',
+        VERSION:     '3.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.2.2 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.2.3 documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -47,7 +47,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.2.3 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -416,10 +416,13 @@ help.</p>
 <h2>Variations<a class="headerlink" href="#variations" title="Permalink to this headline">¶</a></h2>
 <p>Any 2-point correlator can be turned into a periodic function of <tt class="docutils literal"><span class="pre">t</span></tt> by
 specifying the period through parameter <tt class="docutils literal"><span class="pre">tp</span></tt>. Doing so causes the 
-replacement</p>
+replacement (for <tt class="docutils literal"><span class="pre">tp&gt;0</span></tt>)</p>
 <div class="highlight-python"><pre>exp(-E[i]*t)   -&gt;   exp(-E[i]*t) + exp(-E[i]*(tp-t))</pre>
 </div>
-<p>in the fit function.</p>
+<p>in the fit function. If <tt class="docutils literal"><span class="pre">tp</span></tt> is negative, the function is replaced by 
+an anti-periodic function with period <tt class="docutils literal"><span class="pre">abs(tp)</span></tt> and (for <tt class="docutils literal"><span class="pre">tp&lt;0</span></tt>):</p>
+<div class="highlight-python"><pre>exp(-E[i]*t)   -&gt;   exp(-E[i]*t) - exp(-E[i]*(abs(tp)-t))</pre>
+</div>
 <p>Also (or alternatively) oscillating terms can be added to the fit by
 modifying parameter <tt class="docutils literal"><span class="pre">s</span></tt> and by specifying sources, sinks and energies for
 the oscillating pieces. For example, one might want to replace the sum of
@@ -641,8 +644,9 @@ using</p>
        + so * sum_i ao[i]*bo[i] * fo(Eo[i], t)</pre>
 </div>
 <p>where <tt class="docutils literal"><span class="pre">sn</span></tt> and <tt class="docutils literal"><span class="pre">so</span></tt> are typically <tt class="docutils literal"><span class="pre">-1</span></tt>, <tt class="docutils literal"><span class="pre">0</span></tt>, or <tt class="docutils literal"><span class="pre">1</span></tt> and</p>
-<div class="highlight-python"><pre>fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # periodic
-       or  exp(-E*t)                  # if tp is None (nonperiodic)
+<div class="highlight-python"><pre>fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # tp&gt;0 -- periodic
+       or   exp(-E*t) - exp(-E*(-tp-t))# tp&lt;0 -- anti-periodic
+       or   exp(-E*t)                  # if tp is None (nonperiodic)
 
 fo(E, t) = (-1)**t * fn(E, t)</pre>
 </div>
@@ -652,9 +656,11 @@ are <tt class="docutils literal"><span class="pre">an[i]</span></tt>, <tt class=
 dEn[i] = En[i]-En[i-1] &gt; 0     (for i&gt;0)</pre>
 </div>
 <p>and therefore <tt class="docutils literal"><span class="pre">En[i]</span> <span class="pre">=</span> <span class="pre">sum_j=0..i</span> <span class="pre">dEn[j]</span></tt>.</p>
-<p>When <tt class="docutils literal"><span class="pre">tp</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">None</span></tt>, the correlator is assumed to be symmetrical
-about <tt class="docutils literal"><span class="pre">tp/2</span></tt>, with <tt class="docutils literal"><span class="pre">Gab(t)=Gab(tp-t)</span></tt>. Data from <tt class="docutils literal"><span class="pre">t&gt;tp/2</span></tt> is
-averaged with the corresponding data from <tt class="docutils literal"><span class="pre">t&lt;tp/2</span></tt> before fitting.</p>
+<p>When <tt class="docutils literal"><span class="pre">tp</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">None</span></tt> and positive, the correlator is assumed to be
+symmetrical about <tt class="docutils literal"><span class="pre">tp/2</span></tt>, with <tt class="docutils literal"><span class="pre">Gab(t)=Gab(tp-t)</span></tt>. Data from
+<tt class="docutils literal"><span class="pre">t&gt;tp/2</span></tt> is averaged with the corresponding data from <tt class="docutils literal"><span class="pre">t&lt;tp/2</span></tt>
+before fitting. When <tt class="docutils literal"><span class="pre">tp</span></tt> is negative, the correlator is assumed to
+be anti-symetrical about <tt class="docutils literal"><span class="pre">-tp/2</span></tt>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -691,10 +697,11 @@ energy differences, which differences must then be positive.</li>
 <tt class="xref py py-class docutils literal"><span class="pre">gvar.dataset.Dataset</span></tt>.</li>
 <li><strong>tfit</strong> (<em>list of integers</em>) &#8211; List of <tt class="docutils literal"><span class="pre">t</span></tt>s to use in the fit. Only data with these
 <tt class="docutils literal"><span class="pre">t</span></tt>s (all of which should be in <tt class="docutils literal"><span class="pre">tdata</span></tt>) is used in the fit.</li>
-<li><strong>tp</strong> (integer or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; If not <tt class="docutils literal"><span class="pre">None</span></tt>, the correlator is assumed to be periodic
-with <tt class="docutils literal"><span class="pre">Gab(t)=Gab(tp-t)</span></tt>. Setting <tt class="docutils literal"><span class="pre">tp=None</span></tt> implies that the
-correlator is not periodic, but rather continues to fall 
-exponentially as <tt class="docutils literal"><span class="pre">t</span></tt> is increased indefinitely.</li>
+<li><strong>tp</strong> (integer or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; If not <tt class="docutils literal"><span class="pre">None</span></tt> and positive, the correlator is assumed to 
+be periodic with <tt class="docutils literal"><span class="pre">Gab(t)=Gab(tp-t)</span></tt>. If negative, the correlator
+is assumed to be anti-periodic with <tt class="docutils literal"><span class="pre">Gab(t)=-Gab(-tp-t)</span></tt>. Setting
+<tt class="docutils literal"><span class="pre">tp=None</span></tt> implies that the correlator is not periodic, but rather
+continues to fall exponentially as <tt class="docutils literal"><span class="pre">t</span></tt> is increased indefinitely.</li>
 <li><strong>othertags</strong> (<em>sequence of strings</em>) &#8211; List of additional data tags for data to be
 averaged with the <tt class="docutils literal"><span class="pre">self.datatag</span></tt> data before fitting.</li>
 </ul>
@@ -722,7 +729,7 @@ in the (1-D) array <tt class="docutils literal"><span class="pre">data[self.data
 
 <dl class="class">
 <dt id="corrfitter.Corr3">
-<em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">Corr3</tt><big>(</big><em>datatag</em>, <em>T</em>, <em>tdata</em>, <em>tfit</em>, <em>Vnn</em>, <em>a</em>, <em>b</em>, <em>dEa=None</em>, <em>dEb=None</em>, <em>logdEa=None</em>, <em>logdEb=None</em>, <em>sa=1.0</em>, <em>sb=1.0</em>, <em>Vno=None</em>, <em>Von=None</em>, <em>Voo=None</em>, <em>transpose_V=False</em>, <em>symmetric_V=False</em>, <em>tpa=None</em>, <em>tpb=None</em><big>)</big><a class="headerlink" href="#corrfitter.Corr3" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">Corr3</tt><big>(</big><em>datatag</em>, <em>T</em>, <em>tdata</em>, <em>tfit</em>, <em>Vnn</em>, <em>a</em>, <em>b</em>, <em>dEa=None</em>, <em>dEb=None</em>, <em>logdEa=None</em>, <em>logdEb=None</em>, <em>sa=1.0</em>, <em>sb=1.0</em>, <em>Vno=None</em>, <em>Von=None</em>, <em>Voo=None</em>, <em>transpose_V=False</em>, <em>symmetric_V=False</em>, <em>tpa=None</em>, <em>tpb=None</em>, <em>othertags=None</em><big>)</big><a class="headerlink" href="#corrfitter.Corr3" title="Permalink to this definition">¶</a></dt>
 <dd><p>Three-point correlators <tt class="docutils literal"><span class="pre">Gavb(t,</span> <span class="pre">T)</span> <span class="pre">=</span> <span class="pre">&lt;b(T)</span> <span class="pre">V(t)</span> <span class="pre">a(0)&gt;</span></tt>.</p>
 <p><a class="reference internal" href="#corrfitter.Corr3" title="corrfitter.Corr3"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.Corr3</span></tt></a> models the <tt class="docutils literal"><span class="pre">t</span></tt> dependence of a 3-point correlator
 <tt class="docutils literal"><span class="pre">Gavb(t,</span> <span class="pre">T)</span></tt> using</p>
@@ -733,8 +740,9 @@ in the (1-D) array <tt class="docutils literal"><span class="pre">data[self.data
 +sum_i,j sao*ao[i]*fo(Eao[i],t)*Voo[i,j]*sbo*bo[j]*fo(Ebo[j],T-t)</pre>
 </div>
 <p>where</p>
-<div class="highlight-python"><pre>fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # periodic
-       or  exp(-E*t)                  # if tp is None (nonperiodic)
+<div class="highlight-python"><pre>fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # tp&gt;0 -- periodic
+       or   exp(-E*t) - exp(-E*(-tp-t))# tp&lt;0 -- anti-periodic
+       or   exp(-E*t)                  # if tp is None (nonperiodic)
 
 fo(E, t) = (-1)**t * fn(E, t)</pre>
 </div>
@@ -843,12 +851,14 @@ is symmetrical. Default value is <tt class="docutils literal"><span class="pre">
 <tt class="xref py py-class docutils literal"><span class="pre">gvar.dataset.Dataset</span></tt>.</li>
 <li><strong>tfit</strong> (<em>list of integers</em>) &#8211; List of <tt class="docutils literal"><span class="pre">t</span></tt>s to use in the fit. Only data with these
 <tt class="docutils literal"><span class="pre">t</span></tt>s (all of which should be in <tt class="docutils literal"><span class="pre">tdata</span></tt>) is used in the fit.</li>
-<li><strong>tpa</strong> (integer or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; If not <tt class="docutils literal"><span class="pre">None</span></tt>, the <tt class="docutils literal"><span class="pre">a-&gt;V</span></tt> correlator is assumed to be 
-periodic with period <tt class="docutils literal"><span class="pre">tpa</span></tt>. Setting <tt class="docutils literal"><span class="pre">tpa=None</span></tt> implies that the
-correlators are not periodic.</li>
-<li><strong>tpb</strong> (integer or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; If not <tt class="docutils literal"><span class="pre">None</span></tt>, the <tt class="docutils literal"><span class="pre">V-&gt;b</span></tt> correlator is assumed to be 
-periodic with period <tt class="docutils literal"><span class="pre">tpb</span></tt>. Setting <tt class="docutils literal"><span class="pre">tpb=None</span></tt> implies that the
-correlators are not periodic.</li>
+<li><strong>tpa</strong> (integer or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; If not <tt class="docutils literal"><span class="pre">None</span></tt> and positive, the <tt class="docutils literal"><span class="pre">a-&gt;V</span></tt> correlator is 
+assumed to be periodic with period <tt class="docutils literal"><span class="pre">tpa</span></tt>. If negative, the
+correlator is anti-periodic with period <tt class="docutils literal"><span class="pre">-tpa</span></tt>. Setting
+<tt class="docutils literal"><span class="pre">tpa=None</span></tt> implies that the correlators are not periodic.</li>
+<li><strong>tpb</strong> (integer or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; If not <tt class="docutils literal"><span class="pre">None</span></tt> and positive, the <tt class="docutils literal"><span class="pre">V-&gt;b</span></tt> correlator is 
+assumed to be periodic with period <tt class="docutils literal"><span class="pre">tpb</span></tt>. If negative, the
+correlator is periodic with period <tt class="docutils literal"><span class="pre">-tpb</span></tt>. Setting <tt class="docutils literal"><span class="pre">tpb=None</span></tt>
+implies that the correlators are not periodic.</li>
 </ul>
 </td>
 </tr>
@@ -979,25 +989,13 @@ functions; or two-tuple of numbers indicating how many terms to fit
 for each of the non-oscillating and oscillating pieces in fits. If set
 to <tt class="docutils literal"><span class="pre">None</span></tt>, the number is specified by the number of parameters in
 the prior.</li>
+<li><strong>ratio</strong> (<em>boolean</em>) &#8211; If <tt class="docutils literal"><span class="pre">True</span></tt> (the default), use ratio corrections for fit 
+data when the prior specifies more terms than are used in the fit. If
+<tt class="docutils literal"><span class="pre">False</span></tt>, use difference corrections (see implementation notes,
+above).</li>
 </ul>
 </td>
 </tr>
-</tbody>
-</table>
-<p># :param mc: Number of Monte Carlo samples to use to estimate fit-data 
-#     corrections when the prior specifies more terms than are used in the
-#     fit. Setting <tt class="docutils literal"><span class="pre">mc=None</span></tt> (the default) results implies that Monte
-#     Carlo estimates are not used.
-# :type mc: integer or <tt class="docutils literal"><span class="pre">None</span></tt>
-:param ratio: If <tt class="docutils literal"><span class="pre">True</span></tt> (the default), use ratio corrections for fit</p>
-<blockquote>
-<div>data when the prior specifies more terms than are used in the fit. If
-<tt class="docutils literal"><span class="pre">False</span></tt>, use difference corrections (see implementation notes,
-above).</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
 </tbody>
 </table>
 <dl class="method">
@@ -1228,7 +1226,7 @@ least-squares fits (default=1e-10).</li>
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.2.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

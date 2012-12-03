@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# encoding: utf-8
+"""
+test-ups.py   --- tests matrix fit
+
+Created by Peter Lepage on 2012-12-02.
+Copyright (c) 2012 Cornell University. All rights reserved.
+"""
+
+from __future__ import print_function   # makes this work for python2 and 3
+
 from corrfitter import Corr2,CorrFitter
 from lsqfit import wavg
 from gvar import gvar,log,exp,evalcov,mean,sdev,BufferDict,fmt_errorbudget
@@ -7,7 +18,6 @@ import gvar as gd
 import time
 import numpy
 from numpy import linalg
-
 
 NTERM_PRIOR = 8             # number of terms in prior
 RATIO = True
@@ -24,7 +34,8 @@ TEST = True        # testing mode? (True, False, or "dump")
 
 if TEST:
     TEST_FILENAME = 'test-ups.testp'
-    P0_TEST = lsqfit.nonlinear_fit.load_parameters(TEST_FILENAME)
+    with open(TEST_FILENAME, "r") as f:
+        P0_TEST = BufferDict.load(f, use_json=True)
 
 def main():
     dfile = 'ups.bin24'     # input data file
@@ -32,7 +43,7 @@ def main():
     svdnum = 113            # number of samples in ups.bin24
     data = avg_data(Dataset(dfile))
     # for k in data:
-    #     print k,gd.is_independent(data[k])[0]
+    #     print(k,gd.is_independent(data[k])[0])
     # c = gd.evalcov(data)
     models = make_models()
     if USE_MARGINALIZATION:
@@ -46,20 +57,21 @@ def main():
         fitter = CorrFitter(models=models,svdcut=svdcut,
                             nterm=nterm if USE_MARGINALIZATION else None,
                             ratio=RATIO,maxit=10000)
-        print 30*'=','nterm =',nterm,'  nterm_prior =',len(prior['logdE']),
-        print '   RATIO =',RATIO
+        print(30*'=','nterm =',nterm,'  nterm_prior =',len(prior['logdE']),
+              '   RATIO =',RATIO)
         fit = fitter.lsqfit(prior=prior,data=data,p0=p0,svdnum=svdnum)
         # print fit
         print_results(fitter,prior,data)
         if nterm==1:
             print_effmass(fitter,prior,data)
         if not isinstance(p0,str):      # not using a file?
-            print '\nusing last fit\n'
+            print('\nusing last fit\n')
             p0 = fit.pmean
-        print '\nt=%.1f ====' % (time.clock()-starttime)
-        print
+        print('\nt=%.1f ====' % (time.clock()-starttime))
+        print()
         if TEST == 'dump':
-            fit.dump_pmean(TEST_FILENAME)
+            with open(TEST_FILENAME, "w") as f:
+                fit.pmean.dump(f, use_json=True)
     dummy = gvar(1,0)
     if DISPLAY_PLOTS:
         fitter.display_plots()
@@ -68,12 +80,12 @@ def main():
 def print_effmass(fitter,prior,data):
     meff = []
     xdata = fitter.fit.data[1]
-    print '\neff mass:'
+    print('\neff mass:')
     for m in fitter.models:
         G = xdata[m.datatag]
         meff.append(wavg(log(G[:-1]/G[1:])))
-        print '%10s:'%m.datatag,meff[-1],'  chi2/dof = %.2f  Q = %.2f'%(wavg.chi2/wavg.dof,wavg.Q)
-    print '\n%10s:'%'all not d',wavg(meff[:-4]),'  chi2/dof = %.2f  Q = %.2f'%(wavg.chi2/wavg.dof,wavg.Q)
+        print('%10s:'%m.datatag,meff[-1],'  chi2/dof = %.2f  Q = %.2f'%(wavg.chi2/wavg.dof,wavg.Q))
+    print('\n%10s:'%'all not d',wavg(meff[:-4]),'  chi2/dof = %.2f  Q = %.2f'%(wavg.chi2/wavg.dof,wavg.Q))
 ##
 
 def print_results(fitter,prior,data):
@@ -81,22 +93,22 @@ def print_results(fitter,prior,data):
     p = fit.p
     dE = exp(p['logdE'])
     E = [sum(dE[:i+1])-(dE[0] if i!=0 else 0.0) for i in range(len(dE))]
-    print '   E =',fmtlist(E),'  (En-E0 for n>0)'
+    print('   E =',fmtlist(E),'  (En-E0 for n>0)')
     if 'logl' in p:
-        print '   l =',fmtlist(exp(p['logl']))
+        print('   l =',fmtlist(exp(p['logl'])))
     for k in ['g','d','e']:
         if k in p:
-            print '   %s ='%k,fmtlist(p[k])
-    print
+            print('   %s ='%k,fmtlist(p[k]))
+    print()
     ## error budget ##
     inputs = dict(stat=[data[k] for k in data])
     inputs.update(prior)
     outputs = dict(E0=E[0])
     if len(E)>1:
         outputs['dE1'] = E[1]
-    print fmt_errorbudget(outputs,inputs,ndigit=3)
+    print(fmt_errorbudget(outputs,inputs,ndigit=3))
     ##
-    print '\ncorrelators:\n   ',[m.datatag for m in fitter.models]
+    print('\ncorrelators:\n   ',[m.datatag for m in fitter.models])
 ##
         
 def make_prior(nterm):

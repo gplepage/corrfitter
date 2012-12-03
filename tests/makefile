@@ -7,16 +7,18 @@ test-corrfitter:
 	### Test corrfitter: Corr2 and Corr3
 	$(PYTHON) test-1.py > test-1.tmp	# few sec
 	diff -w -I 't=' test-1.tmp test-1.out
-	python test-1m.py > test-1m.tmp	# few sec
+	$(PYTHON) test-1m.py > test-1m.tmp	# few sec
 	diff -w -I 't=' test-1m.tmp test-1m.out
-	python test-1b.py > test-1b.tmp	# 6 sec
+	$(PYTHON) test-1b.py > test-1b.tmp	# 6 sec
 	diff -w -I 't=' test-1b.tmp test-1b.out
-	python test-1t.py > test-1t.tmp	# few sec
+	$(PYTHON) test-1t.py > test-1t.tmp	# few sec
 	diff -w -I 't=' test-1t.tmp test-1t.out
-	python test-1s.py > test-1s.tmp	# few sec
+	$(PYTHON) test-1s.py > test-1s.tmp	# few sec
 	diff -w -I 't=' test-1s.tmp test-1s.out
-	python test-ups.py > test-ups.tmp # 10 sec
+	$(PYTHON) test-ups.py > test-ups.tmp # 10 sec
 	diff -w -I 't=' test-ups.tmp test-ups.out
+	$(PYTHON) test-antiperiodic.py > test-antiperiodic.tmp # 1 sec
+	diff -w -I 't=' test-antiperiodic.tmp test-antiperiodic.out
 	### SUCCESS
 
 

@@ -4,13 +4,13 @@
 test-1.py  --- standard usage (including error budgets and plots)
 
 Created by Peter Lepage on 2010-11-26.
-Copyright (c) 2010/2011 Cornell University. All rights reserved.
+Copyright (c) 2010-2012 Cornell University. All rights reserved.
 """
 
 from __future__ import print_function   # makes this work for python2 and 3
 
 import os
-import pickle
+import json
 from corrfitter import Corr2,Corr3,CorrFitter
 from gvar import gvar,log,exp,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data
@@ -29,8 +29,12 @@ TEST = True        # testing mode? (True, False, or "dump")
 if TEST:
     NEXP_LIST = [6]
     TEST_FILENAME = 'test-1.testp'
-    P0_TEST = lsqfit.nonlinear_fit.load_parameters(TEST_FILENAME)
+    # P0_TEST = lsqfit.nonlinear_fit.load_parameters(TEST_FILENAME)
+    with open(TEST_FILENAME,"r") as f:
+        P0_TEST = BufferDict.load(f, use_json=True)
 else:
+    TEST_FILENAME = 'test-1.testp'
+    P0_TEST = None
     NEXP_LIST = [2,3,4,5,6]
     
 def main():
@@ -45,8 +49,9 @@ def main():
         fit = fitter.lsqfit(data=data,prior=prior,p0=p0) # pfile)
         print_results(fit,prior,data)
         print('\n\n')
-        if TEST == 'dump':
-            fit.dump_pmean(TEST_FILENAME)
+    if TEST == 'dump':
+        with open(TEST_FILENAME,"w") as f:
+            fit.pmean.dump(f, use_json=True)
     if DISPLAYPLOTS:
         fitter.display_plots()
 ##
@@ -137,8 +142,7 @@ def build_models():
     ]
     return models
 ##    
-
-
+    
 if __name__ == '__main__':
     if True:
         main()
