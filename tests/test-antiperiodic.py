@@ -24,7 +24,7 @@ try:
 except ImportError:
     DISPLAYPLOTS = False
 
-TEST = "dump"        # testing mode? (True, False, or "dump")
+TEST = True        # testing mode? (True, False, or "dump")
 
 TP = dict(pp=64, pa=-64)        # pa is anti-periodic, pp periodic
 TMIN = 5

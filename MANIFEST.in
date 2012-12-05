@@ -1,4 +1,4 @@
-include makefile README INSTALLATION COPYING MANIFEST.in
+include makefile README INSTALLATION COPYING MANIFEST.in CHANGES
 include dataset.py dataset-setup.py
 
 graft doc
