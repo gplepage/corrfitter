@@ -1,0 +1,23 @@
+The test codes in the tst-corrfitter directory both test and illustrate 
+corrfitter.py. The codes and what they illustrate are:
+
+test-1.py	- Standard fit (Ds->etas), including error budget and plots
+test-1m.py	- Marginalizing part of the fit function.
+test-1b.py	- Bootstrap analysis.
+test-1s.py	- Symmetric form factor (Ds->Ds)
+test-1t.py	- Transposed form factors (Ds->etas and etas->D)
+test-antiperiodic.py - Fit involving antiperiodic correlator
+test-ups.py - 4x4 matrix fit (upsilon)
+
+The makefile runs the tests ("make test-all") and illustrates how to run
+the individual scripts. The test-case output from each test is in the
+corresponding .out file (test-1.out, test-1m.out, etc). 
+
+These are not great tests because roundoff error can cause small changes to 
+occur on different hardware. It is not uncommon for some of the tests to 
+fail even if everything is alright --- the answers that come out will be 
+close to the ones in the .out file.
+
+Each code has a flag TEST that is set to True by default. This puts the
+code in a special "testing" mode. Changing TEST to False causes it to run
+in a more standard mode.

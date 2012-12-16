@@ -1,10 +1,10 @@
 *.pyc
 tests/*.pyc
 *.p
-tests/*.p
+examples/*.p
 doc/source/_build/
 MANIFEST
-tests/*.tmp
+examples/*.tmp
 build/
 dist/
 installed-files

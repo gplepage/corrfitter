@@ -491,10 +491,11 @@ and functions of fit parameters than the conventional fit when errors are
 large, or fluctuations are non-gaussian. A typical code looks something like::
     
     import gvar as gv
+    import gvar.dataset as ds
     from corrfitter import CorrFitter
     # fit
-    dset = gv.Dataset('mcfile')
-    data = gv.avg_data(dset)       # create fit data
+    dset = ds.Dataset('mcfile')
+    data = ds.avg_data(dset)    # create fit data
     fitter = Corrfitter(models=make_models())
     N = 4                               # number of terms in fit function
     prior = make_prior(N)
@@ -507,15 +508,15 @@ large, or fluctuations are non-gaussian. A typical code looks something like::
     # bootstrap analysis
     print 'Bootstrap fit results:'
     nbootstrap = 10                     # number of bootstrap iterations
-    bs_datalist = (avg_data(d) for d in dset.bootstrap_iter(nbootstrap))
-    bs = gv.Dataset()                   # bootstrap output stored in bs
+    bs_datalist = (ds.avg_data(d) for d in dset.bootstrap_iter(nbootstrap))
+    bs = ds.Dataset()           # bootstrap output stored in bs
     for bs_fit in fitter.bootstrap_iter(bs_datalist): # bs_fit = lsqfit output
         p = bs_fit.pmean    # best fit values for current bootstrap iteration
         bs.append('a',exp(p['loga']))   # collect bootstrap results for a[i]
         bs.append('dE',exp(p['logdE'])) # collect results for dE[i]
         ...                             # include other functions of p 
         ...
-    bs = gv.avg_data(bs,bstrap=True)# medians + error estimate
+    bs = ds.avg_data(bs,bstrap=True)    # medians + error estimate
     print 'a',bs['a']                   # bootstrap result for 'a' amplitudes
     print 'dE',bs['dE']                 # bootstrap result for 'dE' energies
     ....
@@ -858,11 +859,11 @@ class Corr2(BaseModel):
         # tp_t = None if self.tp is None else self.tp-t
         if nterm is None:
             nterm = (None, None)
-        ofac = (self.s[0],
-                (0.0 if self.s[1] == 0.0 else self.s[1]*(-1)**t))
+        ofac = (None if self.s[0] == 0.0 else self.s[0],
+                (None if self.s[1] == 0.0 else self.s[1]*(-1)**t))
         for ai, bi, dEi, ofaci, ntermi in zip(self.a, self.b, 
                                               self.dE, ofac, nterm):
-            if ai is None or bi is None or dEi is None:
+            if ai is None or bi is None or dEi is None or ofaci is None:
                 continue
             if ntermi is not None:
                 if ntermi == 0:
@@ -1300,21 +1301,20 @@ class CorrFitter(object):
             fitdata[m.datatag] = m.builddata(data)
         ## remove marginal fit parameters ##
         nterm = self.nterm
-        if True: # self.mc is None:
-            ## use priors to remove marginal parameters ##
-            if nterm == (None, None):
-                return fitdata
-            else:
-                for m in self.models:
-                    ftrunc = m.fitfcn(prior, nterm=nterm)
-                    fall = m.fitfcn(prior, nterm=None)
-                    if not self.ratio:
-                        diff = ftrunc-fall
-                        fitdata[m.datatag] += diff 
-                    else:
-                        ratio = ftrunc/fall
-                        fitdata[m.datatag] *= ratio 
-            ##
+        ## use priors to remove marginal parameters ##
+        if nterm == (None, None):
+            return fitdata
+        else:
+            for m in self.models:
+                ftrunc = m.fitfcn(prior, nterm=nterm)
+                fall = m.fitfcn(prior, nterm=None)
+                if not self.ratio:
+                    diff = ftrunc-fall
+                    fitdata[m.datatag] += diff 
+                else:
+                    ratio = ftrunc/fall
+                    fitdata[m.datatag] *= ratio 
+        ##
         ##
         return fitdata
     ##
