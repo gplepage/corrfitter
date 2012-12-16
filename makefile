@@ -1,7 +1,7 @@
 ## makefile for corrfitter library
 #
 # Created by G. Peter Lepage on 2011-09-22.
-# Copyright (c) 2011 Cornell University. All rights reserved.
+# Copyright (c) 2011-2012 Cornell University. All rights reserved.
 
 PYTHON = python
 

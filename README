@@ -13,10 +13,10 @@ Documentation on how to use this module is in doc/html/index.html (html
 version, which is the better one) and doc/corrfitter.pdf (pdf version, for 
 printing).
 
-To test the module try 'make test-all'. 
+To test the module try 'make tests'. 
 
-The test files (.py files) in tests/ are also examples of how to use 
-corrfitter. See the tests/README for more information.
+The .py files in examples/ illustrate how to use corrfitter. See the
+examples/README for more information.
 
 This module requires the lsqfit and gvar python packages.
 

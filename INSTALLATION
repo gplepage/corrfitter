@@ -25,13 +25,11 @@ To install:
 	directories are structured in such a way that it is necessary to do a
 	separate installation for each python version that will use corrfitter.
 		
-3. (Optional) Use 'make test-all' to run a series of tests that verify that 
-	the major components of corrfitter and dataset are working. (These are not
-	great tests because roundoff error can cause small changes to occur on
-	different hardware, causing some tests to fail. So it is not uncommon for
-	some of the tests to fail even if everything is alright --- the answers
-	that come out will be close to the ones in the .out file.)
-
+3. (Optional) Use 'make tests' to run a series of unittests that verify that 
+	the major components of corrfitter and dataset are working. Examples
+	of corrfitter use are in the examples/ directory; run them using 
+	'make run-examples'.
+	
 4. (Optional) Use 'make clean' to erase work files and directories.
 
 5. (Optional) Install matplotlib (http://matplotlib.sourceforge.net/) in
@@ -49,5 +47,5 @@ Problems:
 
  
 Created by G. Peter Lepage (Cornell University) on 2008-02-12.
-Copyright (c) 2008,2010,2011 G. Peter Lepage. 
+Copyright (c) 2008--2012 G. Peter Lepage. 
 All rights reserved.
