@@ -25,6 +25,7 @@ import gvar.dataset as ds
 from corrfitter import *
 
 PRINT_FITS = False  # print lots of fit info while doing tests
+DISPLAY_PLOTS = False # display plots for some fits
 NSIG = 5.           # number of sigmas allowed before signalling an error
 NTERM = 3           # number of terms (ie, len(dE)) in correlators
 
@@ -171,7 +172,9 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=self.tp) ]
-        self.dofit(models)
+        fitter = self.dofit(models)
+        if DISPLAY_PLOTS:
+            fitter.display_plots()
     ##
     def test_lognormal(self):
         """ corr2 -- log normal parameters """
@@ -194,7 +197,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=None) ]
         fitter = self.dofit(models)
         bsdata = ds.Dataset()
-        for fit in fitter.bootstrap_iter(n=20):
+        for fit in fitter.bootstrap_iter(n=40):
             bsdata.append(fit.pmean)
         bsfit = ds.avg_data(bsdata,bstrap=True)
         self.assert_fitclose(bsfit, self.p)
@@ -309,8 +312,9 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         self.prior['Vno'] = gv.gvar(nt*[nt*["1.00(1)"]])
         self.prior['Von'] = gv.gvar(nt*[nt*["1.00(1)"]])
         self.prior['Voo'] = gv.gvar(nt*[nt*["2.00(1)"]])
-        self.prior['Vnn_sym'] = gv.gvar((nt*(nt+1))/2*["2.00(1)"])
-        self.prior['Voo_sym'] = gv.gvar((nt*(nt+1))/2*["2.00(1)"])
+        nsym = int(nt*(nt+1)/2)
+        self.prior['Vnn_sym'] = gv.gvar(nsym*["2.00(1)"])
+        self.prior['Voo_sym'] = gv.gvar(nsym*["2.00(1)"])
         ##
         ## actual parameters, time ranges, corr counter ##
         self.p = next(gv.raniter(self.prior))
@@ -414,7 +418,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             print("======== " + self.getdoc())
         models = [ 
             self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
-                         dE=("logdEa", "logdEao"), tp=None),
+                         dE=("logdEa", "logdEao")),
             self.mkcorr3(a=("a", "ao"), b=("a", "ao"), 
                          dEa=("logdEa", "logdEao"), 
                          dEb=("logdEa", "logdEao"), 
@@ -437,7 +441,9 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
                          dEb=("logdEb", "logdEbo"), 
                          Vnn="Vnn", Von="Von", Vno="Vno", Voo="Voo")
         ]
-        self.dofit(models)
+        fitter = self.dofit(models)
+        if DISPLAY_PLOTS:
+            fitter.display_plots()
     ##
     def test_transpose_osc(self):
         """ corr3 -- transpose V with osc"""
@@ -516,28 +522,27 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         self.dofit(models)
         fitter = self.dofit(models)
         bsdata = ds.Dataset()
-        for fit in fitter.bootstrap_iter(n=20):
+        for fit in fitter.bootstrap_iter(n=50):
             bsdata.append(fit.pmean)
         bsfit = ds.avg_data(bsdata,bstrap=True)
         self.assert_fitclose(bsfit, self.p)
         self.assert_fitsagree(fitter.fit.p, bsfit)
     ##
-    # def test_marginalization(self):
-    #     """ corr3 -- marginalization """
-    #     global PRINT_FITS
-    #     PRINT_FITS = True
-    #     if PRINT_FITS:
-    #         print("======== " + self.getdoc())
-    #     models = [ 
-    #         self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
-    #                      dE=("logdEa", "logdEao")),
-    #         self.mkcorr3(a=("a", "ao"), b=("a", "ao"), 
-    #                      dEa=("logdEa", "logdEao"), 
-    #                      dEb=("logdEa", "logdEao"), 
-    #                      Vnn="Vnn_sym" ,symmetric_V=True)
-    #     ]
-    #     self.dofit(models, nterm=(NTERM-1,NTERM-1), ratio=True)
-    # ##
+    def test_marginalization(self):
+        """ corr3 -- marginalization """
+        global PRINT_FITS
+        if PRINT_FITS:
+            print("======== " + self.getdoc())
+        models = [ 
+            self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
+                         dE=("logdEa", "logdEao")),
+            self.mkcorr3(a=("a", "ao"), b=("a", "ao"), 
+                         dEa=("logdEa", "logdEao"), 
+                         dEb=("logdEa", "logdEao"), 
+                         Vnn="Vnn_sym" ,symmetric_V=True)
+        ]
+        self.dofit(models, nterm=(NTERM-1, NTERM-1), ratio=True)
+    ##
 ##
         
 
@@ -669,13 +674,12 @@ def make_data(models,p):
 if __name__ == '__main__':
     unittest.main()
 
-
 """
 Design Notes:
 =============
 
-* Script can run 1000 times without a failure but the corr2 marginalization
-  tests can fail now and then. The bootstrap test also fails occasionally.
+* Script can run 1000 times without a failure but the marginalization
+  tests can fail now and then. The bootstrap tests also fails occasionally.
   Other tests run many 1000s of times without failure.
   
 * Corr2 tests fail completely if one tries to fit with fewer than the
@@ -693,7 +697,9 @@ Design Notes:
 
 * Priors on energies and amplitudes are very tight in order to avoid the
   usual pathologies (eg, amplitude goes to zero and the energy is
-  unconstrained). Again the point is to get fits that are certain to work.
+  unconstrained). The point is to get fits that are certain to work. The
+  small errors make things more gaussian and so more likely consistent with
+  the assumptions underlying the fitting.
 
 
 """

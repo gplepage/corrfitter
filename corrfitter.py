@@ -667,8 +667,13 @@ class BaseModel(object):
         """
         raise NotImplementedError("builddata not defined")
     ##
-    def priorsize(self, nterm=None):
-        """ Return dict containing number of entries for each prior label. """
+    def buildprior(self, prior, nterm=None):
+        """ Extract fit prior from ``prior``; resizing as needed. 
+            
+        If ``nterm`` is not ``None``, the sizes of the priors may need
+        adjusting so that they correspond to the values specified in 
+        ``nterm`` (for normal and oscillating pieces).
+        """
         return {}
     ##
     def _param(self, p, default=None):
@@ -804,14 +809,14 @@ class Corr2(BaseModel):
         self.othertags = othertags
         self._abscissa = self.tfit
     ##
-    def priorsize(self, nterm):
-        priorsize = {}
+    def buildprior(self, prior, nterm):
+        newprior = _gvar.BufferDict()
         for ai, bi, dEi, ntermi in zip(self.a, self.b, self.dE, nterm):
             for x in [ai, bi, dEi]:
                 if x is None:
                     continue
-                priorsize[x] = (ntermi,)
-        return priorsize         
+                newprior[x] = prior[x][None:ntermi]
+        return newprior        
     ##
     def builddata(self, data):
         """ Assemble fit data from dictionary ``data``. 
@@ -1065,25 +1070,35 @@ class Corr3(BaseModel):
         self._abscissa = self.tfit
         self.othertags = othertags
     ##
-    def priorsize(self, nterm):
-        priorsize = {}
-        for toplist in [(self.a, self.dEa, nterm),
-                        (self.b, self.dEb, nterm)]:
-            for labellist in zip(*toplist):
-                ntermi = labellist[-1]
-                for label in labellist[:-1]:
-                    if label is None:
-                        continue
-                    if label in priorsize:
-                        assert priorsize[label] == (ntermi,), \
-                            ("mismatched nterm for "+label)
-                    priorsize[label] = (ntermi,)
+    def buildprior(self, prior, nterm):
+        def resize_sym(Vii, nterm):
+            N = int(numpy.round((((8*len(Vii)+1)**0.5 - 1.)/2.)))
+            ans = []
+            iterV = iter(Vii)
+            for i in range(N):
+                for j in range(i, N):
+                    v = next(iterV)
+                    if ((nterm[0] is None or i < nterm[0])
+                        and (nterm[1] is None or j < nterm[1])):
+                        ans.append(v)
+            return numpy.array(ans)
+        ##
+        ans = _gvar.BufferDict()
+        for x in [self.a, self.dEa, self.b, self.dEb]:
+            for xi, ntermi in zip(x, nterm):
+                if xi is not None:
+                    ans[xi] = prior[xi][None:ntermi]
         for i in range(2):
             for j in range(2):
-                if self.V[i][j] is None:
+                vij = self.V[i][j]
+                if vij is None:
                     continue
-                priorsize[self.V[i][j]] = (nterm[i], nterm[j])
-        return priorsize         
+                if i == j and self.symmetric_V:
+                    ans[vij] = resize_sym(prior[vij], nterm)
+                else:
+                    ans[vij] = prior[vij][slice(None, nterm[i]), 
+                                          slice(None, nterm[j])]
+        return ans         
     ##
     def builddata(self, data):
         """ Assemble fit data from dictionary ``data``. 
@@ -1320,34 +1335,16 @@ class CorrFitter(object):
     ##
     def buildprior(self, prior):
         """ Build correctly sized prior for fit. """
-        priorsize = {}
+        tmp = _gvar.BufferDict()
         for m in self.models:
-            mpsize = m.priorsize(self.nterm)
-            for k in mpsize:
-                if k in priorsize:
-                    assert priorsize[k] == mpsize[k], \
-                        ("mismatched nterm for "+k)
-                else:
-                    priorsize[k] = mpsize[k]
-        newprior = {}
-        for k in priorsize:
-            assert k in prior, "missing prior: "+k
-            if len(priorsize[k]) == 1:
-                nterm = priorsize[k][0]
-                newprior[k] = prior[k] if nterm is None else prior[k][:nterm]
-            else:
-                nterma, ntermb = priorsize[k]
-                newprior[k] = (prior[k] if nterma is None 
-                               else prior[k][:nterma, :])
-                if ntermb is not None:
-                    newprior[k] = newprior[k][:, :ntermb]
-            # if newprior[k].size == 0:
-            #     del newprior[k]
-        nprior = _gvar.BufferDict()
+            tmp.update(m.buildprior(prior=prior, nterm=self.nterm))
+        ## restore order of keys --- same as prior ##
+        ans = _gvar.BufferDict()
         for k in prior:
-            if k in newprior:
-                nprior.add(k, newprior[k])
-        return nprior
+            if k in tmp:
+                ans[k] = tmp[k]
+        ##
+        return ans
     ##
     def lsqfit(self, data, prior, p0=None, print_fit=True,    #):
             svdcut=None, svdnum=None, tol=None, maxit=None, **args):
@@ -1505,7 +1502,7 @@ class CorrFitter(object):
             plt.title("%d) %s   (press 'n', 'p', 'q' or a digit)"
                         % (i, k))
             ax = fig.add_subplot(111)
-            ax.set_ylabel(k+' / '+'fit')
+            ax.set_ylabel(str(k)+' / '+'fit')
             ax.set_xlim(min(t)-1,max(t)+1)
             # ax.set_xlabel('t')
             ii = (gth != 0.0)       # check for exact zeros (eg, antiperiodic)

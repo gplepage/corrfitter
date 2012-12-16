@@ -11,6 +11,23 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version 3.2.4 -- ????
+============================
+This is a minor update that has no effect on most applications. It does
+however significantly improve testing.
+
+- 'make tests' now runs a completely new set of tests organized using
+  Python's standard unittest module (so the tests can also be run using the
+  standard "python -m unittest discover"). Unlike the old tests, the new
+  ones are hardware independent and so should work with pretty much any
+  system. The old tests are in the directory called 'examples' and are run
+  using 'make run-examples'.
+
+- Fixed a bug where Corr3s with symmetric_V=True caused CorrFitter to crash
+  when using marginalization (i.e., specifying nterm in CorrFitter).
+
+- Allow non-string labels for y-axis in CorrFitter.display_plots().
+
 Version 3.2.3 -- 2012-12-03
 ===========================
 This version now works with python 3, which seems slightly faster than 
