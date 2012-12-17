@@ -30,9 +30,6 @@ tests test-all:
 run-examples:
 	$(MAKE) -C examples run-all
 
-test-corrfitter:
-	$(MAKE) -C tests test-corrfitter
-
 sdist:			# source distribution
 	$(PYTHON) setup.py sdist
 
