@@ -25,10 +25,11 @@ To install:
 	directories are structured in such a way that it is necessary to do a
 	separate installation for each python version that will use corrfitter.
 		
-3. (Optional) Use 'make tests' to run a series of unittests that verify that 
-	the major components of corrfitter are working. Use, for example,
-	'make PYTHON=python3 tests' to run the tests with a different version of
-	Python (here python3). 
+3. (Optional) Use 'make tests' to run a series of unittests that verify
+   that the major components of corrfitter are working. The tests have been
+   successful if the output ends with "OK". (To test an installation
+   for a different version of Python, say python3, use 'make PYTHON=python3 
+	tests'.)
 	
 4. (Optional) Look at the examples of corrfitter use in the examples/
    directory; run them all using 'make run-examples'.
