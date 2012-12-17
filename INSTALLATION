@@ -14,11 +14,11 @@ To install:
 	appropriate system-level python directory, instead of a user directory. 
 	This requires superuser permission usually.
 	
-	N.B. Distutils commands like 'python setup.py install --user' can be
+	Note: Distutils commands like 'python setup.py install --user' can be
 	used instead of 'make install'.
 	
-	Note: use 'make install-dataset' if the old dataset.py is needed (for
-	legacy code; use gvar.dataset for new code).
+	Note: use 'make install-dataset' if the old dataset.py is needed for
+	legacy code (use gvar.dataset for new code).
 	
 	Note: To install corrfitter for an alternative version of python, say
 	python3 for example, use 'make PYTHON=python3 install'. Python's standard
@@ -26,9 +26,12 @@ To install:
 	separate installation for each python version that will use corrfitter.
 		
 3. (Optional) Use 'make tests' to run a series of unittests that verify that 
-	the major components of corrfitter and dataset are working. Examples
-	of corrfitter use are in the examples/ directory; run them using 
-	'make run-examples'.
+	the major components of corrfitter are working. Use, for example,
+	'make PYTHON=python3 tests' to run the tests with a different version of
+	Python (here python3). 
+	
+4. (Optional) Look at the examples of corrfitter use in the examples/
+   directory; run them all using 'make run-examples'.
 	
 4. (Optional) Use 'make clean' to erase work files and directories.
 
@@ -38,7 +41,9 @@ To install:
 
 To uninstall:
 
-1. 'make uninstall' (probably) uninstalls most of what was installed.
+1. 'make uninstall' (probably) uninstalls most of what was installed. Use
+   'make PYTHON=python3 uninstall' to uninstall an installation for a
+   different version of Python (python3, in this example).
 
 
 Problems:

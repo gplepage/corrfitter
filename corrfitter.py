@@ -613,7 +613,7 @@ import lsqfit
 import gvar as _gvar
 import numpy
 import math
-__version__ = '3.2.3'
+__version__ = '3.2.4'
 
 class BaseModel(object):
     """ Base class for correlator models. 

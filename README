@@ -15,7 +15,7 @@ printing).
 
 To test the module try 'make tests'. 
 
-The .py files in examples/ illustrate how to use corrfitter. See the
+The .py files in examples/ illustrate how to use corrfitter. See the file
 examples/README for more information.
 
 This module requires the lsqfit and gvar python packages.

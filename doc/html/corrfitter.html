@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2.3 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2.4 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.2.3',
+        VERSION:     '3.2.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.2.3 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.2.4 documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -47,7 +47,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.2.4 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -525,10 +525,11 @@ where <tt class="docutils literal"><span class="pre">N</span></tt> is the number
 and functions of fit parameters than the conventional fit when errors are
 large, or fluctuations are non-gaussian. A typical code looks something like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">gvar</span> <span class="kn">as</span> <span class="nn">gv</span>
+<span class="kn">import</span> <span class="nn">gvar.dataset</span> <span class="kn">as</span> <span class="nn">ds</span>
 <span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">CorrFitter</span>
 <span class="c"># fit</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s">&#39;mcfile&#39;</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span>       <span class="c"># create fit data</span>
+<span class="n">dset</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s">&#39;mcfile&#39;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span>    <span class="c"># create fit data</span>
 <span class="n">fitter</span> <span class="o">=</span> <span class="n">Corrfitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
 <span class="n">N</span> <span class="o">=</span> <span class="mi">4</span>                               <span class="c"># number of terms in fit function</span>
 <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
@@ -541,15 +542,15 @@ large, or fluctuations are non-gaussian. A typical code looks something like:</p
 <span class="c"># bootstrap analysis</span>
 <span class="k">print</span> <span class="s">&#39;Bootstrap fit results:&#39;</span>
 <span class="n">nbootstrap</span> <span class="o">=</span> <span class="mi">10</span>                     <span class="c"># number of bootstrap iterations</span>
-<span class="n">bs_datalist</span> <span class="o">=</span> <span class="p">(</span><span class="n">avg_data</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dset</span><span class="o">.</span><span class="n">bootstrap_iter</span><span class="p">(</span><span class="n">nbootstrap</span><span class="p">))</span>
-<span class="n">bs</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>                   <span class="c"># bootstrap output stored in bs</span>
+<span class="n">bs_datalist</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dset</span><span class="o">.</span><span class="n">bootstrap_iter</span><span class="p">(</span><span class="n">nbootstrap</span><span class="p">))</span>
+<span class="n">bs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>           <span class="c"># bootstrap output stored in bs</span>
 <span class="k">for</span> <span class="n">bs_fit</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">bootstrap_iter</span><span class="p">(</span><span class="n">bs_datalist</span><span class="p">):</span> <span class="c"># bs_fit = lsqfit output</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">bs_fit</span><span class="o">.</span><span class="n">pmean</span>    <span class="c"># best fit values for current bootstrap iteration</span>
     <span class="n">bs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="n">exp</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;loga&#39;</span><span class="p">]))</span>   <span class="c"># collect bootstrap results for a[i]</span>
     <span class="n">bs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span><span class="n">exp</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;logdE&#39;</span><span class="p">]))</span> <span class="c"># collect results for dE[i]</span>
     <span class="o">...</span>                             <span class="c"># include other functions of p </span>
     <span class="o">...</span>
-<span class="n">bs</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span><span class="n">bstrap</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="c"># medians + error estimate</span>
+<span class="n">bs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span><span class="n">bstrap</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>    <span class="c"># medians + error estimate</span>
 <span class="k">print</span> <span class="s">&#39;a&#39;</span><span class="p">,</span><span class="n">bs</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span>                   <span class="c"># bootstrap result for &#39;a&#39; amplitudes</span>
 <span class="k">print</span> <span class="s">&#39;dE&#39;</span><span class="p">,</span><span class="n">bs</span><span class="p">[</span><span class="s">&#39;dE&#39;</span><span class="p">]</span>                 <span class="c"># bootstrap result for &#39;dE&#39; energies</span>
 <span class="o">....</span>
@@ -938,15 +939,18 @@ format of the data must correspond to that returned by
 </dd></dl>
 
 <dl class="method">
-<dt>
-<tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em><big>)</big></dt>
-<dd><p>Compute fit function for x and fit parameters p.</p>
+<dt id="corrfitter.BaseModel.buildprior">
+<tt class="descname">buildprior</tt><big>(</big><em>prior</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel.buildprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract fit prior from <tt class="docutils literal"><span class="pre">prior</span></tt>; resizing as needed.</p>
+<p>If <tt class="docutils literal"><span class="pre">nterm</span></tt> is not <tt class="docutils literal"><span class="pre">None</span></tt>, the sizes of the priors may need
+adjusting so that they correspond to the values specified in 
+<tt class="docutils literal"><span class="pre">nterm</span></tt> (for normal and oscillating pieces).</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="corrfitter.BaseModel.priorsize">
-<tt class="descname">priorsize</tt><big>(</big><em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel.priorsize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dict containing number of entries for each prior label.</p>
+<dt>
+<tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em><big>)</big></dt>
+<dd><p>Compute fit function for x and fit parameters p.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1226,7 +1230,7 @@ least-squares fits (default=1e-10).</li>
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.2.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
