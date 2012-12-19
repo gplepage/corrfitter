@@ -20,7 +20,11 @@ examples/README for more information.
 
 This module requires the lsqfit and gvar python packages.
 
-
+Background information on the some of the fitting strategies used by
+corrfitter can be found by doing a web search for "hep-lat/0110175" and
+"arXiv:1111.1363". These are two papers by G.P. Lepage and collaborators 
+whose published versions are: G.P. Lepage et al, Nucl.Phys.Proc.Suppl. 
+106 (2002) 12-20; and K. Hornbostel et al, Phys.Rev. D85 (2012) 031504.
 
 Created by G. Peter Lepage on 2008-02-12.
 Copyright (c) 2008-12 G. Peter Lepage (Cornell University). 
