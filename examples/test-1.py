@@ -11,11 +11,12 @@ from __future__ import print_function   # makes this work for python2 and 3
 
 import os
 import json
-from corrfitter import Corr2,Corr3,CorrFitter
+from corrfitter import Corr2,Corr3,CorrFitter, eff_E
 from gvar import gvar,log,exp,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data
 from numpy import array,arange
 import lsqfit
+import copy
 
 
 DISPLAYPLOTS = True         # display plots at end of fitting
@@ -24,7 +25,9 @@ try:
 except ImportError:
     DISPLAYPLOTS = False
 
-TEST = True        # testing mode? (True, False, or "dump")
+TEST = True             # testing mode? (True, False, or "dump")
+
+EFFECTIVE_E = True      # compute effective Es
 
 if TEST:
     NEXP_LIST = [6]
@@ -43,12 +46,30 @@ def main():
     pfile = "test-1.p"                   # last fit stored in file test-1.p
     fitter = CorrFitter(models=build_models())
     p0 = P0_TEST if TEST else pfile
+    sdata = copy.deepcopy(data)
     for nexp in NEXP_LIST:
         print('========================== nexp =',nexp)
         prior = build_prior(nexp)
         fit = fitter.lsqfit(data=data,prior=prior,p0=p0) # pfile)
         print_results(fit,prior,data)
         print('\n\n')
+    if EFFECTIVE_E:
+        print('Effective E Analysis:')
+        for k,model in zip(["etas","Ds"],fitter.models[:2]):
+            mass = eff_E(data=data, prior=prior, model=model)
+            ampl = (eff_E.ampl)**0.5 
+            tag = "log(%s:dE)" % k
+            print('%8s: E = %s   E_fit = %s   a = %s   chi2/dof = %.2f   Q = %.1f' % 
+                  (k, mass.fmt(), exp(fit.p[tag][0]).fmt(),
+                  ampl.fmt(), eff_E.chi2/eff_E.dof, eff_E.Q))
+            if k == 'Ds':
+                # N.B. amplitude estimate is poor, but energy is right on.
+                mass = eff_E(data=data, prior=prior, model=model, osc='True')
+                print(
+                    "%8s: Eo = %s   Eo_fit = %s   chi2**2/dof = %.2f   Q= %.1f" %
+                    (k, mass.fmt(), exp(fit.p['log(Ds:dEo)'][0]).fmt(),
+                    eff_E.chi2/eff_E.dof, eff_E.Q)
+                )
     if TEST == 'dump':
         with open(TEST_FILENAME,"w") as f:
             fit.pmean.dump(f, use_json=True)
@@ -56,7 +77,7 @@ def main():
         fitter.display_plots()
 ##
       
-def print_results(fit,prior,data):
+def print_results(fit, prior, data):
     """ print out additional results from the fit """
     ## etas parameters ##
     dEetas = exp(fit.p['log(etas:dE)'])

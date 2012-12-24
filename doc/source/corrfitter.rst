@@ -46,3 +46,7 @@ is used to fit a collection of models to a collection of Monte Carlo data.
 .. autoclass:: corrfitter.CorrFitter
    :members:
 
+Utility Functions
+-----------------
+
+.. autofunction:: corrfitter.eff_E

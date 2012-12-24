@@ -11,7 +11,19 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-Version 3.2.4 -- Not released yet
+Version 3.2.5 -- Not released yet
+===================================
+
+- New function eff_E(...) which estimates E for the dominant term in a
+  correlator. This is done by marginalizing every term in the correlator
+  except for the leading term, and then solving for E using the exact
+  formula for the leading term. The amplitude is also computed. This
+  function is useful for a quick estimate and is often almost as accurate
+  as the result of a full fit. Added unittests.
+
+- Removed bugs in marginalization code for anti-periodic functions.
+
+Version 3.2.4 -- 2012-12-20
 =================================
 This is a minor update that has no effect on most applications. It does
 however significantly improve testing.

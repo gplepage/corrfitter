@@ -28,6 +28,8 @@ PRINT_FITS = False  # print lots of fit info while doing tests
 DISPLAY_PLOTS = False # display plots for some fits
 NSIG = 5.           # number of sigmas allowed before signalling an error
 NTERM = 3           # number of terms (ie, len(dE)) in correlators
+SVDCUT = 1e-6       # svd cut used for all fits -- to minimize roundoff problems
+FAST = False        # skips bootstrap tests if True
 
 class ArrayTests(object):
     def __init__(self):
@@ -157,7 +159,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("Data:\n", data,"\n")
         fit = fitter.lsqfit(data=data, prior=self.prior, debug=True,
-            print_fit=PRINT_FITS)
+            print_fit=PRINT_FITS, svdcut=SVDCUT)
         #
         if PRINT_FITS:
             print("Corr2 exact parameter values:")
@@ -165,7 +167,22 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                 print("%10s:"%str(k),self.p[k])
             print()
         self.assert_fitclose(fit.p,self.p)
+        self.data = data
+        self.fit = fit
         return fitter
+    ##
+    def doEeff(self, model, osc=False):
+        data = make_data(models=[model], p=self.p)
+        Eeff = eff_E(data=data, prior=self.prior, model=model, osc=osc, svdcut=SVDCUT)
+        Aeff = eff_E.ampl
+        i = 0 if not osc else 1
+        Etrue = unpack(self.p, model.dE)[i][0]
+        Atrue = unpack(self.p, model.a)[i][0] * unpack(self.p, model.b)[i][0]
+        self.assertLess(abs(Eeff.mean - Etrue), NSIG * Eeff.sdev)
+        self.assertLess(abs(Aeff.mean - Atrue), NSIG * Aeff.sdev)
+        if PRINT_FITS:
+            print("Eeff chi2/dof = %.2g [1]\n" % ((Eeff.mean - Etrue)**2/Eeff.sdev**2))
+            print("Aeff chi2/dof = %.2g [1]\n" % ((Aeff.mean - Atrue)**2/Aeff.sdev**2))
     ##
     def test_periodic(self):
         """ corr2 -- periodic correlator """
@@ -176,6 +193,12 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if DISPLAY_PLOTS:
             fitter.display_plots()
     ##
+    def test_effE_periodic(self):
+        """ corr2 -- eff_E(periodic) """
+        if PRINT_FITS:
+            print("======== " + self.getdoc())
+        self.doEeff(self.mkcorr(a="a", b="a", dE="logdE", tp=self.tp))
+    ##        
     def test_lognormal(self):
         """ corr2 -- log normal parameters """
         if PRINT_FITS:
@@ -190,6 +213,13 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=None) ]
         self.dofit(models)
     ##
+    def test_effE_nonperiodic(self):
+        """ corr2 -- eff_E(non-periodic) """
+        if PRINT_FITS:
+            print("======== " + self.getdoc())
+        self.doEeff(self.mkcorr(a="a", b="a", dE="logdE", tp=None))
+    ##        
+    @unittest.skipIf(FAST,"skipping test_bootstrap for speed")
     def test_bootstrap(self):
         """ corr2 -- bootstrap """
         if PRINT_FITS:
@@ -208,8 +238,14 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=-self.tp) ]
-        fit = self.dofit(models)
+        self.dofit(models)
     ##
+    def test_effE_antiperiodic(self):
+        """ corr2 -- eff_E(anti-periodic) """
+        if PRINT_FITS:
+            print("======== " + self.getdoc())
+        self.doEeff(self.mkcorr(a="a", b="a", dE="logdE", tp=-self.tp))
+    ##        
     def test_matrix1(self):
         """ corr2 -- 2x2 matrix fit (use othertags) """
         if PRINT_FITS:
@@ -274,9 +310,16 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a=(None,"a"), b=(None,"a"), 
-                   dE=(None,"logdE")) ]
+                   dE=(None,"logdE"), s=(0,-1.)) ]
         self.dofit(models)
     ##
+    def test_effE_oscillating(self):
+        """ corr2 -- eff_E(oscillating (only)) """
+        if PRINT_FITS:
+            print("======== " + self.getdoc())
+        self.doEeff(self.mkcorr(a=(None,"a"), b=(None,"a"), 
+                    dE=(None,"logdE"), s=(0,-1.)), osc=True)
+    ##        
     def test_s1(self):
         """ corr2 -- s parameter #1"""
         if PRINT_FITS:
@@ -349,7 +392,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("Data:\n", data,"\n")
         fit = fitter.lsqfit(data=data, prior=self.prior, debug=True,
-            print_fit=PRINT_FITS)
+            print_fit=PRINT_FITS, svdcut=SVDCUT)
         #
         if PRINT_FITS:
             print("corr2/3 exact parameter values:")
@@ -503,6 +546,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         ]
         self.dofit(models)
     ##
+    @unittest.skipIf(FAST,"skipping test_bootstrap for speed")
     def test_bootstrap(self):
         """ corr3 -- bootstrap """
         if PRINT_FITS:
@@ -678,9 +722,10 @@ if __name__ == '__main__':
 Design Notes:
 =============
 
-* Script can run 1000 times without a failure but the marginalization
-  tests can fail now and then. The bootstrap tests also fails occasionally.
-  Other tests run many 1000s of times without failure.
+* Script can run 1000 times without a failure but the marginalization tests
+  can fail now and then (1 in 200 runs?). The bootstrap tests also fails
+  occasionally, as can some of the corr3 tests. Other tests run many 1000s
+  of times without failure.
   
 * Corr2 tests fail completely if one tries to fit with fewer than the
   correct number of exponentials, in either the normal or oscillating

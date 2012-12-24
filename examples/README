@@ -1,7 +1,7 @@
 The example codes in the examples directory illustrate corrfitter.py. The
 codes and what they illustrate are:
 
-test-1.py	- Standard fit (Ds->etas), including error budget and plots
+test-1.py	- Standard fit (Ds->etas), including error budget and plots, eff_E()
 test-1m.py	- Marginalizing part of the fit function.
 test-1b.py	- Bootstrap analysis.
 test-1s.py	- Symmetric form factor (Ds->Ds)

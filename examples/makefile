@@ -1,6 +1,6 @@
 PYTHON = python
 
-run-all run-examples:
+run run-all run-examples:
 	### illustrate corrfitter: Corr2 and Corr3
 	$(PYTHON) test-1.py > test-1.tmp	# few sec
 	-diff -w -I 't=' test-1.tmp test-1.out
@@ -16,7 +16,7 @@ run-all run-examples:
 	-diff -w -I 't=' test-ups.tmp test-ups.out
 	$(PYTHON) test-antiperiodic.py > test-antiperiodic.tmp # 1 sec
 	-diff -w -I 't=' test-antiperiodic.tmp test-antiperiodic.out
-	### SUCCESS
+	### DONE
 
 
 clean:

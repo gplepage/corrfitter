@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2.4 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2.5 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.2.4',
+        VERSION:     '3.2.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.2.4 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.2.5 documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -47,7 +47,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.2.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -112,7 +112,7 @@ formulas. The fit parameters used by the fitter are the <tt class="docutils lite
 </div>
 <p>A typical code has the following structure:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">CorrFitter</span>
-
+    
 <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;mcfile&#39;</span><span class="p">)</span>    <span class="c"># user-supplied routine</span>
 <span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">()</span>        <span class="c"># user-supplied routine</span>
 <span class="n">N</span> <span class="o">=</span> <span class="mi">4</span>                         <span class="c"># number of terms in fit functions</span>
@@ -148,7 +148,7 @@ correlator, as indicated by the tags at the start of each line. (Lines for
 <tt class="docutils literal"><span class="pre">Gab</span></tt> may be interspersed with lines for <tt class="docutils literal"><span class="pre">Gaa</span></tt> since every line has a
 tag.) The data can be analyzed using class <tt class="xref py py-class docutils literal"><span class="pre">gvar.dataset.Dataset</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">gvar</span>
-
+    
 <span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">gvar</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">gvar</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 </pre></div>
@@ -164,7 +164,7 @@ the <tt class="docutils literal"><span class="pre">Gab</span></tt> correlator.</
 and specifies theoretical models (that is, fit functions) for these
 correlators:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">Corr2</span>
-
+    
 <span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
     <span class="n">models</span> <span class="o">=</span> <span class="p">[</span> <span class="n">Corr2</span><span class="p">(</span><span class="n">datatag</span><span class="o">=</span><span class="s">&#39;Gaa&#39;</span><span class="p">,</span><span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span><span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
                     <span class="n">a</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="n">b</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="n">dE</span><span class="o">=</span><span class="s">&#39;dE&#39;</span><span class="p">),</span>
@@ -211,7 +211,7 @@ mean and standard deviation. The prior is built using class
 <tt class="xref py py-class docutils literal"><span class="pre">gvar.BufferDict</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">lsqfit</span>
 <span class="kn">import</span> <span class="nn">gvar</span>
-
+    
 <span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
     <span class="n">prior</span> <span class="o">=</span> <span class="n">gvar</span><span class="o">.</span><span class="n">BufferDict</span><span class="p">()</span>       <span class="c"># prior = {}  works too</span>
     <span class="n">prior</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">gvar</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
@@ -266,7 +266,7 @@ into the code example by changing the corresponding labels in
 <tt class="docutils literal"><span class="pre">make_models()</span></tt> and <tt class="docutils literal"><span class="pre">make_prior(N)</span></tt>, and taking logarithms of the
 corresponding prior values:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">gvar</span> <span class="kn">import</span> <span class="n">log</span>                        <span class="c"># numpy.log() works too</span>
-
+    
 <span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
     <span class="n">models</span> <span class="o">=</span> <span class="p">[</span> <span class="n">Corr2</span><span class="p">(</span><span class="n">datatag</span><span class="o">=</span><span class="s">&#39;Gaa&#39;</span><span class="p">,</span><span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span><span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
                     <span class="n">a</span><span class="o">=</span><span class="s">&#39;loga&#39;</span><span class="p">,</span><span class="n">b</span><span class="o">=</span><span class="s">&#39;loga&#39;</span><span class="p">,</span><span class="n">dE</span><span class="o">=</span><span class="s">&#39;logdE&#39;</span><span class="p">),</span>
@@ -275,7 +275,7 @@ corresponding prior values:</p>
                     <span class="n">a</span><span class="o">=</span><span class="s">&#39;loga&#39;</span><span class="p">,</span><span class="n">b</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span><span class="n">dE</span><span class="o">=</span><span class="s">&#39;logdE&#39;</span><span class="p">)</span>
              <span class="p">]</span>
     <span class="k">return</span> <span class="n">models</span>
-
+    
 <span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
     <span class="n">prior</span> <span class="o">=</span> <span class="n">gvar</span><span class="o">.</span><span class="n">BufferDict</span><span class="p">()</span>               <span class="c"># prior = {}  works too</span>
     <span class="n">prior</span><span class="p">[</span><span class="s">&#39;loga&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">log</span><span class="p">(</span><span class="n">gvar</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.3</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
@@ -348,7 +348,7 @@ module is present.</p>
 </div>
 </div>
 <div class="section" id="faster-fits">
-<h2>Faster Fits<a class="headerlink" href="#faster-fits" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>Faster Fits<a class="headerlink" href="#faster-fits" title="Permalink to this headline">¶</a></h2>
 <p>Good fits often require fit functions with several exponentials and many
 parameters. Such fits can be costly. One strategy that can speed things up is
 to use fits with fewer terms to generate estimates for the most important
@@ -381,11 +381,11 @@ parameters are, in effect, integrated out of the analysis, or <em>marginalized</
 The errors in the modified data are adjusted to account for uncertainties in
 the marginalized terms, as specified by their priors. The resulting fit
 function has many fewer parameters, and so the fit can be much faster.</p>
-<p>Continuing with the example above, imagine that <tt class="docutils literal"><span class="pre">Nmax=8</span></tt> terms are needed to
-get a good fit, but we only care about parameter values for the first couple
-of terms. The code above can be rearranged to fit only the leading <tt class="docutils literal"><span class="pre">N</span></tt> terms
-where <tt class="docutils literal"><span class="pre">N&lt;Nmax</span></tt>, while incorporating the remaining, non-leading terms as
-corrections to the data:</p>
+<p>Continuing with the example above, imagine that <tt class="docutils literal"><span class="pre">Nmax=8</span></tt> terms are needed
+to get a good fit, but we only care about parameter values for the first
+couple of terms. The code above can be rearranged to fit only the leading
+<tt class="docutils literal"><span class="pre">N</span></tt> terms where <tt class="docutils literal"><span class="pre">N&lt;Nmax</span></tt>, while incorporating (marginalizing) the
+remaining, non-leading terms as corrections to the data:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">Nmax</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;mcfile&#39;</span><span class="p">)</span>  
 <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">Nmax</span><span class="p">)</span>        <span class="c"># build priors for Nmax terms</span>
@@ -448,6 +448,44 @@ specifying parameters <tt class="docutils literal"><span class="pre">svdcut</spa
 measurements used to determine the covariance matrix for <tt class="docutils literal"><span class="pre">G(t)</span></tt> since
 that is the largest number of eigenmodes possible in the covariance
 matrix.)</p>
+</div>
+<div class="section" id="effective-e-analysis">
+<h2>Effective E Analysis<a class="headerlink" href="#effective-e-analysis" title="Permalink to this headline">¶</a></h2>
+<p>At large <tt class="docutils literal"><span class="pre">t</span></tt>, correlators are dominated by the term with the smallest
+<tt class="docutils literal"><span class="pre">E</span></tt>, and often it is only the parameters in that leading term that are
+needed. In such cases there is a very fast analysis that is usually almost
+as accurate as a full fit. An example is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">eff_E</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;mcfile&#39;</span><span class="p">)</span>    <span class="c"># user-supplied routine - fit data</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">10</span>                        <span class="c"># number of terms in fit functions</span>
+<span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>         <span class="c"># user-supplied routine - fit prior</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Corr2</span><span class="p">(</span><span class="n">a</span><span class="o">=...</span><span class="p">,</span> <span class="n">b</span><span class="o">=...</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="c"># create model describing correlator</span>
+<span class="n">E0</span> <span class="o">=</span> <span class="n">eff_E</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;E[0] =&#39;</span><span class="p">,</span> <span class="n">E0</span><span class="p">)</span>               <span class="c"># E[0]</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;a[0]*b[0] =&#39;</span><span class="p">,</span> <span class="n">eff_E</span><span class="o">.</span><span class="n">ampl</span><span class="p">)</span>  <span class="c"># a[0]*b[0]</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;chi2/dof =&#39;</span><span class="p">,</span> <span class="n">eff_E</span><span class="o">.</span><span class="n">chi2</span><span class="o">/</span><span class="n">eff_E</span><span class="o">.</span><span class="n">dof</span><span class="p">)</span> <span class="c"># good fit if of order 1 or less</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Q =&#39;</span><span class="p">,</span> <span class="n">eff_E</span><span class="o">.</span><span class="n">Q</span><span class="p">)</span>         <span class="c"># good fit if Q bigger than about 0.1</span>
+</pre></div>
+</div>
+<p>Function <a class="reference internal" href="#corrfitter.eff_E" title="corrfitter.eff_E"><tt class="xref py py-func docutils literal"><span class="pre">eff_E()</span></tt></a> estimates <tt class="docutils literal"><span class="pre">E[0]</span></tt> by using the prior, in effect, to
+remove (<em>marginalize</em>) all terms from the correlator other than the
+<tt class="docutils literal"><span class="pre">E[0]</span></tt> term: so the data <tt class="docutils literal"><span class="pre">Gdata(t)</span></tt> for the correlator is replaced by,
+for example,</p>
+<div class="highlight-python"><pre>Gdata(t) - sum_i=1..N-1  a[i]*b[i] * exp(-E[i]*t)</pre>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">a[i]</span></tt>, <tt class="docutils literal"><span class="pre">b[i]</span></tt>, and <tt class="docutils literal"><span class="pre">E[i]</span></tt> for <tt class="docutils literal"><span class="pre">i&gt;0</span></tt> are replaced by their
+values in the prior. The modified prior is then fit by a single term,
+<tt class="docutils literal"><span class="pre">a[0]</span> <span class="pre">*</span> <span class="pre">b[0]</span> <span class="pre">*</span> <span class="pre">exp(-E[0]*t)</span></tt>, which means that a fit is not necessary
+(since the functional form is so simple). It is important to check the
+<tt class="docutils literal"><span class="pre">chi**2</span></tt> of the fit, to make sure the fit is good. If it is not, try
+restricting <tt class="docutils literal"><span class="pre">model.tfit</span></tt> to larger <tt class="docutils literal"><span class="pre">t</span></tt>s (<a class="reference internal" href="#corrfitter.eff_E" title="corrfitter.eff_E"><tt class="xref py py-func docutils literal"><span class="pre">eff_E()</span></tt></a> averages
+estimates from all <tt class="docutils literal"><span class="pre">t</span></tt>s in <tt class="docutils literal"><span class="pre">model.tfit</span></tt>).</p>
+<p>The marginalization of terms with larger <tt class="docutils literal"><span class="pre">E</span></tt>s allows the code to use
+information from much smaller <tt class="docutils literal"><span class="pre">t</span></tt>s than otherwise, increasing precision.
+It also quantifies the uncertainty caused by the existence of these terms.
+This simple analysis is a special case of the more general marginalization
+strategy discussed in <a class="reference internal" href="#faster-fits"><em>Faster Fits</em></a>, above.</p>
 </div>
 <div class="section" id="point-correlators">
 <h2>3-Point Correlators<a class="headerlink" href="#point-correlators" title="Permalink to this headline">¶</a></h2>
@@ -592,8 +630,11 @@ models in <a class="reference internal" href="#corrfitter.CorrFitter" title="cor
         <span class="n">dE</span> <span class="o">=</span> <span class="n">gvar</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;logdE&#39;</span><span class="p">])</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">dE</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>              <span class="c"># E2 formula in terms of p</span>
     
-    <span class="k">def</span> <span class="nf">_builddata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">d</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">builddata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">gvar</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span><span class="mf">0.01</span><span class="p">)</span>      <span class="c"># E2 value</span>
+        
+    <span class="k">def</span> <span class="nf">buildprior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">nterm</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
 </pre></div>
 </div>
 <p>Any number of constraints like this can be added to the list of models.</p>
@@ -887,55 +928,41 @@ correspond to the <tt class="docutils literal"><span class="pre">t``s</span> <sp
 <dt id="corrfitter.BaseModel">
 <em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">BaseModel</tt><big>(</big><em>datatag</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for correlator models.</p>
-<p>Correlator models are derived from <a class="reference internal" href="#corrfitter.BaseModel" title="corrfitter.BaseModel"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.BaseModel</span></tt></a>. Every correlator model
-must have at least the following attribute and method:</p>
+<p>Derived classes must define methods <tt class="docutils literal"><span class="pre">fitfcn</span></tt>, <tt class="docutils literal"><span class="pre">buildprior</span></tt>, and 
+<tt class="docutils literal"><span class="pre">builddata</span></tt>, all of which are described below. In addition they
+can have attributes:</p>
 <dl class="attribute">
 <dt id="corrfitter.BaseModel.datatag">
 <tt class="descname">datatag</tt><a class="headerlink" href="#corrfitter.BaseModel.datatag" title="Permalink to this definition">¶</a></dt>
-<dd><p>The (string) label used to identify Monte Carlo data for the 
-correlator in the input <tt class="xref py py-class docutils literal"><span class="pre">gvar.dataset.Dataset</span></tt>. The <tt class="docutils literal"><span class="pre">datatag</span></tt> is stored in the
-<a class="reference internal" href="#corrfitter.BaseModel" title="corrfitter.BaseModel"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.BaseModel</span></tt></a> and is passed to it at initiation.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="corrfitter.BaseModel.fitfcn">
-<tt class="descname">fitfcn</tt><big>(</big><em>self</em>, <em>p</em>, <em>nterm</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel.fitfcn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the model&#8217;s fit function as a function of parameters <tt class="docutils literal"><span class="pre">p</span></tt>.
-This function should return correlator values in the same format
-used for the input data (usually a one-dimensional array).</p>
-</dd></dl>
-
-<p>Optionally, correlator models can also define the following attribute
-and methods for use by <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a>:</p>
+<dd><blockquote>
+<div><a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a> builds fit data for the correlator by extracting the
+data in an input <tt class="xref py py-class docutils literal"><span class="pre">gvar.dataset.Dataset</span></tt> labelled by string <tt class="docutils literal"><span class="pre">datatag</span></tt>. This
+label is stored in the <tt class="docutils literal"><span class="pre">BaseModel</span></tt> and must be passed to its
+constructor.</div></blockquote>
 <dl class="attribute">
 <dt id="corrfitter.BaseModel._abscissa">
 <tt class="descname">_abscissa</tt><a class="headerlink" href="#corrfitter.BaseModel._abscissa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Array of abscissa values used in plots of the data and fit 
-corresponding to the model. Plots are not made for a model 
-that doesn&#8217;t specify this attribute.</p>
+<dd><p>(Optional) Array of abscissa values used in plots of the data and
+fit corresponding to the model. Plots are not made for a model that
+doesn&#8217;t specify this attribute.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="corrfitter.BaseModel._builddata">
-<tt class="descname">_builddata</tt><big>(</big><em>self</em>, <em>data</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel._builddata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct fit data, possibly using data stored in <tt class="docutils literal"><span class="pre">data</span></tt>. The 
-format of the data must correspond to that returned by 
-<tt class="docutils literal"><span class="pre">self.fitfcn(x,</span> <span class="pre">p)</span></tt> (usually a one-dimensional array).</p>
 </dd></dl>
 
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>datatag</strong> (<em>string</em>) &#8211; Tag used to label correlator in the input <tt class="xref py py-class docutils literal"><span class="pre">gvar.dataset.Dataset</span></tt>.</td>
-</tr>
-</tbody>
-</table>
 <dl class="method">
 <dt id="corrfitter.BaseModel.builddata">
 <tt class="descname">builddata</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel.builddata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct fit data.</p>
 <p>Format of output must be same as format for fitfcn output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> (<em>dictionary</em>) &#8211; Dataset containing correlator data 
+(see <tt class="docutils literal"><span class="pre">gvar.dataset</span></tt>).</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -945,12 +972,43 @@ format of the data must correspond to that returned by
 <p>If <tt class="docutils literal"><span class="pre">nterm</span></tt> is not <tt class="docutils literal"><span class="pre">None</span></tt>, the sizes of the priors may need
 adjusting so that they correspond to the values specified in 
 <tt class="docutils literal"><span class="pre">nterm</span></tt> (for normal and oscillating pieces).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>prior</strong> (<em>dictionary</em>) &#8211; Dictionary containing <em>a priori</em> estimates of the 
+fit parameters.</li>
+<li><strong>nterm</strong> (tuple of <tt class="docutils literal"><span class="pre">None</span></tt> or integers) &#8211; Restricts the number of non-oscillating terms in the
+fit function to <tt class="docutils literal"><span class="pre">nterm[0]</span></tt> and oscillating terms to
+<tt class="docutils literal"><span class="pre">nterm[1]</span></tt>. Setting either (or both) to <tt class="docutils literal"><span class="pre">None</span></tt> implies that
+all terms in the prior are used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em><big>)</big></dt>
-<dd><p>Compute fit function for x and fit parameters p.</p>
+<dt id="corrfitter.BaseModel.fitfcn">
+<tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel.fitfcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute fit function fit parameters <tt class="docutils literal"><span class="pre">p</span></tt> using <tt class="docutils literal"><span class="pre">nterm</span></tt> terms. &#8220;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>p</strong> (<em>dictionary</em>) &#8211; Dictionary of parameter values.</li>
+<li><strong>nterm</strong> (tuple of <tt class="docutils literal"><span class="pre">None</span></tt> or integers) &#8211; Restricts the number of non-oscillating terms in the
+fit function to <tt class="docutils literal"><span class="pre">nterm[0]</span></tt> and oscillating terms to
+<tt class="docutils literal"><span class="pre">nterm[1]</span></tt>. Setting either (or both) to <tt class="docutils literal"><span class="pre">None</span></tt> implies that
+all terms in the prior are used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -1046,13 +1104,13 @@ containing results from the fit to the next data set in
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.builddata">
-<tt class="descname">builddata</tt><big>(</big><em>data</em>, <em>prior</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.builddata" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">builddata</tt><big>(</big><em>data</em>, <em>prior</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.builddata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build fit data, corrected for marginalized terms.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.buildprior">
-<tt class="descname">buildprior</tt><big>(</big><em>prior</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.buildprior" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">buildprior</tt><big>(</big><em>prior</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.buildprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build correctly sized prior for fit.</p>
 </dd></dl>
 
@@ -1118,7 +1176,7 @@ parameters <tt class="docutils literal"><span class="pre">p</span></tt> from eac
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.lsqfit">
-<tt class="descname">lsqfit</tt><big>(</big><em>data</em>, <em>prior</em>, <em>p0=None</em>, <em>print_fit=True</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=None</em>, <em>maxit=None</em>, <em>**args</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.lsqfit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">lsqfit</tt><big>(</big><em>data</em>, <em>prior</em>, <em>p0=None</em>, <em>print_fit=True</em>, <em>nterm=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=None</em>, <em>maxit=None</em>, <em>**args</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.lsqfit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute least-squares fit of the correlator models to data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1140,30 +1198,112 @@ write out best-fit parameter values after the fit (for the next
 call to <tt class="docutils literal"><span class="pre">self.lsqfit()</span></tt>).</li>
 <li><strong>print_fit</strong> &#8211; Print fit information to standard output if 
 <tt class="docutils literal"><span class="pre">True</span></tt>; otherwise print nothing.</li>
-<li><strong>svdcut</strong> (number or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; If <tt class="docutils literal"><span class="pre">svdcut</span></tt> is positive, eigenvalues <tt class="docutils literal"><span class="pre">ev[i]</span></tt> of the 
-data covariance matrix that are smaller than <tt class="docutils literal"><span class="pre">svdcut*max(ev)</span></tt> are
-replaced by <tt class="docutils literal"><span class="pre">svdcut*max(ev)</span></tt> in the covariance matrix. If 
-<tt class="docutils literal"><span class="pre">svdcut</span></tt> is negative, eigenvalues less than <tt class="docutils literal"><span class="pre">|svdcut|*max(ev)</span></tt>
-are set to zero in the covariance matrix. The covariance matrix is
-left unchanged if <tt class="docutils literal"><span class="pre">svdcut</span></tt> is set equal to <tt class="docutils literal"><span class="pre">None</span></tt>. If
-<tt class="docutils literal"><span class="pre">svdcut</span></tt> is a 2-tuple, <em>svd</em> cuts are applied to both the
-correlator data (<tt class="docutils literal"><span class="pre">svdcut[0]</span></tt>) and to the prior (<tt class="docutils literal"><span class="pre">svdcut[1]</span></tt>).</li>
-<li><strong>svdnum</strong> (integer or <tt class="docutils literal"><span class="pre">None</span></tt> or 2-tuple) &#8211; At most <tt class="docutils literal"><span class="pre">svdnum</span></tt> eigenmodes are retained in the (rescaled) 
-data covariance matrix; the modes with the smallest eigenvalues are
-discarded. <tt class="docutils literal"><span class="pre">svdnum</span></tt> is ignored if it is set to <tt class="docutils literal"><span class="pre">None</span></tt>. If
-<tt class="docutils literal"><span class="pre">svdnum</span></tt> is a 2-tuple, <em>svd</em> cuts are applied to both the correlator
-data (<tt class="docutils literal"><span class="pre">svdnum[0]</span></tt>) and to the prior (<tt class="docutils literal"><span class="pre">svdnum[1]</span></tt>).</li>
-<li><strong>tol</strong> (<em>positive number less than 1</em>) &#8211; Tolerance used in <tt class="xref py py-func docutils literal"><span class="pre">lsqfit.nonlinear_fit()</span></tt> for the 
-least-squares fits (default=1e-10).</li>
-<li><strong>maxit</strong> (<em>integer</em>) &#8211; Maximum number of iterations to use in least-squares fit 
-(default=500).</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<p>The following parameters overwrite the values specified in the
+<a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a> constructor when set to anything other than <tt class="docutils literal"><span class="pre">None</span></tt>:
+<tt class="docutils literal"><span class="pre">nterm</span></tt>, <tt class="docutils literal"><span class="pre">svdcut</span></tt>, <tt class="docutils literal"><span class="pre">svdnum</span></tt>, <tt class="docutils literal"><span class="pre">tol</span></tt>, and <tt class="docutils literal"><span class="pre">maxit</span></tt>. Any
+further keyword arguments are passed on to
+<tt class="xref py py-func docutils literal"><span class="pre">lsqfit.nonlinear_fit()</span></tt>, which does the fit.</p>
 </dd></dl>
 
+</dd></dl>
+
+</div>
+<div class="section" id="utility-functions">
+<h2>Utility Functions<a class="headerlink" href="#utility-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="corrfitter.eff_E">
+<tt class="descclassname">corrfitter.</tt><tt class="descname">eff_E</tt><big>(</big><em>data</em>, <em>prior</em>, <em>model</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>ratio=True</em>, <em>osc=False</em><big>)</big><a class="headerlink" href="#corrfitter.eff_E" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate <tt class="docutils literal"><span class="pre">E</span></tt> for the leading component of a <tt class="xref py py-mod docutils literal"><span class="pre">Corr2</span></tt>.</p>
+<p>This function estimates En[0] in a two-point correlator:</p>
+<div class="highlight-python"><pre>Gab(t) = sn * sum_i an[i]*bn[i] * fn(En[i], t)
+       + so * sum_i ao[i]*bo[i] * fo(Eo[i], t)</pre>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">sn</span></tt> and <tt class="docutils literal"><span class="pre">so</span></tt> are typically <tt class="docutils literal"><span class="pre">-1</span></tt>, <tt class="docutils literal"><span class="pre">0</span></tt>, or <tt class="docutils literal"><span class="pre">1</span></tt> and</p>
+<div class="highlight-python"><pre>fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # tp&gt;0 -- periodic
+       or   exp(-E*t) - exp(-E*(-tp-t))# tp&lt;0 -- anti-periodic
+       or   exp(-E*t)                  # if tp is None (nonperiodic)
+
+fo(E, t) = (-1)**t * fn(E, t)</pre>
+</div>
+<p>The correlator is specified by <tt class="docutils literal"><span class="pre">model</span></tt>, and <tt class="docutils literal"><span class="pre">prior</span></tt> is used to 
+remove (marginalize) all terms other than the <tt class="docutils literal"><span class="pre">En[0]</span></tt> term
+from the data. This gives a <em>corrected</em> correlator <tt class="docutils literal"><span class="pre">Gc(t)</span></tt> that 
+includes uncertainties due to the terms removed. Estimates of <tt class="docutils literal"><span class="pre">En[0]</span></tt> 
+are given by:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Eeff</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">=</span> <span class="n">arccosh</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">Gc</span><span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">Gc</span><span class="p">(</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="n">Gc</span><span class="p">(</span><span class="n">t</span><span class="p">)),</span>
+</pre></div>
+</div>
+<p>The weighted average of the <tt class="docutils literal"><span class="pre">Eeff(t)</span></tt>s is returned by the function.</p>
+<p>If <tt class="docutils literal"><span class="pre">osc=True</span></tt>, an estimate is returned for <tt class="docutils literal"><span class="pre">Eo[0]</span></tt> rather
+than <tt class="docutils literal"><span class="pre">En[0]</span></tt>. This is most reliable when <tt class="docutils literal"><span class="pre">Eo[0]</span></tt> is smaller than
+<tt class="docutils literal"><span class="pre">En[0]</span></tt> (and so dominates at large <tt class="docutils literal"><span class="pre">t</span></tt>).</p>
+<p>Other information stored by the function includes:</p>
+<dl class="attribute">
+<dt id="corrfitter.eff_E.ampl">
+<tt class="descclassname">eff_E.</tt><tt class="descname">ampl</tt><a class="headerlink" href="#corrfitter.eff_E.ampl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weighted average of <tt class="docutils literal"><span class="pre">Gc(t)/fn(Eeff_avg,</span> <span class="pre">t)</span></tt>, which provides an 
+estimate for the amplitude <tt class="docutils literal"><span class="pre">an[0]*bn[0]</span></tt> of the leading
+term in <tt class="docutils literal"><span class="pre">Gab(t)</span></tt> (or <tt class="docutils literal"><span class="pre">ao[0]*bo[0]</span></tt> if <tt class="docutils literal"><span class="pre">osc==True</span></tt>).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="corrfitter.eff_E.ampllist">
+<tt class="descclassname">eff_E.</tt><tt class="descname">ampllist</tt><a class="headerlink" href="#corrfitter.eff_E.ampllist" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of estimates of the amplitude <tt class="docutils literal"><span class="pre">an[0]*bn[0]</span></tt>. The weighted
+average of these gives <tt class="docutils literal"><span class="pre">eff_E.ampl</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="corrfitter.eff_E.Elist">
+<tt class="descclassname">eff_E.</tt><tt class="descname">Elist</tt><a class="headerlink" href="#corrfitter.eff_E.Elist" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of <tt class="docutils literal"><span class="pre">Eeff(t)</span></tt>s. The weighted average of these is returned
+by the function.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="corrfitter.eff_E.chi2">
+<tt class="descclassname">eff_E.</tt><tt class="descname">chi2</tt><a class="headerlink" href="#corrfitter.eff_E.chi2" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">chi**2</span></tt> for the weighted average of <tt class="docutils literal"><span class="pre">Eeff(t)</span></tt>s.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="corrfitter.eff_E.dof">
+<tt class="descclassname">eff_E.</tt><tt class="descname">dof</tt><a class="headerlink" href="#corrfitter.eff_E.dof" title="Permalink to this definition">¶</a></dt>
+<dd><p>Effective number of degrees of freedom in the weighted average.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="corrfitter.eff_E.Q">
+<tt class="descclassname">eff_E.</tt><tt class="descname">Q</tt><a class="headerlink" href="#corrfitter.eff_E.Q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quality factor <cite>Q</cite> for the weighted average.</p>
+</dd></dl>
+
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<em>dictionary</em>) &#8211; Input data. The <tt class="docutils literal"><span class="pre">datatag</span></tt> from the correlator model is
+used as a data key, with <tt class="docutils literal"><span class="pre">data[datatag]</span></tt> being a 1-d array of
+<tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s corresponding to the correlator values.</li>
+<li><strong>prior</strong> (<em>dictionary</em>) &#8211; Bayesian prior for the fit parameters in the 
+correlator model.</li>
+<li><strong>model</strong> (<em>Corr2</em>) &#8211; Correlator model for correlator of interest.</li>
+<li><strong>osc</strong> (<em>Bool</em>) &#8211; If <tt class="docutils literal"><span class="pre">True</span></tt>, extract results for the leading oscillating
+term in the correlator (<tt class="docutils literal"><span class="pre">Eo[0]</span></tt>); otherwise ignore.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>In addition an <em>svd</em> cut can be specified, as in <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a>, using
+parameters <tt class="docutils literal"><span class="pre">svdcut</span></tt> and <tt class="docutils literal"><span class="pre">svdnum</span></tt>. Also the type of marginalization
+use can be specified with parameter <tt class="docutils literal"><span class="pre">ratio</span></tt> (see <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a>).</p>
 </dd></dl>
 
 </div>
@@ -1188,12 +1328,14 @@ least-squares fits (default=1e-10).</li>
 </li>
 <li><a class="reference internal" href="#faster-fits">Faster Fits</a></li>
 <li><a class="reference internal" href="#variations">Variations</a></li>
+<li><a class="reference internal" href="#effective-e-analysis">Effective E Analysis</a></li>
 <li><a class="reference internal" href="#point-correlators">3-Point Correlators</a></li>
 <li><a class="reference internal" href="#bootstrap-analyses">Bootstrap Analyses</a></li>
 <li><a class="reference internal" href="#new-models">New Models</a></li>
 <li><a class="reference internal" href="#implementation">Implementation</a></li>
 <li><a class="reference internal" href="#correlator-model-objects">Correlator Model Objects</a></li>
 <li><a class="reference internal" href="#corrfitter-objects"><tt class="docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt> Objects</a></li>
+<li><a class="reference internal" href="#utility-functions">Utility Functions</a></li>
 </ul>
 </li>
 </ul>
@@ -1230,7 +1372,7 @@ least-squares fits (default=1e-10).</li>
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.2.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
