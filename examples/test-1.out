@@ -145,7 +145,12 @@ Partial % Errors:
 
 
 
-Effective E Analysis:
-    etas: E = 0.416224(85)   E_fit = 0.416221(81)   a = 0.21841(12)   chi2/dof = 0.65   Q = 0.9
-      Ds: E = 1.20167(15)   E_fit = 1.20171(13)   a = 0.21472(22)   chi2/dof = 0.77   Q = 0.8
-      Ds: Eo = 1.447(13)   Eo_fit = 1.446(14)   chi2**2/dof = 0.60   Q= 0.9
+fast_fit Analysis:
+    etas:  E = 0.416224(85)    E_fit = 0.416221(81)   chi2/dof = 0.62   Q = 0.9
+           a = 0.21841(12)    a_fit = 0.21841(11)   chi2/dof = 0.65   Q = 0.9
+
+      Ds:  E = 1.20167(15)    E_fit = 1.20171(13)   chi2/dof = 0.74   Q = 0.8
+           a = 0.21472(22)    a_fit = 0.21477(18)   chi2/dof = 0.76   Q = 0.8
+
+      Ds: Eo = 1.447(13)   Eo_fit = 1.446(14)   chi2/dof = 0.75   Q = 0.8
+

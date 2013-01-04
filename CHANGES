@@ -14,12 +14,12 @@
 Version 3.2.5 -- Not released yet
 ===================================
 
-- New function eff_E(...) which estimates E for the dominant term in a
-  correlator. This is done by marginalizing every term in the correlator
-  except for the leading term, and then solving for E using the exact
-  formula for the leading term. The amplitude is also computed. This
+- New fitter fastfit(...) which estimates E and a*b for the dominant term
+  in a correlator at large t (usually the smallest E). This is done by
+  marginalizing every term in the correlator except for the leading term,
+  and then solving for E using the exact formula for the leading term. This
   function is useful for a quick estimate and is often almost as accurate
-  as the result of a full fit. Added unittests.
+  as the result of a full fit. Added unittests for this function.
 
 - Removed bugs in marginalization code for anti-periodic functions.
 

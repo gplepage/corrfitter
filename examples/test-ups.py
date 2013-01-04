@@ -9,7 +9,7 @@ Copyright (c) 2012 Cornell University. All rights reserved.
 
 from __future__ import print_function   # makes this work for python2 and 3
 
-from corrfitter import Corr2,CorrFitter, eff_E
+from corrfitter import Corr2,CorrFitter
 from lsqfit import wavg
 from gvar import gvar,log,exp,evalcov,mean,sdev,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data

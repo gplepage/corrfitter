@@ -171,10 +171,12 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         self.fit = fit
         return fitter
     ##
-    def doEeff(self, model, osc=False):
+    def dofastfit(self, model, osc=False):
         data = make_data(models=[model], p=self.p)
-        Eeff = eff_E(data=data, prior=self.prior, model=model, osc=osc, svdcut=SVDCUT)
-        Aeff = eff_E.ampl
+        fit = fastfit(data=data, prior=self.prior, model=model, osc=osc, 
+                       svdcut=SVDCUT)
+        Eeff = fit.E
+        Aeff = fit.ampl
         i = 0 if not osc else 1
         Etrue = unpack(self.p, model.dE)[i][0]
         Atrue = unpack(self.p, model.a)[i][0] * unpack(self.p, model.b)[i][0]
@@ -193,11 +195,11 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if DISPLAY_PLOTS:
             fitter.display_plots()
     ##
-    def test_effE_periodic(self):
-        """ corr2 -- eff_E(periodic) """
+    def test_fastfit_periodic(self):
+        """ corr2 -- fastfit(periodic) """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        self.doEeff(self.mkcorr(a="a", b="a", dE="logdE", tp=self.tp))
+        self.dofastfit(self.mkcorr(a="a", b="a", dE="logdE", tp=self.tp))
     ##        
     def test_lognormal(self):
         """ corr2 -- log normal parameters """
@@ -213,11 +215,11 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=None) ]
         self.dofit(models)
     ##
-    def test_effE_nonperiodic(self):
-        """ corr2 -- eff_E(non-periodic) """
+    def test_fastfit_nonperiodic(self):
+        """ corr2 -- fastfit(non-periodic) """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        self.doEeff(self.mkcorr(a="a", b="a", dE="logdE", tp=None))
+        self.dofastfit(self.mkcorr(a="a", b="a", dE="logdE", tp=None))
     ##        
     @unittest.skipIf(FAST,"skipping test_bootstrap for speed")
     def test_bootstrap(self):
@@ -240,11 +242,11 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=-self.tp) ]
         self.dofit(models)
     ##
-    def test_effE_antiperiodic(self):
-        """ corr2 -- eff_E(anti-periodic) """
+    def test_fastfit_antiperiodic(self):
+        """ corr2 -- fastfit(anti-periodic) """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        self.doEeff(self.mkcorr(a="a", b="a", dE="logdE", tp=-self.tp))
+        self.dofastfit(self.mkcorr(a="a", b="a", dE="logdE", tp=-self.tp))
     ##        
     def test_matrix1(self):
         """ corr2 -- 2x2 matrix fit (use othertags) """
@@ -313,11 +315,11 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                    dE=(None,"logdE"), s=(0,-1.)) ]
         self.dofit(models)
     ##
-    def test_effE_oscillating(self):
-        """ corr2 -- eff_E(oscillating (only)) """
+    def test_fastfit_oscillating(self):
+        """ corr2 -- fastfit(oscillating (only)) """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        self.doEeff(self.mkcorr(a=(None,"a"), b=(None,"a"), 
+        self.dofastfit(self.mkcorr(a=(None,"a"), b=(None,"a"), 
                     dE=(None,"logdE"), s=(0,-1.)), osc=True)
     ##        
     def test_s1(self):

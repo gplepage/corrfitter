@@ -11,7 +11,7 @@ from __future__ import print_function   # makes this work for python2 and 3
 
 import os
 import json
-from corrfitter import Corr2,Corr3,CorrFitter, eff_E
+from corrfitter import Corr2,Corr3,CorrFitter, fastfit
 from gvar import gvar,log,exp,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data
 from numpy import array,arange
@@ -27,7 +27,7 @@ except ImportError:
 
 TEST = True             # testing mode? (True, False, or "dump")
 
-EFFECTIVE_E = True      # compute effective Es
+FASTFIT = True      # compute effective Es
 
 if TEST:
     NEXP_LIST = [6]
@@ -53,23 +53,36 @@ def main():
         fit = fitter.lsqfit(data=data,prior=prior,p0=p0) # pfile)
         print_results(fit,prior,data)
         print('\n\n')
-    if EFFECTIVE_E:
-        print('Effective E Analysis:')
+    if FASTFIT:
+        def print_ffit(meson, ffit, fit=fit):
+            osc = ffit.osc
+            elabel = "Eo" if osc else "E"
+            alabel = "ao" if osc else "a"
+            E = ffit.E 
+            if osc:
+                E_fit = exp(fit.p["log(%s:dEo)" % meson][0])
+                a_fit = exp(fit.p["log(%s:ao)" % meson][0])
+            else:
+                E_fit = exp(fit.p["log(%s:dE)" % meson][0])
+                a_fit = exp(fit.p["log(%s:a)" % meson][0])
+            a = (ffit.ampl)**0.5
+            chi2_dof = ffit.chi2/ffit.dof
+            Q = ffit.Q
+            print("%8s: %2s = %s   %2s_fit = %s   chi2/dof = %.2f   Q = %.1f"
+                % (meson, elabel, E.fmt(), elabel, E_fit.fmt(), chi2_dof[0], Q[0]))
+            if osc:
+                print("")
+            else:
+                print("%8s  %2s = %s   %2s_fit = %s   chi2/dof = %.2f   Q = %.1f\n"
+                    % ("", alabel, a.fmt(), alabel, a_fit.fmt(), chi2_dof[1], Q[1]))
+        ##
+        print('fast_fit Analysis:')
         for k,model in zip(["etas","Ds"],fitter.models[:2]):
-            mass = eff_E(data=data, prior=prior, model=model)
-            ampl = (eff_E.ampl)**0.5 
-            tag = "log(%s:dE)" % k
-            print('%8s: E = %s   E_fit = %s   a = %s   chi2/dof = %.2f   Q = %.1f' % 
-                  (k, mass.fmt(), exp(fit.p[tag][0]).fmt(),
-                  ampl.fmt(), eff_E.chi2/eff_E.dof, eff_E.Q))
+            ffit = fastfit(data=data, prior=prior, model=model)
+            print_ffit(k, ffit)
             if k == 'Ds':
-                # N.B. amplitude estimate is poor, but energy is right on.
-                mass = eff_E(data=data, prior=prior, model=model, osc='True')
-                print(
-                    "%8s: Eo = %s   Eo_fit = %s   chi2**2/dof = %.2f   Q= %.1f" %
-                    (k, mass.fmt(), exp(fit.p['log(Ds:dEo)'][0]).fmt(),
-                    eff_E.chi2/eff_E.dof, eff_E.Q)
-                )
+                ffit = fastfit(data=data, prior=prior, model=model, osc='True')
+                print_ffit(k, ffit)
     if TEST == 'dump':
         with open(TEST_FILENAME,"w") as f:
             fit.pmean.dump(f, use_json=True)

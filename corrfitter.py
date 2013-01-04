@@ -17,8 +17,7 @@ least-squares fit to reproduce the data; they are specified in a shared prior
 An object of type |CorrFitter| describes a collection of correlators and is
 used to fit multiple models to data simultaneously. Any number of
 correlators may be described and fit by a single |CorrFitter| object.
-|CorrFitter| objects can also be used to to extract the appropriate fit
-data from |Dataset| objects.
+    
         
 Basic Fits
 ----------
@@ -28,8 +27,8 @@ same source and sink (``a``), and ``Gab`` which has source ``a`` and
 where ``data['Gaa']`` and ``data['Gab']`` are one-dimensional arrays
 containing values for ``Gaa(t)`` and ``Gab(t)``, respectively, with
 ``t=0,1,2...63``. Each array element in ``data['Gaa']`` and ``data['Gab']``
-is a gaussian deviate of type |GVar|, and specifies the mean and standard
-deviation for the corresponding data point::
+is a gaussian random variable of type |GVar|, and specifies the mean and
+standard deviation for the corresponding data point::
         
     >>> print data['Gaa']
     [0.159791 +- 4.13311e-06 0.0542088 +- 3.06973e-06 ... ]
@@ -59,13 +58,13 @@ A typical code has the following structure::
         
     from corrfitter import CorrFitter
         
-    data = make_data('mcfile')    # user-supplied routine
-    models = make_models()        # user-supplied routine
-    N = 4                         # number of terms in fit functions
-    prior = make_prior(N)         # user-supplied routine
+    data = make_data('mcfile')          # user-supplied routine
+    models = make_models()              # user-supplied routine
+    N = 4                               # number of terms in fit functions
+    prior = make_prior(N)               # user-supplied routine
     fitter = CorrFitter(models=models)
-    fit = fitter.lsqfit(data=data,prior=prior)  # do the fit
-    print_results(fit,prior,data) # user-supplied routine
+    fit = fitter.lsqfit(data=data, prior=prior)  # do the fit
+    print_results(fit, prior, data)     # user-supplied routine
         
 We discuss each user-supplied routine in turn.
         
@@ -100,10 +99,13 @@ tag.) The data can be analyzed using class :class:`gvar.dataset.Dataset`::
     def make_data(filename):
         return gvar.dataset.avg_data(gvar.dataset.Dataset(filename))
         
-Then ``data = make_data('mcfile')`` creates a dictionary where, as discussed
-above, ``data['Gaa']`` is an array of |GVar|\s obtained by averaging over the
-``Gaa`` data in the ``'mcfile'``, and ``data['Gab']`` is a similar array for
-the ``Gab`` correlator.
+This reads the data from file into a dataset object (type
+:class:`gvar.dataset.Dataset`) and then computes averages for each
+correlator and ``t``, together with a covariance matrix for the set of
+averages. Thus ``data = make_data('mcfile')`` creates a dictionary where
+``data['Gaa']`` is an array of |GVar|\s obtained by averaging over the
+``Gaa`` data in the ``'mcfile'``, and ``data['Gab']`` is a similar array
+for the ``Gab`` correlator.
         
 ``make_models()``
 ____________________
@@ -114,15 +116,15 @@ correlators::
     from corrfitter import Corr2
         
     def make_models():
-        models = [ Corr2(datatag='Gaa',tdata=range(64),tfit=range(64),
-                        a='a',b='a',dE='dE'),
+        models = [ Corr2(datatag='Gaa', tdata=range(64), tfit=range(64),
+                        a='a', b='a', dE='dE'),
                         
-                   Corr2(datatag='Gab',tdata=range(64),tfit=range(64),
-                        a='a',b='b',dE='dE')
+                   Corr2(datatag='Gab', tdata=range(64), tfit=range(64),
+                        a='a', b='b', dE='dE')
                  ]
         return models
         
-For each correlator, we specify: the tag used in the input data dictionary
+For each correlator, we specify: the key used in the input data dictionary
 ``data`` for that correlator (``datatag``); the values of ``t`` for which
 results are given in the input data (``tdata``); the values of ``t`` to keep
 for fits (``tfit``, here the same as the range in the input data, but could be
@@ -139,8 +141,8 @@ Note that if there is data for ``Gba(t,N)`` in addition to ``Gab(t,N)``, and
 ``Gba = Gab``, then the (weighted) average of the two data sets will be
 fit if ``models[1]`` is replace by::
         
-    Corr2(datatag='Gab',tdata=range(64),tfit=range(64),
-         a=('a',None),b=('b',None),dE=('dE',None),
+    Corr2(datatag='Gab', tdata=range(64), tfit=range(64),
+         a=('a', None), b=('b', None), dE=('dE', None),
          othertags=['Gba'])
         
 The additional argument ``othertags`` lists other data tags that correspond
@@ -154,8 +156,8 @@ equivalent.
 ____________________
 This routine defines the fit parameters that correspond to each fit-parameter
 label used in ``make_models()`` above. It also assigns *a priori* values to
-each parameter, expressed in terms of gaussian deviates (|GVar|\s), with a
-mean and standard deviation. The prior is built using class 
+each parameter, expressed in terms of gaussian random variables (|GVar|\s),
+with a mean and standard deviation. The prior is built using class
 :class:`gvar.BufferDict`::
         
     import lsqfit
@@ -163,21 +165,22 @@ mean and standard deviation. The prior is built using class
         
     def make_prior(N):
         prior = gvar.BufferDict()       # prior = {}  works too
-        prior['a'] = [gvar.gvar(0.1,0.5) for i in range(N)]
-        prior['b'] = [gvar.gvar(1.,5.) for i in range(N)]
-        prior['dE'] = [gvar.gvar(0.25,0.25) for i in range(N)]
+        prior['a'] = [gvar.gvar(0.1, 0.5) for i in range(N)]
+        prior['b'] = [gvar.gvar(1., 5.) for i in range(N)]
+        prior['dE'] = [gvar.gvar(0.25, 0.25) for i in range(N)]
         return prior
         
 (:class:`gvar.BufferDict` can be replaced by an ordinary Python dictionary;
 it is used here because it remembers the order in which the keys are added.)
-``make_prior(N)`` associates arrays of ``N`` gaussian deviates (|GVar|\s) with
-each fit-parameter label, enough for ``N`` terms in the fit function. These
-are the *a priori* values for the fit parameters, and they can be retrieved
-using the label: setting ``prior=make_prior(N)``, for example, implies that
-``prior['a'][i]``, ``prior['b'][i]`` and ``prior['dE'][i]`` are the *a priori*
-values for ``a[i]``, ``b[i]`` and ``dE[i]`` in the fit functions (see above).
-The *a priori* value for each ``a[i]`` here is set to ``0.1+-0.5``, while that
-for each ``b[i]`` is ``1+-5``::
+``make_prior(N)`` associates arrays of ``N`` gaussian random variables
+(|GVar|\s) with each fit-parameter label, enough for ``N`` terms in the fit
+function. These are the *a priori* values for the fit parameters, and they
+can be retrieved using the label: setting ``prior=make_prior(N)``, for
+example, implies that ``prior['a'][i]``, ``prior['b'][i]`` and
+``prior['dE'][i]`` are the *a priori* values for ``a[i]``, ``b[i]`` and
+``dE[i]`` in the fit functions (see above). The *a priori* value for each
+``a[i]`` here is set to ``0.1+-0.5``, while that for each ``b[i]`` is
+``1+-5``::
         
     >>> print prior['a']
     [0.1 +- 0.5 0.1 +- 0.5 0.1 +- 0.5 0.1 +- 0.5]
@@ -221,32 +224,32 @@ corresponding prior values::
     from gvar import log                        # numpy.log() works too
         
     def make_models():
-        models = [ Corr2(datatag='Gaa',tdata=range(64),tfit=range(64),
-                        a='loga',b='loga',dE='logdE'),
+        models = [ Corr2(datatag='Gaa', tdata=range(64), tfit=range(64),
+                         a='loga', b='loga', dE='logdE'),
                         
-                   Corr2(datatag='Gab',tdata=range(64),tfit=range(64),
-                        a='loga',b='b',dE='logdE')
+                   Corr2(datatag='Gab', tdata=range(64), tfit=range(64),
+                         a='loga', b='b', dE='logdE')
                  ]
         return models
         
     def make_prior(N):
         prior = gvar.BufferDict()               # prior = {}  works too
-        prior['loga'] = [log(gvar.gvar(0.3,0.3)) for i in range(N)]
-        prior['b'] = [gvar.gvar(1.,5.) for i in range(N)]
-        prior['logdE'] = [log(gvar.gvar(0.25,0.25)) for i in range(N)]
+        prior['loga'] = [log(gvar.gvar(0.1, 0.5)) for i in range(N)]
+        prior['b'] = [gvar.gvar(1., 5.) for i in range(N)]
+        prior['logdE'] = [log(gvar.gvar(0.25, 0.25)) for i in range(N)]
         return prior
         
 This replaces the original fit parameters, ``a[i]`` and ``dE[i]``, by new fit
 parameters, ``log(a[i])`` and ``log(dE[i])``. The *a priori* distributions for
-the logarithms are gaussian/normal, with priors of ``log(0.3+-0.3)`` and
+the logarithms are gaussian/normal, with priors of ``log(0.1+-0.5)`` and
 ``log(0.25_+-0.25)`` for the ``log(a)``\s and ``log(dE)``\s respectively. 
    
 ``print_results(fit,prior,data)``
 _________________________________
 The actual fit is done by ``fit=fitter.lsqfit(...)``, and the results of the
-fit reported by ``print_results(fit,prior,data)``: for example, ::
+fit reported by ``print_results(fit, prior, data)``: for example, ::
         
-    def print_results(fit,prior,data): 
+    def print_results(fit, prior, data): 
         print fit.format()                          # summary of fit info
         a = fit.p['a']                              # array of a[i]s
         b = fit.p['b']                              # array of b[i]s
@@ -257,10 +260,10 @@ fit reported by ``print_results(fit,prior,data)``: for example, ::
         print '     b[0] =',b[0]              
         print '     E[0] =',E[0]
         print 'b[0]/a[0] =',b[0]/a[0]
-        outputs = {'E0':E[0],'a0':a[0],'b0':b[0],'b0/a0':b[0]/a[0]}
-        inputs = {'a'=prior['a'],'b'=prior['b'],'dE'=prior['dE'],
+        outputs = {'E0':E[0], 'a0':a[0], 'b0':b[0], 'b0/a0':b[0]/a[0]}
+        inputs = {'a'=prior['a'], 'b'=prior['b'], 'dE'=prior['dE'],
                   'data'=[data[k] for k in data])
-        print fit.fmt_errorbudget(outputs,inputs)
+        print fit.fmt_errorbudget(outputs, inputs)
         
 The best-fit values from the fit are contained in ``fit.p`` and are accessed
 using the labels defined in the prior and the |Corr2| models. Variables like
@@ -293,7 +296,7 @@ previous section::
     ...
     dE = exp(fit.p['logdE'])                    # array of dE[i]s
     ...
-    inputs = {'loga':prior['loga'],'b':prior['b'],'logdE':fit.prior['logdE'],
+    inputs = {'loga':prior['loga'], 'b':prior['b'], 'logdE':fit.prior['logdE'],
               'data':[data[k] for k in data]}
     ...
         
@@ -412,26 +415,26 @@ measurements used to determine the covariance matrix for ``G(t)`` since
 that is the largest number of eigenmodes possible in the covariance
 matrix.)
   
-Effective E Analysis
----------------------
+Very Fast (But Limited) Fits
+-----------------------------
 At large ``t``, correlators are dominated by the term with the smallest
 ``E``, and often it is only the parameters in that leading term that are
 needed. In such cases there is a very fast analysis that is usually almost
 as accurate as a full fit. An example is::
     
-    from corrfitter import eff_E
+    from corrfitter import fastfit
     
     data = make_data('mcfile')    # user-supplied routine - fit data
     N = 10                        # number of terms in fit functions
     prior = make_prior(N)         # user-supplied routine - fit prior
     model = Corr2(a=..., b=..., ...) # create model describing correlator
-    E0 = eff_E(data=data, prior=prior, model=model)
-    print('E[0] =', E0)               # E[0]
-    print('a[0]*b[0] =', eff_E.ampl)  # a[0]*b[0]
-    print('chi2/dof =', eff_E.chi2/eff_E.dof) # good fit if of order 1 or less
-    print('Q =', eff_E.Q)         # good fit if Q bigger than about 0.1
+    fit = fastfit(data=data, prior=prior, model=model)
+    print('E[0] =', fit.E)                  # E[0]
+    print('a[0]*b[0] =', fit.ampl)          # a[0]*b[0]
+    print('chi2/dof =', fit.chi2/fit.dof)   # good fit if of order 1 or less
+    print('Q =', fit.Q)             # good fit if Q bigger than about 0.1
     
-Function :func:`eff_E` estimates ``E[0]`` by using the prior, in effect, to
+:class:`fastfit` estimates ``E[0]`` by using the prior, in effect, to
 remove (*marginalize*) all terms from the correlator other than the
 ``E[0]`` term: so the data ``Gdata(t)`` for the correlator is replaced by,
 for example, ::
@@ -443,7 +446,7 @@ values in the prior. The modified prior is then fit by a single term,
 ``a[0] * b[0] * exp(-E[0]*t)``, which means that a fit is not necessary
 (since the functional form is so simple). It is important to check the
 ``chi**2`` of the fit, to make sure the fit is good. If it is not, try
-restricting ``model.tfit`` to larger ``t``\s (:func:`eff_E` averages
+restricting ``model.tfit`` to larger ``t``\s (:class:`fastfit` averages
 estimates from all ``t``\s in ``model.tfit``).
     
 The marginalization of terms with larger ``E``\s allows the code to use
@@ -537,7 +540,7 @@ large, or fluctuations are non-gaussian. A typical code looks something like::
     from corrfitter import CorrFitter
     # fit
     dset = ds.Dataset('mcfile')
-    data = ds.avg_data(dset)    # create fit data
+    data = ds.avg_data(dset)            # create fit data
     fitter = Corrfitter(models=make_models())
     N = 4                               # number of terms in fit function
     prior = make_prior(N)
@@ -551,7 +554,7 @@ large, or fluctuations are non-gaussian. A typical code looks something like::
     print 'Bootstrap fit results:'
     nbootstrap = 10                     # number of bootstrap iterations
     bs_datalist = (ds.avg_data(d) for d in dset.bootstrap_iter(nbootstrap))
-    bs = ds.Dataset()           # bootstrap output stored in bs
+    bs = ds.Dataset()                   # bootstrap output stored in bs
     for bs_fit in fitter.bootstrap_iter(bs_datalist): # bs_fit = lsqfit output
         p = bs_fit.pmean    # best fit values for current bootstrap iteration
         bs.append('a',exp(p['loga']))   # collect bootstrap results for a[i]
@@ -630,14 +633,12 @@ An alternative implementation for the data correction is to add
 ``G(t,p,N)-G(t,p,max(N,Nmax))`` to the data. This implementation is selected
 when parameter ``ratio`` in |CorrFitter| is set to ``False``. Results are
 similar to the other implementation, though perhaps a little less robust.
-    
-The correction factor (or term) is evaluated using |GVar| arithmetic with the
-prior values for the parameters. Alternatively this factor may be estimated
-using a Monte Carlo simulation by setting |CorrFitter| parameter ``mc`` equal
-to the number of Monte Carlo samples to be used. The default is ``mc=None``,
-which implies no Monte Carlo; typical values range between 100 and 1000 if
-Monte Carlo estimates are preferred. The Monte Carlo estimates are more costly
-and often less accurate.
+
+Background information on the some of the fitting strategies used by
+|corrfitter| can be found by doing web searches for "hep-lat/0110175" and
+"arXiv:1111.1363". These are two papers by G.P. Lepage and collaborators 
+whose published versions are: G.P. Lepage et al, Nucl.Phys.Proc.Suppl. 
+106 (2002) 12-20; and K. Hornbostel et al, Phys.Rev. D85 (2012) 031504.
 """
 
 # Created by G. Peter Lepage, Cornell University, on 2010-11-26.
@@ -770,7 +771,17 @@ class Corr2(BaseModel):
         dEn[0] = En[0] > 0
         dEn[i] = En[i]-En[i-1] > 0     (for i>0)
         
-    and therefore ``En[i] = sum_j=0..i dEn[j]``.
+    and therefore ``En[i] = sum_j=0..i dEn[j]``. The fit parameters for
+    the oscillating pied are defined analogously: ``ao[i]``, ``bo[i]``,
+    and ``dEo[i]``.
+        
+    The fit parameters are specified by the keys corresponding to these
+    parameters in a dictionary of priors supplied by |CorrFitter|. The keys
+    are strings and are also used to access fit results. Any key that
+    begins with "log" is assumed to refer to the logarithm of the parameter
+    in question (that is, the exponential of the fit-parameter is used in
+    the formula for ``Gab(t)``.) This is useful for forcing ``an``, ``bn``
+    and/or ``dE`` to be positive.
         
     When ``tp is not None`` and positive, the correlator is assumed to be
     symmetrical about ``tp/2``, with ``Gab(t)=Gab(tp-t)``. Data from
@@ -778,40 +789,47 @@ class Corr2(BaseModel):
     before fitting. When ``tp`` is negative, the correlator is assumed to
     be anti-symetrical about ``-tp/2``.
         
-    :param datatag: Tag used to label correlator in the input |Dataset|.
+    :param datatag: Key used to access correlator data in the input data 
+        dictionary (see |CorrFitter|). ``data[self.datatag]`` is (1-d) 
+        array containing the correlator values (|GVar|\s) if ``data`` is the 
+        input data.
     :type datatag: string
-    :param a: Fit-parameter label for source amplitude ``an``, or a two-tuple 
-        of labels for source amplitudes ``(an, ao)``. Each label represents an
-        array of amplitudes. Replacing either label by ``None`` causes the
-        corresponding term in the correlator function to be dropped. Fit
-        parameters with labels that begin with "log" are replaced by their
-        exponentials in the fit function; here, therefore, these parameters
-        would be logarithms of the corresponding amplitudes, which amplitudes
-        must then be positive.
-    :type a: string, or two-tuple of strings or ``None``
-    :param b: Fit-parameter label for source amplitude ``bn``, or a two-tuple 
-        of labels for source amplitudes ``(bn, bo)``. Each label represents an
-        array of amplitudes. Replacing either label by ``None`` causes the
-        corresponding term in the correlator function to be dropped. Fit
-        parameters with labels that begin with "log" are replaced by their
-        exponentials in the fit function; here, therefore, these parameters
-        would be logarithms of the corresponding amplitudes, which amplitudes
-        must then be positive.
-    :type b: string, or two-tuple of strings or ``None``
-    :param dE: Fit-parameter label for intermediate-state energy differences
-        ``dEn``, or two-tuple of labels for the differences ``(dEn, dEo)``.
-        Each label represents an array of energy differences. Replacing either
-        label by ``None`` causes the corresponding term in the correlator
-        function to be dropped. Fit parameters with labels that begin with
-        "log" are replaced by their exponentials in the fit function; here,
-        therefore, these parameters would be logarithms of the corresponding
-        energy differences, which differences must then be positive.
-    :type dE: string, or two-tuple of strings or ``None``
+    :param a: Key identifying the fit parameters for the source amplitudes
+        ``an`` in the dictionary of priors provided by |CorrFitter|; or a
+        two-tuple of keys for the source amplitudes ``(an, ao)``. The
+        corresponding values in the dictionary of priors are (1-d) arrays
+        of prior values with one term for each ``an[i]`` or ``ao[i]``.
+        Replacing either key by ``None`` causes the corresponding term to
+        be dropped from the fit function. These keys are used to label the
+        corresponding parameter arrays in the fit results as well as in the
+        prior. Fit parameters with labels that begin with "log" are
+        replaced by their exponentials in the fit function; and in the
+        prior, therefore, these parameters would be logarithms of the
+        corresponding amplitudes (and the amplitudes must then be positive.)
+    :type a: string, or two-tuple of strings and/or ``None``
+    :param b: Same as ``self.a`` but for the sinks ``(bn, bo)`` instead of
+        the sources ``(an, ao)``.
+    :type b: string, or two-tuple of strings and/or ``None``
+    :param dE: Key identifying the fit parameters for the energy 
+        differences ``dEn`` in the dictionary of priors provided by
+        |CorrFitter|; or a two-tuple of keys for the energy differences
+        ``(dEn, dEo)``. The corresponding values in the dictionary of priors
+        are (1-d) arrays of prior values with one term for each ``dEn[i]``
+        or ``dEo[i]``. Replacing either key by ``None`` causes the
+        corresponding term to be dropped from the fit function. These keys
+        are used to label the corresponding parameter arrays in the fit
+        results as well as in the prior. Fit parameters with labels that
+        begin with "log" are replaced by their exponentials in the fit
+        function; and in the prior, therefore, these parameters would be
+        logarithms of the corresponding amplitudes (and the amplitudes must
+        then be positive.)
+    :type dE: string, or two-tuple of strings and/or ``None``
     :param s: Overall factor ``sn``, or two-tuple of overall factors 
         ``(sn, so)``. 
     :type s: number or two-tuple of numbers
     :param tdata: The ``t``\s corresponding to data entries in the input
-        |Dataset|.
+        data. Note that ``len(self.tdata) == len(data[self.datatag])`` is
+        required if ``data`` is the input data dictionary.
     :type tdata: list of integers
     :param tfit: List of ``t``\s to use in the fit. Only data with these
         ``t``\s (all of which should be in ``tdata``) is used in the fit.
@@ -974,23 +992,22 @@ class Corr3(BaseModel):
         
     :param datatag: Tag used to label correlator in the input |Dataset|.
     :type datatag: string
-    :param a: Fit-parameter label for ``a->V`` source amplitudes ``an``, or a 
-        two-tuple of labels for source amplitudes ``(an,ao)``. Each label
-        represents an array of amplitudes. Replacing either label by ``None``
-        causes the corresponding term in the correlator function to be
-        dropped. Fit parameters with labels that begin with "log" are replaced
-        by their exponentials in the fit function; here, therefore, these
-        parameters would be logarithms of the corresponding amplitudes, which
-        amplitudes must then be positive.
+    :param a: Key identifying the fit parameters for the source amplitudes
+        ``an``, for ``a->V``, in the dictionary of priors provided by
+        |CorrFitter|; or a two-tuple of keys for the source amplitudes
+        ``(an, ao)``. The corresponding values in the dictionary of priors
+        are (1-d) arrays of prior values with one term for each ``an[i]``
+        or ``ao[i]``. Replacing either key by ``None`` causes the
+        corresponding term to be dropped from the fit function. These keys
+        are used to label the corresponding parameter arrays in the fit
+        results as well as in the prior. Fit parameters with labels that
+        begin with "log" are replaced by their exponentials in the fit
+        function; and in the prior, therefore, these parameters would be
+        logarithms of the corresponding amplitudes (and the amplitudes must
+        then be positive.)
     :type a: string, or two-tuple of strings or ``None``
-    :param b: Fit-parameter label for ``V->b`` source amplitudes ``bn``, or a 
-        two-tuple of labels for source amplitudes ``(bn,bo)``. Each label
-        represents an array of amplitudes. Replacing either label by ``None``
-        causes the corresponding term in the correlator function to be
-        dropped. Fit parameters with labels that begin with "log" are replaced
-        by their exponentials in the fit function; here, therefore, these
-        parameters would be logarithms of the corresponding amplitudes, which
-        amplitudes must then be positive.
+    :param b: Same as ``self.a`` except for sink amplitudes ``(bn, bo)`` 
+        for ``V->b`` rather than for ``(an, ao)``.
     :type b: string, or two-tuple of strings or ``None``
     :param dEa: Fit-parameter label for ``a->V`` intermediate-state energy 
         differences ``dEan``, or two-tuple of labels for the differences
@@ -1575,10 +1592,11 @@ class CorrFitter(object):
     ##
 ##
 
-def eff_E(data, prior, model, svdcut=None, svdnum=None, ratio=True, osc=False):
-    """ Estimate ``E`` for the leading component of a :mod:`Corr2`.
+class fastfit(object):
+    """ Fast fit for the leading component of a :mod:`Corr2`.
         
-    This function estimates En[0] in a two-point correlator::
+    This function class estimates ``En[0]`` and ``an[0]*bn[0]`` in a two-point 
+    correlator::
         
         Gab(t) = sn * sum_i an[i]*bn[i] * fn(En[i], t)
                + so * sum_i ao[i]*bo[i] * fo(Eo[i], t)
@@ -1599,41 +1617,59 @@ def eff_E(data, prior, model, svdcut=None, svdnum=None, ratio=True, osc=False):
         
         Eeff(t) = arccosh(0.5*(Gc(t+1)+Gc(t-1))/Gc(t)),
         
-    The weighted average of the ``Eeff(t)``\s is returned by the function.
+    The final estimate is the weighted average ``Eeff_avg`` of the
+    ``Eeff(t)``\s for different ``t``\s. Similarly, an estimate for the
+    product of amplitutes, ``an[0]*bn[0]`` is obtained from the weighted
+    average of ::
+        
+        Aeff(t) = Gc(t)/fn(Eeff_avg, t). 
         
     If ``osc=True``, an estimate is returned for ``Eo[0]`` rather
-    than ``En[0]``. This is most reliable when ``Eo[0]`` is smaller than
+    than ``En[0]``, and ``ao[0]*bo[0]`` rather than ``an[0]*bn[0]``. 
+    These estimates are most reliable when ``Eo[0]`` is smaller than
     ``En[0]`` (and so dominates at large ``t``).
         
-    Other information stored by the function includes:
-        
-    .. attribute:: eff_E.ampl
-        
-        Weighted average of ``Gc(t)/fn(Eeff_avg, t)``, which provides an 
-        estimate for the amplitude ``an[0]*bn[0]`` of the leading
-        term in ``Gab(t)`` (or ``ao[0]*bo[0]`` if ``osc==True``).
-        
-    .. attribute:: eff_E.ampllist
+    The results of the fast fit are stored and returned in an object of type 
+    :class:`corrfitter.fastfit` with the following attributies:
     
-        List of estimates of the amplitude ``an[0]*bn[0]``. The weighted
-        average of these gives ``eff_E.ampl``.
+    .. attribute:: E
+    
+        Estimate of ``En[0]`` (or ``Eo[0] if ``osc==True``) computed
+        from the weighted average of ``Eeff(t)`` for ``t``\s in
+        ``model.tfit``. The prior is also included in the weighted average.
         
-    .. attribute:: eff_E.Elist
+    .. attribute:: ampl
         
-        List of ``Eeff(t)``\s. The weighted average of these is returned
-        by the function.
-            
-    .. attribute:: eff_E.chi2
+        Estimate of ``an[0]*bn[0]`` (or ``ao[0]*bo[0]`` if ``osc==True``)
+        computed from the weighted average of ``Aeff(t)`` for ``t``\s in
+        ``model.tfit[1:-1]``. The prior is also included in the weighted 
+        average.
+ 
+    .. attribute:: chi2
+
+        ``chi[0]`` is the ``chi**2`` for the weighted average of
+        ``Eeff(t)``\s; ``chi[1]`` is the same for the ``Aeff(t)``\s.
+
+    .. attribute:: dof
+
+        ``dof[0]`` is the effective number of degrees of freedom in the
+        weighted average of ``Eeff(t)``\s; ``dof[1]`` is the same for the
+        ``Aeff(t)``\s.
+
+    .. attribute:: Q
+
+        ``Q[0]`` is the quality factor `Q` for the weighted average of
+        ``Eeff(t)``\s; ``Q[1]`` is the same for the ``Aeff(t)``\s.
         
-        ``chi**2`` for the weighted average of ``Eeff(t)``\s.
+    .. attribute:: Elist
+
+        List of ``Eeff(t)``\s used in the weighted average to estimate
+        ``E``.
         
-    .. attribute:: eff_E.dof
+    .. attribute:: ampllist
         
-        Effective number of degrees of freedom in the weighted average.
-        
-    .. attribute:: eff_E.Q
-        
-        Quality factor `Q` for the weighted average.
+        List of ``Aeff(t)``\s used in the weighted average to estimate
+        ``ampl``.
         
     :param data: Input data. The ``datatag`` from the correlator model is
         used as a data key, with ``data[datatag]`` being a 1-d array of
@@ -1642,7 +1678,8 @@ def eff_E(data, prior, model, svdcut=None, svdnum=None, ratio=True, osc=False):
     :param prior: Bayesian prior for the fit parameters in the 
         correlator model.
     :type prior: dictionary
-    :param model: Correlator model for correlator of interest.
+    :param model: Correlator model for correlator of interest. The ``t``\s
+        in ``model.tfit`` must be consecutive.
     :type model: Corr2
     :param osc: If ``True``, extract results for the leading oscillating
         term in the correlator (``Eo[0]``); otherwise ignore.
@@ -1652,53 +1689,60 @@ def eff_E(data, prior, model, svdcut=None, svdnum=None, ratio=True, osc=False):
     parameters ``svdcut`` and ``svdnum``. Also the type of marginalization
     use can be specified with parameter ``ratio`` (see |CorrFitter|).
     """
-    assert isinstance(model, Corr2), "model must be type Corr2"
-    t = model.tfit
-    assert numpy.all(t[1:] == t[:-1]+1), "model.tfit must contain consecutive ts"
-    if osc:
-        ## capture leading oscillating part ##
-        nterm = (0, 1.)
-        Gfac = (-1)**t
-        a = model.a[1]
-        b = model.b[1]
-        dE = model.dE[1]
+    def __init__(self, data, prior, model, svdcut=None, svdnum=None, #):
+                 ratio=True, osc=False):
+        assert isinstance(model, Corr2), "model must be type Corr2"
+        t = model.tfit
+        assert numpy.all(t[1:] == t[:-1]+1), "model.tfit must contain consecutive ts"
+        self.osc = osc
+        if osc:
+            ## capture leading oscillating part ##
+            nterm = (0, 1.)
+            Gfac = (-1)**t
+            a = model.a[1]
+            b = model.b[1]
+            dE = model.dE[1]
+            ##
+        else:
+            ## capture leading non-oscillating part ##
+            nterm = (1., 0.)
+            Gfac = 1.
+            a = model.a[0]
+            b = model.b[0]
+            dE = model.dE[0]
+            ##
+        ## compute priors for answers ##
+        E_prior = numpy.exp(prior[dE][0]) if dE[:3] == "log" else prior[dE][0]
+        ampl_prior = numpy.exp(prior[a][0]) if a[:3] == "log" else prior[a][0]
+        ampl_prior *= numpy.exp(prior[b][0]) if b[:3] == "log" else prior[b][0]
         ##
-    else:
-        ## capture leading non-oscillating part ##
-        nterm = (1., 0.)
-        Gfac = 1.
-        a = model.a[0]
-        b = model.b[0]
-        dE = model.dE[0]
+        ## extract relevant data ##
+        fitter = CorrFitter(models=[model], svdcut=svdcut, svdnum=svdnum,
+                            ratio=ratio, nterm=nterm)
+        G = fitter.builddata(data=data, prior=prior)[model.datatag] * Gfac
         ##
-    ## extract relevant data ##
-    fitter = CorrFitter(models=[model], svdcut=svdcut, svdnum=svdnum,
-                        ratio=ratio, nterm=nterm)
-    G = fitter.builddata(data=data, prior=prior)[model.datatag] * Gfac
+        ## compute E ##
+        self.Elist = _gvar.arccosh(0.5*(G[2:]+G[:-2])/G[1:-1])
+        Elist = self.Elist.tolist() + [E_prior]
+        self.E = lsqfit.wavg(Elist, svdcut=svdcut, svdnum=svdnum)
+        self.chi2 = lsqfit.wavg.chi2
+        self.dof = lsqfit.wavg.dof
+        self.Q = lsqfit.wavg.Q
+        ##
+        ## compute amplitude ##
+        p = {}
+        p[a] = numpy.array([0.]) if a[:3] == "log" else numpy.array([1.])
+        p[b] = numpy.array([0.]) if b[:3] == "log" else numpy.array([1.])
+        p[dE] = numpy.log([self.E]) if dE[:3] == "log" else numpy.array([self.E])
+        G0 = model.fitfcn(p, nterm=nterm) * Gfac
+        # ii = (_gvar.mean(G0) != 0.0)
+        ii = slice(1, -1)
+        self.ampllist = G[ii]/G0[ii]
+        amplist = self.ampllist.tolist() + [ampl_prior]
+        self.ampl = lsqfit.wavg(self.ampllist, svdcut=svdcut, svdnum=svdnum)
+        self.chi2 = numpy.array([self.chi2, lsqfit.wavg.chi2])
+        self.dof = numpy.array([self.dof, lsqfit.wavg.dof])
+        self.Q = numpy.array([self.Q, lsqfit.wavg.Q])
     ##
-    ## compute E ##
-    eff_E.Elist = _gvar.arccosh(0.5*(G[2:]+G[:-2])/G[1:-1])
-    m = lsqfit.wavg(eff_E.Elist, svdcut=svdcut, svdnum=svdnum)
-    eff_E.chi2 = lsqfit.wavg.chi2
-    eff_E.dof = lsqfit.wavg.dof
-    eff_E.Q = lsqfit.wavg.Q
-    ##
-    ## compute amplitude ##
-    p = {}
-    p[a] = numpy.array([0.]) if a[:3] == "log" else numpy.array([1.])
-    p[b] = numpy.array([0.]) if b[:3] == "log" else numpy.array([1.])
-    p[dE] = numpy.log([m]) if dE[:3] == "log" else numpy.array([m])
-    G0 = model.fitfcn(p, nterm=nterm) * Gfac
-    # ii = (_gvar.mean(G0) != 0.0)
-    ii = slice(1,-1)
-    eff_E.ampllist = G[ii]/G0[ii]
-    eff_E.ampl = lsqfit.wavg(eff_E.ampllist, svdcut=svdcut, svdnum=svdnum)
-    return m
-##
-        
-
-    
-    
-        
 ##       
 

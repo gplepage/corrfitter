@@ -28,10 +28,10 @@ object.
 A model object also specifies the data that it is to model. The data is 
 identified by the data tag that labels it in the input file or |Dataset|.
 
-.. autoclass:: corrfitter.Corr2
+.. autoclass:: corrfitter.Corr2(datatag, tdata, tfit, a, b, dE, s=1.0, tp=None, othertags=None)
    :members:
    
-.. autoclass:: corrfitter.Corr3
+.. autoclass:: corrfitter.Corr3(datatag, T, tdata, tfit, Vnn, a, b, dEa, dEb, sa=1.0, sb=1.0, Vno=None, Von=None, Voo=None, transpose_V=False, symmetric_V=False, tpa=None, tpb=None, othertags=None)
    :members:
    
 .. autoclass:: corrfitter.BaseModel
@@ -46,7 +46,7 @@ is used to fit a collection of models to a collection of Monte Carlo data.
 .. autoclass:: corrfitter.CorrFitter
    :members:
 
-Utility Functions
+Utility Classes
 -----------------
 
-.. autofunction:: corrfitter.eff_E
+.. autoclass:: corrfitter.fastfit
