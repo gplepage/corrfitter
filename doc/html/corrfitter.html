@@ -333,7 +333,7 @@ amplitudes, and the <tt class="docutils literal"><span class="pre">'dE'</span></
 the fit data <tt class="docutils literal"><span class="pre">data</span></tt>. These sources are labeled in the print output by
 <tt class="docutils literal"><span class="pre">'a'</span></tt>, <tt class="docutils literal"><span class="pre">'b'</span></tt>, <tt class="docutils literal"><span class="pre">'dE'</span></tt>, and <tt class="docutils literal"><span class="pre">'data'</span></tt>, respectively. (See the
 <tt class="xref py py-mod docutils literal"><span class="pre">gvar</span></tt>/<tt class="xref py py-mod docutils literal"><span class="pre">lsqfit</span></tt> tutorial for further details on partial standard
-deviations and <tt class="xref py py-func docutils literal"><span class="pre">gvar.fmt_errorbudget()</span></tt>(...).)</p>
+deviations and <tt class="xref py py-func docutils literal"><span class="pre">gvar.fmt_errorbudget()</span></tt>.)</p>
 <p>Note that only three lines in <tt class="docutils literal"><span class="pre">print_results(fit,prior,data)</span></tt> would change
 if we had used log-normal priors for <tt class="docutils literal"><span class="pre">a</span></tt> and <tt class="docutils literal"><span class="pre">dE</span></tt>, as discussed in the
 previous section:</p>
@@ -459,7 +459,7 @@ matrix.)</p>
 <h2>Very Fast (But Limited) Fits<a class="headerlink" href="#very-fast-but-limited-fits" title="Permalink to this headline">¶</a></h2>
 <p>At large <tt class="docutils literal"><span class="pre">t</span></tt>, correlators are dominated by the term with the smallest
 <tt class="docutils literal"><span class="pre">E</span></tt>, and often it is only the parameters in that leading term that are
-needed. In such cases there is a very fast analysis that is usually almost
+needed. In such cases there is a very fast analysis that is often almost
 as accurate as a full fit. An example is:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">fastfit</span>
 
