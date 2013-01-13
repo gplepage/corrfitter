@@ -46,7 +46,7 @@ is used to fit a collection of models to a collection of Monte Carlo data.
 .. autoclass:: corrfitter.CorrFitter
    :members:
 
-Utility Classes
+Fast Fit Objects
 -----------------
 
 .. autoclass:: corrfitter.fastfit

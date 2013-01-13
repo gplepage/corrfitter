@@ -7,16 +7,18 @@ of time ``t``, of simulation (or other statistical) data for 2-point and
     Gab(t)    =  <b(t) a(0)>
     Gavb(t,T) =  <b(T) V(t) a(0)>
         
-Each correlator is modeled using |Corr2| for 2-point correlators, or
-|Corr3| for 3-point correlators in terms of amplitudes for each source
-``a``, sink ``b``, and vertex ``V``, and the energies associated with each
-intermediate state. The amplitudes and energies are adjusted in the
-least-squares fit to reproduce the data; they are specified in a shared prior
-(typically a dictionary).
+where ``T > t > 0``. Each correlator is modeled using |Corr2| for 2-point
+correlators, or |Corr3| for 3-point correlators in terms of amplitudes for
+each source ``a``, sink ``b``, and vertex ``V``, and the energies
+associated with each intermediate state. The amplitudes and energies are
+adjusted in the least-squares fit to reproduce the data; they are defined
+in a shared prior (typically a dictionary).
         
 An object of type |CorrFitter| describes a collection of correlators and is
-used to fit multiple models to data simultaneously. Any number of
-correlators may be described and fit by a single |CorrFitter| object.
+used to fit multiple models to data simultaneously. Fitting multiple
+correlators simultaneously is important if there are statistical
+correlations between the correlators. Any number of correlators may be
+described and fit by a single |CorrFitter| object.
     
         
 Basic Fits
@@ -74,14 +76,14 @@ ____________________________
 be fit. Typically such data comes from a Monte Carlo simulation. Imagine that
 the simulation creates a file called ``'mcfile'`` with layout ::
         
-     # first correlator: Gaa(t) for t=0,1,2...63
+     # first correlator: each line has Gaa(t) for t=0,1,2...63
      Gaa  0.159774739530e+00 0.541793561501e-01 ...
      Gaa  0.159751906801e+00 0.542054488624e-01 ...
      Gaa  ...
      .
      .
      .
-     # second correlator: Gab(t)
+     # second correlator: each line has Gab(t) for t=0,1,2...63
      Gab  0.155764170032e+00 0.102268808986e+00 ...
      Gab  0.156248435021e+00 0.102341455176e+00 ...
      Gab  ...
@@ -92,18 +94,19 @@ the simulation creates a file called ``'mcfile'`` with layout ::
 where each line is one Monte Carlo measurement for one or the other
 correlator, as indicated by the tags at the start of each line. (Lines for
 ``Gab`` may be interspersed with lines for ``Gaa`` since every line has a
-tag.) The data can be analyzed using class :class:`gvar.dataset.Dataset`::
+tag.) The data can be analyzed using the :mod:`gvar.dataset` module::
         
     import gvar
         
     def make_data(filename):
-        return gvar.dataset.avg_data(gvar.dataset.Dataset(filename))
+        dset = gvar.dataset.Dataset(filename)
+        return gvar.dataset.avg_data(dset)
         
 This reads the data from file into a dataset object (type
 :class:`gvar.dataset.Dataset`) and then computes averages for each
 correlator and ``t``, together with a covariance matrix for the set of
 averages. Thus ``data = make_data('mcfile')`` creates a dictionary where
-``data['Gaa']`` is an array of |GVar|\s obtained by averaging over the
+``data['Gaa']`` is a 1-d array of |GVar|\s obtained by averaging over the
 ``Gaa`` data in the ``'mcfile'``, and ``data['Gab']`` is a similar array
 for the ``Gab`` correlator.
         
@@ -126,16 +129,16 @@ correlators::
         
 For each correlator, we specify: the key used in the input data dictionary
 ``data`` for that correlator (``datatag``); the values of ``t`` for which
-results are given in the input data (``tdata``); the values of ``t`` to keep
-for fits (``tfit``, here the same as the range in the input data, but could be
-any subset); and fit-parameter labels for the source (``a``) and sink (``b``)
-amplitudes, and for the intermediate energy-differences (``dE``). The
-fit-parameter labels are connected with the actual fit parameters in the
-``prior`` (they are the dictionary keys), as discussed below. Here the two
-models, for ``Gaa`` and ``Gab``, are identical except for the data tags and
-the sinks. ``make_models()`` returns a list of models; the only parts of the
-input fit data that are fit are those for which a model is specified in
-``make_models()``. 
+results are given in the input data (``tdata``); the values of ``t`` to
+keep for fits (``tfit``, here the same as the range in the input data, but
+could be any subset); and fit-parameter labels for the source (``a``) and
+sink (``b``) amplitudes, and for the intermediate energy-differences
+(``dE``). Fit-parameter labels identify the parts of the prior,
+discussed below, corresponding to the actual fit parameters (the labels are
+dictionary keys). Here the two models, for ``Gaa`` and ``Gab``, are
+identical except for the data tags and the sinks. ``make_models()`` returns
+a list of models; the only parts of the input fit data that are fit are
+those for which a model is specified in ``make_models()``.
         
 Note that if there is data for ``Gba(t,N)`` in addition to ``Gab(t,N)``, and
 ``Gba = Gab``, then the (weighted) average of the two data sets will be
@@ -200,14 +203,14 @@ gaussian/normal distribution. The original parameter is recovered by taking
 the exponential of the new fit parameter.
         
 Using log-normal distributions where possible can significantly improve the
-stability of a fit. This is because otherwise the fit functions typically have
+stability of a fit. This is because otherwise the fit function typically has
 many symmetries that lead to large numbers of equivalent but different best
 fits. For example, the fit functions ``Gaa(t,N)`` and ``Gab(t,N)`` above are
 unchanged by exchanging ``a[i]``, ``b[i]`` and ``E[i]`` with ``a[j]``,
 ``b[j]`` and ``E[j]`` for any ``i`` and ``j``. We can remove this degeneracy
 by using a log-normal distribution for the ``dE[i]``\s since this guarantees
 that all ``dE[i]``\s are positive, and therefore that ``E[0],E[1],E[2]...``
-are ordered (in decreasing order of importance to the fit).
+are ordered (in decreasing order of importance to the fit at large ``t``).
         
 Another symmetry of ``Gaa`` and ``Gab``, which leaves both fit functions
 unchanged, is replacing ``a[i],b[i]`` by ``-a[i],-b[i]``. Yet another is to
@@ -242,15 +245,16 @@ corresponding prior values::
 This replaces the original fit parameters, ``a[i]`` and ``dE[i]``, by new fit
 parameters, ``log(a[i])`` and ``log(dE[i])``. The *a priori* distributions for
 the logarithms are gaussian/normal, with priors of ``log(0.1+-0.5)`` and
-``log(0.25_+-0.25)`` for the ``log(a)``\s and ``log(dE)``\s respectively. 
+``log(0.25+-0.25)`` for the ``log(a)``\s and ``log(dE)``\s respectively. 
    
 ``print_results(fit,prior,data)``
 _________________________________
-The actual fit is done by ``fit=fitter.lsqfit(...)``, and the results of the
-fit reported by ``print_results(fit, prior, data)``: for example, ::
+The actual fit is done by ``fit=fitter.lsqfit(...)``, which also prints out
+a summary of the fit results (this output can be suppressed if desired).
+Further results are reported by ``print_results(fit, prior, data)``: for
+example, ::
         
     def print_results(fit, prior, data): 
-        print fit.format()                          # summary of fit info
         a = fit.p['a']                              # array of a[i]s
         b = fit.p['b']                              # array of b[i]s
         dE = fit.p['dE']                            # array of dE[i]s
@@ -280,11 +284,11 @@ fit result comes from uncertainties in the inputs --- in particular, from the
 fit data and the priors. The error budget breaks the total error for a
 result down into the components coming from each source. Here the sources are
 the *a priori* errors in the priors for the ``'a'`` amplitudes, the ``'b'``
-amplitudes, and the ``'dE'`` energy differences, as well as the errors in the
-fit data ``data``. These sources are labeled in the print output by ``'a'``,
-``'b'``, ``'dE'``, and ``'data'``, respectively. (See the :mod:`lsqfit`
-documentation for further details on partial standard deviations and
-:func:`fit.fmt_errorbudget()`.)
+amplitudes, and the ``'dE'`` energy differences, as well as the errors in
+the fit data ``data``. These sources are labeled in the print output by
+``'a'``, ``'b'``, ``'dE'``, and ``'data'``, respectively. (See the
+:mod:`gvar`/:mod:`lsqfit` tutorial for further details on partial standard
+deviations and :func:`gvar.fmt_errorbudget`.)
         
 Note that only three lines in ``print_results(fit,prior,data)`` would change
 if we had used log-normal priors for ``a`` and ``dE``, as discussed in the
@@ -323,8 +327,8 @@ example from the previous section, the code ::
     p0 = None
     for N in [1,2,3,4,5,6,7,8]:
         prior = make_prior(N)
-        fit = fitter.lsqfit(data=data,prior=prior,p0=p0)
-        print_results(fit,prior,data)
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0)
+        print_results(fit, prior, data)
         p0 = fit.pmean
             
 does fits using fit functions with ``N=1...8`` terms. Parameter mean-values
@@ -354,9 +358,9 @@ remaining, non-leading terms as corrections to the data::
     models = make_models()
     p0 = None
     for N in [1,2,3]:
-        fitter = CorrFitter(models=models,nterm=N)  # fit only N terms
-        fit = fitter.lsqfit(data=data,prior=prior,p0=p0)
-        print_results(fit,prior,data)
+        fitter = CorrFitter(models=models, nterm=N)  # fit only N terms
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0)
+        print_results(fit, prior, data)
         p0 = fit.pmean
         
 Here the ``nterm`` parameter in |CorrFitter| specifies how many terms are used
@@ -397,8 +401,8 @@ exponentials with two sums ::
 in a (nonperiodic) fit function. Then an appropriate model
 would be, for example, ::
         
-    Corr2(datatag='Gaa',tdata=range(64),tfit=range(64),
-          a=('a','ao'),b=('a','ao'),dE=('logdE','logdEo'),s=(1,-1))
+    Corr2(datatag='Gaa', tdata=range(64), tfit=range(64),
+          a=('a','ao'), b=('a','ao'), dE=('logdE','logdEo'), s=(1,-1))
         
 where ``ao`` and ``dEo`` refer to additional fit parameters describing
 the oscillating component. In general parameters for amplitudes and
@@ -419,7 +423,7 @@ Very Fast (But Limited) Fits
 -----------------------------
 At large ``t``, correlators are dominated by the term with the smallest
 ``E``, and often it is only the parameters in that leading term that are
-needed. In such cases there is a very fast analysis that is usually almost
+needed. In such cases there is a very fast analysis that is often almost
 as accurate as a full fit. An example is::
     
     from corrfitter import fastfit
@@ -464,7 +468,8 @@ same intermediate states before and after ``V(t)``. Assuming the data is
 tagged by ``aVbT15`` and describes ``T=15``, the corresponding entry in the
 collection of models might then be::
     
-    Corr3(datatag="aVbT15",T=15,tdata=range(16),tfit=range(16),Vnn='Vnn',
+    Corr3(datatag="aVbT15", T=15, tdata=range(16), tfit=range(16),
+        Vnn='Vnn',                  # parameters for V
         a='a',dEa='logdE',          # parameters for a->V
         b='b',dEb='logdE',          # parameters for V->b
         )
@@ -492,15 +497,15 @@ would look something like::
     
     models = [ 
         ...
-        Corr3(datatag="aVbT15",T=15,tdata=range(16),tfit=range(16),
-            Vnn='Vnn',Vno='Vno',Von='Von',Voo='Voo',
-            a=('a','ao'),dEa=('logdE','logdEo'),sa=(1,-1), # a->V
-            b=('b','bo'),dEb=('logdE','logdEo'),sb=(1,-1)  # V->b
+        Corr3(datatag="aVbT15", T=15, tdata=range(16), tfit=range(16),
+            Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
+            a=('a','ao'), dEa=('logdE','logdEo'), sa=(1,-1), # a->V
+            b=('b','bo'), dEb=('logdE','logdEo'), sb=(1,-1)  # V->b
             ),
-        Corr3(datatag="bVaT15",T=15,tdata=range(16),tfit=range(16),
-            Vnn='Vnn',Vno='Vno',Von='Von',Voo='Voo',transpose_V=True,
-            a=('b','bo'),dEa=('logdE','logdEo'),sa=(1,-1), # b->V
-            b=('a','ao'),dEb=('logdE','logdEo'),sb=(1,-1)  # V->a
+        Corr3(datatag="bVaT15", T=15, tdata=range(16), tfit=range(16),
+            Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo', transpose_V=True,
+            a=('b','bo'), dEa=('logdE','logdEo'), sa=(1,-1), # b->V
+            b=('a','ao'), dEb=('logdE','logdEo'), sb=(1,-1)  # V->a
             ),
         ...
     ]
@@ -514,10 +519,10 @@ are the same. In that case, ``Vnn`` and ``Voo`` are symmetric matrices, and
 ``Von`` is the transpose of ``Vno``. The model for such a case would look
 like::
     
-    Corr3(datatag="aVbT15",T=15,tdata=range(16),tfit=range(16),
-        Vnn='Vnn',Vno='Vno',Von='Vno',Voo='Voo',symmetric_V=True,
-        a=('a','ao'),dEa=('logdE','logdEo'),sa=(1,-1), # a->V
-        b=('a','ao'),dEb=('logdE','logdEo'),sb=(1,-1)  # V->a
+    Corr3(datatag="aVbT15", T=15, tdata=range(16), tfit=range(16),
+        Vnn='Vnn', Vno='Vno', Von='Vno', Voo='Voo', symmetric_V=True,
+        a=('a','ao'), dEa=('logdE', 'logdEo'), sa=(1, -1), # a->V
+        b=('a','ao'), dEb=('logdE', 'logdEo'), sb=(1, -1)  # V->a
         )
     
 Here ``Vno`` and ``Von`` are set equal to the same matrix, but specifying
@@ -544,7 +549,7 @@ large, or fluctuations are non-gaussian. A typical code looks something like::
     fitter = Corrfitter(models=make_models())
     N = 4                               # number of terms in fit function
     prior = make_prior(N)
-    fit = fitter.lsqfit(prior=prior,data=data)  # do standard fit
+    fit = fitter.lsqfit(prior=prior, data=data)  # do standard fit
     print 'Fit results:'
     print 'a',exp(fit.p['loga'])        # fit results for 'a' amplitudes
     print 'dE',exp(fit.p['logdE'])      # fit results for 'dE' energies
@@ -557,13 +562,13 @@ large, or fluctuations are non-gaussian. A typical code looks something like::
     bs = ds.Dataset()                   # bootstrap output stored in bs
     for bs_fit in fitter.bootstrap_iter(bs_datalist): # bs_fit = lsqfit output
         p = bs_fit.pmean    # best fit values for current bootstrap iteration
-        bs.append('a',exp(p['loga']))   # collect bootstrap results for a[i]
-        bs.append('dE',exp(p['logdE'])) # collect results for dE[i]
+        bs.append('a', exp(p['loga']))  # collect bootstrap results for a[i]
+        bs.append('dE', exp(p['logdE']))# collect results for dE[i]
         ...                             # include other functions of p 
         ...
-    bs = ds.avg_data(bs,bstrap=True)    # medians + error estimate
-    print 'a',bs['a']                   # bootstrap result for 'a' amplitudes
-    print 'dE',bs['dE']                 # bootstrap result for 'dE' energies
+    bs = ds.avg_data(bs, bstrap=True)   # medians + error estimate
+    print 'a', bs['a']                  # bootstrap result for 'a' amplitudes
+    print 'dE', bs['dE']                # bootstrap result for 'dE' energies
     ....
         
 This code first prints out the standard fit results for the ``'a'`` amplitudes
@@ -575,7 +580,7 @@ parameters. This example uses a :class:`gvar.dataset.Dataset` object ``bs`` to
 accumulate the results from each bootstrap fit, which are computed using the
 best-fit values of the parameters (ignoring their standard deviations). Other
 functions of the fit parameters could be included as well. At the end
-``avg_data(bs,bstrap=True)`` finds median values for each quantity in
+``avg_data(bs, bstrap=True)`` finds median values for each quantity in
 ``bs``, as well as a robust estimate of the uncertainty (to within 30% since
 ``nbootstrap`` is only ``10``).
     
@@ -1631,10 +1636,10 @@ class fastfit(object):
         
     The results of the fast fit are stored and returned in an object of type 
     :class:`corrfitter.fastfit` with the following attributies:
-    
+        
     .. attribute:: E
-    
-        Estimate of ``En[0]`` (or ``Eo[0] if ``osc==True``) computed
+        
+        Estimate of ``En[0]`` (or ``Eo[0]`` if ``osc==True``) computed
         from the weighted average of ``Eeff(t)`` for ``t``\s in
         ``model.tfit``. The prior is also included in the weighted average.
         
@@ -1646,28 +1651,28 @@ class fastfit(object):
         average.
  
     .. attribute:: chi2
-
+        
         ``chi[0]`` is the ``chi**2`` for the weighted average of
         ``Eeff(t)``\s; ``chi[1]`` is the same for the ``Aeff(t)``\s.
-
+            
     .. attribute:: dof
-
+        
         ``dof[0]`` is the effective number of degrees of freedom in the
         weighted average of ``Eeff(t)``\s; ``dof[1]`` is the same for the
         ``Aeff(t)``\s.
-
+            
     .. attribute:: Q
-
+        
         ``Q[0]`` is the quality factor `Q` for the weighted average of
         ``Eeff(t)``\s; ``Q[1]`` is the same for the ``Aeff(t)``\s.
-        
+            
     .. attribute:: Elist
-
+        
         List of ``Eeff(t)``\s used in the weighted average to estimate
         ``E``.
-        
+            
     .. attribute:: ampllist
-        
+            
         List of ``Aeff(t)``\s used in the weighted average to estimate
         ``ampl``.
         
@@ -1735,7 +1740,8 @@ class fastfit(object):
         p[b] = numpy.array([0.]) if b[:3] == "log" else numpy.array([1.])
         p[dE] = numpy.log([self.E]) if dE[:3] == "log" else numpy.array([self.E])
         G0 = model.fitfcn(p, nterm=nterm) * Gfac
-        # ii = (_gvar.mean(G0) != 0.0)
+        self.G = G
+        self.G0 = G0
         ii = slice(1, -1)
         self.ampllist = G[ii]/G0[ii]
         amplist = self.ampllist.tolist() + [ampl_prior]

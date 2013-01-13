@@ -23,6 +23,8 @@ Version 3.2.5 -- Not released yet
 
 - Removed bugs in marginalization code for anti-periodic functions.
 
+- Polished some of the documentation.
+
 Version 3.2.4 -- 2012-12-20
 =================================
 This is a minor update that has no effect on most applications. It does
