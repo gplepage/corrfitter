@@ -118,7 +118,7 @@ def print_results(fit, prior, data):
                  Eetas=dEetas[0],EDs=dEDs[0])
     inputs = {'stat.':data, 'svd':fit.svdcorrection} # statistical errors in data
     inputs.update(prior)            # all entries in prior, separately
-    print(fmt_errorbudget(outputs,inputs,ndigit=3))
+    print(fmt_errorbudget(outputs,inputs,ndecimal=3))
     ##
 ##
 

@@ -106,7 +106,7 @@ def print_results(fitter,prior,data):
     outputs = dict(E0=E[0])
     if len(E)>1:
         outputs['dE1'] = E[1]
-    print(fmt_errorbudget(outputs,inputs,ndigit=3))
+    print(fmt_errorbudget(outputs,inputs,ndecimal=3))
     ##
     print('\ncorrelators:\n   ',[m.datatag for m in fitter.models])
 ##
