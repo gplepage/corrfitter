@@ -9,6 +9,7 @@ Copyright (c) 2010-2012 Cornell University. All rights reserved.
 from __future__ import print_function   # makes this work for python2 and 3
 
 import os
+import collections
 from corrfitter import Corr2,Corr3,CorrFitter
 from gvar import gvar,log,exp,evalcov,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data
@@ -60,8 +61,8 @@ def print_results(fit,prior,data):
     V = fit.p['Vnn'][0]
     print('m->V->m =',V.fmt())
     print()
-    outputs = {'V':V}
-    inputs = {'stat':data}          # all data statistical errors
+    outputs = BufferDict(V=V)
+    inputs = collections.OrderedDict(stat=data) # all data statistical errors
     inputs.update(prior)            # all parts of the prior, separately
     print(fmt_errorbudget(outputs,inputs))
 ##

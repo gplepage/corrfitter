@@ -11,8 +11,14 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-Version 3.2.5 -- Not released yet
-===================================
+Version ????? -- ?????
+=======================
+
+- Added python3.3 compatibility. This required internal tweaking of 
+  CorrFitter.
+
+Version 3.2.5 -- 2013-01-29
+===========================
 
 - New fitter fastfit(...) which estimates E and a*b for the dominant term
   in a correlator at large t (usually the smallest E). This is done by

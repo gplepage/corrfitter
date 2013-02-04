@@ -1383,7 +1383,7 @@ class CorrFitter(object):
     ## 
     def builddata(self, data, prior, nterm=None):
         """ Build fit data, corrected for marginalized terms. """
-        fitdata = {}
+        fitdata = _gvar.BufferDict()
         for m in self.models:
             fitdata[m.datatag] = m.builddata(data)
         ## remove marginal fit parameters ##
@@ -1702,7 +1702,7 @@ class fastfit(object):
         self.osc = osc
         if osc:
             ## capture leading oscillating part ##
-            nterm = (0, 1.)
+            nterm = (0, 1)
             Gfac = (-1)**t
             a = model.a[1]
             b = model.b[1]
@@ -1710,7 +1710,7 @@ class fastfit(object):
             ##
         else:
             ## capture leading non-oscillating part ##
-            nterm = (1., 0.)
+            nterm = (1, 0)
             Gfac = 1.
             a = model.a[0]
             b = model.b[0]

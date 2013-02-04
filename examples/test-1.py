@@ -11,6 +11,7 @@ from __future__ import print_function   # makes this work for python2 and 3
 
 import os
 import json
+import collections
 from corrfitter import Corr2,Corr3,CorrFitter, fastfit
 from gvar import gvar,log,exp,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data
@@ -114,10 +115,17 @@ def print_results(fit, prior, data):
     print()
     ##
     ## error budget ##
-    outputs = dict(Vnn=fit.p['Vnn'][0,0],Vno=fit.p['Vno'][0,0],
-                 Eetas=dEetas[0],EDs=dEDs[0])
-    inputs = {'stat.':data, 'svd':fit.svdcorrection} # statistical errors in data
+    outputs = BufferDict()
+    outputs['Vnn'] = fit.p['Vnn'][0,0]
+    outputs['Vno'] = fit.p['Vno'][0,0]
+    outputs['Eetas'] = dEetas[0]
+    outputs['EDs'] = dEDs[0]
+
+    inputs = collections.OrderedDict()
+    inputs['stat.'] = data          # statistical errors in data
+    inputs['svd'] = fit.svdcorrection 
     inputs.update(prior)            # all entries in prior, separately
+    
     print(fmt_errorbudget(outputs,inputs,ndecimal=3))
     ##
 ##

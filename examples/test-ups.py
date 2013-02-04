@@ -9,6 +9,7 @@ Copyright (c) 2012 Cornell University. All rights reserved.
 
 from __future__ import print_function   # makes this work for python2 and 3
 
+import collections
 from corrfitter import Corr2,CorrFitter
 from lsqfit import wavg
 from gvar import gvar,log,exp,evalcov,mean,sdev,BufferDict,fmt_errorbudget
@@ -59,6 +60,9 @@ def main():
                             ratio=RATIO,maxit=10000)
         print(30*'=','nterm =',nterm,'  nterm_prior =',len(prior['logdE']),
               '   RATIO =',RATIO)
+        p0 = collections.OrderedDict([
+            (k, p0[k]) for k in prior
+            ])
         fit = fitter.lsqfit(prior=prior,data=data,p0=p0,svdnum=svdnum)
         # print fit
         print_results(fitter,prior,data)
@@ -101,9 +105,9 @@ def print_results(fitter,prior,data):
             print('   %s ='%k,fmtlist(p[k]))
     print()
     ## error budget ##
-    inputs = dict(stat=[data[k] for k in data])
+    inputs = collections.OrderedDict(stat=[data[k] for k in data])
     inputs.update(prior)
-    outputs = dict(E0=E[0])
+    outputs = collections.OrderedDict(E0=E[0])
     if len(E)>1:
         outputs['dE1'] = E[1]
     print(fmt_errorbudget(outputs,inputs,ndecimal=3))

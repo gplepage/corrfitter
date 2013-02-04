@@ -11,6 +11,7 @@ Copyright (c) 2010-2012 Cornell University. All rights reserved.
 from __future__ import print_function   # makes this work for python2 and 3
 
 import os
+import collections
 from corrfitter import Corr2,Corr3,CorrFitter
 from gvar import gvar,log,exp,BufferDict,fmt_errorbudget
 from gvar.dataset import Dataset,avg_data
@@ -72,10 +73,21 @@ def print_results(fit,prior,data):
     print('etas->V->Dso =',fit.p['Vno'][0,0].fmt())
     print()
     ## error budget ##
-    outputs = dict(Vnn=fit.p['Vnn'][0,0],Vno=fit.p['Vno'][0,0],
-                 Eetas=dEetas[0],EDs=dEDs[0])
-    inputs = {'stat.':[data[k] for k in data]} # statistical errors in data
-    inputs.update(prior)                       # all entries in prior
+    outputs = BufferDict()
+    outputs['Vnn'] = fit.p['Vnn'][0,0]
+    outputs['Vno'] = fit.p['Vno'][0,0]
+    outputs['Eetas'] = dEetas[0]
+    outputs['EDs'] = dEDs[0]
+
+    inputs = collections.OrderedDict()
+    inputs['stat.'] = data          # statistical errors in data
+    # inputs['svd'] = fit.svdcorrection 
+    inputs.update(prior)            # all entries in prior, separately
+    
+    # outputs = dict(Vnn=fit.p['Vnn'][0,0],Vno=fit.p['Vno'][0,0],
+    #              Eetas=dEetas[0],EDs=dEDs[0])
+    # inputs = {'stat.':[data[k] for k in data]} # statistical errors in data
+    # inputs.update(prior)                       # all entries in prior
     print(fmt_errorbudget(outputs,inputs,ndecimal=3))
     ##
 ##
