@@ -4,7 +4,7 @@
 test-antiperiodic.py   --- tests antiperiodic fits
 
 Created by Peter Lepage on 2012-12-02.
-Copyright (c) 2012 Cornell University. All rights reserved.
+Copyright (c) 2010-2013 G. Peter Lepage.
 """
 from __future__ import print_function   # makes this work for python2 and 3
 

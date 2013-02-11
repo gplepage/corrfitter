@@ -4,7 +4,7 @@
 test-1.py  --- standard usage (including error budgets and plots)
 
 Created by Peter Lepage on 2010-11-26.
-Copyright (c) 2010-2012 Cornell University. All rights reserved.
+Copyright (c) 2010-2013 G. Peter Lepage.
 """
 
 from __future__ import print_function   # makes this work for python2 and 3

@@ -34,9 +34,9 @@ To install:
 4. (Optional) Look at the examples of corrfitter use in the examples/
    directory; run them all using 'make run-examples'.
 	
-4. (Optional) Use 'make clean' to erase work files and directories.
+5. (Optional) Use 'make clean' to erase work files and directories.
 
-5. (Optional) Install matplotlib (http://matplotlib.sourceforge.net/) in
+6. (Optional) Install matplotlib (http://matplotlib.sourceforge.net/) in
 	order to use CorrFitter.display_plots() for plots of the fits.
 
 
