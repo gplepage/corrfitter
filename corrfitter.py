@@ -858,6 +858,13 @@ class Corr2(BaseModel):
         self.tdata = list(tdata)
         self.tp = tp
         self.s = self._param(s, -1.)
+        pkeys = set()
+        for ai, bi, dEi in zip(self.a, self.b, self.dE):
+            for x in [ai, bi, dEi]:
+                if x is None:
+                    continue
+            pkeys.add(x)
+        self.parameter_keys = pkeys
         ## verify and compress tfit ##
         ntfit = []
         for t in tfit:
@@ -1132,6 +1139,18 @@ class Corr3(BaseModel):
         self.tdata = list(tdata)
         self.tpa = tpa
         self.tpb = tpb
+        pkeys = set()
+        for ai, bi, dEai, dEbi in zip(self.a, self.b, self.dEa, self.dEb):
+            for x in [ai, bi, dEai, dEbi]:
+                if x is None:
+                    continue
+            pkeys.add(x)
+        for x in [Vnn, Vno, Von, Voo]:
+            if x is None:
+                continue
+            pkeys.add(x)
+        self.parameter_keys = pkeys
+
         ## verify tfit ##
         ntfit = []
         for t in tfit:
@@ -1358,29 +1377,37 @@ class CorrFitter(object):
         # self.mc = mc
         self.ratio = ratio
         self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
-    ##
-    def fitfcn(self, p, nterm=None):
-        """ Composite fit function. 
-            
-        :param p: Fit parameters.
-        :type p: dict-like
-        :param nterm: Number of terms fit in the non-oscillating parts of fit 
-            functions; or two-tuple of numbers indicating how many terms to
-            fit for each of the non-oscillating and oscillating pieces in
-            fits. If set to ``None``, the number is specified by the number of
-            parameters in the prior.
-        :type nterm: number or ``None``; or two-tuple of numbers or ``None``
-        :returns: A dictionary containing the fit function results for 
-            parameters ``p`` from each model, indexed using the models' 
-            ``datatag``\s.
-        """
-        ans = {}
-        if nterm is None:
-            nterm = self.nterm
-        for m in self.models:
-            ans[m.datatag] = m.fitfcn(p, nterm=nterm)
-        return ans
-    ## 
+        self.fitfcn = self.buildfitfcn(self.models)
+    
+    def buildfitfcn(self, models):
+        " Create fit function, with support for log-normal priors. "
+        pkeys = set()
+        for m in models:
+            pkeys.update(m.parameter_keys)
+        @lsqfit.p_transforms(pkeys, 0, "p")
+        def _fitfcn(p, nterm=None):
+            """ Composite fit function. 
+                
+            :param p: Fit parameters.
+            :type p: dict-like
+            :param nterm: Number of terms fit in the non-oscillating parts of fit 
+                functions; or two-tuple of numbers indicating how many terms to
+                fit for each of the non-oscillating and oscillating pieces in
+                fits. If set to ``None``, the number is specified by the number of
+                parameters in the prior.
+            :type nterm: number or ``None``; or two-tuple of numbers or ``None``
+            :returns: A dictionary containing the fit function results for 
+                parameters ``p`` from each model, indexed using the models' 
+                ``datatag``\s.
+            """
+            ans = {}
+            if nterm is None:
+                nterm = self.nterm
+            for m in self.models:
+                ans[m.datatag] = m.fitfcn(p, nterm=nterm)
+            return ans
+        return _fitfcn
+
     def builddata(self, data, prior, nterm=None):
         """ Build fit data, corrected for marginalized terms. """
         fitdata = _gvar.BufferDict()
