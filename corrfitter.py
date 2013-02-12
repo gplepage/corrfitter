@@ -734,20 +734,45 @@ class BaseModel(object):
     ##
     def _param(self, p, default=None):
         """ Parse fit-parameter label --- utility function. """
-        if isinstance(p, tuple):
-            return p
-        else:
-            return (p, default)
-    ##
+        if not isinstance(p, tuple):
+            p = (p, default)
+        ans = [self._paramkey(i) for i in p]
+        return tuple(ans)
+    
+    def _paramkey(self, k):
+        """ Convert prior key to equivalent parameter key 
+
+        Strips off log or sqrt.
+        """
+        if isinstance(k, str):
+            if k[:4] == "log(" and k[-1] == ")":
+                return k[4:-1]
+            elif k[:3] == "log":
+                return k[3:]
+            elif k[:5] == "sqrt(" and k[-1] == ")":
+                return k[5:-1]
+            elif k[:4] == "sqrt":
+                return k[4:]
+        return k
+
+    def _priorkey(self, prior, k):
+        """ Convert parameter key to corresponding prior key
+
+        Add back in log or sqrt as needed.
+        """
+        if k in prior:
+            return k
+        for t in ["log%s", "log(%s)", "sqrt%s", "sqrt(%s)"]:
+            tk = t % k
+            if tk in prior:
+                return tk
+        raise ValueError("unknown prior: " + str(k))
+
     def _dE(self, dE, logdE):
         """ Parse fit-parameter label for E differences --- utility fcn. """
         if dE is None:
             assert logdE is not None, "must specify dE"
-            logdE = self._param(logdE, None)
-            for x in logdE:
-                assert (x is None or x[:3] == 'log'), \
-                    "logdE label must begin with 'log'"
-            return logdE
+            return self._param(logdE, None)
         else:
             return self._param(dE, None)
     ##              
@@ -858,13 +883,6 @@ class Corr2(BaseModel):
         self.tdata = list(tdata)
         self.tp = tp
         self.s = self._param(s, -1.)
-        pkeys = set()
-        for ai, bi, dEi in zip(self.a, self.b, self.dE):
-            for x in [ai, bi, dEi]:
-                if x is None:
-                    continue
-            pkeys.add(x)
-        self.parameter_keys = pkeys
         ## verify and compress tfit ##
         ntfit = []
         for t in tfit:
@@ -895,6 +913,7 @@ class Corr2(BaseModel):
             for x in [ai, bi, dEi]:
                 if x is None:
                     continue
+                x = self._priorkey(prior, x)
                 newprior[x] = prior[x][None:ntermi]
         return newprior        
     ##
@@ -951,18 +970,26 @@ class Corr2(BaseModel):
             if ai is None or bi is None or dEi is None or ofaci is None:
                 continue
             if ntermi is not None:
-                if ntermi == 0:
-                    continue
-                ai = (p[ai][:ntermi] if ai[:3] != 'log' 
-                        else _gvar.exp(p[ai][:ntermi]))
-                bi = (p[bi][:ntermi] if bi[:3] != 'log' 
-                        else _gvar.exp(p[bi][:ntermi]))
-                dEi = (p[dEi][:ntermi] if dEi[:3] != 'log' 
-                        else _gvar.exp(p[dEi][:ntermi]))
-            else:   
-                ai = p[ai] if ai[:3] != 'log' else _gvar.exp(p[ai])
-                bi = p[bi] if bi[:3] != 'log' else _gvar.exp(p[bi])
-                dEi = p[dEi] if dEi[:3] != 'log' else _gvar.exp(p[dEi])
+                ai = p[ai][:ntermi]
+                bi = p[bi][:ntermi]
+                dEi = p[dEi][:ntermi]
+            else:
+                ai = p[ai]
+                bi = p[bi]
+                dEi = p[dEi]
+            # if ntermi is not None:
+            #     if ntermi == 0:
+            #         continue
+            #     ai = (p[ai][:ntermi] if ai[:3] != 'log' 
+            #             else _gvar.exp(p[ai][:ntermi]))
+            #     bi = (p[bi][:ntermi] if bi[:3] != 'log' 
+            #             else _gvar.exp(p[bi][:ntermi]))
+            #     dEi = (p[dEi][:ntermi] if dEi[:3] != 'log' 
+            #             else _gvar.exp(p[dEi][:ntermi]))
+            # else:   
+            #     ai = p[ai] if ai[:3] != 'log' else _gvar.exp(p[ai])
+            #     bi = p[bi] if bi[:3] != 'log' else _gvar.exp(p[bi])
+            #     dEi = p[dEi] if dEi[:3] != 'log' else _gvar.exp(p[dEi])
             sumdE = 0.0
             for a, b, dE in zip(ai, bi, dEi):
                 sumdE += dE
@@ -1139,17 +1166,6 @@ class Corr3(BaseModel):
         self.tdata = list(tdata)
         self.tpa = tpa
         self.tpb = tpb
-        pkeys = set()
-        for ai, bi, dEai, dEbi in zip(self.a, self.b, self.dEa, self.dEb):
-            for x in [ai, bi, dEai, dEbi]:
-                if x is None:
-                    continue
-            pkeys.add(x)
-        for x in [Vnn, Vno, Von, Voo]:
-            if x is None:
-                continue
-            pkeys.add(x)
-        self.parameter_keys = pkeys
 
         ## verify tfit ##
         ntfit = []
@@ -1178,12 +1194,14 @@ class Corr3(BaseModel):
         for x in [self.a, self.dEa, self.b, self.dEb]:
             for xi, ntermi in zip(x, nterm):
                 if xi is not None:
+                    xi = self._priorkey(prior, xi)
                     ans[xi] = prior[xi][None:ntermi]
         for i in range(2):
             for j in range(2):
                 vij = self.V[i][j]
                 if vij is None:
                     continue
+                vij = self._priorkey(prior, vij)
                 if i == j and self.symmetric_V:
                     ans[vij] = resize_sym(prior[vij], nterm)
                 else:
@@ -1377,14 +1395,10 @@ class CorrFitter(object):
         # self.mc = mc
         self.ratio = ratio
         self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
-        self.fitfcn = self.buildfitfcn(self.models)
     
-    def buildfitfcn(self, models):
+    def buildfitfcn(self, prior):
         " Create fit function, with support for log-normal priors. "
-        pkeys = set()
-        for m in models:
-            pkeys.update(m.parameter_keys)
-        @lsqfit.p_transforms(pkeys, 0, "p")
+        @lsqfit.p_transforms(prior, 0, "p")
         def _fitfcn(p, nterm=None):
             """ Composite fit function. 
                 
@@ -1406,6 +1420,7 @@ class CorrFitter(object):
             for m in self.models:
                 ans[m.datatag] = m.fitfcn(p, nterm=nterm)
             return ans
+
         return _fitfcn
 
     def builddata(self, data, prior, nterm=None):
@@ -1420,20 +1435,19 @@ class CorrFitter(object):
         if nterm == (None, None):
             return fitdata
         else:
+            fitfcn = self.buildfitfcn(prior)
+            ftrunc = fitfcn(prior, nterm=nterm)
+            fall = fitfcn(prior, nterm=None)
             for m in self.models:
-                ftrunc = m.fitfcn(prior, nterm=nterm)
-                fall = m.fitfcn(prior, nterm=None)
                 if not self.ratio:
-                    diff = ftrunc-fall
+                    diff = ftrunc[m.datatag] - fall[m.datatag]
                     fitdata[m.datatag] += diff 
                 else:
-                    ii = (_gvar.mean(fall) != 0.0)
-                    ratio = ftrunc[ii]/fall[ii]
+                    ii = (_gvar.mean(fall[m.datatag]) != 0.0)
+                    ratio = ftrunc[m.datatag][ii]/fall[m.datatag][ii]
                     fitdata[m.datatag][ii] *= ratio 
-        ##
-        ##
         return fitdata
-    ##
+    
     def buildprior(self, prior, nterm=None):
         """ Build correctly sized prior for fit. """
         tmp = _gvar.BufferDict()
@@ -1448,7 +1462,7 @@ class CorrFitter(object):
                 ans[k] = tmp[k]
         ##
         return ans
-    ##
+    
     def lsqfit(self, data, prior, p0=None, print_fit=True, nterm=None,  #):
             svdcut=None, svdnum=None, tol=None, maxit=None, **args):
         """ Compute least-squares fit of the correlator models to data.
@@ -1488,10 +1502,13 @@ class CorrFitter(object):
         if nterm is None:
             nterm = self.nterm
         self.last_prior = prior
+
         data = self.builddata(data=data, prior=prior, nterm=nterm)
         prior = self.buildprior(prior, nterm=nterm)
+        fitfcn = self.buildfitfcn(prior)
+
         self.fit = lsqfit.nonlinear_fit( #
-            data=data, p0=p0, fcn=self.fitfcn,
+            data=data, p0=p0, fcn=fitfcn,
             prior=prior, svdcut=svdcut, svdnum=svdnum,
             reltol=tol, abstol=tol, maxit=maxit, **args)
         if print_fit:

@@ -28,7 +28,7 @@ except ImportError:
 
 TEST = True             # testing mode? (True, False, or "dump")
 
-FASTFIT = True      # compute effective Es
+FASTFIT = False      # compute effective Es
 
 if TEST:
     NEXP_LIST = [6]
@@ -38,7 +38,7 @@ if TEST:
         P0_TEST = BufferDict.load(f, use_json=True)
 else:
     P0_TEST = None
-    NEXP_LIST = [6] # [2,3,4,5,6]
+    NEXP_LIST = [6] # [2,3,4,5,6] 
     
 def main():
     dfile = "coarse_3pt_etas_Ds.bint8"   # data file

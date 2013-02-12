@@ -122,6 +122,8 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         ##
         ## actual parameters, time ranges, corr counter ##
         self.p = next(gv.raniter(self.prior))
+        for x in ['b', 'dE', 'dEo']:
+            self.p[x] = gv.exp(self.p['log' + x])
         self.tp = 10.
         self.tdata = np.arange(self.tp)
         self.tfit = self.tdata[1:]
@@ -363,6 +365,8 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         ##
         ## actual parameters, time ranges, corr counter ##
         self.p = next(gv.raniter(self.prior))
+        for x in ['b', 'dEa', 'dEao', 'dEb', 'dEbo']:
+            self.p[x] = gv.exp(self.p['log' + x])
         self.T = 18.
         self.tdata = np.arange(self.T)
         self.tfit = self.tdata[1:]
