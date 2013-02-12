@@ -20,7 +20,7 @@ import lsqfit
 import copy
 
 
-DISPLAYPLOTS = True         # display plots at end of fitting
+DISPLAYPLOTS = False         # display plots at end of fitting
 try: 
     import matplotlib
 except ImportError:
