@@ -20,13 +20,13 @@ import lsqfit
 import copy
 
 
-DISPLAYPLOTS = False         # display plots at end of fitting
+DISPLAYPLOTS = True         # display plots at end of fitting
 try: 
     import matplotlib
 except ImportError:
     DISPLAYPLOTS = False
 
-TEST = False             # testing mode? (True, False, or "dump")
+TEST = True             # testing mode? (True, False, or "dump")
 
 FASTFIT = True      # compute effective Es
 
