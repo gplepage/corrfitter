@@ -689,7 +689,7 @@ class BaseModel(object):
         super(BaseModel, self).__init__()
         self.datatag = datatag  # label
         self._abscissa = None   # for plots
-    ##
+    
     def fitfcn(self, p, nterm=None):
         """ Compute fit function fit parameters ``p`` using ``nterm`` terms. "
             
@@ -702,7 +702,7 @@ class BaseModel(object):
         :type nterm: tuple of ``None`` or integers
         """
         raise NotImplementedError("fitfcn not defined")
-    ##
+    
     def builddata(self, data):
         """ Construct fit data. 
             
@@ -713,7 +713,7 @@ class BaseModel(object):
         :type data: dictionary
         """
         raise NotImplementedError("builddata not defined")
-    ##
+    
     def buildprior(self, prior, nterm=None):
         """ Extract fit prior from ``prior``; resizing as needed. 
             
@@ -731,52 +731,31 @@ class BaseModel(object):
         :type nterm: tuple of ``None`` or integers        
         """
         raise NotImplementedError("buildprior not defined")
-    ##
-    def _param(self, p, default=None):
+    
+    @staticmethod
+    def _param(p, default=None):
         """ Parse fit-parameter label --- utility function. """
         if not isinstance(p, tuple):
             p = (p, default)
-        ans = [self._paramkey(i) for i in p]
+        ans = [BaseModel._paramkey(i) for i in p]
         return tuple(ans)
-    
-    def _paramkey(self, k):
-        """ Convert prior key to equivalent parameter key 
 
-        Strips off log or sqrt.
-        """
-        if isinstance(k, str):
-            if k[:4] == "log(" and k[-1] == ")":
-                return k[4:-1]
-            elif k[:3] == "log":
-                return k[3:]
-            elif k[:5] == "sqrt(" and k[-1] == ")":
-                return k[5:-1]
-            elif k[:4] == "sqrt":
-                return k[4:]
-        return k
+    _paramkey = staticmethod(lsqfit.p_transforms.paramkey)
+    _priorkey = staticmethod(lsqfit.p_transforms.priorkey)
 
-    def _priorkey(self, prior, k):
-        """ Convert parameter key to corresponding prior key
+    @staticmethod
+    def _transform_prior(prior):
+        return lsqfit.p_transforms(prior).transform(prior)
 
-        Add back in log or sqrt as needed.
-        """
-        if k in prior:
-            return k
-        for t in ["log%s", "log(%s)", "sqrt%s", "sqrt(%s)"]:
-            tk = t % k
-            if tk in prior:
-                return tk
-        raise ValueError("unknown prior: " + str(k))
-
-    def _dE(self, dE, logdE):
+    @staticmethod
+    def _dE(dE, logdE):
         """ Parse fit-parameter label for E differences --- utility fcn. """
         if dE is None:
             assert logdE is not None, "must specify dE"
-            return self._param(logdE, None)
+            return BaseModel._param(logdE, None)
         else:
-            return self._param(dE, None)
-    ##              
-##
+            return BaseModel._param(dE, None)
+                  
 
 class Corr2(BaseModel):
     """ Two-point correlators ``Gab(t) = <b(t) a(0)>``.
@@ -832,10 +811,7 @@ class Corr2(BaseModel):
         Replacing either key by ``None`` causes the corresponding term to
         be dropped from the fit function. These keys are used to label the
         corresponding parameter arrays in the fit results as well as in the
-        prior. Fit parameters with labels that begin with "log" are
-        replaced by their exponentials in the fit function; and in the
-        prior, therefore, these parameters would be logarithms of the
-        corresponding amplitudes (and the amplitudes must then be positive.)
+        prior. 
     :type a: string, or two-tuple of strings and/or ``None``
     :param b: Same as ``self.a`` but for the sinks ``(bn, bo)`` instead of
         the sources ``(an, ao)``.
@@ -848,11 +824,7 @@ class Corr2(BaseModel):
         or ``dEo[i]``. Replacing either key by ``None`` causes the
         corresponding term to be dropped from the fit function. These keys
         are used to label the corresponding parameter arrays in the fit
-        results as well as in the prior. Fit parameters with labels that
-        begin with "log" are replaced by their exponentials in the fit
-        function; and in the prior, therefore, these parameters would be
-        logarithms of the corresponding amplitudes (and the amplitudes must
-        then be positive.)
+        results as well as in the prior. 
     :type dE: string, or two-tuple of strings and/or ``None``
     :param s: Overall factor ``sn``, or two-tuple of overall factors 
         ``(sn, so)``. 
@@ -883,7 +855,7 @@ class Corr2(BaseModel):
         self.tdata = list(tdata)
         self.tp = tp
         self.s = self._param(s, -1.)
-        ## verify and compress tfit ##
+        # verify and compress tfit 
         ntfit = []
         for t in tfit:
             if tp is None:
@@ -902,12 +874,28 @@ class Corr2(BaseModel):
                 else:
                     raise ValueError("tfit incompatible with tdata: "
                                       +str(tfit)+" "+str(tdata))
-        ##
+        
         self.tfit = numpy.array(ntfit)
         self.othertags = othertags
         self._abscissa = self.tfit
-    ##
+    
     def buildprior(self, prior, nterm):
+        """ Create fit prior by extracting relevant pieces of ``prior``. 
+
+        Priors for the fit parameters, as specificied by ``self.a`` etc., 
+        are copied from ``prior`` into a new dictionary for use by the
+        fitter. If a key ``"XX"`` cannot be found in ``prior``, the
+        ``buildprior`` looks for one of ``"logXX"``, ``"log(XX)"``, 
+        ``"sqrtXX"``, or ``"sqrt(XX)"`` and includes the corresponding
+        prior instead.
+
+        The number of terms kept in each part of the fit can be 
+        specified using ``nterm = (n, no)`` where ``n`` is the 
+        number of non-oscillating terms and ``no`` is the number 
+        of oscillating terms. Setting ``nterm = None`` keeps 
+        all terms.
+        """
+
         newprior = _gvar.BufferDict()
         for ai, bi, dEi, ntermi in zip(self.a, self.b, self.dE, nterm):
             for x in [ai, bi, dEi]:
@@ -916,7 +904,7 @@ class Corr2(BaseModel):
                 x = self._priorkey(prior, x)
                 newprior[x] = prior[x][None:ntermi]
         return newprior        
-    ##
+    
     def builddata(self, data):
         """ Assemble fit data from dictionary ``data``. 
             
@@ -947,9 +935,9 @@ class Corr2(BaseModel):
             ans.append(ndata)
         fdata = numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
         return fdata 
-    ##
+    
     def fitfcn(self, p, nterm=None):
-        """ Return fit function for parameters ``p``. (Ingores ``x``.) """
+        """ Return fit function for parameters ``p``. """
         ans = 0.0
         t = self.tfit
         if self.tp is None:
@@ -970,6 +958,8 @@ class Corr2(BaseModel):
             if ai is None or bi is None or dEi is None or ofaci is None:
                 continue
             if ntermi is not None:
+                if ntermi == 0:
+                    continue
                 ai = p[ai][:ntermi]
                 bi = p[bi][:ntermi]
                 dEi = p[dEi][:ntermi]
@@ -977,27 +967,14 @@ class Corr2(BaseModel):
                 ai = p[ai]
                 bi = p[bi]
                 dEi = p[dEi]
-            # if ntermi is not None:
-            #     if ntermi == 0:
-            #         continue
-            #     ai = (p[ai][:ntermi] if ai[:3] != 'log' 
-            #             else _gvar.exp(p[ai][:ntermi]))
-            #     bi = (p[bi][:ntermi] if bi[:3] != 'log' 
-            #             else _gvar.exp(p[bi][:ntermi]))
-            #     dEi = (p[dEi][:ntermi] if dEi[:3] != 'log' 
-            #             else _gvar.exp(p[dEi][:ntermi]))
-            # else:   
-            #     ai = p[ai] if ai[:3] != 'log' else _gvar.exp(p[ai])
-            #     bi = p[bi] if bi[:3] != 'log' else _gvar.exp(p[bi])
-            #     dEi = p[dEi] if dEi[:3] != 'log' else _gvar.exp(p[dEi])
             sumdE = 0.0
             for a, b, dE in zip(ai, bi, dEi):
                 sumdE += dE
                 ans += ofaci*a*b*((_gvar.exp(-sumdE*t)) if tp_t is None else 
                               (_gvar.exp(-sumdE*t)+pfac*_gvar.exp(-sumdE*tp_t)) )
         return ans
-    ##
-##
+    
+
 
 class Corr3(BaseModel):
     """ Three-point correlators ``Gavb(t, T) = <b(T) V(t) a(0)>``.
@@ -1039,11 +1016,7 @@ class Corr3(BaseModel):
         or ``ao[i]``. Replacing either key by ``None`` causes the
         corresponding term to be dropped from the fit function. These keys
         are used to label the corresponding parameter arrays in the fit
-        results as well as in the prior. Fit parameters with labels that
-        begin with "log" are replaced by their exponentials in the fit
-        function; and in the prior, therefore, these parameters would be
-        logarithms of the corresponding amplitudes (and the amplitudes must
-        then be positive.)
+        results as well as in the prior. 
     :type a: string, or two-tuple of strings or ``None``
     :param b: Same as ``self.a`` except for sink amplitudes ``(bn, bo)`` 
         for ``V->b`` rather than for ``(an, ao)``.
@@ -1052,21 +1025,17 @@ class Corr3(BaseModel):
         differences ``dEan``, or two-tuple of labels for the differences
         ``(dEan,dEao)``. Each label represents an array of energy differences.
         Replacing either label by ``None`` causes the corresponding term in
-        the correlator function to be dropped. Fit parameters with labels that
-        begin with "log" are replaced by their exponentials in the fit
-        function; here, therefore, these parameters would be logarithms of the
-        corresponding energy differences, which differences must then be
-        positive.
+        the correlator function to be dropped. These keys
+        are used to label the corresponding parameter arrays in the fit
+        results as well as in the prior. 
     :type dEa: string, or two-tuple of strings or ``None``
     :param dEb: Fit-parameter label for ``V->b`` intermediate-state energy 
         differences ``dEbn``, or two-tuple of labels for the differences
         ``(dEbn,dEbo)``. Each label represents an array of energy differences.
         Replacing either label by ``None`` causes the corresponding term in
-        the correlator function to be dropped. Fit parameters with labels that
-        begin with "log" are replaced by their exponentials in the fit
-        function; here, therefore, these parameters would be logarithms of the
-        corresponding energy differences, which differences must then be
-        positive.
+        the correlator function to be dropped. These keys
+        are used to label the corresponding parameter arrays in the fit
+        results as well as in the prior. 
     :type dEb: string, or two-tuple of strings or ``None``
     :param sa: Overall factor ``san`` for the non-oscillating ``a->V`` terms 
         in the correlator, or two-tuple containing the overall factors
@@ -1166,18 +1135,31 @@ class Corr3(BaseModel):
         self.tdata = list(tdata)
         self.tpa = tpa
         self.tpb = tpb
-
-        ## verify tfit ##
+        # validate tfit 
         ntfit = []
         for t in tfit:
             if t >= 0 and t <= T:
                 ntfit.append(t)
-        ##
         self.tfit = numpy.array(ntfit)
         self._abscissa = self.tfit
         self.othertags = othertags
-    ##
+    
     def buildprior(self, prior, nterm):
+        """ Create fit prior by extracting relevant pieces of ``prior``. 
+
+        Priors for the fit parameters, as specificied by ``self.a`` etc., 
+        are copied from ``prior`` into a new dictionary for use by the
+        fitter. If a key ``"XX"`` cannot be found in ``prior``, the
+        ``buildprior`` looks for one of ``"logXX"``, ``"log(XX)"``, 
+        ``"sqrtXX"``, or ``"sqrt(XX)"`` and includes the corresponding
+        prior instead.
+
+        The number of terms kept in each part of the fit can be 
+        specified using ``nterm = (n, no)`` where ``n`` is the 
+        number of non-oscillating terms and ``no`` is the number 
+        of oscillating terms. Setting ``nterm = None`` keeps 
+        all terms.
+        """
         def resize_sym(Vii, nterm):
             N = int(numpy.round((((8*len(Vii)+1)**0.5 - 1.)/2.)))
             ans = []
@@ -1189,7 +1171,6 @@ class Corr3(BaseModel):
                         and (nterm[1] is None or j < nterm[1])):
                         ans.append(v)
             return numpy.array(ans)
-        ##
         ans = _gvar.BufferDict()
         for x in [self.a, self.dEa, self.b, self.dEb]:
             for xi, ntermi in zip(x, nterm):
@@ -1208,7 +1189,7 @@ class Corr3(BaseModel):
                     ans[vij] = prior[vij][slice(None, nterm[i]), 
                                           slice(None, nterm[j])]
         return ans         
-    ##
+    
     def builddata(self, data):
         """ Assemble fit data from dictionary ``data``. 
             
@@ -1230,9 +1211,10 @@ class Corr3(BaseModel):
                 ndata.append(odata[idt])
             ans.append(ndata)
         return numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
-    ##
+    
     def fitfcn(self, p, nterm=None):
         """ Return fit function for parameters ``p``. """
+        # setup
         ta = self.tfit
         tb = self.T-self.tfit
         if self.tpa is None:
@@ -1252,11 +1234,10 @@ class Corr3(BaseModel):
         else:
             tp_tb = -self.tpb - tb
             pbfac = -1
-        # tp_ta = None if self.tpa is None else self.tpa-ta
-        # tp_tb = None if self.tpb is None else self.tpb-tb
         if nterm is None:
             nterm = (None, None)
-        ## initial and final propagators ## 
+
+        # initial and final propagators  
         aprop = []  # aprop[i][j] i= n or o; j=excitation level
         ofac = (self.sa[0], (0.0 if self.sa[1] == 0.0 else self.sa[1]*(-1)**ta))
         for ai, dEai, ofaci, ntermai in zip(self.a, self.dEa, ofac, nterm):
@@ -1266,16 +1247,14 @@ class Corr3(BaseModel):
             ans = []
             sumdE = 0.0
             if ntermai is None:
-                ai =  p[ai] if ai[:3] != 'log' else _gvar.exp(p[ai])
-                dEai = p[dEai] if dEai[:3] != 'log' else _gvar.exp(p[dEai])
+                ai =  p[ai] 
+                dEai = p[dEai] 
             else:
                 if ntermai <= 0:
                     aprop.append(None)
                     continue
-                ai =  (p[ai][:ntermai] if ai[:3] != 'log' 
-                            else _gvar.exp(p[ai][:ntermai]))
-                dEai = (p[dEai][:ntermai] if dEai[:3] != 'log' 
-                            else _gvar.exp(p[dEai][:ntermai]))
+                ai =  p[ai][:ntermai]
+                dEai = p[dEai][:ntermai] 
             for a, dE in zip(ai, dEai):
                 sumdE += dE
                 ans.append(ofaci*a*((_gvar.exp(-sumdE*ta)) 
@@ -1291,24 +1270,22 @@ class Corr3(BaseModel):
             ans = []
             sumdE = 0.0
             if ntermbi is None:
-                bi = p[bi] if bi[:3] != 'log' else _gvar.exp(p[bi])
-                dEbi = p[dEbi] if dEbi[:3] != 'log' else _gvar.exp(p[dEbi])
+                bi = p[bi] 
+                dEbi = p[dEbi]
             else:
                 if ntermbi <= 0:
                     bprop.append(None)
                     continue
-                bi = (p[bi][:ntermbi] if bi[:3] != 'log' 
-                            else _gvar.exp(p[bi][:ntermbi]))
-                dEbi = (p[dEbi][:ntermbi] if dEbi[:3] != 'log' 
-                            else _gvar.exp(p[dEbi][:ntermbi]))
+                bi = p[bi][:ntermbi] 
+                dEbi = p[dEbi][:ntermbi] 
             for b, dE in zip(bi, dEbi):
                 sumdE += dE
                 ans.append(ofaci*b*((_gvar.exp(-sumdE*tb)) 
                         if tp_tb is None else 
                         (_gvar.exp(-sumdE*tb)+pbfac*_gvar.exp(-sumdE*tp_tb))))
             bprop.append(ans)
-        ##
-        ## combine propagators with vertices ##
+        
+        # combine propagators with vertices 
         ans = 0.0
         for i, (apropi, Vi) in enumerate(zip(aprop, self.V)):
             if apropi is None:
@@ -1316,9 +1293,9 @@ class Corr3(BaseModel):
             for j, (bpropj, Vij) in enumerate(zip(bprop, Vi)):
                 if bpropj is None or Vij is None:
                     continue
-                V = _gvar.exp(p[Vij]) if Vij[:3] == 'log' else p[Vij]
+                V = p[Vij]
                 if i == j and self.symmetric_V:
-                    ## unpack symmetric matrix V ##
+                    # unpack symmetric matrix V 
                     na = len(apropi)
                     nb = len(bpropj)
                     assert na == nb, \
@@ -1330,7 +1307,7 @@ class Corr3(BaseModel):
                             V[k, l] = next(iterV)
                             if k != l:
                                 V[l, k] = V[k, l]
-                    ##
+                    
                 if self.transpose_V or (i>j and self.symmetric_V):
                     V = V.T
                 for ak, Vk in zip(apropi, V):
@@ -1338,10 +1315,7 @@ class Corr3(BaseModel):
                     for bl, Vkl in zip(bpropj, Vk):
                         acc += Vkl*bl
                     ans += ak*acc
-        ##
         return ans                
-    ##
-##                    
             
 class CorrFitter(object):
     """ Nonlinear least-squares fitter for a collection of correlators. 
@@ -1397,9 +1371,12 @@ class CorrFitter(object):
         self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
     
     def buildfitfcn(self, prior):
-        " Create fit function, with support for log-normal priors. "
-        @lsqfit.p_transforms(prior, 0, "p")
-        def _fitfcn(p, nterm=None):
+        " Create fit function, with support for log-normal, etc. priors. "
+
+        def _fitfcn(
+            p, nterm=None, self=self, 
+            transform=lsqfit.p_transforms(prior, 0, "p").transform
+            ):
             """ Composite fit function. 
                 
             :param p: Fit parameters.
@@ -1414,6 +1391,7 @@ class CorrFitter(object):
                 parameters ``p`` from each model, indexed using the models' 
                 ``datatag``\s.
             """
+            p = transform(p)
             ans = {}
             if nterm is None:
                 nterm = self.nterm
@@ -1428,16 +1406,16 @@ class CorrFitter(object):
         fitdata = _gvar.BufferDict()
         for m in self.models:
             fitdata[m.datatag] = m.builddata(data)
-        ## remove marginal fit parameters ##
+        # remove marginal fit parameters 
         if nterm is None:
             nterm = self.nterm
-        ## use priors to remove marginal parameters ##
+        # use priors to remove marginal parameters 
         if nterm == (None, None):
             return fitdata
         else:
             fitfcn = self.buildfitfcn(prior)
             ftrunc = fitfcn(prior, nterm=nterm)
-            fall = fitfcn(prior, nterm=None)
+            fall = fitfcn(prior, nterm=(None, None))
             for m in self.models:
                 if not self.ratio:
                     diff = ftrunc[m.datatag] - fall[m.datatag]
@@ -1455,12 +1433,11 @@ class CorrFitter(object):
             nterm = self.nterm
         for m in self.models:
             tmp.update(m.buildprior(prior=prior, nterm=nterm))
-        ## restore order of keys --- same as prior ##
+        # restore order of keys --- same as prior 
         ans = _gvar.BufferDict()
         for k in prior:
             if k in tmp:
                 ans[k] = tmp[k]
-        ##
         return ans
     
     def lsqfit(self, data, prior, p0=None, print_fit=True, nterm=None,  #):
@@ -1491,6 +1468,7 @@ class CorrFitter(object):
         further keyword arguments are passed on to
         :func:`lsqfit.nonlinear_fit`, which does the fit.
         """
+        # setup
         if svdcut is None:
             svdcut = self.svdcut
         if svdnum is None:
@@ -1503,18 +1481,19 @@ class CorrFitter(object):
             nterm = self.nterm
         self.last_prior = prior
 
+        # do the fit and print results
         data = self.builddata(data=data, prior=prior, nterm=nterm)
         prior = self.buildprior(prior, nterm=nterm)
         fitfcn = self.buildfitfcn(prior)
-
         self.fit = lsqfit.nonlinear_fit( #
-            data=data, p0=p0, fcn=fitfcn,
-            prior=prior, svdcut=svdcut, svdnum=svdnum,
-            reltol=tol, abstol=tol, maxit=maxit, **args)
+            data=data, p0=p0, fcn=fitfcn, prior=prior, 
+            svdcut=svdcut, svdnum=svdnum, reltol=tol, 
+            abstol=tol, maxit=maxit, **args
+            )
         if print_fit:
             print(self.fit.format())
         return self.fit
-    ##
+
     def bootstrap_iter(self, datalist=None, n=None):
         """ Iterator that creates bootstrap copies of a |CorrFitter| fit using 
         bootstrap data from list ``data_list``.
@@ -1550,7 +1529,7 @@ class CorrFitter(object):
                         for d in datalist)
         for bs_fit in self.fit.bootstrap_iter(n, datalist=datalist):
             yield bs_fit
-    ##
+    
     def collect_fitresults(self):
         """ Collect results from last fit for plots, tables etc.
             
@@ -1579,7 +1558,7 @@ class CorrFitter(object):
                         _gvar.mean(cth), _gvar.sdev(cth))
         self.keys = keys
         return ans
-    ##
+    
     def display_plots(self):
         """ Show plots of data/fit-function for each correlator.
             
@@ -1619,7 +1598,7 @@ class CorrFitter(object):
             ax.plot(t[ii], 1-dgth[ii]/gth[ii], 'r--') 
             plt.draw()
             # fig.draw()
-        ##
+        
         def onpress(event, idx=idx):
             try:    # digit?
                 idx[0] = int(event.key)
@@ -1634,12 +1613,12 @@ class CorrFitter(object):
                 else:
                     return
             plotdata(idx)
-        ##
+        
         fig.canvas.mpl_connect('key_press_event', onpress)
         plotdata(idx)
         plt.show()
-    ##
-##
+    
+
 
 class fastfit(object):
     """ Fast fit for the leading component of a :mod:`Corr2`.
@@ -1741,48 +1720,50 @@ class fastfit(object):
     def __init__(self, data, prior, model, svdcut=None, svdnum=None, #):
                  ratio=True, osc=False):
         assert isinstance(model, Corr2), "model must be type Corr2"
+        prior = _gvar.BufferDict(prior)
         t = model.tfit
         assert numpy.all(t[1:] == t[:-1]+1), "model.tfit must contain consecutive ts"
         self.osc = osc
         if osc:
-            ## capture leading oscillating part ##
+            # capture leading oscillating part 
             nterm = (0, 1)
             Gfac = (-1)**t
             a = model.a[1]
             b = model.b[1]
             dE = model.dE[1]
-            ##
         else:
-            ## capture leading non-oscillating part ##
+            # capture leading non-oscillating part 
             nterm = (1, 0)
             Gfac = 1.
             a = model.a[0]
             b = model.b[0]
             dE = model.dE[0]
-            ##
-        ## compute priors for answers ##
-        E_prior = numpy.exp(prior[dE][0]) if dE[:3] == "log" else prior[dE][0]
-        ampl_prior = numpy.exp(prior[a][0]) if a[:3] == "log" else prior[a][0]
-        ampl_prior *= numpy.exp(prior[b][0]) if b[:3] == "log" else prior[b][0]
-        ##
-        ## extract relevant data ##
+        # extract relevant data 
         fitter = CorrFitter(models=[model], svdcut=svdcut, svdnum=svdnum,
                             ratio=ratio, nterm=nterm)
         G = fitter.builddata(data=data, prior=prior)[model.datatag] * Gfac
-        ##
-        ## compute E ##
+        
+        # transform prior
+        prior = BaseModel._transform_prior(prior)
+        # compute priors for answers 
+        E_prior =  prior[dE][0]
+        ampl_prior =  prior[a][0]
+        ampl_prior *=  prior[b][0]
+        
+        # compute E 
         self.Elist = _gvar.arccosh(0.5*(G[2:]+G[:-2])/G[1:-1])
         Elist = self.Elist.tolist() + [E_prior]
         self.E = lsqfit.wavg(Elist, svdcut=svdcut, svdnum=svdnum)
         self.chi2 = lsqfit.wavg.chi2
         self.dof = lsqfit.wavg.dof
         self.Q = lsqfit.wavg.Q
-        ##
-        ## compute amplitude ##
+        
+        # compute amplitude 
         p = {}
-        p[a] = numpy.array([0.]) if a[:3] == "log" else numpy.array([1.])
-        p[b] = numpy.array([0.]) if b[:3] == "log" else numpy.array([1.])
-        p[dE] = numpy.log([self.E]) if dE[:3] == "log" else numpy.array([self.E])
+        p[a] =  numpy.array([1.])
+        p[b] =  numpy.array([1.])
+        p[dE] = numpy.array([self.E])
+
         G0 = model.fitfcn(p, nterm=nterm) * Gfac
         self.G = G
         self.G0 = G0
@@ -1793,6 +1774,6 @@ class fastfit(object):
         self.chi2 = numpy.array([self.chi2, lsqfit.wavg.chi2])
         self.dof = numpy.array([self.dof, lsqfit.wavg.dof])
         self.Q = numpy.array([self.Q, lsqfit.wavg.Q])
-    ##
-##       
+    
+       
 

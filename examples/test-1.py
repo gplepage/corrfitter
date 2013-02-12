@@ -28,7 +28,7 @@ except ImportError:
 
 TEST = True             # testing mode? (True, False, or "dump")
 
-FASTFIT = False      # compute effective Es
+FASTFIT = True      # compute effective Es
 
 if TEST:
     NEXP_LIST = [6]
