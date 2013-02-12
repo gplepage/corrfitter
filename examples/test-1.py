@@ -26,7 +26,7 @@ try:
 except ImportError:
     DISPLAYPLOTS = False
 
-TEST = True             # testing mode? (True, False, or "dump")
+TEST = False             # testing mode? (True, False, or "dump")
 
 FASTFIT = True      # compute effective Es
 
@@ -39,7 +39,7 @@ if TEST:
 else:
     TEST_FILENAME = 'test-1.testp'
     P0_TEST = None
-    NEXP_LIST = [2,3,4,5,6]
+    NEXP_LIST = [6] # [2,3,4,5,6]
     
 def main():
     dfile = "coarse_3pt_etas_Ds.bint8"   # data file
