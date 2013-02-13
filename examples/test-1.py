@@ -37,9 +37,12 @@ if TEST:
     with open(TEST_FILENAME,"r") as f:
         P0_TEST = BufferDict.load(f, use_json=True)
 else:
-    TEST_FILENAME = 'test-1.testp'
     P0_TEST = None
+<<<<<<< HEAD
     NEXP_LIST = [6] # [2,3,4,5,6]
+=======
+    NEXP_LIST = [6] # [2,3,4,5,6] 
+>>>>>>> new-lognormal
     
 def main():
     dfile = "coarse_3pt_etas_Ds.bint8"   # data file

@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.2.5 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.3 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.2.5',
+        VERSION:     '3.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.2.5 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.3 documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -47,7 +47,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.3 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -245,12 +245,12 @@ example, implies that <tt class="docutils literal"><span class="pre">prior['a'][
 (See the <tt class="xref py py-mod docutils literal"><span class="pre">lsqfit</span></tt> documentation for further information on priors.)</p>
 <p>The priors assign an <em>a priori</em> gaussian or normal distribution to each
 parameter. It is possible instead to assign a log-normal distribution, which
-forces the parameter to be positive. This is done by choosing a label that
-begins with &#8220;log&#8221;: for example, <tt class="docutils literal"><span class="pre">'logdE'</span></tt> instead of <tt class="docutils literal"><span class="pre">'dE'</span></tt>. The fitter
-implements the log-normal distribution by using the parameter&#8217;s logarithm,
-instead of the parameter itself, as a new fit parameter; the logarithm has a
-gaussian/normal distribution. The original parameter is recovered by taking
-the exponential of the new fit parameter.</p>
+forces the parameter to be positive. This is done by choosing a label in the
+prior that begins with &#8220;log&#8221;: for example, <tt class="docutils literal"><span class="pre">'logdE'</span></tt> instead of <tt class="docutils literal"><span class="pre">'dE'</span></tt>.
+The fitter implements the log-normal distribution by using the parameter&#8217;s
+logarithm, instead of the parameter itself, as a new fit parameter; the
+logarithm has a gaussian/normal distribution. The original parameter is
+recovered by taking the exponential of the new fit parameter.</p>
 <p>Using log-normal distributions where possible can significantly improve the
 stability of a fit. This is because otherwise the fit function typically has
 many symmetries that lead to large numbers of equivalent but different best
@@ -268,16 +268,16 @@ removed by using a log-normal distribution for the <tt class="docutils literal">
 forcing all <tt class="docutils literal"><span class="pre">a[i]&gt;0</span></tt>.</p>
 <p>The log-normal distributions for the <tt class="docutils literal"><span class="pre">a[i]</span></tt> and <tt class="docutils literal"><span class="pre">dE[i]</span></tt> are introduced
 into the code example by changing the corresponding labels in
-<tt class="docutils literal"><span class="pre">make_models()</span></tt> and <tt class="docutils literal"><span class="pre">make_prior(N)</span></tt>, and taking logarithms of the
-corresponding prior values:</p>
+<tt class="docutils literal"><span class="pre">make_prior(N)</span></tt> (the labels need not be changed in <tt class="docutils literal"><span class="pre">make_models()</span></tt>),  and
+taking logarithms of the corresponding prior values:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">gvar</span> <span class="kn">import</span> <span class="n">log</span>                        <span class="c"># numpy.log() works too</span>
     
-<span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>                          <span class="c"># same as before</span>
     <span class="n">models</span> <span class="o">=</span> <span class="p">[</span> <span class="n">Corr2</span><span class="p">(</span><span class="n">datatag</span><span class="o">=</span><span class="s">&#39;Gaa&#39;</span><span class="p">,</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span> <span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
-                     <span class="n">a</span><span class="o">=</span><span class="s">&#39;loga&#39;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s">&#39;loga&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;logdE&#39;</span><span class="p">),</span>
+                     <span class="n">a</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;dE&#39;</span><span class="p">),</span>
                     
                <span class="n">Corr2</span><span class="p">(</span><span class="n">datatag</span><span class="o">=</span><span class="s">&#39;Gab&#39;</span><span class="p">,</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span> <span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
-                     <span class="n">a</span><span class="o">=</span><span class="s">&#39;loga&#39;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;logdE&#39;</span><span class="p">)</span>
+                     <span class="n">a</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;dE&#39;</span><span class="p">)</span>
              <span class="p">]</span>
     <span class="k">return</span> <span class="n">models</span>
     
@@ -502,9 +502,9 @@ same intermediate states before and after <tt class="docutils literal"><span cla
 tagged by <tt class="docutils literal"><span class="pre">aVbT15</span></tt> and describes <tt class="docutils literal"><span class="pre">T=15</span></tt>, the corresponding entry in the
 collection of models might then be:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">Corr3</span><span class="p">(</span><span class="n">datatag</span><span class="o">=</span><span class="s">&quot;aVbT15&quot;</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span> <span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span>
-    <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span>                  <span class="c"># parameters for V</span>
-    <span class="n">a</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="n">dEa</span><span class="o">=</span><span class="s">&#39;logdE&#39;</span><span class="p">,</span>          <span class="c"># parameters for a-&gt;V</span>
-    <span class="n">b</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span><span class="n">dEb</span><span class="o">=</span><span class="s">&#39;logdE&#39;</span><span class="p">,</span>          <span class="c"># parameters for V-&gt;b</span>
+    <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span>                <span class="c"># parameters for V</span>
+    <span class="n">a</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">dEa</span><span class="o">=</span><span class="s">&#39;dE&#39;</span><span class="p">,</span>          <span class="c"># parameters for a-&gt;V</span>
+    <span class="n">b</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">dEb</span><span class="o">=</span><span class="s">&#39;dE&#39;</span><span class="p">,</span>          <span class="c"># parameters for V-&gt;b</span>
     <span class="p">)</span>
 </pre></div>
 </div>
@@ -530,13 +530,13 @@ would look something like:</p>
     ...
     Corr3(datatag="aVbT15", T=15, tdata=range(16), tfit=range(16),
         Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
-        a=('a','ao'), dEa=('logdE','logdEo'), sa=(1,-1), # a-&gt;V
-        b=('b','bo'), dEb=('logdE','logdEo'), sb=(1,-1)  # V-&gt;b
+        a=('a','ao'), dEa=('dE','dEo'), sa=(1,-1), # a-&gt;V
+        b=('b','bo'), dEb=('dE','dEo'), sb=(1,-1)  # V-&gt;b
         ),
     Corr3(datatag="bVaT15", T=15, tdata=range(16), tfit=range(16),
         Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo', transpose_V=True,
-        a=('b','bo'), dEa=('logdE','logdEo'), sa=(1,-1), # b-&gt;V
-        b=('a','ao'), dEb=('logdE','logdEo'), sb=(1,-1)  # V-&gt;a
+        a=('b','bo'), dEa=('dE','dEo'), sa=(1,-1), # b-&gt;V
+        b=('a','ao'), dEb=('dE','dEo'), sb=(1,-1)  # V-&gt;a
         ),
     ...
 ]</pre>
@@ -550,8 +550,8 @@ are the same. In that case, <tt class="docutils literal"><span class="pre">Vnn</
 like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">Corr3</span><span class="p">(</span><span class="n">datatag</span><span class="o">=</span><span class="s">&quot;aVbT15&quot;</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span> <span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span>
     <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span> <span class="n">Vno</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span> <span class="n">Von</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span> <span class="n">Voo</span><span class="o">=</span><span class="s">&#39;Voo&#39;</span><span class="p">,</span> <span class="n">symmetric_V</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dEa</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;logdE&#39;</span><span class="p">,</span> <span class="s">&#39;logdEo&#39;</span><span class="p">),</span> <span class="n">sa</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="c"># a-&gt;V</span>
-    <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dEb</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;logdE&#39;</span><span class="p">,</span> <span class="s">&#39;logdEo&#39;</span><span class="p">),</span> <span class="n">sb</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c"># V-&gt;a</span>
+    <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dEa</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span> <span class="s">&#39;dEo&#39;</span><span class="p">),</span> <span class="n">sa</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="c"># a-&gt;V</span>
+    <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dEb</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span> <span class="s">&#39;dEo&#39;</span><span class="p">),</span> <span class="n">sb</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c"># V-&gt;a</span>
     <span class="p">)</span>
 </pre></div>
 </div>
@@ -734,10 +734,7 @@ of prior values with one term for each <tt class="docutils literal"><span class=
 Replacing either key by <tt class="docutils literal"><span class="pre">None</span></tt> causes the corresponding term to
 be dropped from the fit function. These keys are used to label the
 corresponding parameter arrays in the fit results as well as in the
-prior. Fit parameters with labels that begin with &#8220;log&#8221; are
-replaced by their exponentials in the fit function; and in the
-prior, therefore, these parameters would be logarithms of the
-corresponding amplitudes (and the amplitudes must then be positive.)</li>
+prior.</li>
 <li><strong>b</strong> (string, or two-tuple of strings and/or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; Same as <tt class="docutils literal"><span class="pre">self.a</span></tt> but for the sinks <tt class="docutils literal"><span class="pre">(bn,</span> <span class="pre">bo)</span></tt> instead of
 the sources <tt class="docutils literal"><span class="pre">(an,</span> <span class="pre">ao)</span></tt>.</li>
 <li><strong>dE</strong> (string, or two-tuple of strings and/or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; Key identifying the fit parameters for the energy 
@@ -748,11 +745,7 @@ are (1-d) arrays of prior values with one term for each <tt class="docutils lite
 or <tt class="docutils literal"><span class="pre">dEo[i]</span></tt>. Replacing either key by <tt class="docutils literal"><span class="pre">None</span></tt> causes the
 corresponding term to be dropped from the fit function. These keys
 are used to label the corresponding parameter arrays in the fit
-results as well as in the prior. Fit parameters with labels that
-begin with &#8220;log&#8221; are replaced by their exponentials in the fit
-function; and in the prior, therefore, these parameters would be
-logarithms of the corresponding amplitudes (and the amplitudes must
-then be positive.)</li>
+results as well as in the prior.</li>
 <li><strong>s</strong> (<em>number or two-tuple of numbers</em>) &#8211; Overall factor <tt class="docutils literal"><span class="pre">sn</span></tt>, or two-tuple of overall factors 
 <tt class="docutils literal"><span class="pre">(sn,</span> <span class="pre">so)</span></tt>.</li>
 <li><strong>tdata</strong> (<em>list of integers</em>) &#8211; The <tt class="docutils literal"><span class="pre">t</span></tt>s corresponding to data entries in the input
@@ -783,9 +776,26 @@ in the (1-D) array <tt class="docutils literal"><span class="pre">data[self.data
 </dd></dl>
 
 <dl class="method">
+<dt id="corrfitter.Corr2.buildprior">
+<tt class="descname">buildprior</tt><big>(</big><em>prior</em>, <em>nterm</em><big>)</big><a class="headerlink" href="#corrfitter.Corr2.buildprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create fit prior by extracting relevant pieces of <tt class="docutils literal"><span class="pre">prior</span></tt>.</p>
+<p>Priors for the fit parameters, as specificied by <tt class="docutils literal"><span class="pre">self.a</span></tt> etc., 
+are copied from <tt class="docutils literal"><span class="pre">prior</span></tt> into a new dictionary for use by the
+fitter. If a key <tt class="docutils literal"><span class="pre">&quot;XX&quot;</span></tt> cannot be found in <tt class="docutils literal"><span class="pre">prior</span></tt>, the
+<tt class="docutils literal"><span class="pre">buildprior</span></tt> looks for one of <tt class="docutils literal"><span class="pre">&quot;logXX&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;log(XX)&quot;</span></tt>, 
+<tt class="docutils literal"><span class="pre">&quot;sqrtXX&quot;</span></tt>, or <tt class="docutils literal"><span class="pre">&quot;sqrt(XX)&quot;</span></tt> and includes the corresponding
+prior instead.</p>
+<p>The number of terms kept in each part of the fit can be 
+specified using <tt class="docutils literal"><span class="pre">nterm</span> <span class="pre">=</span> <span class="pre">(n,</span> <span class="pre">no)</span></tt> where <tt class="docutils literal"><span class="pre">n</span></tt> is the 
+number of non-oscillating terms and <tt class="docutils literal"><span class="pre">no</span></tt> is the number 
+of oscillating terms. Setting <tt class="docutils literal"><span class="pre">nterm</span> <span class="pre">=</span> <span class="pre">None</span></tt> keeps 
+all terms.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="corrfitter.Corr2.fitfcn">
 <tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.Corr2.fitfcn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return fit function for parameters <tt class="docutils literal"><span class="pre">p</span></tt>. (Ingores <tt class="docutils literal"><span class="pre">x</span></tt>.)</p>
+<dd><p>Return fit function for parameters <tt class="docutils literal"><span class="pre">p</span></tt>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -831,31 +841,23 @@ are (1-d) arrays of prior values with one term for each <tt class="docutils lite
 or <tt class="docutils literal"><span class="pre">ao[i]</span></tt>. Replacing either key by <tt class="docutils literal"><span class="pre">None</span></tt> causes the
 corresponding term to be dropped from the fit function. These keys
 are used to label the corresponding parameter arrays in the fit
-results as well as in the prior. Fit parameters with labels that
-begin with &#8220;log&#8221; are replaced by their exponentials in the fit
-function; and in the prior, therefore, these parameters would be
-logarithms of the corresponding amplitudes (and the amplitudes must
-then be positive.)</li>
+results as well as in the prior.</li>
 <li><strong>b</strong> (string, or two-tuple of strings or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; Same as <tt class="docutils literal"><span class="pre">self.a</span></tt> except for sink amplitudes <tt class="docutils literal"><span class="pre">(bn,</span> <span class="pre">bo)</span></tt> 
 for <tt class="docutils literal"><span class="pre">V-&gt;b</span></tt> rather than for <tt class="docutils literal"><span class="pre">(an,</span> <span class="pre">ao)</span></tt>.</li>
 <li><strong>dEa</strong> (string, or two-tuple of strings or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; Fit-parameter label for <tt class="docutils literal"><span class="pre">a-&gt;V</span></tt> intermediate-state energy 
 differences <tt class="docutils literal"><span class="pre">dEan</span></tt>, or two-tuple of labels for the differences
 <tt class="docutils literal"><span class="pre">(dEan,dEao)</span></tt>. Each label represents an array of energy differences.
 Replacing either label by <tt class="docutils literal"><span class="pre">None</span></tt> causes the corresponding term in
-the correlator function to be dropped. Fit parameters with labels that
-begin with &#8220;log&#8221; are replaced by their exponentials in the fit
-function; here, therefore, these parameters would be logarithms of the
-corresponding energy differences, which differences must then be
-positive.</li>
+the correlator function to be dropped. These keys
+are used to label the corresponding parameter arrays in the fit
+results as well as in the prior.</li>
 <li><strong>dEb</strong> (string, or two-tuple of strings or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; Fit-parameter label for <tt class="docutils literal"><span class="pre">V-&gt;b</span></tt> intermediate-state energy 
 differences <tt class="docutils literal"><span class="pre">dEbn</span></tt>, or two-tuple of labels for the differences
 <tt class="docutils literal"><span class="pre">(dEbn,dEbo)</span></tt>. Each label represents an array of energy differences.
 Replacing either label by <tt class="docutils literal"><span class="pre">None</span></tt> causes the corresponding term in
-the correlator function to be dropped. Fit parameters with labels that
-begin with &#8220;log&#8221; are replaced by their exponentials in the fit
-function; here, therefore, these parameters would be logarithms of the
-corresponding energy differences, which differences must then be
-positive.</li>
+the correlator function to be dropped. These keys
+are used to label the corresponding parameter arrays in the fit
+results as well as in the prior.</li>
 <li><strong>sa</strong> (<em>number, or two-tuple of numbers</em>) &#8211; Overall factor <tt class="docutils literal"><span class="pre">san</span></tt> for the non-oscillating <tt class="docutils literal"><span class="pre">a-&gt;V</span></tt> terms 
 in the correlator, or two-tuple containing the overall factors
 <tt class="docutils literal"><span class="pre">(san,sao)</span></tt> for the non-oscillating and oscillating terms.</li>
@@ -934,6 +936,23 @@ implies that the correlators are not periodic.</li>
 the fit, as specified by <tt class="docutils literal"><span class="pre">self.tfit</span></tt>. The entries in the (1-D)
 array <tt class="docutils literal"><span class="pre">data[self.datatag]</span></tt> are assumed to be <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s and
 correspond to the <tt class="docutils literal"><span class="pre">t``s</span> <span class="pre">in</span> <span class="pre">``self.tdata</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="corrfitter.Corr3.buildprior">
+<tt class="descname">buildprior</tt><big>(</big><em>prior</em>, <em>nterm</em><big>)</big><a class="headerlink" href="#corrfitter.Corr3.buildprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create fit prior by extracting relevant pieces of <tt class="docutils literal"><span class="pre">prior</span></tt>.</p>
+<p>Priors for the fit parameters, as specificied by <tt class="docutils literal"><span class="pre">self.a</span></tt> etc., 
+are copied from <tt class="docutils literal"><span class="pre">prior</span></tt> into a new dictionary for use by the
+fitter. If a key <tt class="docutils literal"><span class="pre">&quot;XX&quot;</span></tt> cannot be found in <tt class="docutils literal"><span class="pre">prior</span></tt>, the
+<tt class="docutils literal"><span class="pre">buildprior</span></tt> looks for one of <tt class="docutils literal"><span class="pre">&quot;logXX&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;log(XX)&quot;</span></tt>, 
+<tt class="docutils literal"><span class="pre">&quot;sqrtXX&quot;</span></tt>, or <tt class="docutils literal"><span class="pre">&quot;sqrt(XX)&quot;</span></tt> and includes the corresponding
+prior instead.</p>
+<p>The number of terms kept in each part of the fit can be 
+specified using <tt class="docutils literal"><span class="pre">nterm</span> <span class="pre">=</span> <span class="pre">(n,</span> <span class="pre">no)</span></tt> where <tt class="docutils literal"><span class="pre">n</span></tt> is the 
+number of non-oscillating terms and <tt class="docutils literal"><span class="pre">no</span></tt> is the number 
+of oscillating terms. Setting <tt class="docutils literal"><span class="pre">nterm</span> <span class="pre">=</span> <span class="pre">None</span></tt> keeps 
+all terms.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1129,6 +1148,12 @@ containing results from the fit to the next data set in
 </dd></dl>
 
 <dl class="method">
+<dt id="corrfitter.CorrFitter.buildfitfcn">
+<tt class="descname">buildfitfcn</tt><big>(</big><em>prior</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.buildfitfcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create fit function, with support for log-normal, etc. priors.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="corrfitter.CorrFitter.buildprior">
 <tt class="descname">buildprior</tt><big>(</big><em>prior</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.buildprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build correctly sized prior for fit.</p>
@@ -1165,33 +1190,6 @@ next correlator; press key <tt class="docutils literal"><span class="pre">p</spa
 <tt class="docutils literal"><span class="pre">q</span></tt> to quit the plot and return control to the calling program;
 press a digit to go directly to one of the first ten plots. Zoom,
 pan and save using the window controls.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="corrfitter.CorrFitter.fitfcn">
-<tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.fitfcn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Composite fit function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>p</strong> (<em>dict-like</em>) &#8211; Fit parameters.</li>
-<li><strong>nterm</strong> (number or <tt class="docutils literal"><span class="pre">None</span></tt>; or two-tuple of numbers or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; Number of terms fit in the non-oscillating parts of fit 
-functions; or two-tuple of numbers indicating how many terms to
-fit for each of the non-oscillating and oscillating pieces in
-fits. If set to <tt class="docutils literal"><span class="pre">None</span></tt>, the number is specified by the number of
-parameters in the prior.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary containing the fit function results for 
-parameters <tt class="docutils literal"><span class="pre">p</span></tt> from each model, indexed using the models&#8217; 
-<tt class="docutils literal"><span class="pre">datatag</span></tt>s.</p>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="method">
@@ -1414,7 +1412,7 @@ use can be specified with parameter <tt class="docutils literal"><span class="pr
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.2.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

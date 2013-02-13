@@ -11,11 +11,15 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-Version ????? -- ?????
+Version 3.3 -- 2013-02-12
 =======================
 
 - Added python3.3 compatibility. This required internal tweaking of 
-  CorrFitter.
+  CorrFitter. It also requires numpy 1.7 or later.
+
+- Simplified and extended support for non-gaussian priors 
+  (eg, log-normal) for fit parameters. This version requires
+  version 4.3.1 of lsqfit.
 
 Version 3.2.5 -- 2013-01-29
 ===========================
