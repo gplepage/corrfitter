@@ -1,5 +1,5 @@
 """ Introduction 
-------------
+------------------
 This module contains tools that facilitate least-squares fits, as functions
 of time ``t``, of simulation (or other statistical) data for 2-point and
 3-point correlators of the form::
@@ -195,13 +195,13 @@ Similarly the *a priori* value for each energy difference is ``0.25+-0.25``.
         
 The priors assign an *a priori* gaussian or normal distribution to each
 parameter. It is possible instead to assign a log-normal distribution, which
-forces the parameter to be positive. This is done by choosing a label that
-begins with "log": for example, ``'logdE'`` instead of ``'dE'``. The fitter
-implements the log-normal distribution by using the parameter's logarithm,
-instead of the parameter itself, as a new fit parameter; the logarithm has a
-gaussian/normal distribution. The original parameter is recovered by taking
-the exponential of the new fit parameter.
-        
+forces the parameter to be positive. This is done by choosing a label in the
+prior that begins with "log": for example, ``'logdE'`` instead of ``'dE'``.
+The fitter implements the log-normal distribution by using the parameter's
+logarithm, instead of the parameter itself, as a new fit parameter; the
+logarithm has a gaussian/normal distribution. The original parameter is
+recovered by taking the exponential of the new fit parameter.
+
 Using log-normal distributions where possible can significantly improve the
 stability of a fit. This is because otherwise the fit function typically has
 many symmetries that lead to large numbers of equivalent but different best
@@ -221,17 +221,17 @@ forcing all ``a[i]>0``.
         
 The log-normal distributions for the ``a[i]`` and ``dE[i]`` are introduced
 into the code example by changing the corresponding labels in
-``make_models()`` and ``make_prior(N)``, and taking logarithms of the
-corresponding prior values::
+``make_prior(N)`` (the labels need not be changed in ``make_models()``),  and
+taking logarithms of the corresponding prior values::
         
     from gvar import log                        # numpy.log() works too
         
-    def make_models():
+    def make_models():                          # same as before
         models = [ Corr2(datatag='Gaa', tdata=range(64), tfit=range(64),
-                         a='loga', b='loga', dE='logdE'),
+                         a='a', b='a', dE='dE'),
                         
                    Corr2(datatag='Gab', tdata=range(64), tfit=range(64),
-                         a='loga', b='b', dE='logdE')
+                         a='a', b='b', dE='dE')
                  ]
         return models
         
@@ -469,9 +469,9 @@ tagged by ``aVbT15`` and describes ``T=15``, the corresponding entry in the
 collection of models might then be::
     
     Corr3(datatag="aVbT15", T=15, tdata=range(16), tfit=range(16),
-        Vnn='Vnn',                  # parameters for V
-        a='a',dEa='logdE',          # parameters for a->V
-        b='b',dEb='logdE',          # parameters for V->b
+        Vnn='Vnn',                # parameters for V
+        a='a', dEa='dE',          # parameters for a->V
+        b='b', dEb='dE',          # parameters for V->b
         )
     
 This models the Monte Carlo data for the 3-point function using the
@@ -499,13 +499,13 @@ would look something like::
         ...
         Corr3(datatag="aVbT15", T=15, tdata=range(16), tfit=range(16),
             Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
-            a=('a','ao'), dEa=('logdE','logdEo'), sa=(1,-1), # a->V
-            b=('b','bo'), dEb=('logdE','logdEo'), sb=(1,-1)  # V->b
+            a=('a','ao'), dEa=('dE','dEo'), sa=(1,-1), # a->V
+            b=('b','bo'), dEb=('dE','dEo'), sb=(1,-1)  # V->b
             ),
         Corr3(datatag="bVaT15", T=15, tdata=range(16), tfit=range(16),
             Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo', transpose_V=True,
-            a=('b','bo'), dEa=('logdE','logdEo'), sa=(1,-1), # b->V
-            b=('a','ao'), dEb=('logdE','logdEo'), sb=(1,-1)  # V->a
+            a=('b','bo'), dEa=('dE','dEo'), sa=(1,-1), # b->V
+            b=('a','ao'), dEb=('dE','dEo'), sb=(1,-1)  # V->a
             ),
         ...
     ]
@@ -521,8 +521,8 @@ like::
     
     Corr3(datatag="aVbT15", T=15, tdata=range(16), tfit=range(16),
         Vnn='Vnn', Vno='Vno', Von='Vno', Voo='Voo', symmetric_V=True,
-        a=('a','ao'), dEa=('logdE', 'logdEo'), sa=(1, -1), # a->V
-        b=('a','ao'), dEb=('logdE', 'logdEo'), sb=(1, -1)  # V->a
+        a=('a','ao'), dEa=('dE', 'dEo'), sa=(1, -1), # a->V
+        b=('a','ao'), dEb=('dE', 'dEo'), sb=(1, -1)  # V->a
         )
     
 Here ``Vno`` and ``Von`` are set equal to the same matrix, but specifying
@@ -663,7 +663,7 @@ import lsqfit
 import gvar as _gvar
 import numpy
 import math
-__version__ = '3.2.5'
+__version__ = '3.3'
 
 class BaseModel(object):
     """ Base class for correlator models. 
@@ -740,12 +740,12 @@ class BaseModel(object):
         ans = [BaseModel._paramkey(i) for i in p]
         return tuple(ans)
 
-    _paramkey = staticmethod(lsqfit.p_transforms.paramkey)
-    _priorkey = staticmethod(lsqfit.p_transforms.priorkey)
+    _paramkey = staticmethod(lsqfit.transform_p.paramkey)
+    _priorkey = staticmethod(lsqfit.transform_p.priorkey)
 
     @staticmethod
     def _transform_prior(prior):
-        return lsqfit.p_transforms(prior).transform(prior)
+        return lsqfit.transform_p(prior).transform(prior)
 
     @staticmethod
     def _dE(dE, logdE):
@@ -1375,7 +1375,7 @@ class CorrFitter(object):
 
         def _fitfcn(
             p, nterm=None, self=self, 
-            transform=lsqfit.p_transforms(prior, 0, "p").transform
+            transform=lsqfit.transform_p(prior, 0, "p").transform
             ):
             """ Composite fit function. 
                 
