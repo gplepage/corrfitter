@@ -20,13 +20,13 @@ import lsqfit
 import copy
 
 
-DISPLAYPLOTS = False         # display plots at end of fitting
+DISPLAYPLOTS = True         # display plots at end of fitting
 try: 
     import matplotlib
 except ImportError:
     DISPLAYPLOTS = False
 
-TEST = False             # testing mode? (True, False, or "dump")
+TEST = True             # testing mode? (True, False, or "dump")
 
 FASTFIT = True      # compute effective Es
 
@@ -38,11 +38,7 @@ if TEST:
         P0_TEST = BufferDict.load(f, use_json=True)
 else:
     P0_TEST = None
-<<<<<<< HEAD
     NEXP_LIST = [6] # [2,3,4,5,6]
-=======
-    NEXP_LIST = [6] # [2,3,4,5,6] 
->>>>>>> new-lognormal
     
 def main():
     dfile = "coarse_3pt_etas_Ds.bint8"   # data file
