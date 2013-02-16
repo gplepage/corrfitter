@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-test-1.py  --- standard usage (including error budgets and plots)
+test-1-chd.py  --- standard usage (including error budgets and plots)
 
 Created by Peter Lepage on 2010-11-26.
 Copyright (c) 2010-2013 G. Peter Lepage.
@@ -20,7 +20,7 @@ import lsqfit
 import copy
 
 
-DISPLAYPLOTS = True         # display plots at end of fitting
+DISPLAYPLOTS = False         # display plots at end of fitting
 try: 
     import matplotlib
 except ImportError:
@@ -28,18 +28,18 @@ except ImportError:
 
 TEST = True             # testing mode? (True, False, or "dump")
 
-FASTFIT = True      # compute effective Es
+FASTFIT = False      # compute effective Es
 
 if TEST:
-    NTERMLIST = [6]
-    TEST_FILENAME = 'test-1.testp'
+    NEXP_LIST = [6]
+    TEST_FILENAME = 'test-1-chd.testp'
     try:
         with open(TEST_FILENAME,"r") as f:
             P0_TEST = BufferDict.load(f, use_json=True)
     except (IOError, EOFError):
         P0_TEST = None
 else:
-    NTERMLIST = [2,3,4,5,6]
+    NEXP_LIST = [2, 3, 4, 5, 6]
     
 def main():
     dfile = "coarse_3pt_etas_Ds.bint8"   # data file
@@ -47,10 +47,10 @@ def main():
     fitter = CorrFitter(models=build_models())
     p0 = P0_TEST if TEST else None
     sdata = copy.deepcopy(data)
-    for nexp in NTERMLIST:
-        print('========================== nexp =', nexp)
+    for nexp in NEXP_LIST:
+        print('========================== nexp =',nexp)
         prior = build_prior(nexp)
-        fit = fitter.lsqfit(data=data,prior=prior,p0=p0) # pfile)
+        fit = fitter.chained_lsqfit(data=data,prior=prior,p0=p0) # pfile)
         p0 = fit.pmean
         print_results(fit,prior,data)
         print('\n\n')
@@ -76,7 +76,6 @@ def main():
             else:
                 print("%8s  %2s = %s   %2s_fit = %s   chi2/dof = %.2f   Q = %.1f\n"
                     % ("", alabel, a.fmt(), alabel, a_fit.fmt(), chi2_dof[1], Q[1]))
-        ##
         print('fast_fit Analysis:')
         for k,model in zip(["etas","Ds"],fitter.models[:2]):
             ffit = fastfit(data=data, prior=prior, model=model)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-test-1s.py
+test-1s-chd.py
 
 Created by Peter Lepage on 2010-11-26.
 Copyright (c) 2010-2013 G. Peter Lepage.
@@ -27,14 +27,14 @@ TEST = True         # testing mode? (True, False, or "dump")
 
 if TEST:
     NEXP_LIST = [3]
-    TEST_FILENAME = 'test-1s.testp'
+    TEST_FILENAME = 'test-1s-chd.testp'
     try:
         with open(TEST_FILENAME,"r") as f:
             P0_TEST = BufferDict.load(f, use_json=True)
     except (IOError, EOFError):
         P0_TEST = None
 else:
-    NEXP_LIST = [2,3]
+    NEXP_LIST = [2,3,4,5,6]
 
 def main():
     # dfile = "coarse_3pt_etas_etas_kinCth1.10.576.bint8"  # data file
@@ -45,7 +45,7 @@ def main():
     for nexp in NEXP_LIST:
         print('========================== nexp =',nexp)
         prior = build_prior(nexp)
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, debug=True)
+        fit = fitter.chained_lsqfit(data=data, prior=prior, p0=p0, debug=True)
         p0 = fit.pmean
         print_results(fit, prior, data)
         print('\n\n')

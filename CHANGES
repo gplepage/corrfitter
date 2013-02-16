@@ -11,8 +11,34 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version 3.4 -- 2013-02-16
+=========================
+This version adds a completely new algorithm for fitting multiple
+models: chained fits. These reduce a single multi-correlator fit to a 
+(correlated) series of single-correlator fits that are generally 
+faster and much more robust than a standard simultaneous 
+multi-correlator fit. The need for svd cuts, for example, is
+significantly reduced, and fits rarely get stuck. To use 
+a chained fit replace ``fitter.lsqfit(...)`` by 
+``fitter.chained_lsqfit(...)``; all else should be the same.
+
+Several of the examples in the examples directory now come
+in two forms, one using standard fits and the other (with -chd 
+in its name) using chained fits. It is instructive to compare
+the .out files for corresponding fits.
+
+
+Other changes:
+
+- Tutorial documentation (see doc/html/index.html) was 
+  extended and rearranged somewhat.
+
+- Unittests for the chained fitting.
+
+- Python 2.6 less and less viable for corrfitter.
+
 Version 3.3 -- 2013-02-12
-=======================
+=========================
 
 - Added python3.3 compatibility. This required internal tweaking of 
   CorrFitter. It also requires numpy 1.7 or later.

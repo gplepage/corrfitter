@@ -35,8 +35,11 @@ P0 = {}
 
 if TEST:
     TEST_FILENAME = 'test-1b.testp'
-    with open(TEST_FILENAME,"r") as f:
-        P0[True] = BufferDict.load(f, use_json=True)
+    try:
+        with open(TEST_FILENAME,"r") as f:
+            P0[True] = BufferDict.load(f, use_json=True)
+    except (IOError, EOFError):
+        P0[True] = None
     P0[False] = P0[True]
 else:
     P0[True] = dict([('log(etas:a)', array([-1.52132077])), ('log(etas:dE)', array([-0.87652893])), ('log(Ds:a)', array([-1.5379696])), ('log(Ds:dE)', array([ 0.18376377])), ('log(Ds:ao)', array([-2.59384428])), ('log(Ds:dEo)', array([ 0.37794027])), ('Vnn', array([[ 0.76905768]])), ('Vno', array([[-0.7629936]]))])

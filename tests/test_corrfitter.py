@@ -173,6 +173,26 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         self.fit = fit
         return fitter
     ##
+    def dofit_chd(self, models, data_models=None, nterm=None, ratio=True):
+        fitter = CorrFitter(models=models, nterm=nterm, ratio=ratio)
+        if data_models is None:
+            data_models = models
+        data = make_data(models=data_models, p=self.p)
+        if PRINT_FITS:
+            print("Data:\n", data,"\n")
+        fit = fitter.chained_lsqfit(data=data, prior=self.prior, debug=True,
+            print_fit=PRINT_FITS, svdcut=SVDCUT)
+        #
+        if PRINT_FITS:
+            print("Corr2 exact parameter values:")
+            for k in fit.p:
+                print("%10s:"%str(k),self.p[k])
+            print()
+        self.assert_fitclose(fit.p,self.p)
+        self.data = data
+        self.fit = fit
+        return fitter
+    ##
     def dofastfit(self, model, osc=False):
         data = make_data(models=[model], p=self.p)
         fit = fastfit(data=data, prior=self.prior, model=model, osc=osc, 
@@ -194,6 +214,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=self.tp) ]
         fitter = self.dofit(models)
+        fitter = self.dofit_chd(models)
         if DISPLAY_PLOTS:
             fitter.display_plots()
     ##
@@ -209,6 +230,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="logb", b="logb", dE="logdE", tp=self.tp) ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_nonperiodic(self):
         """ corr2 -- non-periodic correlator"""
@@ -216,6 +238,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=None) ]
         self.dofit(models)
+        self.dofit_chd(models) 
     ##
     def test_fastfit_nonperiodic(self):
         """ corr2 -- fastfit(non-periodic) """
@@ -243,6 +266,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=-self.tp) ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_fastfit_antiperiodic(self):
         """ corr2 -- fastfit(anti-periodic) """
@@ -259,6 +283,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                    self.mkcorr(a="a", b="logb", dE="logdE", othertags=[3]),
                    self.mkcorr(a="logb", b="a", dE="logdE", othertags=[2])]
         self.dofit(models=models[:-1], data_models=models)
+        self.dofit_chd(models)
     ##
     def test_matrix2(self):
         """ corr2 -- 2x2 matrix fit (without othertags) """
@@ -269,6 +294,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                    self.mkcorr(a="a", b="logb", dE="logdE"),
                    self.mkcorr(a="logb", b="a", dE="logdE")]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_marginalization(self):
         """ corr2 -- marginalization (2x2 matrix)"""
@@ -279,6 +305,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                    self.mkcorr(a="a", b="logb", dE="logdE"),
                    self.mkcorr(a="logb", b="a", dE="logdE")]
         self.dofit(models, nterm=1, ratio=True)
+        self.dofit_chd(models)
     ##
     def test_oscillating1(self):
         """ corr2 -- oscillating part """
@@ -287,6 +314,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
                    dE=("logdE","logdEo")) ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_oscillating2(self):
         """ corr2 -- oscillating part (1x2 matrix)"""
@@ -297,6 +325,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                    self.mkcorr(a=("a","ao"), b=("logb","bo"), 
                               dE=("logdE","logdEo")) ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_marginalization2(self):
         """ corr2 -- marginalization (1x2 matrix fit w. osc.)"""
@@ -307,6 +336,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                    self.mkcorr(a=("a","ao"), b=("logb","bo"), 
                               dE=("logdE","logdEo"), s=(1.,-1.)) ]
         self.dofit(models, nterm=(2,2), ratio=False)
+        self.dofit_chd(models, nterm=(2,2), ratio=False)
         # N.B. setting ratio=True causes failures every 150 runs or so
     ##
     def test_oscillating3(self):
@@ -316,6 +346,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         models = [ self.mkcorr(a=(None,"a"), b=(None,"a"), 
                    dE=(None,"logdE"), s=(0,-1.)) ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_fastfit_oscillating(self):
         """ corr2 -- fastfit(oscillating (only)) """
@@ -331,6 +362,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
                    dE=("logdE","logdEo"), s=(-1,1)) ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_s2(self):
         """ corr2 -- s parameter #2"""
@@ -339,7 +371,8 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
                    dE=("logdE","logdEo"), s=(1,1)) ]
         self.dofit(models)
-    ##
+        self.dofit_chd(models)
+   ##
 ##
         
 class test_corr3(unittest.TestCase, FitTests, ArrayTests):
@@ -408,6 +441,24 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         self.assert_fitclose(fit.p,self.p)
         return fitter
     ##
+    def dofit_chd(self, models, data_models=None, nterm=None, ratio=True):
+        fitter = CorrFitter(models=models, nterm=nterm, ratio=ratio)
+        if data_models is None:
+            data_models = models
+        data = make_data(models=data_models, p=self.p)
+        if PRINT_FITS:
+            print("Data:\n", data,"\n")
+        fit = fitter.chained_lsqfit(data=data, prior=self.prior, debug=True,
+            print_fit=PRINT_FITS, svdcut=SVDCUT)
+        #
+        if PRINT_FITS:
+            print("corr2/3 exact parameter values:")
+            for k in fit.p:
+                print("%10s:"%str(k),self.p[k])
+            print()
+        self.assert_fitclose(fit.p,self.p)
+        return fitter
+    ##
     def mkcorr2(self,a, b, dE, tp=None, othertags=None, s=1.):
         ans = Corr2(datatag=self.ncorr, a=a, b=b, dE=dE, tdata=self.tdata,
             tfit=self.tfit, tp=tp, s=s, othertags=othertags)
@@ -433,6 +484,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
                          symmetric_V=True, Vnn="Vnn_sym")
         ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_nonsymmetric(self):
         """ corr3 -- non-symmetric V"""
@@ -445,6 +497,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
                          Vnn="Vnn")
         ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_transpose(self):
         """ corr3 -- transpose V"""
@@ -460,6 +513,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             
         ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_symmetric_osc(self):
         """ corr3 -- symmetric V with osc"""
@@ -475,6 +529,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
                          Von="Von", Voo="Voo_sym")
         ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_nonsymmetric_osc(self):
         """ corr3 -- non-symmetric V with osc"""
@@ -515,6 +570,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             
         ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_periodic(self):
         """ corr3 -- periodic correlators """
@@ -533,6 +589,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
                          tpa=tp, tpb=tp)
         ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     def test_antiperiodic(self):
         """ corr3 -- anti-periodic correlators """
@@ -551,6 +608,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
                          tpa=tp, tpb=tp)
         ]
         self.dofit(models)
+        self.dofit_chd(models)
     ##
     @unittest.skipIf(FAST,"skipping test_bootstrap for speed")
     def test_bootstrap(self):
