@@ -2,6 +2,8 @@ PYTHON = python
 
 run run-all run-examples:
 	### illustrate corrfitter: Corr2 and Corr3
+	-$(PYTHON) example.py > example.tmp	# few sec
+	-diff -w -I 't=' example.tmp example.out
 	-$(PYTHON) test-1.py > test-1.tmp	# few sec
 	-diff -w -I 't=' test-1.tmp test-1.out
 	-$(PYTHON) test-1-chd.py > test-1-chd.tmp	# few sec

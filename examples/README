@@ -1,7 +1,8 @@
 The example codes in the examples directory illustrate corrfitter.py. The
 codes and what they illustrate are:
 
-test-1.py	- Standard fit (Ds->etas), including error budget and plots, fastfit()
+example.py  - Standard fit (Ds->ets); see "Annotated Example" in the documentation
+test-1.py	- (Ds->etas) again, including error budget and plots, fastfit()
 test-1m.py	- Marginalizing part of the fit function.
 test-1b.py	- Bootstrap analysis.
 test-1s.py	- Symmetric form factor (Ds->Ds)
@@ -9,7 +10,7 @@ test-1t.py	- Transposed form factors (Ds->etas and etas->D)
 test-antiperiodic.py - Fit involving antiperiodic correlator
 test-ups.py - 4x4 matrix fit (upsilon)
 
-The makefile runs the examples ("make run-all") and illustrates how to run
+The makefile runs the examples ("make run") and illustrates how to run
 the individual scripts. The output from each example is in the
 corresponding .out file (test-1.out, test-1m.out, etc).
 
