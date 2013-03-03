@@ -1490,6 +1490,7 @@ example, from 110 to 12. It also makes multi-term fits more stable.</p>
 ratios should equal one to within errors. To
 move from one plot to the next press &#8220;n&#8221; on the keyboard; to move to a
 previous plot press &#8220;p&#8221;; to quit the plots press &#8220;q&#8221;.</p>
+<p>We now look at each other major routine in turn.</p>
 <div class="section" id="id3">
 <h3>a) make_data<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>Method <tt class="docutils literal"><span class="pre">make_data('example.data')</span></tt> reads in the Monte Carlo data, averages
@@ -1520,7 +1521,9 @@ lattice:</p>
 ...</pre>
 </div>
 <p>The first, second, third, <em>etc.</em> lines for each label come from the first,
-second, third, <em>etc.</em> Monte Carlo iterations, respectively.</p>
+second, third, <em>etc.</em> Monte Carlo iterations, respectively; this allows
+the code to compute correlations between different
+types of data.</p>
 <p>We use the tools in <tt class="xref py py-mod docutils literal"><span class="pre">gvar.dataset</span></tt> designed for reading files in this
 format:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">datafile</span><span class="p">):</span>
@@ -1673,12 +1676,13 @@ verify that simulations gives correct masses.</p>
 </pre></div>
 </div>
 <p>The former creates <tt class="docutils literal"><span class="pre">N</span> <span class="pre">**</span> <span class="pre">2</span></tt> independent <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s, with one for each element
-of <tt class="docutils literal"><span class="pre">Vnn</span></tt>. The latter creates only a single <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt> and uses it repeatedly for
+of <tt class="docutils literal"><span class="pre">Vnn</span></tt>; it is one of the most succinct ways of creating a large number of
+<tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s. The latter creates only a single <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt> and uses it repeatedly for
 every element <tt class="docutils literal"><span class="pre">Vnn</span></tt>, thereby forcing every element of <tt class="docutils literal"><span class="pre">Vnn</span></tt>  to be equal
 to every other element in the fit (since the difference between any two of
-their priors is <tt class="docutils literal"><span class="pre">0</span> <span class="pre">+-</span> <span class="pre">0</span></tt>). The first case is almost certainly what is wanted:
-in general, create the array of strings first, and then convert it to <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s
-using <tt class="docutils literal"><span class="pre">gvar.gvar()</span></tt>.</p>
+their priors is <tt class="docutils literal"><span class="pre">0</span> <span class="pre">+-</span> <span class="pre">0</span></tt>); it is almost certainly not what is desired.
+Usually one wants to create the array of strings first, and then convert it to
+<tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s using <tt class="docutils literal"><span class="pre">gvar.gvar()</span></tt>.</p>
 </div>
 <div class="section" id="id6">
 <h3>d) print_results<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>

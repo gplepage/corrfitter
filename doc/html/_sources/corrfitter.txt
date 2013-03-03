@@ -807,6 +807,8 @@ ratios should equal one to within errors. To
 move from one plot to the next press "n" on the keyboard; to move to a 
 previous plot press "p"; to quit the plots press "q".
 
+We now look at each other major routine in turn.
+
 a) make_data
 ________________
 Method ``make_data('example.data')`` reads in the Monte Carlo data, averages
@@ -840,7 +842,9 @@ lattice::
     ...
 
 The first, second, third, *etc.* lines for each label come from the first, 
-second, third, *etc.* Monte Carlo iterations, respectively.
+second, third, *etc.* Monte Carlo iterations, respectively; this allows
+the code to compute correlations between different 
+types of data.
 
 We use the tools in :mod:`gvar.dataset` designed for reading files in this
 format::
@@ -997,12 +1001,13 @@ is *not* the same as ::
     prior['Vnn'] = N * [N * [gv.gvar('0(1)')]]      # wrong
 
 The former creates ``N ** 2`` independent |GVar|\s, with one for each element
-of ``Vnn``. The latter creates only a single |GVar| and uses it repeatedly for
+of ``Vnn``; it is one of the most succinct ways of creating a large number of
+|GVar|\s. The latter creates only a single |GVar| and uses it repeatedly for
 every element ``Vnn``, thereby forcing every element of ``Vnn``  to be equal
 to every other element in the fit (since the difference between any two of
-their priors is ``0 +- 0``). The first case is almost certainly what is wanted:
-in general, create the array of strings first, and then convert it to |GVar|\s
-using ``gvar.gvar()``.
+their priors is ``0 +- 0``); it is almost certainly not what is desired.
+Usually one wants to create the array of strings first, and then convert it to
+|GVar|\s using ``gvar.gvar()``.
 
 d) print_results
 _____________________

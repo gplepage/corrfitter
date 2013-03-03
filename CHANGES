@@ -11,6 +11,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version ??? - not released yet
+==============================
+
+- More documentation including a complete annotated example.
+
 Version 3.4 -- 2013-02-16
 =========================
 This version adds a completely new algorithm for fitting multiple
