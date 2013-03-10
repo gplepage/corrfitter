@@ -1,6 +1,6 @@
 ============================== 8
 Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 1.1 [207]    Q = 0.29    logGBF = -243.48    itns = 34
+  chi2/dof [dof] = 1.1 [207]    Q = 0.29    logGBF = 1808.6    itns = 34
 
 Parameters:
             d 0    0.21616 (62)      [  0.1 (1.0) ]
@@ -70,5 +70,5 @@ Partial % Errors:
 correlators:
     ['1s0.ll', '1s0.lg', '1s0.gg', '1s0.le', '1s0.ge', '1s0.ee', '1s0.ld', '1s0.gd', '1s0.dd']
 
-t=1.3 ====
+t=1.2 ====
 

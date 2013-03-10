@@ -28,6 +28,21 @@ run run-all run-examples:
 	-diff -w -I 't=' test-antiperiodic.tmp test-antiperiodic.out
 	### DONE
 
+update-all:
+	### illustrate corrfitter: Corr2 and Corr3
+	-$(PYTHON) example.py > example.out	# few sec
+	-$(PYTHON) test-1.py > test-1.out	# few sec
+	-$(PYTHON) test-1-chd.py > test-1-chd.out	# few sec
+	-$(PYTHON) test-1m.py > test-1m.out	# few sec
+	-$(PYTHON) test-1m-chd.py > test-1m-chd.out	# few sec
+	-$(PYTHON) test-1b.py > test-1b.out	# 6 sec
+	-$(PYTHON) test-1t.py > test-1t.out	# few sec
+	-$(PYTHON) test-1s.py > test-1s.out	# few sec
+	-$(PYTHON) test-1s-chd.py > test-1s-chd.out	# few sec
+	-$(PYTHON) test-ups.py > test-ups.out # 10 sec
+	-$(PYTHON) test-ups-chd.py > test-ups-chd.out # 10 sec
+	-$(PYTHON) test-antiperiodic.py > test-antiperiodic.out # 1 sec
+	### DONE
 
 clean:
 	rm -f *.pyc *.p *.tmp *.prof
