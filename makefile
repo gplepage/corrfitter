@@ -49,6 +49,9 @@ doc-all: doc-html doc-pdf
 %.so : %.pyx
 	$(PYTHON) $*-setup.py build_ext --inplace
 
+upload-pypi:
+	python setup.py sdist upload
+
 clean:
 	cd tests; make clean; cd ..
 	rm -f *.pyc *.tmp corrfitter*.tz
