@@ -22,7 +22,7 @@ from numpy import linalg
 
 NTERM_PRIOR = 8             # number of terms in prior
     
-DISPLAY_PLOTS = False       # display plots at end
+DISPLAY_PLOTS = True       # display plots at end
 try: 
     import matplotlib
 except ImportError:

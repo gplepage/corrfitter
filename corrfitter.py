@@ -57,7 +57,7 @@ import numpy
 import math
 import collections
 import copy
-__version__ = '3.4'
+__version__ = '3.4.1'
 
 class BaseModel(object):
     """ Base class for correlator models. 
@@ -762,7 +762,7 @@ class CorrFitter(object):
         above).
     :type ratio: boolean
     """
-    def __init__(self, models, svdcut=None, svdnum=None, tol=1e-10, #):
+    def __init__(self, models, svdcut=(1e-15, 1e-15), svdnum=None, tol=1e-10,
                 maxit=500, nterm=None, ratio=True): # mc=None, ratio=True):
         super(CorrFitter, self).__init__()
         self.models = [models] if isinstance(models, BaseModel) else models
@@ -1010,7 +1010,10 @@ class CorrFitter(object):
         logGBF = 0.0
         nit = 0
         svdcorrection = collections.OrderedDict()
-        for f in self.chained_fits.values():
+        all_y = _gvar.BufferDict()
+        for key in self.chained_fits:
+            f = self.chained_fits[key]
+            all_y[key] = f.y
             chi2 += f.chi2
             dof += f.dof
             logGBF += f.logGBF
@@ -1027,6 +1030,7 @@ class CorrFitter(object):
         self.fit.logGBF = logGBF
         self.fit.Q = lsqfit.gammaQ(self.fit.dof/2., self.fit.chi2/2.) 
         self.fit.nit = int(nit / len(self.chained_fits))
+        self.fit.y = all_y
         self.fit.data = data
         self.fit.prior = self.buildprior(prior, nterm=nterm)
         self.fit.fcn = self.buildfitfcn(prior)

@@ -38,7 +38,7 @@ Parameters:
             2,2      0.0 (1.0)      [  0.0 (1.0) ]
 
 Settings:
-  svdcut = (None,None)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
 
 dE = 1.31087(65)  0.389(39)  0.473(18)
  E = 1.31087(65)  1.700(40)  2.173(24)

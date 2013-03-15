@@ -13,7 +13,7 @@ Parameters:
         Vno 0,0    -0.8100 (14)      [  0.0 (1.0) ]
 
 Settings:
-  svdcut = (None,None)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
 
 ============================== nterm = 2
 Least Square Fit:
@@ -42,7 +42,7 @@ Parameters:
             1,1       0.0 (1.0)      [  0.0 (1.0) ]
 
 Settings:
-  svdcut = (None,None)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
 
 ============================== nterm = 3
 Least Square Fit:
@@ -87,7 +87,7 @@ Parameters:
             2,2       0.0 (1.0)      [  0.0 (1.0) ]
 
 Settings:
-  svdcut = (None,None)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
 
 ============================== nterm = 4
 Least Square Fit:
@@ -152,7 +152,7 @@ Parameters:
             3,3       0.0 (1.0)      [  0.0 (1.0) ]
 
 Settings:
-  svdcut = (None,None)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
 
 Fit results:
   Eetas: 0.416221(81) 1.055(62) 1.55(41)

@@ -13,7 +13,7 @@ Parameters:
         Vno 0,0     -0.741 (19)      [  0.1 (1.0) ]
 
 Settings:
-  svdcut = (None,None)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
 
 etas:dE = 0.416226(84)
  etas:E = 0.416226(84)  0.416226(84)  0.416226(84)
@@ -59,7 +59,7 @@ Parameters:
         Vno 0,0     -0.725 (12)      [  0.1 (1.0) ]
 
 Settings:
-  svdcut = (None,None)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
 
 etas:dE = 0.416210(85)
  etas:E = 0.416210(85)  0.416210(85)  0.416210(85)
