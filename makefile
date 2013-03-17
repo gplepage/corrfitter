@@ -55,6 +55,9 @@ doc-all: doc-html doc-pdf
 upload-pypi:
 	python setup.py sdist upload
 
+upload-git:
+	git push origin master
+
 clean:
 	cd tests; make clean; cd ..
 	rm -f *.pyc *.tmp corrfitter*.tz
