@@ -4,6 +4,8 @@ run run-all run-examples:
 	### illustrate corrfitter: Corr2 and Corr3
 	-$(PYTHON) example.py > example.tmp	# few sec
 	-diff -w -I 't=' example.tmp example.out
+	-$(PYTHON) example-marginalize.py > example-marginalize.tmp	# few sec
+	-diff -w -I 't=' example-marginalize.tmp example-marginalize.out
 	-$(PYTHON) example-chd.py > example-chd.tmp	# few sec
 	-diff -w -I 't=' example-chd.tmp example-chd.out
 	-$(PYTHON) test-1.py > test-1.tmp	# few sec

@@ -5,7 +5,9 @@ import numpy as np
 import collections
 from corrfitter import CorrFitter, Corr2, Corr3
 
-DISPLAYPLOTS = True         # display plots at end of fitting?
+MARGINALIZE = True         # use marginalization?
+
+DISPLAYPLOTS = False         # display plots at end of fitting?
 try: 
     import matplotlib
 except ImportError:
@@ -15,12 +17,12 @@ def main():
     data = make_data('example.data') 
     models = make_models()   
     prior = make_prior(8)
-    fitter = CorrFitter(models=make_models())
+    fitter = CorrFitter(models=make_models(), ratio=False)
     p0 = None
-    for N in [1, 2, 3, 4]:  
+    for N in [1, 2]:  
         print(30 * '=', 'nterm =', N)
-        prior = make_prior(N)               
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0) 
+        prior = make_prior(8 if MARGINALIZE else N)               
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, nterm=(N, N)) 
         p0 = fit.pmean
     print_results(fit, prior, data)  
     if DISPLAYPLOTS:

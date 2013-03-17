@@ -422,7 +422,7 @@ after the fit using <tt class="docutils literal"><span class="pre">fitter.chaine
 data tag for the model of interest.</p>
 </div>
 <div class="section" id="faster-fits-marginalization">
-<h2>Faster Fits &#8212; Marginalization<a class="headerlink" href="#faster-fits-marginalization" title="Permalink to this headline">¶</a></h2>
+<span id="marginalized-fits"></span><h2>Faster Fits &#8212; Marginalization<a class="headerlink" href="#faster-fits-marginalization" title="Permalink to this headline">¶</a></h2>
 <p>Often we care only about parameters in the leading term of the fit function,
 or just a few of the leading terms. The non-leading terms are needed for a
 good fit, but we are uninterested in the values of their parameters. In such
@@ -2009,6 +2009,121 @@ are about the same, though slightly more accurate: for example,</p>
            mDso-mDs: 0.2595(51)
                 Vnn: 0.76782(92)
                 Vno: -0.755(25)</pre>
+</div>
+</li>
+<li><p class="first">Marginalization (see <a class="reference internal" href="#marginalized-fits"><em>Faster Fits &#8212; Marginalization</em></a>) can speed up fits like
+this one. To use an 8-term fit function, while tuning parameters for only
+<tt class="docutils literal"><span class="pre">N</span></tt> terms, we change only four lines in the main program:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;example.data&#39;</span><span class="p">)</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">()</span>
+    <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">(),</span> <span class="n">ratio</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+        <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nterm =&#39;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
+    <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="n">fitter</span><span class="o">.</span><span class="n">display_plots</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The first modification is to the line defining <tt class="docutils literal"><span class="pre">fitter</span></tt>, where we add
+an extra argument to the constructor to tell it what kind of marginalization
+to use (that is, not the ratio method). The second modification limits the
+fits to <tt class="docutils literal"><span class="pre">N=1,2</span></tt>, because that is all that will be needed to get good
+ground-state values.
+The third modification sets the prior to eight terms, no matter what value
+<tt class="docutils literal"><span class="pre">N</span></tt> has. The last tells <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt> to fit parameters from
+only the first <tt class="docutils literal"><span class="pre">N</span></tt> terms in the fit function; parts of the prior that are
+not being fit are incorporated into the fit data. The output shows that
+the ground-state results have converged by <tt class="docutils literal"><span class="pre">N=2</span></tt> (and even <tt class="docutils literal"><span class="pre">N=1</span></tt> isn&#8217;t
+so bad):</p>
+<div class="highlight-python"><pre>============================== nterm = 1
+Least Square Fit (input data correlated with prior):
+  chi2/dof [dof] = 0.76 [69]    Q = 0.93    logGBF = 1593.4    itns = 8
+
+Parameters:
+  log(etas:a) 0   -1.52138 (57)      [ -1.2 (1.0) ]
+ log(etas:dE) 0   -0.87655 (20)      [ -0.92 (50) ]
+    log(Ds:a) 0    -1.5379 (10)      [ -1.2 (1.0) ]
+   log(Ds:dE) 0    0.18378 (12)      [  0.18 (17) ]
+   log(Ds:ao) 0     -2.611 (30)      [ -2.3 (1.0) ]
+  log(Ds:dEo) 0     0.3758 (37)      [  0.41 (24) ]
+        Vnn 0,0    0.76574 (80)      [  0.0 (1.0) ]
+        Vno 0,0     -0.712 (12)      [  0.0 (1.0) ]
+
+Settings:
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+
+============================== nterm = 2
+Least Square Fit (input data correlated with prior):
+  chi2/dof [dof] = 0.61 [69]    Q = 1    logGBF = 1605.3    itns = 13
+
+Parameters:
+  log(etas:a) 0   -1.52138 (50)      [ -1.2 (1.0) ]
+              1      -1.50 (56)      [ -1.2 (1.0) ]
+ log(etas:dE) 0   -0.87654 (20)      [ -0.92 (50) ]
+              1      -0.43 (15)      [ -0.7 (1.0) ]
+    log(Ds:a) 0   -1.53849 (81)      [ -1.2 (1.0) ]
+              1     -1.344 (82)      [ -1.2 (1.0) ]
+   log(Ds:dE) 0    0.18372 (11)      [  0.18 (17) ]
+              1     -0.707 (37)      [ -0.7 (1.0) ]
+   log(Ds:ao) 0     -2.702 (76)      [ -2.3 (1.0) ]
+              1      -2.37 (13)      [ -2.3 (1.0) ]
+  log(Ds:dEo) 0     0.3692 (68)      [  0.41 (24) ]
+              1      -1.30 (23)      [ -0.7 (1.0) ]
+        Vnn 0,0    0.76759 (90)      [  0.0 (1.0) ]
+            0,1     -0.490 (37)      [  0.0 (1.0) ]
+            1,0      0.043 (72)      [  0.0 (1.0) ]
+            1,1       0.44 (83)      [  0.0 (1.0) ]
+        Vno 0,0     -0.761 (35)      [  0.0 (1.0) ]
+            0,1       0.31 (17)      [  0.0 (1.0) ]
+            1,0       0.12 (45)      [  0.0 (1.0) ]
+            1,1       0.13 (98)      [  0.0 (1.0) ]
+
+Settings:
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+
+Fit results:
+  Eetas: 0.416219(81) 1.07(10)
+  aetas: 0.21841(11) 0.22(13)
+
+  EDs: 1.20168(13) 1.695(18)
+  aDs: 0.21471(17) 0.261(21)
+
+  EDso: 1.4466(98) 1.720(69)
+  aDso: 0.0671(51) 0.093(12)
+
+  etas-&gt;V-&gt;Ds  = 0.76759(90)
+  etas-&gt;V-&gt;Dso = -0.761(35)
+
+Values:
+              metas: 0.416219(81)        
+                mDs: 1.20168(13)         
+           mDso-mDs: 0.2449(98)          
+                Vnn: 0.76759(90)         
+                Vno: -0.761(35)          
+
+Partial % Errors:
+                         metas       mDs  mDso-mDs       Vnn       Vno
+----------------------------------------------------------------------
+         statistics:      0.02      0.01      3.24      0.11      4.04
+        log(etas:a):      0.00      0.00      0.04      0.00      0.14
+       log(etas:dE):      0.00      0.00      0.03      0.00      0.10
+          log(Ds:a):      0.00      0.00      0.31      0.01      0.56
+         log(Ds:dE):      0.00      0.00      0.46      0.02      0.55
+         log(Ds:ao):      0.00      0.00      0.33      0.00      1.10
+        log(Ds:dEo):      0.00      0.00      0.52      0.01      1.48
+                Vnn:      0.00      0.00      1.19      0.03      0.17
+                Vno:      0.00      0.00      1.85      0.02      1.00
+                svd:      0.00      0.00      0.00      0.00      0.00
+----------------------------------------------------------------------
+              total:      0.02      0.01      4.01      0.12      4.63
+
+
+
+</pre>
 </div>
 </li>
 </ul>

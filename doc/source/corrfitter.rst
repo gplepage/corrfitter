@@ -401,6 +401,7 @@ the chain --- that is, from the fits for individual models --- can be accessed
 after the fit using ``fitter.chained_fits[datatag]`` where ``datatag`` is the
 data tag for the model of interest.
 
+.. _marginalized-fits:
 
 Faster Fits --- Marginalization
 -------------------------------       
@@ -1146,5 +1147,33 @@ Note:
                     Vnn: 0.76782(92)         
                     Vno: -0.755(25)          
 
+- Marginalization (see :ref:`marginalized-fits`) can speed up fits like 
+  this one. To use an 8-term fit function, while tuning parameters for only
+  ``N`` terms, we change only four lines in the main program::
 
+    def main():
+        data = make_data('example.data')          
+        models = make_models()   
+        fitter = CorrFitter(models=make_models(), ratio=False)
+        p0 = None
+        for N in [1, 2]:  
+            print(30 * '=', 'nterm =', N)
+            prior = make_prior(8)               
+            fit = fitter.lsqfit(data=data, prior=prior, p0=p0, nterm=(N, N)) 
+            p0 = fit.pmean
+        print_results(fit, prior, data)  
+        fitter.display_plots()
 
+  The first modification is to the line defining ``fitter``, where we add
+  an extra argument to the constructor to tell it what kind of marginalization 
+  to use (that is, not the ratio method). The second modification limits the
+  fits to ``N=1,2``, because that is all that will be needed to get good
+  ground-state values.
+  The third modification sets the prior to eight terms, no matter what value
+  ``N`` has. The last tells ``fitter.lsqfit`` to fit parameters from 
+  only the first ``N`` terms in the fit function; parts of the prior that are
+  not being fit are incorporated into the fit data. The output shows that
+  the ground-state results have converged by ``N=2`` (and even ``N=1`` isn't
+  so bad):
+
+  .. literalinclude:: example-marginalize.out
