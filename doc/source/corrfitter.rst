@@ -416,23 +416,23 @@ function has many fewer parameters, and so the fit can be much faster.
         
 Continuing with the example in :ref:`faster-fits`, imagine that ``Nmax=8``
 terms are needed to get a good fit, but we only care about parameter values
-for the first couple of terms. The code from that section can be rearranged to
+for the first couple of terms. The code from that section can be modified to
 fit only the leading ``N`` terms where ``N<Nmax``, while incorporating
 (marginalizing) the remaining, non-leading terms as corrections to the data::
         
     Nmax = 8
     data = make_data('mcfile')  
-    prior = make_prior(Nmax)        # build priors for Nmax terms
     models = make_models()
+    fitter = CorrFitter(models=make_models()) 
+    prior = make_prior(Nmax)        # build priors for Nmax terms
     p0 = None
     for N in [1,2,3]:
-        fitter = CorrFitter(models=models, nterm=N)  # fit only N terms
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0)
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, nterm=N) # fit N terms
         print_results(fit, prior, data)
         p0 = fit.pmean
         
-Here the ``nterm`` parameter in |CorrFitter| specifies how many terms are used
-in the fit functions. The prior specifies ``Nmax`` terms in all, but only
+Here the ``nterm`` parameter in ``fitter.lsqfit`` specifies how many terms are
+used in the fit functions. The prior specifies ``Nmax`` terms in all, but only
 parameters in ``nterm=N`` terms are varied in the fit. The remaining terms
 specified by the prior are automatically incorporated into the fit data by
 |CorrFitter|.
@@ -442,8 +442,8 @@ Remarkably this method is often as accurate with ``N=1`` or ``2`` as a full
 is not the case, check for singular priors, where the mean is much smaller
 than the standard deviation. These can lead to singularities in the covariance
 matrix for the corrected fit data. Such priors are easily fixed: for example,
-use ``gvar.gvar(0.1,1.)`` rather than ``gvar.gvar(0.0,1.)`` or
-``gvar.gvar(0.001,1.)``. In some situations an *svd* cut (see below) can also
+use ``gvar.gvar(0.1,1.)`` rather than ``gvar.gvar(0.0,1.)``. 
+In some situations an *svd* cut (see below) can also
 help.
       
 

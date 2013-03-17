@@ -43,11 +43,11 @@ def main():
     prior = build_prior(6)              # 6 terms in prior
     nexp = 1                            # nexp terms in fit
     for ratio in [True,False][:]:
+        fitter = CorrFitter(models=build_models(), ratio=ratio)
     # ratio = True
     # for nexp in [1,2,3,4,5,6][:1]:
-        fitter = CorrFitter(models=build_models(),nterm=(nexp,nexp),ratio=ratio)
         print('========================== nexp =',nexp,'  ratio =',ratio)
-        fit = fitter.lsqfit(data=data,prior=prior,p0=P0_TEST[ratio])
+        fit = fitter.lsqfit(data=data,prior=prior,p0=P0_TEST[ratio], nterm=(nexp,nexp))
         print_results(fit,prior,data)
         print('\n\n')
         if TEST == "dump":

@@ -11,6 +11,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Verions XXXX
+=============
+
+- Small fix to chained_lsqfit --- add time to fit output.
+
 Version 3.4.1 - 2013-03-14
 ==========================
 

@@ -434,23 +434,23 @@ the marginalized terms, as specified by their priors. The resulting fit
 function has many fewer parameters, and so the fit can be much faster.</p>
 <p>Continuing with the example in <a class="reference internal" href="#faster-fits"><em>Faster Fits</em></a>, imagine that <tt class="docutils literal"><span class="pre">Nmax=8</span></tt>
 terms are needed to get a good fit, but we only care about parameter values
-for the first couple of terms. The code from that section can be rearranged to
+for the first couple of terms. The code from that section can be modified to
 fit only the leading <tt class="docutils literal"><span class="pre">N</span></tt> terms where <tt class="docutils literal"><span class="pre">N&lt;Nmax</span></tt>, while incorporating
 (marginalizing) the remaining, non-leading terms as corrections to the data:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">Nmax</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;mcfile&#39;</span><span class="p">)</span>
-<span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">Nmax</span><span class="p">)</span>        <span class="c"># build priors for Nmax terms</span>
 <span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">()</span>
+<span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
+<span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">Nmax</span><span class="p">)</span>        <span class="c"># build priors for Nmax terms</span>
 <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
 <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]:</span>
-    <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>  <span class="c"># fit only N terms</span>
-    <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">)</span>
+    <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">)</span> <span class="c"># fit N terms</span>
     <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
     <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
 </pre></div>
 </div>
-<p>Here the <tt class="docutils literal"><span class="pre">nterm</span></tt> parameter in <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a> specifies how many terms are used
-in the fit functions. The prior specifies <tt class="docutils literal"><span class="pre">Nmax</span></tt> terms in all, but only
+<p>Here the <tt class="docutils literal"><span class="pre">nterm</span></tt> parameter in <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt> specifies how many terms are
+used in the fit functions. The prior specifies <tt class="docutils literal"><span class="pre">Nmax</span></tt> terms in all, but only
 parameters in <tt class="docutils literal"><span class="pre">nterm=N</span></tt> terms are varied in the fit. The remaining terms
 specified by the prior are automatically incorporated into the fit data by
 <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a>.</p>
@@ -459,8 +459,8 @@ specified by the prior are automatically incorporated into the fit data by
 is not the case, check for singular priors, where the mean is much smaller
 than the standard deviation. These can lead to singularities in the covariance
 matrix for the corrected fit data. Such priors are easily fixed: for example,
-use <tt class="docutils literal"><span class="pre">gvar.gvar(0.1,1.)</span></tt> rather than <tt class="docutils literal"><span class="pre">gvar.gvar(0.0,1.)</span></tt> or
-<tt class="docutils literal"><span class="pre">gvar.gvar(0.001,1.)</span></tt>. In some situations an <em>svd</em> cut (see below) can also
+use <tt class="docutils literal"><span class="pre">gvar.gvar(0.1,1.)</span></tt> rather than <tt class="docutils literal"><span class="pre">gvar.gvar(0.0,1.)</span></tt>.
+In some situations an <em>svd</em> cut (see below) can also
 help.</p>
 </div>
 <div class="section" id="variations">

@@ -22,7 +22,7 @@ from numpy import linalg
 
 NTERM_PRIOR = 8             # number of terms in prior
     
-DISPLAY_PLOTS = True       # display plots at end
+DISPLAY_PLOTS = False       # display plots at end
 try: 
     import matplotlib
 except ImportError:
@@ -76,6 +76,7 @@ def main():
             with open(TEST_FILENAME, "w") as f:
                 fit.pmean.dump(f, use_json=True)
 
+    # fit = fitter.lsqfit(prior=fit.p, data=data, svdcut=1e-2)
     dummy = gvar(1,0)
     if DISPLAY_PLOTS:
         fitter.display_plots()

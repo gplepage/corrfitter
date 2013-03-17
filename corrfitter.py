@@ -1009,6 +1009,7 @@ class CorrFitter(object):
         dof = 0.0
         logGBF = 0.0
         nit = 0
+        time = 0.0
         svdcorrection = collections.OrderedDict()
         all_y = _gvar.BufferDict()
         for key in self.chained_fits:
@@ -1018,6 +1019,7 @@ class CorrFitter(object):
             dof += f.dof
             logGBF += f.logGBF
             nit += f.nit
+            time += f.time
             for i in f.svdcorrection:
                 if i not in svdcorrection or svdcorrection[i] is None:
                     svdcorrection[i] = f.svdcorrection[i]
@@ -1030,6 +1032,7 @@ class CorrFitter(object):
         self.fit.logGBF = logGBF
         self.fit.Q = lsqfit.gammaQ(self.fit.dof/2., self.fit.chi2/2.) 
         self.fit.nit = int(nit / len(self.chained_fits))
+        self.fit.time = time
         self.fit.y = all_y
         self.fit.data = data
         self.fit.prior = self.buildprior(prior, nterm=nterm)
