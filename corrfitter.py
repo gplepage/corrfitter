@@ -151,7 +151,7 @@ class BaseModel(object):
 
     @staticmethod
     def _transform_prior(prior):
-        return lsqfit.transform_p(prior).transform(prior)
+        return lsqfit.transform_p(prior.keys()).transform(prior)
 
     @staticmethod
     def _dE(dE, logdE):
@@ -342,10 +342,11 @@ class Corr2(BaseModel):
         fdata = numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
         return fdata 
     
-    def fitfcn(self, p, nterm=None):
+    def fitfcn(self, p, nterm=None, t=None):
         """ Return fit function for parameters ``p``. """
         ans = 0.0
-        t = self.tfit
+        if t is None:
+            t = self.tfit
         if self.tp is None:
             tp_t = None
         elif self.tp >= 0:
@@ -618,11 +619,13 @@ class Corr3(BaseModel):
             ans.append(ndata)
         return numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
     
-    def fitfcn(self, p, nterm=None):
+    def fitfcn(self, p, nterm=None, t=None):
         """ Return fit function for parameters ``p``. """
         # setup
-        ta = self.tfit
-        tb = self.T-self.tfit
+        if t is None:
+            t = self.tfit
+        ta = t
+        tb = self.T - t
         if self.tpa is None:
             tp_ta = None
         elif self.tpa >= 0:
@@ -776,12 +779,12 @@ class CorrFitter(object):
         self.ratio = ratio
         self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
     
-    def buildfitfcn(self, prior):
-        " Create fit function, with support for log-normal, etc. priors. "
+    def buildfitfcn(self, priorkeys):
+        " Create fit function, with support for log-normal,... priors. "
 
+        @lsqfit.transform_p(priorkeys, pindex=0, pkey='p')
         def _fitfcn(
-            p, nterm=None, default_nterm=self.nterm, models=self.models,
-            transform_p=lsqfit.transform_p(prior, 0, "p")
+            p, nterm=None, default_nterm=self.nterm, models=self.models
             ):
             """ Composite fit function. 
                 
@@ -797,13 +800,11 @@ class CorrFitter(object):
                 parameters ``p`` from each model, indexed using the models' 
                 ``datatag``\s.
             """
-            p = transform_p.transform(p)
-            ans = {}
+            ans = _gvar.BufferDict()
             if nterm is None:
                 nterm = default_nterm
             for m in models:
                 ans[m.datatag] = m.fitfcn(p, nterm=nterm)
-            _fitfcn.transform_p = transform_p
             return ans
 
         return _fitfcn
@@ -820,7 +821,7 @@ class CorrFitter(object):
         if nterm == (None, None):
             return fitdata
         else:
-            fitfcn = self.buildfitfcn(prior)
+            fitfcn = self.buildfitfcn(prior.keys())
             ftrunc = fitfcn(prior, nterm=nterm)
             fall = fitfcn(prior, nterm=(None, None))
             for m in self.models:
@@ -901,7 +902,7 @@ class CorrFitter(object):
         # do the fit and print results
         data = self.builddata(data=data, prior=prior, nterm=nterm)
         prior = self.buildprior(prior, nterm=nterm)
-        fitfcn = self.buildfitfcn(prior)
+        fitfcn = self.buildfitfcn(prior.keys())
         for k in self.aux_param:
             prior[k] = self.aux_param[k]
         self.fit = lsqfit.nonlinear_fit( #
@@ -984,14 +985,13 @@ class CorrFitter(object):
             for i in aux_param:
                 m_prior[i] = aux_param[i]
             m_p0 = m.buildp0(p0, m_prior)
+
+            @lsqfit.transform_p(m_prior, 0, 'p')
             def m_fitfcn(
-                p, nterm=None, default_nterm=self.nterm, fitfcn = m.fitfcn,
-                transform_p=lsqfit.transform_p(m_prior, 0, "p")
+                p, nterm=None, default_nterm=self.nterm, fitfcn = m.fitfcn
                 ):
-                p = transform_p.transform(p)
                 if nterm is None:
                     nterm = default_nterm
-                m_fitfcn.transform_p = transform_p
                 return fitfcn(p, nterm=nterm)
             lastfit = lsqfit.nonlinear_fit(
                 data=data[m.datatag], fcn=m_fitfcn, prior=m_prior, 
@@ -1036,7 +1036,7 @@ class CorrFitter(object):
         self.fit.y = all_y
         self.fit.data = data
         self.fit.prior = self.buildprior(prior, nterm=nterm)
-        self.fit.fcn = self.buildfitfcn(prior)
+        self.fit.fcn = self.buildfitfcn(prior.keys())
         for k in self.aux_param:
             self.fit.prior[k] = self.aux_param[k]
         self.fit.svdcorrection = svdcorrection

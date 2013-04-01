@@ -352,14 +352,14 @@ which are indicated by ``'sqrt'`` at the start of a parameter-name in the
 prior; the actual parameter in the fit function is the square of this fit-
 parameter, and so is again positive.
 
-Note also that only three lines in ``print_results(fit,prior,data)``, above,
+Note also that only a few lines in ``print_results(fit,prior,data)``, above,
 would change had we used log-normal priors for ``a`` and ``dE``::
 
     from gvar import exp                        # numpy.exp() works too
     ...
-    a = exp(fit.p['loga'])                      # array of a[i]s
+    a = fit.transformed_p['a'])                 # array of a[i]s
     ...
-    dE = exp(fit.p['logdE'])                    # array of dE[i]s
+    dE = fit.transformed_p['dE']                # array of dE[i]s
     ...
     inputs = {'loga':prior['loga'], 'b':prior['b'], 'logdE':fit.prior['logdE'],
               'data':[data[k] for k in data]}
@@ -400,6 +400,20 @@ similar, to within statistical errors). Results from the different links in
 the chain --- that is, from the fits for individual models --- can be accessed
 after the fit using ``fitter.chained_fits[datatag]`` where ``datatag`` is the
 data tag for the model of interest.
+
+It is sometimes useful to follow a chained fit with an ordinary fit, 
+but using the best-fit parameters from the chained fit as the prior for
+the ordinary fit: for example, ::
+
+        fit = fitter.chained_lsqfit(data=data, prior=prior) 
+        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-2)
+
+where we have included a fairly large *svd* cut in the second fit
+to avoid possible problems with roundoff errors. The second fit should,
+in principle, have no effect on the results since it adds no new
+information. In some cases, however, it polishes the results by making small
+(compared to the errors) corrections that tighten up the overall fit. It is
+generally fairly fast since the prior (``fit.p``) is relatively narrow. 
 
 .. _marginalized-fits:
 
@@ -784,7 +798,6 @@ The ``main`` method follows the pattern described in :ref:`faster-fits`::
 
     def main():
         data = make_data('example.data')          
-        models = make_models()   
         fitter = CorrFitter(models=make_models())
         p0 = None
         for N in [1, 2, 3, 4]:  
@@ -1017,27 +1030,29 @@ for the fit parameters from the last fit::
 
     def print_results(fit, prior, data):
         print('Fit results:')
+        p = fit.transformed_p                   # best-fit parameterss
+
         # etas
-        E_etas = np.cumsum(gv.exp(fit.p['log(etas:dE)']))
-        a_etas = gv.exp(fit.p['log(etas:a)'])
+        E_etas = np.cumsum(p['etas:dE'])
+        a_etas = p['etas:a'])
         print('  Eetas:', ' '.join(gv.fmt(E_etas[:3])))
         print('  aetas:', ' '.join(gv.fmt(a_etas[:3])))
 
         # Ds
-        E_Ds = np.cumsum(gv.exp(fit.p['log(Ds:dE)']))
-        a_Ds = gv.exp(fit.p['log(Ds:a)'])
+        E_Ds = np.cumsum(p['Ds:dE'])
+        a_Ds = p['Ds:a'])
         print('\n  EDs:', ' '.join(gv.fmt(E_Ds[:3])))
         print(  '  aDs:', ' '.join(gv.fmt(a_Ds[:3])))
 
         # Dso -- oscillating piece
-        E_Dso = np.cumsum(gv.exp(fit.p['log(Ds:dEo)']))
-        a_Dso = gv.exp(fit.p['log(Ds:ao)'])
+        E_Dso = np.cumsum(p['Ds:dEo'])
+        a_Dso = p['Ds:ao']
         print('\n  EDso:', ' '.join(gv.fmt(E_Dso[:3])))
         print(  '  aDso:', ' '.join(gv.fmt(a_Dso[:3])))
 
         # V
-        Vnn = fit.p['Vnn']
-        Vno = fit.p['Vno']
+        Vnn = p['Vnn']
+        Vno = p['Vno']
         print('\n  etas->V->Ds:', Vnn[0, 0].fmt())
         print('  etas->V->Dso:', Vno[0, 0].fmt())
 
@@ -1052,15 +1067,15 @@ for the fit parameters from the last fit::
         inputs = collections.OrderedDict()
         inputs['statistics'] = data             # statistical errors in data
         inputs.update(prior)                    # all entries in prior
-        inputs['svd'] = fit.svdcorrection        # svd cut (if present)
+        inputs['svd'] = fit.svdcorrection       # svd cut (if present)
 
         print('\n' + gv.fmt_values(outputs))
         print(gv.fmt_errorbudget(outputs, inputs))
 
         print('\n')
 
-The best-fit parameter values are stored in dictionary ``fit.p``. We need
-to exponentiate all parameters for which we used a log-normal distribution.
+The best-fit parameter values are stored in dictionary ``p=fit.transformed_p``,
+as are the exponentials of the log-normal parameters.
 We also turn energy differences into energies using :mod:`numpy`'s cummulative
 sum function :func:`numpy.cumsum`. We use :func:`gvar.fmt` to convert arrays
 of |GVar|\s into arrays of strings representing those gaussian variables
@@ -1147,6 +1162,22 @@ Note:
                     Vnn: 0.76782(92)         
                     Vno: -0.755(25)          
 
+  We obtain essentially the same results, ::
+
+        Values:
+                      metas: 0.416206(81)        
+                        mDs: 1.20166(14)         
+                   mDso-mDs: 0.2579(48)          
+                        Vnn: 0.76760(83)         
+                        Vno: -0.754(25)          
+
+  if we polish the final results from the chained fit using 
+  a final call to ``fitter.lsqfit`` (see :ref:`chained-fits`)::
+
+        fit = fitter.chained_lsqfit(data=data, prior=prior, p0=p0) 
+        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-2)
+
+
 - Marginalization (see :ref:`marginalized-fits`) can speed up fits like 
   this one. To use an 8-term fit function, while tuning parameters for only
   ``N`` terms, we change only four lines in the main program::
@@ -1154,26 +1185,28 @@ Note:
     def main():
         data = make_data('example.data')          
         models = make_models()   
-        fitter = CorrFitter(models=make_models(), ratio=False)
+        fitter = CorrFitter(models=make_models(), ratio=False)                  #1
         p0 = None
-        for N in [1, 2]:  
+        for N in [1, 2]:                                                        #2
             print(30 * '=', 'nterm =', N)
-            prior = make_prior(8)               
-            fit = fitter.lsqfit(data=data, prior=prior, p0=p0, nterm=(N, N)) 
+            prior = make_prior(8)                                               #3
+            fit = fitter.lsqfit(data=data, prior=prior, p0=p0, nterm=(N, N))    #4 
             p0 = fit.pmean
         print_results(fit, prior, data)  
         fitter.display_plots()
 
-  The first modification is to the line defining ``fitter``, where we add
-  an extra argument to the constructor to tell it what kind of marginalization 
-  to use (that is, not the ratio method). The second modification limits the
+  The first modification (``#1``) is in the definition of ``fitter``, where we add
+  an extra argument to tell |CorrFitter| what kind of marginalization 
+  to use (that is, not the ratio method). The second modification (``#2``) 
+  limits the
   fits to ``N=1,2``, because that is all that will be needed to get good
-  ground-state values.
-  The third modification sets the prior to eight terms, no matter what value
-  ``N`` has. The last tells ``fitter.lsqfit`` to fit parameters from 
+  values for the leading term.
+  The third modification (``#3``) sets the prior to eight terms, no matter what value
+  ``N`` has. The last (``#4``) tells ``fitter.lsqfit`` to fit parameters from 
   only the first ``N`` terms in the fit function; parts of the prior that are
-  not being fit are incorporated into the fit data. The output shows that
-  the ground-state results have converged by ``N=2`` (and even ``N=1`` isn't
+  not being fit are incorporated (*marginalized*) into the fit data. The output 
+  shows that
+  results for the leading term have converged by ``N=2`` (and even ``N=1`` isn't
   so bad):
 
   .. literalinclude:: example-marginalize.out

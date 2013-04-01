@@ -375,18 +375,17 @@ need be changed. <a class="reference internal" href="#corrfitter.CorrFitter" tit
 which are indicated by <tt class="docutils literal"><span class="pre">'sqrt'</span></tt> at the start of a parameter-name in the
 prior; the actual parameter in the fit function is the square of this fit-
 parameter, and so is again positive.</p>
-<p>Note also that only three lines in <tt class="docutils literal"><span class="pre">print_results(fit,prior,data)</span></tt>, above,
+<p>Note also that only a few lines in <tt class="docutils literal"><span class="pre">print_results(fit,prior,data)</span></tt>, above,
 would change had we used log-normal priors for <tt class="docutils literal"><span class="pre">a</span></tt> and <tt class="docutils literal"><span class="pre">dE</span></tt>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">gvar</span> <span class="kn">import</span> <span class="n">exp</span>                        <span class="c"># numpy.exp() works too</span>
-<span class="o">...</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;loga&#39;</span><span class="p">])</span>                      <span class="c"># array of a[i]s</span>
-<span class="o">...</span>
-<span class="n">dE</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;logdE&#39;</span><span class="p">])</span>                    <span class="c"># array of dE[i]s</span>
-<span class="o">...</span>
-<span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;loga&#39;</span><span class="p">:</span><span class="n">prior</span><span class="p">[</span><span class="s">&#39;loga&#39;</span><span class="p">],</span> <span class="s">&#39;b&#39;</span><span class="p">:</span><span class="n">prior</span><span class="p">[</span><span class="s">&#39;b&#39;</span><span class="p">],</span> <span class="s">&#39;logdE&#39;</span><span class="p">:</span><span class="n">fit</span><span class="o">.</span><span class="n">prior</span><span class="p">[</span><span class="s">&#39;logdE&#39;</span><span class="p">],</span>
-          <span class="s">&#39;data&#39;</span><span class="p">:[</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]}</span>
-<span class="o">...</span>
-</pre></div>
+<div class="highlight-python"><pre>from gvar import exp                        # numpy.exp() works too
+...
+a = fit.transformed_p['a'])                 # array of a[i]s
+...
+dE = fit.transformed_p['dE']                # array of dE[i]s
+...
+inputs = {'loga':prior['loga'], 'b':prior['b'], 'logdE':fit.prior['logdE'],
+          'data':[data[k] for k in data]}
+...</pre>
 </div>
 </div>
 <div class="section" id="faster-fits-chained-fits">
@@ -420,6 +419,19 @@ similar, to within statistical errors). Results from the different links in
 the chain &#8212; that is, from the fits for individual models &#8212; can be accessed
 after the fit using <tt class="docutils literal"><span class="pre">fitter.chained_fits[datatag]</span></tt> where <tt class="docutils literal"><span class="pre">datatag</span></tt> is the
 data tag for the model of interest.</p>
+<p>It is sometimes useful to follow a chained fit with an ordinary fit,
+but using the best-fit parameters from the chained fit as the prior for
+the ordinary fit: for example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">chained_lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>
+<span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where we have included a fairly large <em>svd</em> cut in the second fit
+to avoid possible problems with roundoff errors. The second fit should,
+in principle, have no effect on the results since it adds no new
+information. In some cases, however, it polishes the results by making small
+(compared to the errors) corrections that tighten up the overall fit. It is
+generally fairly fast since the prior (<tt class="docutils literal"><span class="pre">fit.p</span></tt>) is relatively narrow.</p>
 </div>
 <div class="section" id="faster-fits-marginalization">
 <span id="marginalized-fits"></span><h2>Faster Fits &#8212; Marginalization<a class="headerlink" href="#faster-fits-marginalization" title="Permalink to this headline">¶</a></h2>
@@ -848,7 +860,7 @@ all terms.</p>
 
 <dl class="method">
 <dt id="corrfitter.Corr2.fitfcn">
-<tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.Corr2.fitfcn" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em>, <em>t=None</em><big>)</big><a class="headerlink" href="#corrfitter.Corr2.fitfcn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return fit function for parameters <tt class="docutils literal"><span class="pre">p</span></tt>.</p>
 </dd></dl>
 
@@ -1011,7 +1023,7 @@ all terms.</p>
 
 <dl class="method">
 <dt id="corrfitter.Corr3.fitfcn">
-<tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.Corr3.fitfcn" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fitfcn</tt><big>(</big><em>p</em>, <em>nterm=None</em>, <em>t=None</em><big>)</big><a class="headerlink" href="#corrfitter.Corr3.fitfcn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return fit function for parameters <tt class="docutils literal"><span class="pre">p</span></tt>.</p>
 </dd></dl>
 
@@ -1203,8 +1215,8 @@ containing results from the fit to the next data set in
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.buildfitfcn">
-<tt class="descname">buildfitfcn</tt><big>(</big><em>prior</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.buildfitfcn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create fit function, with support for log-normal, etc. priors.</p>
+<tt class="descname">buildfitfcn</tt><big>(</big><em>priorkeys</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.buildfitfcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create fit function, with support for log-normal,... priors.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1467,7 +1479,6 @@ distribution, in the <tt class="docutils literal"><span class="pre">examples/</s
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;example.data&#39;</span><span class="p">)</span>
-    <span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">()</span>
     <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
     <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>
@@ -1688,53 +1699,54 @@ Usually one wants to create the array of strings first, and then convert it to
 <h3>d) print_results<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <p>Method <tt class="docutils literal"><span class="pre">print_results(fit,</span> <span class="pre">prior,</span> <span class="pre">data)</span></tt> reports on the best-fit values
 for the fit parameters from the last fit:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Fit results:&#39;</span><span class="p">)</span>
-    <span class="c"># etas</span>
-    <span class="n">E_etas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;log(etas:dE)&#39;</span><span class="p">]))</span>
-    <span class="n">a_etas</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;log(etas:a)&#39;</span><span class="p">])</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;  Eetas:&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt</span><span class="p">(</span><span class="n">E_etas</span><span class="p">[:</span><span class="mi">3</span><span class="p">])))</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;  aetas:&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt</span><span class="p">(</span><span class="n">a_etas</span><span class="p">[:</span><span class="mi">3</span><span class="p">])))</span>
+<div class="highlight-python"><pre>def print_results(fit, prior, data):
+    print('Fit results:')
+    p = fit.transformed_p                   # best-fit parameterss
 
-    <span class="c"># Ds</span>
-    <span class="n">E_Ds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;log(Ds:dE)&#39;</span><span class="p">]))</span>
-    <span class="n">a_Ds</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;log(Ds:a)&#39;</span><span class="p">])</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">  EDs:&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt</span><span class="p">(</span><span class="n">E_Ds</span><span class="p">[:</span><span class="mi">3</span><span class="p">])))</span>
-    <span class="k">print</span><span class="p">(</span>  <span class="s">&#39;  aDs:&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt</span><span class="p">(</span><span class="n">a_Ds</span><span class="p">[:</span><span class="mi">3</span><span class="p">])))</span>
+    # etas
+    E_etas = np.cumsum(p['etas:dE'])
+    a_etas = p['etas:a'])
+    print('  Eetas:', ' '.join(gv.fmt(E_etas[:3])))
+    print('  aetas:', ' '.join(gv.fmt(a_etas[:3])))
 
-    <span class="c"># Dso -- oscillating piece</span>
-    <span class="n">E_Dso</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;log(Ds:dEo)&#39;</span><span class="p">]))</span>
-    <span class="n">a_Dso</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;log(Ds:ao)&#39;</span><span class="p">])</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">  EDso:&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt</span><span class="p">(</span><span class="n">E_Dso</span><span class="p">[:</span><span class="mi">3</span><span class="p">])))</span>
-    <span class="k">print</span><span class="p">(</span>  <span class="s">&#39;  aDso:&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt</span><span class="p">(</span><span class="n">a_Dso</span><span class="p">[:</span><span class="mi">3</span><span class="p">])))</span>
+    # Ds
+    E_Ds = np.cumsum(p['Ds:dE'])
+    a_Ds = p['Ds:a'])
+    print('\n  EDs:', ' '.join(gv.fmt(E_Ds[:3])))
+    print(  '  aDs:', ' '.join(gv.fmt(a_Ds[:3])))
 
-    <span class="c"># V</span>
-    <span class="n">Vnn</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;Vnn&#39;</span><span class="p">]</span>
-    <span class="n">Vno</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;Vno&#39;</span><span class="p">]</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">  etas-&gt;V-&gt;Ds:&#39;</span><span class="p">,</span> <span class="n">Vnn</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fmt</span><span class="p">())</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;  etas-&gt;V-&gt;Dso:&#39;</span><span class="p">,</span> <span class="n">Vno</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fmt</span><span class="p">())</span>
+    # Dso -- oscillating piece
+    E_Dso = np.cumsum(p['Ds:dEo'])
+    a_Dso = p['Ds:ao']
+    print('\n  EDso:', ' '.join(gv.fmt(E_Dso[:3])))
+    print(  '  aDso:', ' '.join(gv.fmt(a_Dso[:3])))
 
-    <span class="c"># error budget</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">BufferDict</span><span class="p">()</span>
-    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;metas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_etas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;mDs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_Ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;mDso-mDs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_Dso</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">E_Ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;Vnn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vnn</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;Vno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vno</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    # V
+    Vnn = p['Vnn']
+    Vno = p['Vno']
+    print('\n  etas-&gt;V-&gt;Ds:', Vnn[0, 0].fmt())
+    print('  etas-&gt;V-&gt;Dso:', Vno[0, 0].fmt())
 
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
-    <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;statistics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>             <span class="c"># statistical errors in data</span>
-    <span class="n">inputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">prior</span><span class="p">)</span>                    <span class="c"># all entries in prior</span>
-    <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;svd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">svdcorrection</span>        <span class="c"># svd cut (if present)</span>
+    # error budget
+    outputs = gv.BufferDict()
+    outputs['metas'] = E_etas[0]
+    outputs['mDs'] = E_Ds[0]
+    outputs['mDso-mDs'] = E_Dso[0] - E_Ds[0]
+    outputs['Vnn'] = Vnn[0, 0]
+    outputs['Vno'] = Vno[0, 0]
 
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">gv</span><span class="o">.</span><span class="n">fmt_values</span><span class="p">(</span><span class="n">outputs</span><span class="p">))</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_errorbudget</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">))</span>
+    inputs = collections.OrderedDict()
+    inputs['statistics'] = data             # statistical errors in data
+    inputs.update(prior)                    # all entries in prior
+    inputs['svd'] = fit.svdcorrection       # svd cut (if present)
 
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-</pre></div>
+    print('\n' + gv.fmt_values(outputs))
+    print(gv.fmt_errorbudget(outputs, inputs))
+
+    print('\n')</pre>
 </div>
-<p>The best-fit parameter values are stored in dictionary <tt class="docutils literal"><span class="pre">fit.p</span></tt>. We need
-to exponentiate all parameters for which we used a log-normal distribution.
+<p>The best-fit parameter values are stored in dictionary <tt class="docutils literal"><span class="pre">p=fit.transformed_p</span></tt>,
+as are the exponentials of the log-normal parameters.
 We also turn energy differences into energies using <tt class="xref py py-mod docutils literal"><span class="pre">numpy</span></tt>&#8216;s cummulative
 sum function <tt class="xref py py-func docutils literal"><span class="pre">numpy.cumsum()</span></tt>. We use <tt class="xref py py-func docutils literal"><span class="pre">gvar.fmt()</span></tt> to convert arrays
 of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s into arrays of strings representing those gaussian variables
@@ -2010,6 +2022,20 @@ are about the same, though slightly more accurate: for example,</p>
                 Vnn: 0.76782(92)
                 Vno: -0.755(25)</pre>
 </div>
+<p>We obtain essentially the same results,</p>
+<div class="highlight-python"><pre>Values:
+              metas: 0.416206(81)
+                mDs: 1.20166(14)
+           mDso-mDs: 0.2579(48)
+                Vnn: 0.76760(83)
+                Vno: -0.754(25)</pre>
+</div>
+<p>if we polish the final results from the chained fit using
+a final call to <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt> (see <a class="reference internal" href="#chained-fits"><em>Faster Fits &#8212; Chained Fits</em></a>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">chained_lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">)</span>
+<span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
+</pre></div>
+</div>
 </li>
 <li><p class="first">Marginalization (see <a class="reference internal" href="#marginalized-fits"><em>Faster Fits &#8212; Marginalization</em></a>) can speed up fits like
 this one. To use an 8-term fit function, while tuning parameters for only
@@ -2017,27 +2043,29 @@ this one. To use an 8-term fit function, while tuning parameters for only
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;example.data&#39;</span><span class="p">)</span>
     <span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">()</span>
-    <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">(),</span> <span class="n">ratio</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">(),</span> <span class="n">ratio</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>                  <span class="c">#1</span>
     <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>                                                        <span class="c">#2</span>
         <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nterm =&#39;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
-        <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-        <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>                                               <span class="c">#3</span>
+        <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>    <span class="c">#4</span>
         <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
     <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
     <span class="n">fitter</span><span class="o">.</span><span class="n">display_plots</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The first modification is to the line defining <tt class="docutils literal"><span class="pre">fitter</span></tt>, where we add
-an extra argument to the constructor to tell it what kind of marginalization
-to use (that is, not the ratio method). The second modification limits the
+<p>The first modification (<tt class="docutils literal"><span class="pre">#1</span></tt>) is in the definition of <tt class="docutils literal"><span class="pre">fitter</span></tt>, where we add
+an extra argument to tell <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a> what kind of marginalization
+to use (that is, not the ratio method). The second modification (<tt class="docutils literal"><span class="pre">#2</span></tt>)
+limits the
 fits to <tt class="docutils literal"><span class="pre">N=1,2</span></tt>, because that is all that will be needed to get good
-ground-state values.
-The third modification sets the prior to eight terms, no matter what value
-<tt class="docutils literal"><span class="pre">N</span></tt> has. The last tells <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt> to fit parameters from
+values for the leading term.
+The third modification (<tt class="docutils literal"><span class="pre">#3</span></tt>) sets the prior to eight terms, no matter what value
+<tt class="docutils literal"><span class="pre">N</span></tt> has. The last (<tt class="docutils literal"><span class="pre">#4</span></tt>) tells <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt> to fit parameters from
 only the first <tt class="docutils literal"><span class="pre">N</span></tt> terms in the fit function; parts of the prior that are
-not being fit are incorporated into the fit data. The output shows that
-the ground-state results have converged by <tt class="docutils literal"><span class="pre">N=2</span></tt> (and even <tt class="docutils literal"><span class="pre">N=1</span></tt> isn&#8217;t
+not being fit are incorporated (<em>marginalized</em>) into the fit data. The output
+shows that
+results for the leading term have converged by <tt class="docutils literal"><span class="pre">N=2</span></tt> (and even <tt class="docutils literal"><span class="pre">N=1</span></tt> isn&#8217;t
 so bad):</p>
 <div class="highlight-python"><pre>============================== nterm = 1
 Least Square Fit (input data correlated with prior):

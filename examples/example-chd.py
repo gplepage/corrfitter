@@ -11,6 +11,8 @@ try:
 except ImportError:
     DISPLAYPLOTS = False
 
+POLISH = True               # polish solution at end
+
 def main():
     data = make_data('example.data') 
     models = make_models()   
@@ -22,6 +24,8 @@ def main():
         prior = make_prior(N)               
         fit = fitter.chained_lsqfit(data=data, prior=prior, p0=p0) 
         p0 = fit.pmean
+    if POLISH:
+        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-2)
     print_results(fit, prior, data)  
     if DISPLAYPLOTS:
         fitter.display_plots()

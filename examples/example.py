@@ -13,8 +13,6 @@ except ImportError:
 
 def main():
     data = make_data('example.data') 
-    models = make_models()   
-    prior = make_prior(8)
     fitter = CorrFitter(models=make_models())
     p0 = None
     for N in [1, 2, 3, 4]:  
@@ -93,27 +91,29 @@ def make_prior(N):
 def print_results(fit, prior, data):
     """ Report best-fit results. """
     print('Fit results:')
+    p = fit.transformed_p                       # best-fit parameters
+
     # etas
-    E_etas = np.cumsum(gv.exp(fit.p['log(etas:dE)']))
-    a_etas = gv.exp(fit.p['log(etas:a)'])
+    E_etas = np.cumsum(p['etas:dE'])
+    a_etas = p['etas:a']
     print('  Eetas:', ' '.join(gv.fmt(E_etas[:3])))
     print('  aetas:', ' '.join(gv.fmt(a_etas[:3])))
 
     # Ds
-    E_Ds = np.cumsum(gv.exp(fit.p['log(Ds:dE)']))
-    a_Ds = gv.exp(fit.p['log(Ds:a)'])
+    E_Ds = np.cumsum(p['Ds:dE'])
+    a_Ds = p['Ds:a']
     print('\n  EDs:', ' '.join(gv.fmt(E_Ds[:3])))
     print(  '  aDs:', ' '.join(gv.fmt(a_Ds[:3])))
 
     # Dso -- oscillating piece
-    E_Dso = np.cumsum(gv.exp(fit.p['log(Ds:dEo)']))
-    a_Dso = gv.exp(fit.p['log(Ds:ao)'])
+    E_Dso = np.cumsum(p['Ds:dEo'])
+    a_Dso = p['Ds:ao']
     print('\n  EDso:', ' '.join(gv.fmt(E_Dso[:3])))
     print(  '  aDso:', ' '.join(gv.fmt(a_Dso[:3])))
 
     # V
-    Vnn = fit.p['Vnn']
-    Vno = fit.p['Vno']
+    Vnn = p['Vnn']
+    Vno = p['Vno']
     print('\n  etas->V->Ds  =', Vnn[0, 0].fmt())
     print('  etas->V->Dso =', Vno[0, 0].fmt())
 
@@ -126,9 +126,9 @@ def print_results(fit, prior, data):
     outputs['Vno'] = Vno[0, 0]
 
     inputs = collections.OrderedDict()
-    inputs['statistics'] = data             # statistical errors in data
-    inputs.update(prior)                    # all entries in prior
-    inputs['svd'] = fit.svdcorrection        # svd cut (if present)
+    inputs['statistics'] = data                 # statistical errors in data
+    inputs.update(prior)                        # all entries in prior
+    inputs['svd'] = fit.svdcorrection           # svd cut (if present)
 
     print('\n' + gv.fmt_values(outputs))
     print(gv.fmt_errorbudget(outputs, inputs))

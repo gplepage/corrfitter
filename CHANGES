@@ -11,10 +11,15 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-Verions XXXX
-=============
+Verions 3.4.2 - not released yet
+==================================
+This version is very minor. Mostly cleaning up little odds and ends.
 
 - Small fix to chained_lsqfit --- add time to fit output.
+
+- More documentation on chained_lsqfit.
+
+- Tweaks relating to use of lsqfit.transform_p.
 
 Version 3.4.1 - 2013-03-14
 ==========================
