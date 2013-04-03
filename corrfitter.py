@@ -375,12 +375,18 @@ class Corr2(BaseModel):
                 bi = p[bi]
                 dEi = p[dEi]
             sumdE = 0.0
-            for a, b, dE in zip(ai, bi, dEi):
-                sumdE += dE
-                ans += ofaci*a*b*((_gvar.exp(-sumdE*t)) if tp_t is None else 
-                              (_gvar.exp(-sumdE*t)+pfac*_gvar.exp(-sumdE*tp_t)) )
-        return ans
-    
+            if tp_t is None:
+                exp_t = _gvar.exp(-t)
+                for a, b, dE in zip(ai, bi, dEi):
+                    sumdE += dE
+                    ans += ofaci * a * b * exp_t ** sumdE
+            else:
+                exp_t = _gvar.exp(-t)
+                exp_tp_t = _gvar.exp(-tp_t)
+                for a, b, dE in zip(ai, bi, dEi):
+                    sumdE += dE
+                    ans += ofaci * a * b * (exp_t ** sumdE + pfac * exp_tp_t ** sumdE)
+        return ans    
 
 
 class Corr3(BaseModel):
@@ -664,11 +670,19 @@ class Corr3(BaseModel):
                     continue
                 ai =  p[ai][:ntermai]
                 dEai = p[dEai][:ntermai] 
-            for a, dE in zip(ai, dEai):
-                sumdE += dE
-                ans.append(ofaci*a*((_gvar.exp(-sumdE*ta)) 
-                        if tp_ta is None else 
-                        (_gvar.exp(-sumdE*ta)+pafac*_gvar.exp(-sumdE*tp_ta))))
+            if tp_ta is None:
+                exp_ta = _gvar.exp(-ta)
+                for a, dE in zip(ai, dEai):
+                    sumdE += dE
+                    ans.append(ofaci * a * exp_ta ** sumdE)
+            else:
+                exp_ta = _gvar.exp(-ta)
+                exp_tp_ta = _gvar.exp(-tp_ta)
+                for a, dE in zip(ai, dEai):
+                    sumdE += dE
+                    ans.append(
+                        ofaci * a * (exp_ta ** sumdE + pafac * exp_tp_ta ** sumdE)
+                        )
             aprop.append(ans)
         bprop = []
         ofac = (self.sb[0], (0.0 if self.sb[1] == 0.0 else self.sb[1]*(-1)**tb))
@@ -687,11 +701,19 @@ class Corr3(BaseModel):
                     continue
                 bi = p[bi][:ntermbi] 
                 dEbi = p[dEbi][:ntermbi] 
-            for b, dE in zip(bi, dEbi):
-                sumdE += dE
-                ans.append(ofaci*b*((_gvar.exp(-sumdE*tb)) 
-                        if tp_tb is None else 
-                        (_gvar.exp(-sumdE*tb)+pbfac*_gvar.exp(-sumdE*tp_tb))))
+            if tp_tb is None:
+                exp_tb = _gvar.exp(-tb)
+                for b, dE in zip(bi, dEbi):
+                    sumdE += dE
+                    ans.append(ofaci * b * exp_tb ** sumdE)
+            else:
+                exp_tb = _gvar.exp(-tb)
+                exp_tp_tb = _gvar.exp(-tp_tb)
+                for b, dE in zip(bi, dEbi):
+                    sumdE += dE
+                    ans.append(
+                        ofaci * b * (exp_tb ** sumdE + pbfac * exp_tp_tb ** sumdE)
+                        )
             bprop.append(ans)
         
         # combine propagators with vertices 

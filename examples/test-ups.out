@@ -1,6 +1,6 @@
 ============================== nterm = 8   nterm_prior = 8    RATIO = True
 Least Square Fit:
-  chi2/dof [dof] = 0.9 [113]    Q = 0.76    logGBF = 2040    itns = 1
+  chi2/dof [dof] = 0.9 [113]    Q = 0.76    logGBF = 2040    itns = 2
 
 Parameters:
          logl 0   -0.6813 (20)      [ -0.9 (1.0) ]

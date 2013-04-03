@@ -1,6 +1,6 @@
 ========================== nexp = 3
 Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.47 [56]    Q = 1    logGBF = 1612.9    itns = 9
+  chi2/dof [dof] = 0.47 [56]    Q = 1    logGBF = 1612.9    itns = 11
 
 Parameters:
             a 0    0.2100 (11)      [  0.0 (1.0) ]
