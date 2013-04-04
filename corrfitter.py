@@ -344,7 +344,6 @@ class Corr2(BaseModel):
     
     def fitfcn(self, p, nterm=None, t=None):
         """ Return fit function for parameters ``p``. """
-        ans = 0.0
         if t is None:
             t = self.tfit
         if self.tp is None:
@@ -355,37 +354,37 @@ class Corr2(BaseModel):
         else:
             tp_t = -self.tp - t
             pfac = -1
-        # tp_t = None if self.tp is None else self.tp-t
         if nterm is None:
             nterm = (None, None)
         ofac = (None if self.s[0] == 0.0 else self.s[0],
                 (None if self.s[1] == 0.0 else self.s[1]*(-1)**t))
-        for ai, bi, dEi, ofaci, ntermi in zip(self.a, self.b, 
+        ans = 0.0
+        for _ai, _bi, _dEi, ofaci, ntermi in zip(self.a, self.b, 
                                               self.dE, ofac, nterm):
-            if ai is None or bi is None or dEi is None or ofaci is None:
+            if _ai is None or _bi is None or _dEi is None or ofaci is None:
                 continue
             if ntermi is not None:
                 if ntermi == 0:
                     continue
-                ai = p[ai][:ntermi]
-                bi = p[bi][:ntermi]
-                dEi = p[dEi][:ntermi]
+                ai = p[_ai][:ntermi]
+                bi = p[_bi][:ntermi]
+                dEi = p[_dEi][:ntermi]
             else:
-                ai = p[ai]
-                bi = p[bi]
-                dEi = p[dEi]
+                ai = p[_ai]
+                bi = p[_bi]
+                dEi = p[_dEi]
             sumdE = 0.0
             if tp_t is None:
                 exp_t = _gvar.exp(-t)
-                for a, b, dE in zip(ai, bi, dEi):
-                    sumdE += dE
-                    ans += ofaci * a * b * exp_t ** sumdE
+                for aij, bij, dEij in zip(ai, bi, dEi):
+                    sumdE += dEij
+                    ans += ofaci * aij * bij * exp_t ** sumdE
             else:
                 exp_t = _gvar.exp(-t)
                 exp_tp_t = _gvar.exp(-tp_t)
-                for a, b, dE in zip(ai, bi, dEi):
-                    sumdE += dE
-                    ans += ofaci * a * b * (exp_t ** sumdE + pfac * exp_tp_t ** sumdE)
+                for aij, bij, dEij in zip(ai, bi, dEi):
+                    sumdE += dEij
+                    ans += ofaci * aij * bij * (exp_t ** sumdE + pfac * exp_tp_t ** sumdE)
         return ans    
 
 
