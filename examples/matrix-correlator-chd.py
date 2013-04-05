@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-matrix-correlator.py   --- tests matrix fit
+matrix-correlator.py   --- tests matrix chained fit
 
 Created by Peter Lepage on 2012-12-02.
 Copyright (c) 2010-2013 G. Peter Lepage.

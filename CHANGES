@@ -15,6 +15,11 @@ Verions 3.4.2 - not released yet
 ==================================
 This version is very minor. Mostly cleaning up little odds and ends.
 
+- Repackaged examples file with much smaller data files (to reduce the
+  size of the distribution) and more informative file names.
+
+- Minor optimizations to Corr2 and Corr3.
+
 - Small fix to chained_lsqfit --- add time to fit output.
 
 - More documentation on chained_lsqfit.

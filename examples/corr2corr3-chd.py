@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-corr2corr3-chd.py  --- standard usage (including error budgets and plots)
+corr2corr3-chd.py  --- standard usage with chained fits
 
 Created by Peter Lepage on 2010-11-26.
 Copyright (c) 2010-2013 G. Peter Lepage.

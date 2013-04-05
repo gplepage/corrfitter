@@ -1,22 +1,14 @@
-The example codes in the examples directory illustrate corrfitter.py. The
-codes and what they illustrate are:
+The code in this directory is for fitting real Monte Carlo data (in the
+various .data files). The Python scripts example.py, example-chained.py,
+and example-marginalize.py illustrate three different ways to fit data, 
+and are referenced in the documentation: see the section called 
+"Annotated Example".
 
-example.py  - Standard fit (Ds->ets); see "Annotated Example" in the documentation
-test-1.py	- (Ds->etas) again, including error budget and plots, fastfit()
-test-1m.py	- Marginalizing part of the fit function.
-test-1b.py	- Bootstrap analysis.
-test-1s.py	- Symmetric form factor (Ds->Ds)
-test-1t.py	- Transposed form factors (Ds->etas and etas->D)
-test-antiperiodic.py - Fit involving antiperiodic correlator
-test-ups.py - 4x4 matrix fit (upsilon)
-
-The makefile runs the examples ("make run") and illustrates how to run
-the individual scripts. The output from each example is in the
-corresponding .out file (test-1.out, test-1m.out, etc).
-
-The makefile script checks the output from each example against earlier
-output; the two should agree (or be close to agreeing --- small differences
-can result from roundoff error when using different hardware or software).
+The other sample scripts illustrate one fearture or another. Using 
+'make run-examples' runs each script and compares its output with output
+from earlier runs (in .out files). There may well be slight differences
+between runs on different hardware or with different software, which are
+likely unimportant.
 
 Each code has a flag TEST that is set to True by default. This puts the
 code in a special "testing" mode. Changing TEST to False causes it to run
