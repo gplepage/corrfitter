@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-test-ups.py   --- tests matrix fit
+matrix-correlator.py   --- tests matrix fit
 
 Created by Peter Lepage on 2012-12-02.
 Copyright (c) 2010-2013 G. Peter Lepage.
@@ -32,7 +32,7 @@ TEST = True        # testing mode? (True, False, or "dump")
 CHAINED = True      # chained fit? (True, False, or "both")
 
 if TEST:
-    TEST_FILENAME = 'test-ups-chd.testp'
+    TEST_FILENAME = 'matrix-correlator-chd.testp'
     try:
         with open(TEST_FILENAME, "r") as f:
             P0_TEST = BufferDict.load(f, use_json=True)
@@ -43,7 +43,7 @@ else:
     ntermlist = [2, 3, 4, 5, 6, 7, 8]
 
 def main():
-    dfile = 'test-ups.data'     # input data file
+    dfile = 'matrix-correlator.data'     # input data file
     if CHAINED is True:
         svdcut = None
         tol = 1e-10

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-test-1-chd.py  --- standard usage (including error budgets and plots)
+corr2corr3-chd.py  --- standard usage (including error budgets and plots)
 
 Created by Peter Lepage on 2010-11-26.
 Copyright (c) 2010-2013 G. Peter Lepage.
@@ -32,7 +32,7 @@ FASTFIT = False      # compute effective Es
 
 if TEST:
     NEXP_LIST = [6]
-    TEST_FILENAME = 'test-1-chd.testp'
+    TEST_FILENAME = 'corr2corr3-chd.testp'
     try:
         with open(TEST_FILENAME,"r") as f:
             P0_TEST = BufferDict.load(f, use_json=True)

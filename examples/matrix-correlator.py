@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-test-ups.py   --- tests matrix fit
+matrix-correlator.py   --- tests matrix fit
 
 Created by Peter Lepage on 2012-12-02.
 Copyright (c) 2010-2013 G. Peter Lepage.
@@ -34,12 +34,12 @@ except ImportError:
 TEST = True        # testing mode? (True, False, or "dump")
 
 if TEST:
-    TEST_FILENAME = 'test-ups.testp'
+    TEST_FILENAME = 'matrix-correlator.testp'
     with open(TEST_FILENAME, "r") as f:
         P0_TEST = BufferDict.load(f, use_json=True)
 
 def main():
-    dfile = 'test-ups.data'     # input data file
+    dfile = 'matrix-correlator.data'     # input data file
     svdcut = 1e-3          # needed even without marginalization
     svdnum = 113            # number of samples in ups.bin24
     data = avg_data(Dataset(dfile))

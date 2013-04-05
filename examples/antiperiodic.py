@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-test-antiperiodic.py   --- tests antiperiodic fits
+antiperiodic.py   --- tests antiperiodic fits
 
 Created by Peter Lepage on 2012-12-02.
 Copyright (c) 2010-2013 G. Peter Lepage.
@@ -32,16 +32,16 @@ SVDCUT = 1e-3
 
 if TEST:
     NEXP_LIST = [2]
-    TEST_FILENAME = 'test-antiperiodic.testp'
+    TEST_FILENAME = 'antiperiodic.testp'
     with open(TEST_FILENAME,"r") as f:
         P0_TEST = BufferDict.load(f, use_json=True)
 else:
     NEXP_LIST = [2]
     
 def main():
-    dfile = "test-antiperiodic.data"   # data file
+    dfile = "antiperiodic.data"   # data file
     data = avg_data(Dataset(dfile)) # compute avg and cov for data
-    pfile = "test-antiperiodic.p"  # last fit stored here if not TEST
+    pfile = "antiperiodic.p"  # last fit stored here if not TEST
     fitter = CorrFitter(models=build_models())
     p0 = P0_TEST if TEST else pfile
     for nexp in NEXP_LIST:

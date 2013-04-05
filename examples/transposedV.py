@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-test-1t.py
+transposedV.py
 
 Created by Peter Lepage on 2010-11-26.
 Copyright (c) 2010-2013 G. Peter Lepage.
@@ -28,16 +28,16 @@ TEST = True       # testing mode? (True, False, or "dump")
 
 if TEST:
     NEXP_LIST = [3]
-    TEST_FILENAME = 'test-1t.testp'
+    TEST_FILENAME = 'transposedV.testp'
     with open(TEST_FILENAME, "r") as f:
         P0_TEST = BufferDict.load(f, use_json=True)
 else:
     NEXP_LIST = [2,3,4,5,6,7,8]
 
 def main():
-    dfile = "test-1s.data"
+    dfile = "symmetricV.data"
     data = avg_data(Dataset(dfile))
-    pfile = "test-1t.p" # last fit
+    pfile = "transposedV.p" # last fit
     fitter = CorrFitter(models=build_models())
     p0 = P0_TEST if TEST else pfile
     for nexp in NEXP_LIST:

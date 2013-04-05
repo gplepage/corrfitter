@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-test-1b.py -- tests bootstrap and marginalization
+bootstrap.py -- tests bootstrap and marginalization
 
 Created by Peter Lepage on 2010-11-26.
 Copyright (c) 2010-2013 G. Peter Lepage.
@@ -34,7 +34,7 @@ TEST = True         # testing mode? (True, False, or "dump")
 P0 = {}
 
 if TEST:
-    TEST_FILENAME = 'test-1b.testp'
+    TEST_FILENAME = 'bootstrap.testp'
     try:
         with open(TEST_FILENAME,"r") as f:
             P0[True] = BufferDict.load(f, use_json=True)

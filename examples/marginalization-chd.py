@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-test-1m.py -- tests marginalization
+marginalization-chd.py -- tests marginalization
 
 Created by Peter Lepage on 2010-11-26.
 Copyright (c) 2010-2013 G. Peter Lepage.
@@ -24,11 +24,14 @@ DISPLAYPLOTS = False         # display plots at end of fitting
 TEST = True        # run test case: True, False, or "dump"
 
 if TEST:
-    TEST_FILE = {True:"test-1m.truep", False:"test-1m.falsep"}
+    TEST_FILE = {True:"marginalization-chd.truep", False:"marginalization-chd.falsep"}
     P0_TEST = {}
     for ratio in [True,False]:
-        with open(TEST_FILE[ratio], "r") as f:
-            P0_TEST[ratio] = BufferDict.load(f, use_json=True)
+        try:
+            with open(TEST_FILE[ratio], "r") as f:
+                P0_TEST[ratio] = BufferDict.load(f, use_json=True)
+        except (IOError, EOFError):
+            P0_TEST[ratio] = None
 else:
     P0_TEST = {True:None, False:None}
 
@@ -43,11 +46,11 @@ def main():
     prior = build_prior(6)              # 6 terms in prior
     nexp = 1                            # nexp terms in fit
     for ratio in [True,False][:]:
-        fitter = CorrFitter(models=build_models(), ratio=ratio)
     # ratio = True
     # for nexp in [1,2,3,4,5,6][:1]:
+        fitter = CorrFitter(models=build_models(),nterm=(nexp,nexp),ratio=ratio)
         print('========================== nexp =',nexp,'  ratio =',ratio)
-        fit = fitter.lsqfit(data=data,prior=prior,p0=P0_TEST[ratio], nterm=(nexp,nexp))
+        fit = fitter.chained_lsqfit(data=data,prior=prior,p0=P0_TEST[ratio])
         print_results(fit,prior,data)
         print('\n\n')
         if TEST == "dump":
