@@ -39,7 +39,7 @@ if TEST:
         P0_TEST = BufferDict.load(f, use_json=True)
 
 def main():
-    dfile = 'ups.bin24'     # input data file
+    dfile = 'test-ups.data'     # input data file
     svdcut = 1e-3          # needed even without marginalization
     svdnum = 113            # number of samples in ups.bin24
     data = avg_data(Dataset(dfile))
@@ -60,9 +60,6 @@ def main():
                             ratio=RATIO,maxit=10000)
         print(30*'=','nterm =',nterm,'  nterm_prior =',len(prior['logdE']),
               '   RATIO =',RATIO)
-        p0 = collections.OrderedDict([
-            (k, p0[k]) for k in prior
-            ])
         fit = fitter.lsqfit(prior=prior,data=data,p0=p0,svdnum=svdnum)
         # print fit
         print_results(fitter,prior,data)

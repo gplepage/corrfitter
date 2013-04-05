@@ -39,7 +39,7 @@ else:
     NEXP_LIST = [2]
     
 def main():
-    dfile = "antiperiodic.bin16"   # data file
+    dfile = "test-antiperiodic.data"   # data file
     data = avg_data(Dataset(dfile)) # compute avg and cov for data
     pfile = "test-antiperiodic.p"  # last fit stored here if not TEST
     fitter = CorrFitter(models=build_models())

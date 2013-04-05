@@ -6,8 +6,8 @@ run run-all run-examples:
 	-diff -w -I 't=' example.tmp example.out
 	-$(PYTHON) example-marginalize.py > example-marginalize.tmp	# few sec
 	-diff -w -I 't=' example-marginalize.tmp example-marginalize.out
-	-$(PYTHON) example-chd.py > example-chd.tmp	# few sec
-	-diff -w -I 't=' example-chd.tmp example-chd.out
+	-$(PYTHON) example-chained.py > example-chained.tmp	# few sec
+	-diff -w -I 't=' example-chained.tmp example-chained.out
 	-$(PYTHON) test-1.py > test-1.tmp	# few sec
 	-diff -w -I 't=' test-1.tmp test-1.out
 	-$(PYTHON) test-1-chd.py > test-1-chd.tmp	# few sec

@@ -43,7 +43,7 @@ else:
     ntermlist = [2, 3, 4, 5, 6, 7, 8]
 
 def main():
-    dfile = 'ups.bin24'     # input data file
+    dfile = 'test-ups.data'     # input data file
     if CHAINED is True:
         svdcut = None
         tol = 1e-10

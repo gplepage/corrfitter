@@ -38,7 +38,7 @@ except ImportError:
     DISPLAYPLOTS = False
 
 def main():
-    dfile = "coarse_3pt_etas_Ds.bint8"  # data file
+    dfile = "example.data"  # data file
     data = avg_data(Dataset(dfile))
     prior = build_prior(6)              # 6 terms in prior
     nexp = 1                            # nexp terms in fit

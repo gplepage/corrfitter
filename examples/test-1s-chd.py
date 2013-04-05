@@ -37,8 +37,7 @@ else:
     NEXP_LIST = [2,3,4,5,6]
 
 def main():
-    # dfile = "coarse_3pt_etas_etas_kinCth1.10.576.bint8"  # data file
-    dfile = "coarse_3pt_1link_Ds_and_etas_kinCth1.10.576.bint8"
+    dfile = "test-1s.data"
     data = avg_data(Dataset(dfile,keys=['DsDsT18','DsDsT15','Ds']))
     fitter = CorrFitter(models=build_models())
     p0 = P0_TEST if TEST else None
@@ -108,7 +107,7 @@ def build_models():
             a=('a','ao'),dEa=('logdE','logdEo'),tpa=tp,sa=(1.,-1),
             b=('a','ao'),dEb=('logdE','logdEo'),tpb=tp,sb=(1.,-1.),
             Vnn='Vnn',Voo='Voo',Vno='Vno',Von='Vno',symmetric_V=True),
-        #
+       
         Corr3(datatag='DsDsT15',tdata=range(16),T=15,tfit=range(tmin,15-tmin),
             a=('a','ao'),dEa=('logdE','logdEo'),tpa=tp,sa=(1.,-1),
             b=('a','ao'),dEb=('logdE','logdEo'),tpb=tp,sb=(1.,-1.),

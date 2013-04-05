@@ -373,17 +373,14 @@ class Corr2(BaseModel):
                 ai = p[_ai]
                 bi = p[_bi]
                 dEi = p[_dEi]
-            sumdE = 0.0
             if tp_t is None:
                 exp_t = _gvar.exp(-t)
-                for aij, bij, dEij in zip(ai, bi, dEi):
-                    sumdE += dEij
+                for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
                     ans += ofaci * aij * bij * exp_t ** sumdE
             else:
                 exp_t = _gvar.exp(-t)
                 exp_tp_t = _gvar.exp(-tp_t)
-                for aij, bij, dEij in zip(ai, bi, dEi):
-                    sumdE += dEij
+                for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
                     ans += ofaci * aij * bij * (exp_t ** sumdE + pfac * exp_tp_t ** sumdE)
         return ans    
 
@@ -654,65 +651,63 @@ class Corr3(BaseModel):
         # initial and final propagators  
         aprop = []  # aprop[i][j] i= n or o; j=excitation level
         ofac = (self.sa[0], (0.0 if self.sa[1] == 0.0 else self.sa[1]*(-1)**ta))
-        for ai, dEai, ofaci, ntermai in zip(self.a, self.dEa, ofac, nterm):
-            if ai is None:
+        for _ai, _dEai, ofaci, ntermai in zip(self.a, self.dEa, ofac, nterm):
+            if _ai is None:
                 aprop.append(None)
                 continue
             ans = []
-            sumdE = 0.0
             if ntermai is None:
-                ai =  p[ai] 
-                dEai = p[dEai] 
+                ai =  p[_ai] 
+                dEai = p[_dEai] 
             else:
                 if ntermai <= 0:
                     aprop.append(None)
                     continue
-                ai =  p[ai][:ntermai]
-                dEai = p[dEai][:ntermai] 
+                ai =  p[_ai][:ntermai]
+                dEai = p[_dEai][:ntermai] 
             if tp_ta is None:
                 exp_ta = _gvar.exp(-ta)
-                for a, dE in zip(ai, dEai):
-                    sumdE += dE
-                    ans.append(ofaci * a * exp_ta ** sumdE)
+                ans = [
+                    ofaci * aij * exp_ta ** sumdE 
+                    for aij, sumdE in zip(ai, numpy.cumsum(dEai))
+                    ]
             else:
                 exp_ta = _gvar.exp(-ta)
                 exp_tp_ta = _gvar.exp(-tp_ta)
-                for a, dE in zip(ai, dEai):
-                    sumdE += dE
-                    ans.append(
-                        ofaci * a * (exp_ta ** sumdE + pafac * exp_tp_ta ** sumdE)
-                        )
+                ans = [
+                    ofaci * aij * (exp_ta ** sumdE + pafac * exp_tp_ta ** sumdE) 
+                    for aij, sumdE in zip(ai, numpy.cumsum(dEai))
+                    ]
             aprop.append(ans)
         bprop = []
         ofac = (self.sb[0], (0.0 if self.sb[1] == 0.0 else self.sb[1]*(-1)**tb))
-        for bi, dEbi, ofaci, ntermbi in zip(self.b, self.dEb, ofac, nterm):
-            if bi is None:
+        for _bi, _dEbi, ofaci, ntermbi in zip(self.b, self.dEb, ofac, nterm):
+            if _bi is None:
                 bprop.append(None)
                 continue
             ans = []
-            sumdE = 0.0
             if ntermbi is None:
-                bi = p[bi] 
-                dEbi = p[dEbi]
+                bi = p[_bi] 
+                dEbi = p[_dEbi]
             else:
                 if ntermbi <= 0:
                     bprop.append(None)
                     continue
-                bi = p[bi][:ntermbi] 
-                dEbi = p[dEbi][:ntermbi] 
+                bi = p[_bi][:ntermbi] 
+                dEbi = p[_dEbi][:ntermbi] 
             if tp_tb is None:
                 exp_tb = _gvar.exp(-tb)
-                for b, dE in zip(bi, dEbi):
-                    sumdE += dE
-                    ans.append(ofaci * b * exp_tb ** sumdE)
+                ans = [
+                    ofaci * bij * exp_tb ** sumdE 
+                    for bij, sumdE in zip(bi, numpy.cumsum(dEbi))
+                    ]
             else:
                 exp_tb = _gvar.exp(-tb)
                 exp_tp_tb = _gvar.exp(-tp_tb)
-                for b, dE in zip(bi, dEbi):
-                    sumdE += dE
-                    ans.append(
-                        ofaci * b * (exp_tb ** sumdE + pbfac * exp_tp_tb ** sumdE)
-                        )
+                ans = [
+                    ofaci * bij * (exp_tb ** sumdE + pbfac * exp_tp_tb ** sumdE) 
+                    for bij, sumdE in zip(bi, numpy.cumsum(dEbi))
+                    ]
             bprop.append(ans)
         
         # combine propagators with vertices 

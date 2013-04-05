@@ -47,7 +47,7 @@ else:
     
 
 def main():
-    dfile = "coarse_3pt_etas_Ds.bint8"  # data file
+    dfile = "example.data"  # data file
     dset = Dataset(dfile)
     data = avg_data(dset)
     prior = build_prior(6)

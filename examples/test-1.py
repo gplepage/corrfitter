@@ -28,7 +28,7 @@ except ImportError:
 
 TEST = True             # testing mode? (True,  False,  or "dump")
 
-FASTFIT = True      # compute effective Es
+FASTFIT = True          # compute effective Es
 
 if TEST:
     NTERMLIST = [6]
@@ -42,7 +42,7 @@ else:
     NTERMLIST = [2, 3, 4, 5, 6]
     
 def main():
-    dfile = "coarse_3pt_etas_Ds.bint8"   # data file
+    dfile = "example.data"
     data = avg_data(Dataset(dfile)) # compute avg and cov for data
     fitter = CorrFitter(models=build_models())
     p0 = P0_TEST if TEST else None
