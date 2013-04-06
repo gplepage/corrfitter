@@ -11,9 +11,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-Verions 3.4.2 - not released yet
-==================================
-This version is very minor. Mostly cleaning up little odds and ends.
+Verions 3.4.2 - 2013-04-06
+==========================
+
+- Minor tweaks to makefiles and other build files.
 
 - Repackaged examples file with much smaller data files (to reduce the
   size of the distribution) and more informative file names.
@@ -22,9 +23,12 @@ This version is very minor. Mostly cleaning up little odds and ends.
 
 - Small fix to chained_lsqfit --- add time to fit output.
 
-- More documentation on chained_lsqfit.
+- Improved documentation, including more on chained_lsqfit.
 
 - Tweaks relating to use of lsqfit.transform_p.
+
+- Doesn't really work with python2.6 any more. The main thing missing
+  from 2.6 is OrderedDict. Does work for both python2.7 and python3.3.
 
 Version 3.4.1 - 2013-03-14
 ==========================

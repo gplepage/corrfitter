@@ -11,4 +11,4 @@ exclude examples/*.tmp
 exclude examples/*.pyc
 exclude examples/*.p
 recursive-exclude doc/source/_build *
-prune dist build
+prune dist build __pycache__

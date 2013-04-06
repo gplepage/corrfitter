@@ -1,15 +1,13 @@
-The code in this directory is for fitting real Monte Carlo data (in the
-various .data files). The Python scripts example.py, example-chained.py,
-and example-marginalize.py illustrate three different ways to fit data, 
-and are referenced in the documentation: see the section called 
-"Annotated Example".
+The code in this directory is for fitting real Monte Carlo data from the HPQCD
+collaboration (data is in the various .data files). The Python scripts
+example.py, example-chained.py, and example-marginalize.py illustrate three
+different ways to fit data,  and are referenced in the documentation: see the
+section called  "Annotated Example".
 
-The other sample scripts illustrate one fearture or another. Using 
-'make run-examples' runs each script and compares its output with output
-from earlier runs (in .out files). There may well be slight differences
-between runs on different hardware or with different software, which are
-likely unimportant.
-
-Each code has a flag TEST that is set to True by default. This puts the
-code in a special "testing" mode. Changing TEST to False causes it to run
-in a more standard mode.
+The other sample scripts illustrate one fearture or another. Using  'make run-
+examples' runs each script and compares its output with output from earlier
+runs (in .out files). There may well be slight differences between runs on
+different hardware or with different software; these are likely unimportant.
+Each script has a flag TEST that is set to True by default. This puts the code
+in a special "testing" mode. Changing TEST to False causes it to run in a more
+standard mode.

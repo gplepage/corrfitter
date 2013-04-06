@@ -44,7 +44,7 @@ same source and sink (``a``), and ``Gab`` which has source ``a`` and
 where ``data['Gaa']`` and ``data['Gab']`` are one-dimensional arrays
 containing values for ``Gaa(t)`` and ``Gab(t)``, respectively, with
 ``t=0,1,2...63``. Each array element in ``data['Gaa']`` and ``data['Gab']``
-is a gaussian random variable of type |GVar|, and specifies the mean and
+is a Gaussian random variable of type |GVar|, and specifies the mean and
 standard deviation for the corresponding data point::
         
     >>> print data['Gaa']
@@ -111,11 +111,11 @@ correlator, as indicated by the tags at the start of each line. (Lines for
 ``Gab`` may be interspersed with lines for ``Gaa`` since every line has a
 tag.) The data can be analyzed using the :mod:`gvar.dataset` module::
         
-    import gvar
+    import gvar as gv
         
     def make_data(filename):
-        dset = gvar.dataset.Dataset(filename)
-        return gvar.dataset.avg_data(dset)
+        dset = gv.dataset.Dataset(filename)
+        return gv.dataset.avg_data(dset)
         
 This reads the data from file into a dataset object (type
 :class:`gvar.dataset.Dataset`) and then computes averages for each
@@ -174,37 +174,37 @@ c) make_prior
 _______________________
 This routine defines the fit parameters that correspond to each fit-parameter
 label used in ``make_models()`` above. It also assigns *a priori* values to
-each parameter, expressed in terms of gaussian random variables (|GVar|\s),
+each parameter, expressed in terms of Gaussian random variables (|GVar|\s),
 with a mean and standard deviation. The prior is built using class
 :class:`gvar.BufferDict`::
         
-    import gvar
+    import gvar as gv
         
     def make_prior(N):
         prior = gvar.BufferDict()       # prior = {}  works too
-        prior['a'] = [gvar.gvar(0.1, 0.5) for i in range(N)]
-        prior['b'] = [gvar.gvar(1., 5.) for i in range(N)]
-        prior['dE'] = [gvar.gvar(0.25, 0.25) for i in range(N)]
+        prior['a'] = [gv.gvar(0.1, 0.5) for i in range(N)]
+        prior['b'] = [gv.gvar(1., 5.) for i in range(N)]
+        prior['dE'] = [gv.gvar(0.25, 0.25) for i in range(N)]
         return prior
         
 (:class:`gvar.BufferDict` can be replaced by an ordinary Python dictionary;
 it is used here because it remembers the order in which the keys are added.)
-``make_prior(N)`` associates arrays of ``N`` gaussian random variables
+``make_prior(N)`` associates arrays of ``N`` Gaussian random variables
 (|GVar|\s) with each fit-parameter label, enough for ``N`` terms in the fit
 function. These are the *a priori* values for the fit parameters, and they
 can be retrieved using the label: setting ``prior=make_prior(N)``, for
 example, implies that ``prior['a'][i]``, ``prior['b'][i]`` and
 ``prior['dE'][i]`` are the *a priori* values for ``a[i]``, ``b[i]`` and
 ``dE[i]`` in the fit functions (see above). The *a priori* value for each
-``a[i]`` here is set to ``0.1+-0.5``, while that for each ``b[i]`` is
-``1+-5``::
+``a[i]`` here is set to ``0.1±0.5``, while that for each ``b[i]`` is
+``1±5``::
         
     >>> print prior['a']
     [0.1 +- 0.5 0.1 +- 0.5 0.1 +- 0.5 0.1 +- 0.5]
     >>> print prior['b']
     [1 +- 5 1 +- 5 1 +- 5 1 +- 5]
         
-Similarly the *a priori* value for each energy difference is ``0.25+-0.25``.
+Similarly the *a priori* value for each energy difference is ``0.25±0.25``.
 (See the :mod:`lsqfit` documentation for further information on priors.)
         
 
@@ -288,15 +288,22 @@ required to find the best fit for ``N+1``.
 
 Faster Fits --- Postive Parameters
 ----------------------------------
-Priors used in |CorrFitter| assign an *a priori* gaussian/normal
-distribution to each parameter. It is possible instead to assign a log-normal
-distribution, which forces the corresponding parameter to be positive. This is
-done by choosing a label in the prior that begins with "log": for example,
-``'logdE'`` instead of ``'dE'``. The fitter implements the log-normal
-distribution by using the parameter's logarithm, instead of the parameter
-itself, as the new fit parameter; the logarithm has a gaussian/normal
-distribution. The original parameter is recovered inside the fit function (and
-elsewhere) by taking the  exponential of the new fit parameter.
+
+Priors used in |CorrFitter| assign an *a priori* Gaussian/normal distribution
+to each parameter. It is possible instead to assign a log-normal distribution,
+which forces the corresponding parameter to be positive.  Consider, for 
+example, energy parameters labeled by ``'dE'`` in the definition of a model
+(*e.g.*, ``Corr2(dE='dE',...)``). To assign log-normal distributions to these
+parameters, include their logarithms in the prior and label the logarithms 
+with ``'logdE'`` or ``'log(dE)'``: for 
+example, in ``make_prior(N)`` use ::
+
+    prior['logdE'] = [gv.log(gv.gvar(0.25, 0.25)) for i in range(N)]
+
+instead of ``prior['dE'] = [gv.gvar(0.25, 0.25) for i in range(N)]``. The
+fitter then uses the logarithms as the fit parameters. The original  ``'dE'``
+parameters are recovered (automatically) inside the fit function from
+exponentials of the ``'logdE'`` fit parameters.
 
 Using log-normal distributions where possible can significantly improve the
 stability of a fit. This is because otherwise the fit function typically has
@@ -319,7 +326,7 @@ The log-normal distributions for the ``a[i]`` and ``dE[i]`` are introduced
 into the code example above by changing the corresponding labels in
 ``make_prior(N)``,  and taking logarithms of the corresponding prior values::
         
-    from gvar import log                        # numpy.log() works too
+    import gvar as gv
         
     def make_models():                          # same as before
         models = [ Corr2(datatag='Gaa', tdata=range(64), tfit=range(64),
@@ -332,15 +339,15 @@ into the code example above by changing the corresponding labels in
         
     def make_prior(N):
         prior = gvar.BufferDict()               # prior = {}  works too
-        prior['loga'] = [log(gvar.gvar(0.1, 0.5)) for i in range(N)]
-        prior['b'] = [gvar.gvar(1., 5.) for i in range(N)]
-        prior['logdE'] = [log(gvar.gvar(0.25, 0.25)) for i in range(N)]
+        prior['loga'] = [gv.log(gv.gvar(0.1, 0.5)) for i in range(N)]
+        prior['b'] = [gv.gvar(1., 5.) for i in range(N)]
+        prior['logdE'] = [gv.log(gv.gvar(0.25, 0.25)) for i in range(N)]
         return prior
         
 This replaces the original fit parameters, ``a[i]`` and ``dE[i]``, by new fit
 parameters, ``log(a[i])`` and ``log(dE[i])``. The *a priori* distributions for
-the logarithms are gaussian/normal, with priors of ``log(0.1+-0.5)`` and
-``log(0.25+-0.25)`` for the ``log(a)``\s and ``log(dE)``\s respectively. 
+the logarithms are Gaussian/normal, with priors of ``log(0.1±0.5)`` and
+``log(0.25±0.25)`` for the ``log(a)``\s and ``log(dE)``\s respectively. 
 
 Note that the labels are unchanged here in ``make_models()``. It is
 unnecessary to change labels in the models; |CorrFitter| will automatically
@@ -355,7 +362,6 @@ parameter, and so is again positive.
 Note also that only a few lines in ``print_results(fit,prior,data)``, above,
 would change had we used log-normal priors for ``a`` and ``dE``::
 
-    from gvar import exp                        # numpy.exp() works too
     ...
     a = fit.transformed_p['a'])                 # array of a[i]s
     ...
@@ -364,6 +370,10 @@ would change had we used log-normal priors for ``a`` and ``dE``::
     inputs = {'loga':prior['loga'], 'b':prior['b'], 'logdE':fit.prior['logdE'],
               'data':[data[k] for k in data]}
     ...
+
+Here ``fit.transformed_p`` contains the best-fit parameter values from the
+fitter, in addition to the exponentials of the ``'loga'`` and ``'logdE'``
+parameters.
 
 .. _chained-fits:
 
@@ -385,7 +395,7 @@ correlations between data/priors from different models are preserved
 throughout (this is essential to the method).
 
 The results from a chained fit are identical to a standard simultaneous fit in
-the limit of large statistics (that is, in the gaussian limit), but a  chained
+the limit of large statistics (that is, in the Gaussian limit), but a  chained
 fit never involves fitting more than a single correlator at a time. 
 Single-correlator fits are usually much faster than simultaneous multi-correlator
 fits, and roundoff errors (and therefore *svd* cuts) are much less of a 
@@ -632,7 +642,7 @@ Bootstrap Analyses
 ------------------
 A *bootstrap analysis* gives more robust error estimates for fit parameters
 and functions of fit parameters than the conventional fit when errors are
-large, or fluctuations are non-gaussian. A typical code looks something like::
+large, or fluctuations are non-Gaussian. A typical code looks something like::
     
     import gvar as gv
     import gvar.dataset as ds
@@ -681,40 +691,9 @@ functions of the fit parameters could be included as well. At the end
 The list of bootstrap data sets ``bs_datalist`` can be omitted in this example
 in situations where the input data has high statistics. Then the bootstrap
 copies are generated internally by :func:`fitter.bootstrap_iter()` from the
-means and covariance matrix of the input data (assuming gaussian statistics).
+means and covariance matrix of the input data (assuming Gaussian statistics).
     
     
-New Models
-----------
-Classes to describe new models are usually derived from |BaseModel|. These
-can be for fitting new types of correlators. They can also be used in other
-ways --- for example, to add constraints. Imagine a situation where one
-wants to constrain the third energy (``E2``) in a fit to be ``0.60(1)``.
-This can be accomplished by adding ``E2_Constraint()`` to the list of
-models in |Corrfitter| where::
-    
-    import gvar
-    import corrfitter
-    
-    class E2_Constraint(corrfitter.BaseModel):
-        def __init__(self):
-            super(E2_Constraint,self).__init__('E2-constraint') # data tag
-        
-        def fitfcn(self,x,p):
-            dE = gvar.exp(p['logdE'])
-            return sum(dE[:3])              # E2 formula in terms of p
-        
-        def builddata(self,d):
-            return gvar.gvar(0.6,0.01)      # E2 value
-            
-        def buildprior(self, prior, nterm):
-            return {}
-        
-Any number of constraints like this can be added to the list of models.
-    
-Note that this constraint could instead be built into the priors for
-``logdE`` by introducing correlations between different parameters.
-
 Implementation
 --------------
 |CorrFitter| allows models to specify how many exponentials to include in the
@@ -731,7 +710,7 @@ parameters ``p`` are set equal to their values in the prior (correlated
 An alternative implementation for the data correction is to add
 ``G(t,p,N)-G(t,p,max(N,Nmax))`` to the data. This implementation is selected
 when parameter ``ratio`` in |CorrFitter| is set to ``False``. Results are
-similar to the other implementation, though perhaps a little less robust.
+similar to the other implementation.
 
 Background information on the some of the fitting strategies used by
 |corrfitter| can be found by doing web searches for "hep-lat/0110175" and
@@ -813,7 +792,7 @@ four fits, with 1, 2, 3, and 4 terms in the fit function. Each fit starts its
 minimization at point ``p0``, which is set equal to the mean values of the
 best-fit parameters from the previous fit (``p0 = fit.pmean``). This reduces
 the  number of iterations needed for convergence in the ``N = 4`` fit, for
-example, from 110 to 12. It also makes multi-term fits more stable.
+example, from 217 to 23. It also makes multi-term fits more stable.
 
 The last line displays plots of the fit data divided by the fit, provided 
 :mod:`matplotlib` is installed. A plot is made for each correlator, and the
@@ -827,7 +806,7 @@ a) make_data
 ________________
 Method ``make_data('example.data')`` reads in the Monte Carlo data, averages
 it, and formats it for use by |CorrFitter|. The data file (``'example.data'``)
-contains 2260 lines,  each with 64 numbers on it, of the form::
+contains 225 lines,  each with 64 numbers on it, of the form::
 
     etas    0.3045088594E+00    0.7846334531E-01    0.3307295938E-01 ...
     etas    0.3058093438E+00    0.7949004688E-01    0.3344648906E-01 ...
@@ -835,14 +814,14 @@ contains 2260 lines,  each with 64 numbers on it, of the form::
 
 Each of these lines is a single Monte Carlo estimate for the :math:`\eta_s` 
 correlator on a lattice with 64 lattice points in the ``t`` direction; 
-there are 2260 Monte Carlo estimates in all. The same file also contains
-2260 lines describing the :math:`D_s` meson correlator::
+there are 225 Monte Carlo estimates in all. The same file also contains
+225 lines describing the :math:`D_s` meson correlator::
 
     Ds    0.2303351094E+00    0.4445243750E-01    0.8941437344E-02 ...
     Ds    0.2306766563E+00    0.4460026875E-01    0.8991960781E-02 ...
     ...
 
-And it contains 2260 lines each giving the 3-point amplitude for 
+And it contains 225 lines each giving the 3-point amplitude for 
 :math:`\eta_s \to D_s`
 where the source and sink are separated by 15 and 16 time steps on the
 lattice::
@@ -872,13 +851,13 @@ individual lines in ``example.data``: for example, ::
 
     >>> data = make_data('example.data')
     >>> print(data['Ds'])
-    [0.230715 +- 5.21002e-06 0.0446524 +- 2.60723e-06 0.00899239 +- 1.02701e-06
+    [0.230715 +- 7.29014e-06 0.0446523 +- 3.20528e-06 0.00899232 +- 1.48815e-06
      ...
-     0.0446529 +- 2.57709e-06]
+     0.0446527 +- 3.17288e-06]
     >>> print(data['3ptT16'])
-    [1.45834e-10 +- 1.71924e-13 3.36366e-10 +- 3.75092e-13
+    [1.45833e-10 +- 2.07244e-13 3.36392e-10 +- 4.39267e-13
      ...
-     2.31545e-05 +- 2.52032e-08]
+     2.3155e-05 +- 3.03965e-08]
 
 Here each entry in ``data`` is an array of |GVar|\s representing the Monte
 Carlo estimates (mean and covariance) for the corresponding correlator. This 
@@ -977,7 +956,7 @@ parameter, to be used as priors in the fitter::
 
 Parameter ``N`` specifies how many terms are kept in the fit functions. The
 priors are specified in a dictionary ``prior``. Each entry is an array, of
-length ``N``, with one entry for each term. Each entry is a gaussian random
+length ``N``, with one entry for each term. Each entry is a Gaussian random
 variable, specified by an object of type  |GVar|. Here we use the fact that
 ``gvar.gvar()`` can make a list of |GVar|\s from a list of strings of the form
 ``'0.1(1)'``: for example, ::
@@ -1019,7 +998,7 @@ of ``Vnn``; it is one of the most succinct ways of creating a large number of
 |GVar|\s. The latter creates only a single |GVar| and uses it repeatedly for
 every element ``Vnn``, thereby forcing every element of ``Vnn``  to be equal
 to every other element in the fit (since the difference between any two of
-their priors is ``0 +- 0``); it is almost certainly not what is desired.
+their priors is ``0±0``); it is almost certainly not what is desired.
 Usually one wants to create the array of strings first, and then convert it to
 |GVar|\s using ``gvar.gvar()``.
 
@@ -1064,7 +1043,7 @@ for the fit parameters from the last fit::
         outputs['Vnn'] = Vnn[0, 0]
         outputs['Vno'] = Vno[0, 0]
 
-        inputs = collections.OrderedDict()
+        inputs = collections.OrderedDict()      # can use dict() instead
         inputs['statistics'] = data             # statistical errors in data
         inputs.update(prior)                    # all entries in prior
         inputs['svd'] = fit.svdcorrection       # svd cut (if present)
@@ -1078,22 +1057,22 @@ The best-fit parameter values are stored in dictionary ``p=fit.transformed_p``,
 as are the exponentials of the log-normal parameters.
 We also turn energy differences into energies using :mod:`numpy`'s cummulative
 sum function :func:`numpy.cumsum`. We use :func:`gvar.fmt` to convert arrays
-of |GVar|\s into arrays of strings representing those gaussian variables
+of |GVar|\s into arrays of strings representing those Gaussian variables
 with the format, for example, ``1.55(41)``; and we use :func:`join` to join
 these into a single output string. The final output is::
 
     Fit results:
-      Eetas: 0.416221(81) 1.055(62) 1.55(41)
-      aetas: 0.21841(11) 0.205(55) 0.30(17)
+      Eetas: 0.41619(12) 1.007(89) 1.43(34)
+      aetas: 0.21834(16) 0.170(74) 0.30(12)
 
-      EDs: 1.20171(13) 1.707(21) 2.22(22)
-      aDs: 0.21477(18) 0.275(26) 0.44(18)
+      EDs: 1.20166(16) 1.704(17) 2.29(20)
+      aDs: 0.21466(20) 0.275(20) 0.52(20)
 
-      EDso: 1.446(14) 1.68(12) 2.17(44)
-      aDso: 0.0660(77) 0.083(33) 0.117(93)
+      EDso: 1.442(16) 1.65(11) 2.17(44)
+      aDso: 0.0634(90) 0.080(26) 0.116(93)
 
-      etas->V->Ds  = 0.76744(90)
-      etas->V->Dso = -0.777(75)
+      etas->V->Ds  = 0.76725(76)
+      etas->V->Dso = -0.793(92)
 
 
 Finally we  create an error budget for the :math:`\eta_s`
@@ -1107,27 +1086,28 @@ contributes to the errors in the final results, as detailed in the
 error budget::
 
     Values:
-                  metas: 0.416221(81)        
-                    mDs: 1.20171(13)         
-               mDso-mDs: 0.244(14)           
-                    Vnn: 0.76744(90)         
-                    Vno: -0.777(75)          
+                  metas: 0.41619(12)         
+                    mDs: 1.20166(16)         
+               mDso-mDs: 0.240(16)           
+                    Vnn: 0.76725(76)         
+                    Vno: -0.793(92)          
 
     Partial % Errors:
                              metas       mDs  mDso-mDs       Vnn       Vno
     ----------------------------------------------------------------------
-             statistics:      0.02      0.01      4.03      0.11      7.01
-            log(etas:a):      0.00      0.00      0.06      0.00      0.05
-           log(etas:dE):      0.00      0.00      0.03      0.00      0.06
-              log(Ds:a):      0.00      0.00      0.65      0.02      0.47
-             log(Ds:dE):      0.00      0.00      0.66      0.02      0.25
-             log(Ds:ao):      0.00      0.00      1.11      0.01      3.88
-            log(Ds:dEo):      0.00      0.00      1.21      0.01      4.47
-                    Vnn:      0.00      0.00      0.80      0.03      1.01
-                    Vno:      0.00      0.00      3.70      0.01      2.70
+             statistics:      0.03      0.01      4.51      0.09      8.60
+            log(etas:a):      0.00      0.00      0.11      0.01      0.39
+           log(etas:dE):      0.00      0.00      0.06      0.01      0.38
+              log(Ds:a):      0.00      0.00      0.53      0.02      0.96
+             log(Ds:dE):      0.00      0.00      0.44      0.02      0.59
+             log(Ds:ao):      0.00      0.00      1.10      0.01      3.85
+            log(Ds:dEo):      0.00      0.00      1.14      0.01      5.66
+                    Vnn:      0.00      0.00      0.58      0.03      1.03
+                    Vno:      0.00      0.00      4.25      0.01      3.39
                     svd:      0.00      0.00      0.00      0.00      0.00
     ----------------------------------------------------------------------
-                  total:      0.02      0.01      5.84      0.12      9.63
+                  total:      0.03      0.01      6.46      0.10     11.61
+
 
 The error budget shows, for example, that the largest sources of uncertainty
 in every quantity are the statistical errors in the input data. 
@@ -1155,21 +1135,22 @@ Note:
   is replaced by ``fitter.chained_lsqfit(...)`` in ``main()``. The results
   are about the same, though slightly more accurate: for example, ::
 
-    Values:
-                  metas: 0.416199(81)        
-                    mDs: 1.20164(14)         
-               mDso-mDs: 0.2595(51)          
-                    Vnn: 0.76782(92)         
-                    Vno: -0.755(25)          
+        Values:
+                      metas: 0.41619(12)         
+                        mDs: 1.20156(17)         
+                   mDso-mDs: 0.2554(41)          
+                        Vnn: 0.7676(12)          
+                        Vno: -0.754(26)          
 
   We obtain essentially the same results, ::
 
         Values:
-                      metas: 0.416206(81)        
-                        mDs: 1.20166(14)         
-                   mDso-mDs: 0.2579(48)          
-                        Vnn: 0.76760(83)         
-                        Vno: -0.754(25)          
+                      metas: 0.41617(12)         
+                        mDs: 1.20157(17)         
+                   mDso-mDs: 0.2560(41)          
+                        Vnn: 0.7672(11)          
+                        Vno: -0.754(26)          
+
 
   if we polish the final results from the chained fit using 
   a final call to ``fitter.lsqfit`` (see :ref:`chained-fits`)::

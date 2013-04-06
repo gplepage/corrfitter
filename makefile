@@ -1,7 +1,7 @@
 ## makefile for corrfitter library
 #
 # Created by G. Peter Lepage (Cornell University) on 2011-09-22.
-# Copyright (c) 2011-2012 G. Peter Lepage.
+# Copyright (c) 2011-2013 G. Peter Lepage.
 
 PYTHON = python
 
@@ -60,7 +60,9 @@ upload-git:
 
 clean:
 	cd tests; make clean; cd ..
-	rm -f *.pyc *.tmp corrfitter*.tz
+	cd examples; make clean; cd ..
+	rm -f *.pyc *.tmp corrfitter*.tz doc.zip
+	rm -rf __pycache__
 	rm -rf dist
 	rm -rf build
 	cd doc/source; make clean
