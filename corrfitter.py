@@ -1022,7 +1022,7 @@ class CorrFitter(object):
         self.chained_fits = fits
         self.fit = copy.copy(lastfit)
         chi2 = 0.0
-        dof = 0.0
+        dof = 0
         logGBF = 0.0
         nit = 0
         time = 0.0

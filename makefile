@@ -40,7 +40,7 @@ corrfitter.tz:	# everything distribution
 doc-html:		# html version of documentation (in doc/html)
 	sphinx-build -b html doc/source doc/html
 
-doc-zip:
+doc-zip, doc.zip:
 	cd doc/html; zip -r doc *; mv doc.zip ../.. 
 
 doc-pdf:		# pdf version of documentation (in doc/)
