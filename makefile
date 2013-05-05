@@ -56,6 +56,7 @@ upload-pypi:
 	python setup.py sdist upload
 
 upload-git:
+	make doc-all
 	git push origin master
 
 clean:
