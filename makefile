@@ -57,6 +57,7 @@ upload-pypi:
 
 upload-git:
 	make doc-all
+	git commit -a -m "prep for upload"
 	git push origin master
 
 clean:
