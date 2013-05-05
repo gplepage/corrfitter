@@ -57,7 +57,7 @@ import numpy
 import math
 import collections
 import copy
-__version__ = '3.4.2'
+__version__ = '3.4.2+'
 
 class BaseModel(object):
     """ Base class for correlator models. 
