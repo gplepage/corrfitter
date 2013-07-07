@@ -26,7 +26,7 @@ from corrfitter import *
 
 PRINT_FITS = False  # print lots of fit info while doing tests
 DISPLAY_PLOTS = False # display plots for some fits
-NSIG = 5.           # number of sigmas allowed before signalling an error
+NSIG = 5.5           # number of sigmas allowed before signalling an error
 NTERM = 3           # number of terms (ie, len(dE)) in correlators
 SVDCUT = 1e-6       # svd cut used for all fits -- to minimize roundoff problems
 FAST = False        # skips bootstrap tests if True
@@ -176,7 +176,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
     def dofit_chd(self, models, data_models=None, nterm=None, ratio=True):
         fitter = CorrFitter(models=models, nterm=nterm, ratio=ratio)
         if data_models is None:
-            data_models = models
+            data_models = fitter.flat_models
         data = make_data(models=data_models, p=self.p)
         if PRINT_FITS:
             print("Data:\n", data,"\n")
@@ -296,6 +296,17 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         self.dofit(models)
         self.dofit_chd(models)
     ##
+    def test_chained(self):
+        """ test nested chained fits """
+        models =[ 
+                [
+                self.mkcorr(a='a', b='a', dE='logdE'),
+                self.mkcorr(a='b', b='b', dE='logdE')
+                ],
+                self.mkcorr(a='a', b='b', dE='logdE')
+                ]
+        self.dofit_chd(models)
+
     def test_marginalization(self):
         """ corr2 -- marginalization (2x2 matrix)"""
         if PRINT_FITS:

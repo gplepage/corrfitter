@@ -11,7 +11,37 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-Verions 3.4.2 - 2013-04-06
+Version 3.5 - 7 July 2013
+==========================
+
+CorrFitter.chained_lsqfit continues to evolve in this release. It is 
+still somewhat experimental but continues to perform well in a wide 
+variety of real-life applications. Experience shows that it can be 
+10-100 times faster than CorrFitter.lsqfit for very large fits (eg,
+90+ correlators consisting of 1000+ pieces of correlated data).
+
+- Parameter aux_param in CorrFitter is gone. It is no longer needed since
+  any parameter specified in the prior is included in the fit, whether 
+  or not the correlator models use the parameter explicitly. Setting
+  parameter fast=True in CorrFitter.lsqfit or CorrFitter.chained_lsqfit
+  causes the fitter to delete parameters from the prior that are not used
+  explicitly --- this is the old behavior, which can be faster but loses
+  information in cases where the prior containes strong correlations.
+
+- Made major changes to CorrFitter.chained_lsqfit. Setting parameter
+  parallel=True causes fits to be done in parallel, rather than chained.
+  Correlators are still fit one at a time in a parallel fit, but nothing is
+  passed from fit to fit --- each fit uses the input prior. Parallel fits are
+  appropriate when the different models to be fit share few or no parameters.
+  chained_lsqfit also works with structured lists of models 
+  (eg, [m1, m2, [m3a,mb3b], m4]) that cause the fitter to alternate 
+  between chained and parallel fits  at different levels in the 
+  nested list of models.
+
+- Fixed p0 conventions in CorrFitter.lsqfit to be consistent with lsqfit
+  (and therefore more flexible than before).
+
+Verion 3.4.2 - 2013-04-06
 ==========================
 
 - Minor tweaks to makefiles and other build files.

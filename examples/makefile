@@ -35,6 +35,8 @@ run run-all run-examples:
 update-all:
 	### illustrate corrfitter: Corr2 and Corr3
 	-$(PYTHON) example.py > example.out	# few sec
+	-$(PYTHON) example-marginalize.py > example-marginalize.out	# few sec
+	-$(PYTHON) example-chained.py > example-chained.out	# few sec
 	-$(PYTHON) corr2corr3.py > corr2corr3.out	# few sec
 	-$(PYTHON) corr2corr3-chd.py > corr2corr3-chd.out	# few sec
 	-$(PYTHON) marginalization.py > marginalization.out	# few sec

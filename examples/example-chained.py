@@ -13,6 +13,8 @@ except ImportError:
 
 POLISH = True               # polish solution at end
 
+STRUCTURE_MODELS = True
+
 def main():
     data = make_data('example.data') 
     models = make_models()   
@@ -25,10 +27,12 @@ def main():
         fit = fitter.chained_lsqfit(data=data, prior=prior, p0=p0) 
         p0 = fit.pmean
     if POLISH:
-        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-2)
+        if DISPLAYPLOTS:
+                fitter.display_plots()
+        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-4)
     print_results(fit, prior, data)  
     if DISPLAYPLOTS:
-        fitter.display_plots()
+            fitter.display_plots()
 
 def make_data(datafile):
     """ Read data from datafile and average it. """
@@ -66,7 +70,10 @@ def make_models():
             Vnn='Vnn', Vno='Vno'
             )
         ]
-    return models
+    if STRUCTURE_MODELS:
+        return [models[:2]] + models[2:]
+    else:
+        return models
 
 def make_prior(N):
     """ Create priors for fit parameters. """

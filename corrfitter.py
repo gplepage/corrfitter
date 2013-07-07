@@ -57,7 +57,12 @@ import numpy
 import math
 import collections
 import copy
-__version__ = '3.4.2+'
+import time
+__version__ = '3.5'
+
+if not hasattr(collections,'OrderedDict'):
+    # for older versions of python
+    collections.OrderedDict = dict
 
 class BaseModel(object):
     """ Base class for correlator models. 
@@ -125,18 +130,6 @@ class BaseModel(object):
         :type nterm: tuple of ``None`` or integers        
         """
         raise NotImplementedError("buildprior not defined")
-
-    @staticmethod
-    def buildp0(p0, prior):
-        if p0 is None or isinstance(p0, str):
-            return p0
-        new_p0 = _gvar.BufferDict()
-        for i in prior:
-            if i in p0:
-                new_p0[i] = p0[i]
-            else:
-                raise ValueError("p0 missing key = " + str(i))
-        return new_p0
     
     @staticmethod
     def _param(p, default=None):
@@ -745,8 +738,14 @@ class Corr3(BaseModel):
 class CorrFitter(object):
     """ Nonlinear least-squares fitter for a collection of correlators. 
         
-    :param models: Correlator models used to fit statistical input data.
-    :type models: list of correlator models or a single model
+    :param models: Sequence of correlator models, such as 
+        :class:`corrfitter.Corr2` or :class:`corrfitter.Corr3`, 
+        to use in fits of fit data. Individual
+        models in the sequence can be replaced by sequences of models
+        (and/or further sequences, recursively) for use by
+        :func:`corrfitter.CorrFitter.chained_lsqfit`; such nesting
+        is ignored by the other methods.   
+    :type models: list or other sequence
     :param svdcut: If ``svdcut`` is positive, eigenvalues ``ev[i]`` of the 
         (rescaled) data covariance matrix that are smaller than
         ``svdcut*max(ev)`` are replaced by ``svdcut*max(ev)`` in the
@@ -775,32 +774,47 @@ class CorrFitter(object):
         to ``None``, the number is specified by the number of parameters in
         the prior.
     :type nterm: number or ``None``; or two-tuple of numbers or ``None``
-    :param ratio: If ``True`` (the default), use ratio corrections for fit 
+    :param ratio: If ``True``, use ratio corrections for fit 
         data when the prior specifies more terms than are used in the fit. If
-        ``False``, use difference corrections (see implementation notes,
-        above).
+        ``False`` (the default), use difference corrections 
+        (see implementation notes, above).
     :type ratio: boolean
     """
-    def __init__(self, models, svdcut=(1e-15, 1e-15), svdnum=None, tol=1e-10,
-                maxit=500, nterm=None, ratio=True): # mc=None, ratio=True):
+    def __init__(
+        self, models, svdcut=(1e-15, 1e-15), svdnum=None, tol=1e-10,
+        maxit=500, nterm=None, ratio=False,
+        processed_data=None
+        ): 
         super(CorrFitter, self).__init__()
-        self.models = [models] if isinstance(models, BaseModel) else models
+        models = [models] if isinstance(models, BaseModel) else models
+        self.flat_models = CorrFitter._flatten_models(models)
+        self.models = models
         self.svdcut = svdcut
         self.svdnum = svdnum
         self.tol = tol
         self.maxit = maxit
         self.fit = None
-        self.dset = None
-        # self.mc = mc
         self.ratio = ratio
         self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
+        self.processed_data = processed_data
     
+    @staticmethod
+    def _flatten_models(models):
+        """ Create flat version of model list ``models``. """
+        ans = []
+        for m in models:
+            if isinstance(m, BaseModel):
+                ans.append(m)
+            else:
+                ans += CorrFitter._flatten_models(m) 
+        return ans
+   
     def buildfitfcn(self, priorkeys):
         " Create fit function, with support for log-normal,... priors. "
 
         @lsqfit.transform_p(priorkeys, pindex=0, pkey='p')
         def _fitfcn(
-            p, nterm=None, default_nterm=self.nterm, models=self.models
+            p, nterm=None, default_nterm=self.nterm, models=self.flat_models
             ):
             """ Composite fit function. 
                 
@@ -828,7 +842,7 @@ class CorrFitter(object):
     def builddata(self, data, prior, nterm=None):
         """ Build fit data, corrected for marginalized terms. """
         fitdata = _gvar.BufferDict()
-        for m in self.models:
+        for m in self.flat_models:
             fitdata[m.datatag] = m.builddata(data)
         # remove marginal fit parameters 
         if nterm is None:
@@ -840,7 +854,7 @@ class CorrFitter(object):
             fitfcn = self.buildfitfcn(prior.keys())
             ftrunc = fitfcn(prior, nterm=nterm)
             fall = fitfcn(prior, nterm=(None, None))
-            for m in self.models:
+            for m in self.flat_models:
                 if not self.ratio:
                     diff = ftrunc[m.datatag] - fall[m.datatag]
                     fitdata[m.datatag] += diff 
@@ -850,24 +864,36 @@ class CorrFitter(object):
                     fitdata[m.datatag][ii] *= ratio 
         return fitdata
     
-    def buildprior(self, prior, nterm=None):
-        """ Build correctly sized prior for fit. """
+    def buildprior(self, prior, nterm=None, fast=False):
+        """ Build correctly sized prior for fit from ``prior``. 
+
+        Adjust the sizes of the arrays of  amplitudes and energies in
+        a copy of ``prior`` according to  parameter ``nterm``; return
+        ``prior`` if both ``nterm`` and ``self.nterm`` are ``None``.
+        """
         tmp = _gvar.BufferDict()
         if nterm is None:
+            if self.nterm is None:
+                return prior
             nterm = self.nterm
-        for m in self.models:
+        for m in self.flat_models:
             tmp.update(m.buildprior(prior=prior, nterm=nterm))
         # restore order of keys --- same as prior 
         ans = _gvar.BufferDict()
-        for k in prior:
-            if k in tmp:
-                ans[k] = tmp[k]
+        if fast:
+            # keep only parameters used by fit
+            for k in prior:
+                if k in tmp:
+                    ans[k] = tmp[k]
+        else:
+            # keep all parameters
+            for k in prior:
+                ans[k] = tmp[k] if k in tmp else prior[k]
         return ans
     
     def lsqfit(
         self, data, prior, p0=None, print_fit=True, nterm=None,
-        svdcut=None, svdnum=None, tol=None, maxit=None, 
-        aux_param={},
+        svdcut=None, svdnum=None, tol=None, maxit=None, fast=False,
         **args
         ):
         """ Compute least-squares fit of the correlator models to data.
@@ -889,11 +915,13 @@ class CorrFitter(object):
             call to ``self.lsqfit()``).
         :param print_fit: Print fit information to standard output if 
             ``True``; otherwise print nothing.
-        :param aux_param: A dictionary containing priors for 
-            additional (auxilary) fit parameters. Where ``aux_param``
-            and ``prior`` share keys, the entry in ``aux_param`` is
-            used.
-        :type aux_param: dictionary
+        :param fast: If ``True``, remove parameters from ``prior`` that are 
+            not needed by the correlator models; otherwise keep all 
+            parameters in ``prior`` as fit parameters (default). 
+            Ignoring extra parameters usually makes fits go faster.
+            This has no other effect unless there are correlations between the 
+            fit parameters needed by the models and the other parameters in 
+            ``prior`` that are ignored.
 
         The following parameters overwrite the values specified in the
         |CorrFitter| constructor when set to anything other than ``None``:
@@ -913,14 +941,11 @@ class CorrFitter(object):
         if nterm is None:
             nterm = self.nterm
         self.last_prior = prior
-        self.aux_param = aux_param
 
         # do the fit and print results
         data = self.builddata(data=data, prior=prior, nterm=nterm)
-        prior = self.buildprior(prior, nterm=nterm)
+        prior = self.buildprior(prior, nterm=nterm, fast=fast)
         fitfcn = self.buildfitfcn(prior.keys())
-        for k in self.aux_param:
-            prior[k] = self.aux_param[k]
         self.fit = lsqfit.nonlinear_fit( #
             data=data, p0=p0, fcn=fitfcn, prior=prior, 
             svdcut=svdcut, svdnum=svdnum, reltol=tol, 
@@ -932,17 +957,62 @@ class CorrFitter(object):
 
     def chained_lsqfit(
         self, data, prior, p0=None, print_fit=True, nterm=None,
-        svdcut=None, svdnum=None, tol=None, maxit=None, 
-        aux_param={},
+        svdcut=None, svdnum=None, tol=None, maxit=None, parallel=False,
+        flat=False, fast=False,
         **args
         ):
-        """ Compute chained least-squares fit of the correlator models to data.
+        """ Compute chained least-squares fit.
             
-        A *chained* fit fits data for each model sequentially, using the
-        best-fit parameters of one fit as priors for fit parameters in the 
-        next fit. Results from the individual fits can be found in dictionary
-        ``self.chained_fits``, which is indexed by the ``m.datatag``\s for 
-        the models ``m``.
+        A *chained* fit fits data for each model in ``self.models``
+        sequentially, using the best-fit parameters (means and
+        covariance matrix) of one fit to construct the prior for the
+        fit parameters in the  next fit: Correlators are fit one at a
+        time, starting with the correlator for ``self.models[0]``. The
+        best-fit output from the fit for ``self.models[i]`` is fed, as
+        a prior, into the fit for ``self.models[i+1]``. The best-fit
+        output from  the last fit in the chain is the final result.
+        Results from the individual fits can be found in dictionary
+        ``self.fit.fits``, which is indexed  by the
+        ``models[i].datatag``\s.
+
+        Setting parameter ``parallel=True`` causes parallel fits, where
+        each model is fit separately, using the original ``prior``. Parallel
+        fits make sense when models share few or no parameters; the results
+        from the individual fits are combined using weighted averages of 
+        the best-fit values for each parameter from every fit.
+
+        Entries ``self.models[i]`` in the list of models can themselves  be
+        lists of models, rather than just an individual model. In such a
+        chase, the models listed in ``self.models[i]`` are fit together using
+        a parallel fit if parameter ``parallel`` is ``False`` or a chained fit
+        otherwise. Grouping models in this ways instructs the fitter to
+        alternate between chained and parallel fits. For example, setting ::
+
+            models = [ m1, m2, [m3a,m3b], m4]
+
+        with ``parallel=False`` causes the following chain of 
+        fits ::
+
+             m1 -> m2 -> [m3a,m3b] -> m4
+
+        where: 1) the output from ``m1`` is used as the prior for 
+        ``m2``; 2) the output from ``m2`` is used as the prior for 
+        for a parallel fit of ``m3a`` and ``m3b`` together;
+        3) the output from the parallel fit of ``[m3a,m3b]`` is used
+        as the prior for ``m4``; and, finally, 4) the output from 
+        ``m4`` is the final result of the entire chained fit. 
+        
+        A slightly more complicated example is :: 
+
+            models = [ m1, m2, [m3a,[m3bx,m3by]], m4]
+
+        which leads to the chain of fits
+
+            m1 -> m2 -> [m3a, m3bx -> m3by] -> m4
+
+        where fits of ``m3bx`` and ``m3by`` are chained, in parallel with
+        the fit to ``m3a``. The fitter alternates between chained and
+        parallel fits at each new level of grouping of models.
 
         :param data: Input data. The ``datatag``\s from the 
             correlator models are used as data labels, with 
@@ -959,13 +1029,23 @@ class CorrFitter(object):
             the file with name ``"filename"`` for initial values and to
             write out best-fit parameter values after the fit (for the next
             call to ``self.lsqfit()``).
+        :param parallel: If ``True``, fit models in parallel using ``prior``
+            for each; otherwise chain the fits (default).
+        :type parallel: bool
+        :param flat: If ``True``, flatten the list of models thereby chaining
+            all fits (``parallel==False``) or doing them all in parallel
+            (``parallel==True``); otherwise use ``self.models`` 
+            as is (default).
+        :type flat: bool
+        :param fast: If ``True``, use the smallest number of parameters needed
+            in each fit; otherwise use all the parameters specified in 
+            ``prior`` in every fit. Omitting extra parameters can make 
+            fits go faster, sometimes much faster. Final results are 
+            unaffected unless ``prior`` contains strong correlations between 
+            different parameters, where only some of the correlated parameters 
+            are kept in individual fits. Default is ``False``.
         :param print_fit: Print fit information to standard output if 
             ``True``; otherwise print nothing.
-        :param aux_param: A dictionary containing priors for 
-            additional (auxilary) fit parameters. Where ``aux_param``
-            and ``prior`` share keys, the entry in ``aux_param`` is
-            used.
-        :type aux_param: dictionary
 
         The following parameters overwrite the values specified in the
         |CorrFitter| constructor when set to anything other than ``None``:
@@ -973,6 +1053,7 @@ class CorrFitter(object):
         further keyword arguments are passed on to
         :func:`lsqfit.nonlinear_fit`, which does the fit.
         """        # setup
+        cpu_time = time.clock()
         if svdcut is None:
             svdcut = self.svdcut
         if svdnum is None:
@@ -984,58 +1065,94 @@ class CorrFitter(object):
         if nterm is None:
             nterm = self.nterm
         self.last_prior = prior
-        self.aux_param = collections.OrderedDict(aux_param)
 
         # prepare data, do fits
-        data = self.builddata(data=data, prior=prior, nterm=nterm)
+        processed_data = (
+            self.processed_data if self.processed_data is not None else
+            self.builddata(data=data, prior=prior, nterm=nterm)
+            )
         fits = collections.OrderedDict()
-        aux_param = collections.OrderedDict(self.aux_param)
         p0file = p0 if isinstance(p0, str) else None
         if p0file is not None:
             try:
                 p0 = lsqfit.nonlinear_fit.load_parameters(p0file)
             except (IOError, EOFError):
                 p0 = None
-        for m in self.models:
-            m_prior = m.buildprior(prior=prior, nterm=nterm)
-            for i in aux_param:
-                m_prior[i] = aux_param[i]
-            m_p0 = m.buildp0(p0, m_prior)
 
-            @lsqfit.transform_p(m_prior, 0, 'p')
-            def m_fitfcn(
-                p, nterm=None, default_nterm=self.nterm, fitfcn = m.fitfcn
-                ):
-                if nterm is None:
-                    nterm = default_nterm
-                return fitfcn(p, nterm=nterm)
-            lastfit = lsqfit.nonlinear_fit(
-                data=data[m.datatag], fcn=m_fitfcn, prior=m_prior, 
-                p0=m_p0, svdcut=svdcut, svdnum=svdnum, reltol=tol, 
-                abstol=tol, maxit=maxit, **args
+        truncated_prior = self.buildprior(
+            prior=prior, nterm=nterm, fast=fast
+            )
+        if parallel:
+            parallel_parameters = []
+        else:
+            chained_prior = (
+                _gvar.BufferDict() if fast else
+                _gvar.BufferDict(truncated_prior)
                 )
-            fits[m.datatag] = lastfit
-            # print ('----------', m.datatag)
-            # print (fits[-1].format())
-            aux_param.update(lastfit.p)
+        for m in (self.flat_models if flat else self.models):
+            if isinstance(m, BaseModel):
+                if fast:
+                    m_prior = m.buildprior(prior=prior, nterm=nterm)
+                    if not parallel:
+                        m_prior.update(chained_prior)
+                else:
+                    m_prior = prior if parallel else chained_prior
+                @lsqfit.transform_p(m_prior, 0)
+                def m_fitfcn(
+                    p, nterm=None, default_nterm=self.nterm, fitfcn = m.fitfcn
+                    ):
+                    if nterm is None:
+                        nterm = default_nterm
+                    return fitfcn(p, nterm=nterm)
+                lastfit = lsqfit.nonlinear_fit(
+                    data=processed_data[m.datatag], fcn=m_fitfcn, prior=m_prior, 
+                    p0=p0, svdcut=svdcut, svdnum=svdnum, reltol=tol, 
+                    abstol=tol, maxit=maxit, **args
+                    )
+                fits[m.datatag] = lastfit
+            else:
+                if parallel:
+                    # provide every parameter to chained_fit
+                    m_prior = truncated_prior
+                else:
+                    # merge existing chained parameters with copy of prior
+                    m_prior = _gvar.BufferDict(truncated_prior)
+                    m_prior.update(chained_prior)
+                fitter = CorrFitter(
+                    models=m, svdcut=svdcut, svdnum=svdnum, tol=tol,
+                    maxit=maxit, nterm=nterm, ratio=self.ratio,
+                    processed_data=processed_data
+                    )
+                lastfit = fitter.chained_lsqfit(
+                    data=data, prior=m_prior,
+                    print_fit=False, parallel=(not parallel), 
+                    fast=fast
+                    )
+                for k in lastfit.fits:
+                    fits[k] = lastfit.fits[k]
+            if parallel:
+                # tmp = _gvar.BufferDict()
+                # for k in tmp_prior:
+                #     tmp[k] = lastfit.p[k] if k in lastfit.p else tmp_prior[k]
+                parallel_parameters.append(lastfit.p)
+            else:
+                chained_prior.update(lastfit.p)
         # print ('------------ all together')
-        self.chained_fits = fits
         self.fit = copy.copy(lastfit)
+        self.fit.fits = fits
         chi2 = 0.0
         dof = 0
         logGBF = 0.0
         nit = 0
-        time = 0.0
         svdcorrection = collections.OrderedDict()
         all_y = _gvar.BufferDict()
-        for key in self.chained_fits:
-            f = self.chained_fits[key]
+        for key in self.fit.fits:
+            f = self.fit.fits[key]
             all_y[key] = f.y
             chi2 += f.chi2
             dof += f.dof
             logGBF += f.logGBF
             nit += f.nit
-            time += f.time
             for i in f.svdcorrection:
                 if i not in svdcorrection or svdcorrection[i] is None:
                     svdcorrection[i] = f.svdcorrection[i]
@@ -1043,23 +1160,28 @@ class CorrFitter(object):
                     svdcorrection[i] = numpy.concatenate((
                         svdcorrection[i], f.svdcorrection[i]
                         ))
+        if parallel:
+            self.fit._p = _gvar.BufferDict(
+                lsqfit.wavg(parallel_parameters, svdcut=1e-15)
+                )
+            self.fit.pmean = _gvar.mean(self.fit.p)
+            self.fit._palt = self.fit.p
+        self.fit.parallel = parallel
         self.fit.chi2 = chi2
         self.fit.dof = dof
         self.fit.logGBF = logGBF
         self.fit.Q = lsqfit.gammaQ(self.fit.dof/2., self.fit.chi2/2.) 
-        self.fit.nit = int(nit / len(self.chained_fits))
-        self.fit.time = time
+        self.fit.nit = int(nit / len(self.fit.fits) + 0.5)
         self.fit.y = all_y
-        self.fit.data = data
-        self.fit.prior = self.buildprior(prior, nterm=nterm)
-        self.fit.fcn = self.buildfitfcn(prior.keys())
-        for k in self.aux_param:
-            self.fit.prior[k] = self.aux_param[k]
+        self.fit.data = processed_data
+        self.fit.prior = truncated_prior
+        self.fit.fcn = self.buildfitfcn(self.fit.prior.keys())
         self.fit.svdcorrection = svdcorrection
         if p0file is not None:
             self.fit.dump_pmean(p0file)
+        self.fit.time = time.clock() - cpu_time
         if print_fit:
-            print(self.fit.format())
+            print('Chained ' + self.fit.format())
         return self.fit
 
     def bootstrap_iter(self, datalist=None, n=None):
@@ -1114,7 +1236,7 @@ class CorrFitter(object):
         corrth = self.fit.fcn(self.fit.p)
         ans = {}
         keys = []
-        for m in self.models:
+        for m in self.flat_models:
             tag = m.datatag
             x = m._abscissa
             if x is None:

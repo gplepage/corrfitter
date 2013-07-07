@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -7,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.4.2 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.5 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '3.4.2',
+        URL_ROOT:    './',
+        VERSION:     '3.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.4.2 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.5 documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -44,7 +43,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -425,16 +424,37 @@ the results for the entire chain of fits, and so can be used in exactly the
 same way as the  output from <tt class="xref py py-func docutils literal"><span class="pre">fitter.lsqfit()</span></tt> (and is usually quite
 similar, to within statistical errors). Results from the different links in
 the chain &#8212; that is, from the fits for individual models &#8212; can be accessed
-after the fit using <tt class="docutils literal"><span class="pre">fitter.chained_fits[datatag]</span></tt> where <tt class="docutils literal"><span class="pre">datatag</span></tt> is the
+after the fit using <tt class="docutils literal"><span class="pre">fitter.fit.fits[datatag]</span></tt> where <tt class="docutils literal"><span class="pre">datatag</span></tt> is the
 data tag for the model of interest.</p>
+<p>Setting parameter <tt class="docutils literal"><span class="pre">parallel=True</span></tt> in <tt class="docutils literal"><span class="pre">fitter.chained_lsqfit(...)</span></tt> makes the
+fits for each model independent of each other. Each correlator is
+fit separately, but nothing is passed from one fit to the next. In particular,
+each fit uses the input prior. Parallel fits can be better than chained
+fits in situations where different models share few or no parameters.</p>
+<p>It is sometimes useful to combine chained and parallel fits. This is done
+by using a nested list of models. For example, setting</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="p">[</span><span class="n">m3a</span><span class="p">,</span><span class="n">m3b</span><span class="p">],</span> <span class="n">m4</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>with <tt class="docutils literal"><span class="pre">parallel=False</span></tt> (the default) in <tt class="docutils literal"><span class="pre">fitter.chained_lsqfit</span></tt> causes
+the following chain of fits:</p>
+<div class="highlight-python"><pre>m1 -&gt; m2 -&gt; (parallel fit of [m3a,m3b]) -&gt; m4</pre>
+</div>
+<p>Here the output from <tt class="docutils literal"><span class="pre">m1</span></tt> is used in the prior for fit <tt class="docutils literal"><span class="pre">m2</span></tt>, and the
+output from <tt class="docutils literal"><span class="pre">m2</span></tt> is used as the prior for a parallel fit of <tt class="docutils literal"><span class="pre">m3a</span></tt>
+and <tt class="docutils literal"><span class="pre">m3b</span></tt> together &#8212; that is, <tt class="docutils literal"><span class="pre">m3a</span></tt> and <tt class="docutils literal"><span class="pre">m3b</span></tt> are not chained,
+but rather are fit in parallel with each using a prior from fit <tt class="docutils literal"><span class="pre">m2</span></tt>. The
+result of the parallel fit of <tt class="docutils literal"><span class="pre">[m3a,m3b]</span></tt> is used as the prior for <tt class="docutils literal"><span class="pre">m4</span></tt>.
+Different levels of nesting in the list of
+models alternate between chained and parallel fits.</p>
 <p>It is sometimes useful to follow a chained fit with an ordinary fit,
 but using the best-fit parameters from the chained fit as the prior for
 the ordinary fit: for example,</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">chained_lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>
-<span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
+<span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>where we have included a fairly large <em>svd</em> cut in the second fit
+<p>where we have included a larger <em>svd</em> cut in the second fit
 to avoid possible problems with roundoff errors. The second fit should,
 in principle, have no effect on the results since it adds no new
 information. In some cases, however, it polishes the results by making small
@@ -1103,14 +1123,20 @@ all terms in the prior are used.</li>
 is used to fit a collection of models to a collection of Monte Carlo data.</p>
 <dl class="class">
 <dt id="corrfitter.CorrFitter">
-<em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">CorrFitter</tt><big>(</big><em>models</em>, <em>svdcut=(1e-15</em>, <em>1e-15)</em>, <em>svdnum=None</em>, <em>tol=1e-10</em>, <em>maxit=500</em>, <em>nterm=None</em>, <em>ratio=True</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">CorrFitter</tt><big>(</big><em>models</em>, <em>svdcut=(1e-15</em>, <em>1e-15)</em>, <em>svdnum=None</em>, <em>tol=1e-10</em>, <em>maxit=500</em>, <em>nterm=None</em>, <em>ratio=False</em>, <em>processed_data=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Nonlinear least-squares fitter for a collection of correlators.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>models</strong> (<em>list of correlator models or a single model</em>) &#8211; Correlator models used to fit statistical input data.</li>
+<li><strong>models</strong> (<em>list or other sequence</em>) &#8211; Sequence of correlator models, such as 
+<a class="reference internal" href="#corrfitter.Corr2" title="corrfitter.Corr2"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.Corr2</span></tt></a> or <a class="reference internal" href="#corrfitter.Corr3" title="corrfitter.Corr3"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.Corr3</span></tt></a>, 
+to use in fits of fit data. Individual
+models in the sequence can be replaced by sequences of models
+(and/or further sequences, recursively) for use by
+<a class="reference internal" href="#corrfitter.CorrFitter.chained_lsqfit" title="corrfitter.CorrFitter.chained_lsqfit"><tt class="xref py py-func docutils literal"><span class="pre">corrfitter.CorrFitter.chained_lsqfit()</span></tt></a>; such nesting
+is ignored by the other methods.</li>
 <li><strong>svdcut</strong> (number or <tt class="docutils literal"><span class="pre">None</span></tt> or 2-tuple) &#8211; If <tt class="docutils literal"><span class="pre">svdcut</span></tt> is positive, eigenvalues <tt class="docutils literal"><span class="pre">ev[i]</span></tt> of the 
 (rescaled) data covariance matrix that are smaller than
 <tt class="docutils literal"><span class="pre">svdcut*max(ev)</span></tt> are replaced by <tt class="docutils literal"><span class="pre">svdcut*max(ev)</span></tt> in the
@@ -1134,10 +1160,10 @@ functions; or two-tuple of numbers indicating how many terms to fit
 for each of the non-oscillating and oscillating pieces in fits. If set
 to <tt class="docutils literal"><span class="pre">None</span></tt>, the number is specified by the number of parameters in
 the prior.</li>
-<li><strong>ratio</strong> (<em>boolean</em>) &#8211; If <tt class="docutils literal"><span class="pre">True</span></tt> (the default), use ratio corrections for fit 
+<li><strong>ratio</strong> (<em>boolean</em>) &#8211; If <tt class="docutils literal"><span class="pre">True</span></tt>, use ratio corrections for fit 
 data when the prior specifies more terms than are used in the fit. If
-<tt class="docutils literal"><span class="pre">False</span></tt>, use difference corrections (see implementation notes,
-above).</li>
+<tt class="docutils literal"><span class="pre">False</span></tt> (the default), use difference corrections 
+(see implementation notes, above).</li>
 </ul>
 </td>
 </tr>
@@ -1199,19 +1225,62 @@ containing results from the fit to the next data set in
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.buildprior">
-<tt class="descname">buildprior</tt><big>(</big><em>prior</em>, <em>nterm=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.buildprior" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build correctly sized prior for fit.</p>
+<tt class="descname">buildprior</tt><big>(</big><em>prior</em>, <em>nterm=None</em>, <em>fast=False</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.buildprior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build correctly sized prior for fit from <tt class="docutils literal"><span class="pre">prior</span></tt>.</p>
+<p>Adjust the sizes of the arrays of  amplitudes and energies in
+a copy of <tt class="docutils literal"><span class="pre">prior</span></tt> according to  parameter <tt class="docutils literal"><span class="pre">nterm</span></tt>; return
+<tt class="docutils literal"><span class="pre">prior</span></tt> if both <tt class="docutils literal"><span class="pre">nterm</span></tt> and <tt class="docutils literal"><span class="pre">self.nterm</span></tt> are <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.chained_lsqfit">
-<tt class="descname">chained_lsqfit</tt><big>(</big><em>data</em>, <em>prior</em>, <em>p0=None</em>, <em>print_fit=True</em>, <em>nterm=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=None</em>, <em>maxit=None</em>, <em>aux_param={}</em>, <em>**args</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.chained_lsqfit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute chained least-squares fit of the correlator models to data.</p>
-<p>A <em>chained</em> fit fits data for each model sequentially, using the
-best-fit parameters of one fit as priors for fit parameters in the 
-next fit. Results from the individual fits can be found in dictionary
-<tt class="docutils literal"><span class="pre">self.chained_fits</span></tt>, which is indexed by the <tt class="docutils literal"><span class="pre">m.datatag</span></tt>s for 
-the models <tt class="docutils literal"><span class="pre">m</span></tt>.</p>
+<tt class="descname">chained_lsqfit</tt><big>(</big><em>data</em>, <em>prior</em>, <em>p0=None</em>, <em>print_fit=True</em>, <em>nterm=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=None</em>, <em>maxit=None</em>, <em>parallel=False</em>, <em>flat=False</em>, <em>fast=False</em>, <em>**args</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.chained_lsqfit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute chained least-squares fit.</p>
+<p>A <em>chained</em> fit fits data for each model in <tt class="docutils literal"><span class="pre">self.models</span></tt>
+sequentially, using the best-fit parameters (means and
+covariance matrix) of one fit to construct the prior for the
+fit parameters in the  next fit: Correlators are fit one at a
+time, starting with the correlator for <tt class="docutils literal"><span class="pre">self.models[0]</span></tt>. The
+best-fit output from the fit for <tt class="docutils literal"><span class="pre">self.models[i]</span></tt> is fed, as
+a prior, into the fit for <tt class="docutils literal"><span class="pre">self.models[i+1]</span></tt>. The best-fit
+output from  the last fit in the chain is the final result.
+Results from the individual fits can be found in dictionary
+<tt class="docutils literal"><span class="pre">self.fit.fits</span></tt>, which is indexed  by the
+<tt class="docutils literal"><span class="pre">models[i].datatag</span></tt>s.</p>
+<p>Setting parameter <tt class="docutils literal"><span class="pre">parallel=True</span></tt> causes parallel fits, where
+each model is fit separately, using the original <tt class="docutils literal"><span class="pre">prior</span></tt>. Parallel
+fits make sense when models share few or no parameters; the results
+from the individual fits are combined using weighted averages of 
+the best-fit values for each parameter from every fit.</p>
+<p>Entries <tt class="docutils literal"><span class="pre">self.models[i]</span></tt> in the list of models can themselves  be
+lists of models, rather than just an individual model. In such a
+chase, the models listed in <tt class="docutils literal"><span class="pre">self.models[i]</span></tt> are fit together using
+a parallel fit if parameter <tt class="docutils literal"><span class="pre">parallel</span></tt> is <tt class="docutils literal"><span class="pre">False</span></tt> or a chained fit
+otherwise. Grouping models in this ways instructs the fitter to
+alternate between chained and parallel fits. For example, setting</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">models</span> <span class="o">=</span> <span class="p">[</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="p">[</span><span class="n">m3a</span><span class="p">,</span><span class="n">m3b</span><span class="p">],</span> <span class="n">m4</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>with <tt class="docutils literal"><span class="pre">parallel=False</span></tt> causes the following chain of 
+fits</p>
+<div class="highlight-python"><pre>m1 -&gt; m2 -&gt; [m3a,m3b] -&gt; m4</pre>
+</div>
+<p>where: 1) the output from <tt class="docutils literal"><span class="pre">m1</span></tt> is used as the prior for 
+<tt class="docutils literal"><span class="pre">m2</span></tt>; 2) the output from <tt class="docutils literal"><span class="pre">m2</span></tt> is used as the prior for 
+for a parallel fit of <tt class="docutils literal"><span class="pre">m3a</span></tt> and <tt class="docutils literal"><span class="pre">m3b</span></tt> together;
+3) the output from the parallel fit of <tt class="docutils literal"><span class="pre">[m3a,m3b]</span></tt> is used
+as the prior for <tt class="docutils literal"><span class="pre">m4</span></tt>; and, finally, 4) the output from 
+<tt class="docutils literal"><span class="pre">m4</span></tt> is the final result of the entire chained fit.</p>
+<p>A slightly more complicated example is</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">models</span> <span class="o">=</span> <span class="p">[</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="p">[</span><span class="n">m3a</span><span class="p">,[</span><span class="n">m3bx</span><span class="p">,</span><span class="n">m3by</span><span class="p">]],</span> <span class="n">m4</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>which leads to the chain of fits</p>
+<blockquote>
+<div>m1 -&gt; m2 -&gt; [m3a, m3bx -&gt; m3by] -&gt; m4</div></blockquote>
+<p>where fits of <tt class="docutils literal"><span class="pre">m3bx</span></tt> and <tt class="docutils literal"><span class="pre">m3by</span></tt> are chained, in parallel with
+the fit to <tt class="docutils literal"><span class="pre">m3a</span></tt>. The fitter alternates between chained and
+parallel fits at each new level of grouping of models.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1230,12 +1299,21 @@ prior. Setting <tt class="docutils literal"><span class="pre">p0=&quot;filename&
 the file with name <tt class="docutils literal"><span class="pre">&quot;filename&quot;</span></tt> for initial values and to
 write out best-fit parameter values after the fit (for the next
 call to <tt class="docutils literal"><span class="pre">self.lsqfit()</span></tt>).</li>
+<li><strong>parallel</strong> (<em>bool</em>) &#8211; If <tt class="docutils literal"><span class="pre">True</span></tt>, fit models in parallel using <tt class="docutils literal"><span class="pre">prior</span></tt>
+for each; otherwise chain the fits (default).</li>
+<li><strong>flat</strong> (<em>bool</em>) &#8211; If <tt class="docutils literal"><span class="pre">True</span></tt>, flatten the list of models thereby chaining
+all fits (<tt class="docutils literal"><span class="pre">parallel==False</span></tt>) or doing them all in parallel
+(<tt class="docutils literal"><span class="pre">parallel==True</span></tt>); otherwise use <tt class="docutils literal"><span class="pre">self.models</span></tt> 
+as is (default).</li>
+<li><strong>fast</strong> &#8211; If <tt class="docutils literal"><span class="pre">True</span></tt>, use the smallest number of parameters needed
+in each fit; otherwise use all the parameters specified in 
+<tt class="docutils literal"><span class="pre">prior</span></tt> in every fit. Omitting extra parameters can make 
+fits go faster, sometimes much faster. Final results are 
+unaffected unless <tt class="docutils literal"><span class="pre">prior</span></tt> contains strong correlations between 
+different parameters, where only some of the correlated parameters 
+are kept in individual fits. Default is <tt class="docutils literal"><span class="pre">False</span></tt>.</li>
 <li><strong>print_fit</strong> &#8211; Print fit information to standard output if 
 <tt class="docutils literal"><span class="pre">True</span></tt>; otherwise print nothing.</li>
-<li><strong>aux_param</strong> (<em>dictionary</em>) &#8211; A dictionary containing priors for 
-additional (auxilary) fit parameters. Where <tt class="docutils literal"><span class="pre">aux_param</span></tt>
-and <tt class="docutils literal"><span class="pre">prior</span></tt> share keys, the entry in <tt class="docutils literal"><span class="pre">aux_param</span></tt> is
-used.</li>
 </ul>
 </td>
 </tr>
@@ -1283,7 +1361,7 @@ pan and save using the window controls.</p>
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.lsqfit">
-<tt class="descname">lsqfit</tt><big>(</big><em>data</em>, <em>prior</em>, <em>p0=None</em>, <em>print_fit=True</em>, <em>nterm=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=None</em>, <em>maxit=None</em>, <em>aux_param={}</em>, <em>**args</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.lsqfit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">lsqfit</tt><big>(</big><em>data</em>, <em>prior</em>, <em>p0=None</em>, <em>print_fit=True</em>, <em>nterm=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=None</em>, <em>maxit=None</em>, <em>fast=False</em>, <em>**args</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.lsqfit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute least-squares fit of the correlator models to data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1305,10 +1383,13 @@ write out best-fit parameter values after the fit (for the next
 call to <tt class="docutils literal"><span class="pre">self.lsqfit()</span></tt>).</li>
 <li><strong>print_fit</strong> &#8211; Print fit information to standard output if 
 <tt class="docutils literal"><span class="pre">True</span></tt>; otherwise print nothing.</li>
-<li><strong>aux_param</strong> (<em>dictionary</em>) &#8211; A dictionary containing priors for 
-additional (auxilary) fit parameters. Where <tt class="docutils literal"><span class="pre">aux_param</span></tt>
-and <tt class="docutils literal"><span class="pre">prior</span></tt> share keys, the entry in <tt class="docutils literal"><span class="pre">aux_param</span></tt> is
-used.</li>
+<li><strong>fast</strong> &#8211; If <tt class="docutils literal"><span class="pre">True</span></tt>, remove parameters from <tt class="docutils literal"><span class="pre">prior</span></tt> that are 
+not needed by the correlator models; otherwise keep all 
+parameters in <tt class="docutils literal"><span class="pre">prior</span></tt> as fit parameters (default). 
+Ignoring extra parameters usually makes fits go faster.
+This has no other effect unless there are correlations between the 
+fit parameters needed by the models and the other parameters in 
+<tt class="docutils literal"><span class="pre">prior</span></tt> that are ignored.</li>
 </ul>
 </td>
 </tr>
@@ -1992,7 +2073,7 @@ not sufficiently accurate to add new information).</p>
 </li>
 <li><p class="first">Chained fits (see <a class="reference internal" href="#chained-fits"><em>Faster Fits &#8212; Chained Fits</em></a>) are used if <tt class="docutils literal"><span class="pre">fitter.lsqfit(...)</span></tt>
 is replaced by <tt class="docutils literal"><span class="pre">fitter.chained_lsqfit(...)</span></tt> in <tt class="docutils literal"><span class="pre">main()</span></tt>. The results
-are about the same, though slightly more accurate: for example,</p>
+are about the same: for example,</p>
 <div class="highlight-python"><pre>Values:
               metas: 0.41619(12)
                 mDs: 1.20156(17)
@@ -2000,19 +2081,37 @@ are about the same, though slightly more accurate: for example,</p>
                 Vnn: 0.7676(12)
                 Vno: -0.754(26)</pre>
 </div>
-<p>We obtain essentially the same results,</p>
+<p>We obtain more or less the same results,</p>
 <div class="highlight-python"><pre>Values:
-              metas: 0.41617(12)
-                mDs: 1.20157(17)
-           mDso-mDs: 0.2560(41)
-                Vnn: 0.7672(11)
-                Vno: -0.754(26)</pre>
+              metas: 0.41619(11)
+                mDs: 1.20156(15)
+           mDso-mDs: 0.2576(27)
+                Vnn: 0.76666(67)
+                Vno: -0.747(15)</pre>
 </div>
 <p>if we polish the final results from the chained fit using
 a final call to <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt> (see <a class="reference internal" href="#chained-fits"><em>Faster Fits &#8212; Chained Fits</em></a>):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">chained_lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">)</span>
-<span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
+<span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
 </pre></div>
+</div>
+<p>Another variation is to replace the last line (<tt class="docutils literal"><span class="pre">return</span> <span class="pre">models</span></tt>)
+in <tt class="docutils literal"><span class="pre">make_models()</span></tt> by:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">return</span> <span class="p">[</span><span class="n">models</span><span class="p">[:</span><span class="mi">2</span><span class="p">]]</span> <span class="o">+</span> <span class="n">models</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+</pre></div>
+</div>
+<p>This causes the two 2-point correlators (<tt class="docutils literal"><span class="pre">models[:2]</span></tt>) to be fit
+in parallel, which makes sense since they share no parameters.
+The result of the (parallel) fit of the 2-point correlators is used
+as a prior for the chained fits of the 3-point correlators (<tt class="docutils literal"><span class="pre">models[2:]</span></tt>).
+The fit results are mostly unchanged, although the polishing fit
+is significantly faster (more than 2x) in this case:</p>
+<div class="highlight-python"><pre>Values:
+              metas: 0.41620(11)
+                mDs: 1.20154(15)
+           mDso-mDs: 0.2557(29)
+                Vnn: 0.76718(60)
+                Vno: -0.746(15)</pre>
 </div>
 </li>
 <li><p class="first">Marginalization (see <a class="reference internal" href="#marginalized-fits"><em>Faster Fits &#8212; Marginalization</em></a>) can speed up fits like
@@ -2207,12 +2306,12 @@ Partial % Errors:
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010-12, G.P. Lepage.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
     </div>
   </body>
 </html>

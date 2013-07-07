@@ -408,22 +408,49 @@ the results for the entire chain of fits, and so can be used in exactly the
 same way as the  output from :func:`fitter.lsqfit` (and is usually quite
 similar, to within statistical errors). Results from the different links in
 the chain --- that is, from the fits for individual models --- can be accessed
-after the fit using ``fitter.chained_fits[datatag]`` where ``datatag`` is the
+after the fit using ``fitter.fit.fits[datatag]`` where ``datatag`` is the
 data tag for the model of interest.
+
+Setting parameter ``parallel=True`` in ``fitter.chained_lsqfit(...)`` makes the
+fits for each model independent of each other. Each correlator is
+fit separately, but nothing is passed from one fit to the next. In particular,
+each fit uses the input prior. Parallel fits can be better than chained
+fits in situations where different models share few or no parameters. 
+
+It is sometimes useful to combine chained and parallel fits. This is done
+by using a nested list of models. For example, setting ::
+
+    models = [m1, m2, [m3a,m3b], m4]
+
+with ``parallel=False`` (the default) in ``fitter.chained_lsqfit`` causes
+the following chain of fits::
+
+    m1 -> m2 -> (parallel fit of [m3a,m3b]) -> m4
+
+Here the output from ``m1`` is used in the prior for fit ``m2``, and the
+output from ``m2`` is used as the prior for a parallel fit of ``m3a``
+and ``m3b`` together --- that is, ``m3a`` and ``m3b`` are not chained,
+but rather are fit in parallel with each using a prior from fit ``m2``. The
+result of the parallel fit of ``[m3a,m3b]`` is used as the prior for ``m4``.
+Different levels of nesting in the list of 
+models alternate between chained and parallel fits.
 
 It is sometimes useful to follow a chained fit with an ordinary fit, 
 but using the best-fit parameters from the chained fit as the prior for
 the ordinary fit: for example, ::
 
         fit = fitter.chained_lsqfit(data=data, prior=prior) 
-        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-2)
+        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-4)
 
-where we have included a fairly large *svd* cut in the second fit
+where we have included a larger *svd* cut in the second fit
 to avoid possible problems with roundoff errors. The second fit should,
 in principle, have no effect on the results since it adds no new
 information. In some cases, however, it polishes the results by making small
 (compared to the errors) corrections that tighten up the overall fit. It is
 generally fairly fast since the prior (``fit.p``) is relatively narrow. 
+It is also possible to polish fits using ``fitter.chained_lsqfit``, with
+parameters ``parallel=True`` and ``flat=True``, rather than using
+``fitter.lsqfit``. This can be faster for very large fits.
 
 .. _marginalized-fits:
 
@@ -1133,7 +1160,7 @@ Note:
 
 - Chained fits (see :ref:`chained-fits`) are used if ``fitter.lsqfit(...)`` 
   is replaced by ``fitter.chained_lsqfit(...)`` in ``main()``. The results
-  are about the same, though slightly more accurate: for example, ::
+  are about the same: for example, ::
 
         Values:
                       metas: 0.41619(12)         
@@ -1142,21 +1169,40 @@ Note:
                         Vnn: 0.7676(12)          
                         Vno: -0.754(26)          
 
-  We obtain essentially the same results, ::
+  We obtain more or less the same results, ::
 
         Values:
-                      metas: 0.41617(12)         
-                        mDs: 1.20157(17)         
-                   mDso-mDs: 0.2560(41)          
-                        Vnn: 0.7672(11)          
-                        Vno: -0.754(26)          
+                      metas: 0.41619(11)         
+                        mDs: 1.20156(15)         
+                   mDso-mDs: 0.2576(27)          
+                        Vnn: 0.76666(67)         
+                        Vno: -0.747(15)          
 
 
   if we polish the final results from the chained fit using 
   a final call to ``fitter.lsqfit`` (see :ref:`chained-fits`)::
 
         fit = fitter.chained_lsqfit(data=data, prior=prior, p0=p0) 
-        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-2)
+        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-4)
+
+  Another variation is to replace the last line (``return models``) 
+  in ``make_models()`` by::
+
+        return [models[:2]] + models[2:]
+
+  This causes the two 2-point correlators (``models[:2]``) to be fit
+  in parallel, which makes sense since they share no parameters.
+  The result of the (parallel) fit of the 2-point correlators is used
+  as a prior for the chained fits of the 3-point correlators (``models[2:]``).
+  The fit results are mostly unchanged, although the polishing fit 
+  is significantly faster (more than 2x) in this case::
+
+        Values:
+                      metas: 0.41620(11)         
+                        mDs: 1.20154(15)         
+                   mDso-mDs: 0.2557(29)          
+                        Vnn: 0.76718(60)         
+                        Vno: -0.746(15)          
 
 
 - Marginalization (see :ref:`marginalized-fits`) can speed up fits like 
