@@ -448,6 +448,9 @@ in principle, have no effect on the results since it adds no new
 information. In some cases, however, it polishes the results by making small
 (compared to the errors) corrections that tighten up the overall fit. It is
 generally fairly fast since the prior (``fit.p``) is relatively narrow. 
+It is also possible to polish fits using ``fitter.chained_lsqfit``, with
+parameters ``parallel=True`` and ``flat=True``, rather than using
+``fitter.lsqfit``. This can be faster for very large fits.
 
 .. _marginalized-fits:
 

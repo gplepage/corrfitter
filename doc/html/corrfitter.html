@@ -459,7 +459,10 @@ to avoid possible problems with roundoff errors. The second fit should,
 in principle, have no effect on the results since it adds no new
 information. In some cases, however, it polishes the results by making small
 (compared to the errors) corrections that tighten up the overall fit. It is
-generally fairly fast since the prior (<tt class="docutils literal"><span class="pre">fit.p</span></tt>) is relatively narrow.</p>
+generally fairly fast since the prior (<tt class="docutils literal"><span class="pre">fit.p</span></tt>) is relatively narrow.
+It is also possible to polish fits using <tt class="docutils literal"><span class="pre">fitter.chained_lsqfit</span></tt>, with
+parameters <tt class="docutils literal"><span class="pre">parallel=True</span></tt> and <tt class="docutils literal"><span class="pre">flat=True</span></tt>, rather than using
+<tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt>. This can be faster for very large fits.</p>
 </div>
 <div class="section" id="faster-fits-marginalization">
 <span id="marginalized-fits"></span><h2>Faster Fits &#8212; Marginalization<a class="headerlink" href="#faster-fits-marginalization" title="Permalink to this headline">¶</a></h2>
