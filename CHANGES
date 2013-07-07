@@ -11,8 +11,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-Version 3.5 - 7 July 2013
-==========================
+Version 3.5 - 2013-07-07
+========================
 
 CorrFitter.chained_lsqfit continues to evolve in this release. It is 
 still somewhat experimental but continues to perform well in a wide 
