@@ -11,6 +11,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version 3.5.1+ - not released yet
+=================================
+
+- Minor documentation change (for changes in lsqfit's format function).
+
 Version 3.5.1 - 2013-07-07
 ==========================
 
