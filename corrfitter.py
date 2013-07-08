@@ -58,7 +58,7 @@ import math
 import collections
 import copy
 import time
-__version__ = '3.5'
+__version__ = '3.5.1'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -1096,7 +1096,7 @@ class CorrFitter(object):
                     if not parallel:
                         m_prior.update(chained_prior)
                 else:
-                    m_prior = prior if parallel else chained_prior
+                    m_prior = truncated_prior if parallel else chained_prior
                 @lsqfit.transform_p(m_prior, 0)
                 def m_fitfcn(
                     p, nterm=None, default_nterm=self.nterm, fitfcn = m.fitfcn

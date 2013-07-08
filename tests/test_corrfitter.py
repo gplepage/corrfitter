@@ -173,15 +173,20 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         self.fit = fit
         return fitter
     ##
-    def dofit_chd(self, models, data_models=None, nterm=None, ratio=True):
+    def dofit_chd(
+        self, models, data_models=None, nterm=None, ratio=True,
+        parallel=False, flat=False, fast=True):
         fitter = CorrFitter(models=models, nterm=nterm, ratio=ratio)
         if data_models is None:
             data_models = fitter.flat_models
         data = make_data(models=data_models, p=self.p)
         if PRINT_FITS:
             print("Data:\n", data,"\n")
-        fit = fitter.chained_lsqfit(data=data, prior=self.prior, debug=True,
-            print_fit=PRINT_FITS, svdcut=SVDCUT)
+        fit = fitter.chained_lsqfit(
+            data=data, prior=self.prior, debug=True,
+            print_fit=PRINT_FITS, svdcut=SVDCUT,
+            parallel=parallel, flat=flat, fast=fast
+            )
         #
         if PRINT_FITS:
             print("Corr2 exact parameter values:")
@@ -297,15 +302,32 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         self.dofit_chd(models)
     ##
     def test_chained(self):
-        """ test nested chained fits """
+        """ test chained fit variations """
         models =[ 
-                [
                 self.mkcorr(a='a', b='a', dE='logdE'),
-                self.mkcorr(a='b', b='b', dE='logdE')
+                [
+                self.mkcorr(a='a', b='b', dE='logdE'),
+                self.mkcorr(a='b', b='a', dE='logdE')
                 ],
-                self.mkcorr(a='a', b='b', dE='logdE')
+                self.mkcorr(a='b', b='b', dE='logdE')
                 ]
-        self.dofit_chd(models)
+        self.dofit_chd(models, parallel=True, flat=False, fast=True)
+        self.dofit_chd(models, parallel=True, flat=False, fast=False)
+        self.dofit_chd(models, parallel=True, flat=True, fast=True)
+        self.dofit_chd(models, parallel=True, flat=True, fast=False)
+        self.dofit_chd(models, parallel=False, flat=False, fast=True)
+        self.dofit_chd(models, parallel=False, flat=False, fast=False)
+        self.dofit_chd(models, parallel=False, flat=True, fast=True)
+        self.dofit_chd(models, parallel=False, flat=True, fast=False)
+
+        self.dofit_chd(models, parallel=True, flat=False, fast=True, nterm=2)
+        self.dofit_chd(models, parallel=True, flat=False, fast=False, nterm=2)
+        self.dofit_chd(models, parallel=True, flat=True, fast=True, nterm=2)
+        self.dofit_chd(models, parallel=True, flat=True, fast=False, nterm=2)
+        self.dofit_chd(models, parallel=False, flat=False, fast=True, nterm=2)
+        self.dofit_chd(models, parallel=False, flat=False, fast=False, nterm=2)
+        self.dofit_chd(models, parallel=False, flat=True, fast=True, nterm=2)
+        self.dofit_chd(models, parallel=False, flat=True, fast=False, nterm=2)
 
     def test_marginalization(self):
         """ corr2 -- marginalization (2x2 matrix)"""

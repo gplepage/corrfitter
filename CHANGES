@@ -11,6 +11,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version 3.5.1 - 2013-07-07
+==========================
+
+- Minor bug fix in CorrFitter.chained_lsqfit. More tests (designed
+  to catch bugs like this in the future).
+
 Version 3.5 - 2013-07-07
 ========================
 
