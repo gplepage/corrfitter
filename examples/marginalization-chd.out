@@ -3,14 +3,14 @@ Chained Least Square Fit (input data correlated with prior):
   chi2/dof [dof] = 0.67 [69]    Q = 0.98    logGBF = 1564.5    itns = 3
 
 Parameters:
-  log(etas:a) 0   -1.52176 (77)      [ -1.2 (1.0) ]
- log(etas:dE) 0   -0.87663 (29)      [ -0.92 (50) ]
-    log(Ds:a) 0    -1.5387 (11)      [ -1.2 (1.0) ]
-   log(Ds:dE) 0    0.18369 (15)      [  0.18 (17) ]
-   log(Ds:ao) 0     -2.537 (33)      [ -2.3 (1.0) ]
-  log(Ds:dEo) 0     0.3848 (44)      [  0.41 (24) ]
-        Vnn 0,0      0.748 (44)      [  0.1 (1.0) ]
-        Vno 0,0     -0.768 (66)      [  0.1 (1.0) ]
+  log(etas:a) 0   -1.52176 (77)      [ -1.2 (1.0) ]  
+ log(etas:dE) 0   -0.87663 (29)      [ -0.92 (50) ]  
+    log(Ds:a) 0    -1.5387 (11)      [ -1.2 (1.0) ]  
+   log(Ds:dE) 0    0.18369 (15)      [  0.18 (17) ]  
+   log(Ds:ao) 0     -2.537 (33)      [ -2.3 (1.0) ]  
+  log(Ds:dEo) 0     0.3848 (44)      [  0.41 (24) ]  
+        Vnn 0,0      0.748 (44)      [  0.1 (1.0) ]  
+        Vno 0,0     -0.768 (66)      [  0.1 (1.0) ]  
 
 Settings:
   svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
@@ -49,14 +49,14 @@ Chained Least Square Fit (input data correlated with prior):
   chi2/dof [dof] = 0.73 [69]    Q = 0.96    logGBF = 1571.2    itns = 3
 
 Parameters:
-  log(etas:a) 0   -1.52159 (79)      [ -1.2 (1.0) ]
- log(etas:dE) 0   -0.87660 (29)      [ -0.92 (50) ]
-    log(Ds:a) 0    -1.5389 (11)      [ -1.2 (1.0) ]
-   log(Ds:dE) 0    0.18368 (15)      [  0.18 (17) ]
-   log(Ds:ao) 0     -2.619 (36)      [ -2.3 (1.0) ]
-  log(Ds:dEo) 0     0.3748 (45)      [  0.41 (24) ]
-        Vnn 0,0     0.7691 (37)      [  0.1 (1.0) ]
-        Vno 0,0     -0.719 (21)      [  0.1 (1.0) ]
+  log(etas:a) 0   -1.52159 (79)      [ -1.2 (1.0) ]  
+ log(etas:dE) 0   -0.87660 (29)      [ -0.92 (50) ]  
+    log(Ds:a) 0    -1.5389 (11)      [ -1.2 (1.0) ]  
+   log(Ds:dE) 0    0.18368 (15)      [  0.18 (17) ]  
+   log(Ds:ao) 0     -2.619 (36)      [ -2.3 (1.0) ]  
+  log(Ds:dEo) 0     0.3748 (45)      [  0.41 (24) ]  
+        Vnn 0,0     0.7691 (37)      [  0.1 (1.0) ]  
+        Vno 0,0     -0.719 (21)      [  0.1 (1.0) ]  
 
 Settings:
   svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
