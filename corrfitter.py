@@ -782,7 +782,7 @@ class CorrFitter(object):
     """
     def __init__(
         self, models, svdcut=(1e-15, 1e-15), svdnum=None, tol=1e-10,
-        maxit=500, nterm=None, ratio=False,
+        maxit=500, nterm=None, ratio=False, fast=False,
         processed_data=None
         ): 
         super(CorrFitter, self).__init__()
@@ -797,6 +797,7 @@ class CorrFitter(object):
         self.ratio = ratio
         self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
         self.processed_data = processed_data
+        self.fast = fast
     
     @staticmethod
     def _flatten_models(models):
@@ -893,7 +894,7 @@ class CorrFitter(object):
     
     def lsqfit(
         self, data, prior, p0=None, print_fit=True, nterm=None,
-        svdcut=None, svdnum=None, tol=None, maxit=None, fast=False,
+        svdcut=None, svdnum=None, tol=None, maxit=None, fast=None,
         **args
         ):
         """ Compute least-squares fit of the correlator models to data.
@@ -940,7 +941,10 @@ class CorrFitter(object):
             tol = self.tol
         if nterm is None:
             nterm = self.nterm
-        self.last_prior = prior
+        if fast is None:
+            fast = self.fast
+        self.prior = prior
+        self.data = data
 
         # do the fit and print results
         data = self.builddata(data=data, prior=prior, nterm=nterm)
@@ -958,7 +962,7 @@ class CorrFitter(object):
     def chained_lsqfit(
         self, data, prior, p0=None, print_fit=True, nterm=None,
         svdcut=None, svdnum=None, tol=None, maxit=None, parallel=False,
-        flat=False, fast=False,
+        flat=False, fast=None,
         **args
         ):
         """ Compute chained least-squares fit.
@@ -1064,7 +1068,10 @@ class CorrFitter(object):
             tol = self.tol
         if nterm is None:
             nterm = self.nterm
-        self.last_prior = prior
+        if fast is None:
+            fast = self.fast
+        self.prior = prior
+        self.data = data
 
         # prepare data, do fits
         processed_data = (
@@ -1215,11 +1222,50 @@ class CorrFitter(object):
                 ``data_list``.
         """
         if datalist is not None:
-            datalist = (self.builddata(d, self.last_prior) 
+            datalist = (self.builddata(d, self.prior) 
                         for d in datalist)
         for bs_fit in self.fit.bootstrap_iter(n, datalist=datalist):
             yield bs_fit
     
+    def make_fake_data(self, fit=None, data=None):
+        """ make fake data """
+        if fit is None:
+            fit = self.fit
+        if data is None:
+            data = self.data
+        newmean = self.buildfitfcn(self.prior.keys())(fit.pmean)
+        fitdata = self.builddata(data=data, prior=self.prior, nterm=(None, None))
+        newdata = _gvar.BufferDict(
+            newmean, buf=_gvar.gvar(newmean.buf, _gvar.evalcov(fitdata.buf))
+            )
+        dataiter = _gvar.bootstrap_iter(newdata, svdcut=self.svdcut, svdnum=self.svdnum)
+        return dataiter.next()
+
+    def make_fake_prior(self, nterm=None, fit=None, prior=None):
+        if prior is None:
+            prior = self.prior
+        if fit is None:
+            fit = self.fit
+        if nterm is None:
+            if self.nterm is None:
+                return prior
+            nterm = self.nterm
+        ans = _gvar.BufferDict()
+        for m in self.flat_models:
+            ans.update(m.buildprior(prior=prior, nterm=nterm))
+        return ans
+
+    def make_fake_fitter(self):
+        newfitter = CorrFitter(
+            models=copy.deepcopy(self.models), 
+            svdcut=self.svdcut, svdnum=self.svdnum, tol=self.tol,
+            maxit=self.maxit, nterm=self.nterm, ratio=self.ratio, fast=self.fast,
+            processed_data=None
+            )
+        for m in newfitter.flat_models:
+            m.tdata = list(m.tfit)
+        return newfitter
+
     def collect_fitresults(self):
         """ Collect results from last fit for plots, tables etc.
             
