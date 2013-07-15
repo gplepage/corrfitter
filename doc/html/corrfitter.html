@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.5.1+ documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.6b documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '3.5.1+',
+        VERSION:     '3.6b',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.5.1+ documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.6b documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.5.1+ documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.6b documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -1126,7 +1126,7 @@ all terms in the prior are used.</li>
 is used to fit a collection of models to a collection of Monte Carlo data.</p>
 <dl class="class">
 <dt id="corrfitter.CorrFitter">
-<em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">CorrFitter</tt><big>(</big><em>models</em>, <em>svdcut=(1e-15</em>, <em>1e-15)</em>, <em>svdnum=None</em>, <em>tol=1e-10</em>, <em>maxit=500</em>, <em>nterm=None</em>, <em>ratio=False</em>, <em>processed_data=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">CorrFitter</tt><big>(</big><em>models</em>, <em>svdcut=(1e-15</em>, <em>1e-15)</em>, <em>svdnum=None</em>, <em>tol=1e-10</em>, <em>maxit=500</em>, <em>nterm=None</em>, <em>ratio=False</em>, <em>fast=False</em>, <em>processed_data=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Nonlinear least-squares fitter for a collection of correlators.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1172,6 +1172,48 @@ data when the prior specifies more terms than are used in the fit. If
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="corrfitter.CorrFitter.bootstrap_fit_iter">
+<tt class="descname">bootstrap_fit_iter</tt><big>(</big><em>datalist=None</em>, <em>n=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.bootstrap_fit_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterator that creates bootstrap copies of a <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a> fit using 
+bootstrap data from list <tt class="docutils literal"><span class="pre">data_list</span></tt>.</p>
+<p>A bootstrap analysis is a robust technique for estimating means and
+standard deviations of arbitrary functions of the fit parameters.
+This method creates an interator that implements such an analysis
+of list (or iterator) <tt class="docutils literal"><span class="pre">datalist</span></tt>, which contains bootstrap
+copies of the original data set. Each <tt class="docutils literal"><span class="pre">data_list[i]</span></tt> is a different
+<tt class="docutils literal"><span class="pre">data</span></tt> input for <tt class="docutils literal"><span class="pre">self.lsqfit()</span></tt> (that is, a dictionary containing
+fit data). The iterator works its way through the data sets in
+<tt class="docutils literal"><span class="pre">data_list</span></tt>, fitting the next data set on each iteration and
+returning the resulting <tt class="xref py py-class docutils literal"><span class="pre">lsqfit.LSQFit</span></tt> fit object. Typical
+usage, for an <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a> object named <tt class="docutils literal"><span class="pre">fitter</span></tt>, would be:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">fit</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">bootstrap_iter</span><span class="p">(</span><span class="n">datalist</span><span class="p">):</span>
+    <span class="o">...</span> <span class="n">analyze</span> <span class="n">fit</span> <span class="n">parameters</span> <span class="ow">in</span> <span class="n">fit</span><span class="o">.</span><span class="n">p</span> <span class="o">...</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_list</strong> (sequence or iterator or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; Collection of bootstrap <tt class="docutils literal"><span class="pre">data</span></tt> sets for fitter. If
+<tt class="docutils literal"><span class="pre">None</span></tt>, the data_list is generated internally using the 
+means and standard deviations of the fit data (assuming
+gaussian statistics).</li>
+<li><strong>n</strong> (<em>integer</em>) &#8211; Maximum number of iterations if <tt class="docutils literal"><span class="pre">n</span></tt> is not <tt class="docutils literal"><span class="pre">None</span></tt>;
+otherwise there is no maximum.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Iterator that returns a <tt class="xref py py-class docutils literal"><span class="pre">lsqfit.LSQFit</span></tt> object 
+containing results from the fit to the next data set in
+<tt class="docutils literal"><span class="pre">data_list</span></tt>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="corrfitter.CorrFitter.bootstrap_iter">
 <tt class="descname">bootstrap_iter</tt><big>(</big><em>datalist=None</em>, <em>n=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.bootstrap_iter" title="Permalink to this definition">¶</a></dt>
@@ -1237,7 +1279,7 @@ a copy of <tt class="docutils literal"><span class="pre">prior</span></tt> accor
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.chained_lsqfit">
-<tt class="descname">chained_lsqfit</tt><big>(</big><em>data</em>, <em>prior</em>, <em>p0=None</em>, <em>print_fit=True</em>, <em>nterm=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=None</em>, <em>maxit=None</em>, <em>parallel=False</em>, <em>flat=False</em>, <em>fast=False</em>, <em>**args</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.chained_lsqfit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">chained_lsqfit</tt><big>(</big><em>data</em>, <em>prior</em>, <em>p0=None</em>, <em>print_fit=True</em>, <em>nterm=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=None</em>, <em>maxit=None</em>, <em>parallel=False</em>, <em>flat=False</em>, <em>fast=None</em>, <em>**args</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.chained_lsqfit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute chained least-squares fit.</p>
 <p>A <em>chained</em> fit fits data for each model in <tt class="docutils literal"><span class="pre">self.models</span></tt>
 sequentially, using the best-fit parameters (means and
@@ -1364,7 +1406,7 @@ pan and save using the window controls.</p>
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.lsqfit">
-<tt class="descname">lsqfit</tt><big>(</big><em>data</em>, <em>prior</em>, <em>p0=None</em>, <em>print_fit=True</em>, <em>nterm=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=None</em>, <em>maxit=None</em>, <em>fast=False</em>, <em>**args</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.lsqfit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">lsqfit</tt><big>(</big><em>data</em>, <em>prior</em>, <em>p0=None</em>, <em>print_fit=True</em>, <em>nterm=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em>, <em>tol=None</em>, <em>maxit=None</em>, <em>fast=None</em>, <em>**args</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.lsqfit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute least-squares fit of the correlator models to data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1403,6 +1445,129 @@ fit parameters needed by the models and the other parameters in
 <tt class="docutils literal"><span class="pre">nterm</span></tt>, <tt class="docutils literal"><span class="pre">svdcut</span></tt>, <tt class="docutils literal"><span class="pre">svdnum</span></tt>, <tt class="docutils literal"><span class="pre">tol</span></tt>, and <tt class="docutils literal"><span class="pre">maxit</span></tt>. Any
 further keyword arguments are passed on to
 <tt class="xref py py-func docutils literal"><span class="pre">lsqfit.nonlinear_fit()</span></tt>, which does the fit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="corrfitter.CorrFitter.simulated_bootstrap_data_iter">
+<tt class="descname">simulated_bootstrap_data_iter</tt><big>(</big><em>n</em>, <em>dataset</em>, <em>pexact=None</em>, <em>prior=None</em>, <em>rescale=1.0</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.simulated_bootstrap_data_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create iterator that returns simulated fit data from <tt class="docutils literal"><span class="pre">dataset</span></tt>.</p>
+<p>Simulated fit data has the same covariance matrix as 
+<tt class="docutils literal"><span class="pre">data=gvar.dataset.avg_data(dataset)</span></tt>, but mean values that 
+fluctuate randomly, from copy to copy, around
+the value of the fitter&#8217;s fit function evaluated at <tt class="docutils literal"><span class="pre">p=pexact</span></tt>. 
+The fluctuations are generated from averages of bootstrap copies
+of <tt class="docutils literal"><span class="pre">dataset</span></tt>.</p>
+<p>The best-fit results from a fit to such simulated copies of <tt class="docutils literal"><span class="pre">data</span></tt>  
+should agree with the numbers in <tt class="docutils literal"><span class="pre">pexact</span></tt> to within the errors specified
+by the fits (to the simulated data) &#8212; <tt class="docutils literal"><span class="pre">pexact</span></tt> gives the &#8220;correct&#8221; 
+values for the parameters. Knowing the correct value for each 
+fit parameter ahead of a fit allows us to test the reliability of
+the fit&#8217;s error estimates and to explore the impact of various fit 
+options (<em>e.g.</em>, <tt class="docutils literal"><span class="pre">fitter.chained_fit</span></tt> versus <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt>, 
+choice of <em>SVD</em> cuts, omission of select models, etc.)</p>
+<p>Typically one need examine only a few simulated fits in order 
+to evaluate fit reliability, since we know the correct values
+for the parameters ahead of time. Consequently this method is
+much faster than traditional bootstrap analyses.</p>
+<p>Parameters <tt class="docutils literal"><span class="pre">pexact</span></tt> and <tt class="docutils literal"><span class="pre">prior</span></tt>, <em>etc.</em> are taken from 
+the last fit done by the fitter (<tt class="docutils literal"><span class="pre">self</span></tt>) unless overridden in 
+the call to <tt class="xref py py-func docutils literal"><span class="pre">CorrFitter.simulated_gaussian_data_iter()</span></tt>.
+Typical usage is as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">data</span> <span class="o">=</span> <span class="n">gvar</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="k">for</span> <span class="n">sdata</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">simulated_bootstrap_data_iter</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+    <span class="c"># redo fit 4 times with different simulated data each time</span>
+    <span class="c"># here pexact=fit.pmean is set implicitly</span>
+    <span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdata</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="o">...</span> <span class="n">check</span> <span class="n">that</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span> <span class="p">(</span><span class="ow">or</span> <span class="n">functions</span> <span class="n">of</span> <span class="n">it</span><span class="p">)</span> <span class="n">agrees</span> <span class="o">...</span>
+    <span class="o">...</span> <span class="k">with</span> <span class="n">pexact</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">pmean</span> <span class="n">to</span> <span class="n">within</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span><span class="s">&#39;s errors      ...</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n</strong> (<em>integer</em>) &#8211; Maximum number of simulated data sets made by iterator.</li>
+<li><strong>dataset</strong> (<em>gvar.dataset.Dataset</em>) &#8211; Dataset containing Monte Carlo copies of the correlators.</li>
+<li><strong>pexact</strong> (<em>dictionary of numbers</em>) &#8211; Correct parameter values for fits to the simulated 
+data &#8212; fit results should agree with <tt class="docutils literal"><span class="pre">pexact</span></tt> to within
+errors. If <tt class="docutils literal"><span class="pre">None</span></tt>, uses <tt class="docutils literal"><span class="pre">self.fit.pmean</span></tt> from the last fit.</li>
+<li><strong>prior</strong> (dictionary of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s or arrays of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s) &#8211; Prior for fits. If <tt class="docutils literal"><span class="pre">None</span></tt>, uses <tt class="docutils literal"><span class="pre">self.fit.prior</span></tt> 
+from the last fit.</li>
+<li><strong>rescale</strong> (<em>positive number</em>) &#8211; Rescale errors in simulated data by <tt class="docutils literal"><span class="pre">rescale</span></tt>
+(<em>i.e.</em>, multiply covariance matrix by <tt class="docutils literal"><span class="pre">rescale</span> <span class="pre">**</span> <span class="pre">2</span></tt>).
+Default is one, which implies no rescaling.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="corrfitter.CorrFitter.simulated_gaussian_data_iter">
+<tt class="descname">simulated_gaussian_data_iter</tt><big>(</big><em>n</em>, <em>pexact=None</em>, <em>data=None</em>, <em>prior=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.simulated_gaussian_data_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create iterator that returns simulated copies of <tt class="docutils literal"><span class="pre">data</span></tt>.</p>
+<p>A simulated copy of <tt class="docutils literal"><span class="pre">data</span></tt> has the same covariance matrix as <tt class="docutils literal"><span class="pre">data</span></tt>
+but means that fluctuate randomly, from copy to copy, around
+the value of the fitter&#8217;s fit function evaluated at <tt class="docutils literal"><span class="pre">p=pexact</span></tt>. 
+The fluctuations are Gaussian with a covariance matrix equal to 
+that of <tt class="docutils literal"><span class="pre">data</span></tt> (possible with <em>SVD</em> cuts).</p>
+<p>The best-fit results from a fit to a simulated copy of <tt class="docutils literal"><span class="pre">data</span></tt> should 
+agree with the numbers in <tt class="docutils literal"><span class="pre">pexact</span></tt> to within the errors specified
+by the fit (to the simulated data) &#8212; <tt class="docutils literal"><span class="pre">pexact</span></tt> gives the &#8220;correct&#8221; 
+values for the parameters. Knowing the correct value for each 
+fit parameter ahead of a fit allows us to test the reliability of
+the fit&#8217;s error estimates and to explore the impact of various fit 
+options (<em>e.g.</em>, <tt class="docutils literal"><span class="pre">fitter.chained_fit</span></tt> versus <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt>, 
+choice of <em>SVD</em> cuts, omission of select models, etc.)</p>
+<p>Typically one need examine only a few simulated fits in order 
+to evaluate fit reliability, since we know the correct values
+for the parameters ahead of time. Consequently this method is
+much faster than traditional bootstrap analyses.</p>
+<p>Parameters <tt class="docutils literal"><span class="pre">pexact</span></tt>, <tt class="docutils literal"><span class="pre">data</span></tt>, <tt class="docutils literal"><span class="pre">prior</span></tt>, <em>etc.</em> are taken from 
+the last fit done by the fitter (<tt class="docutils literal"><span class="pre">self</span></tt>) unless overridden in 
+the call to <tt class="xref py py-func docutils literal"><span class="pre">CorrFitter.simulated_gaussian_data_iter()</span></tt>.
+Typical usage is as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="k">for</span> <span class="n">sdata</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">simulated_gaussian_data_iter</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+    <span class="c"># redo fit 4 times with different simulated data each time</span>
+    <span class="c"># here pexact=fit.pmean is set implicitly</span>
+    <span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdata</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="o">...</span> <span class="n">check</span> <span class="n">that</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span> <span class="p">(</span><span class="ow">or</span> <span class="n">functions</span> <span class="n">of</span> <span class="n">it</span><span class="p">)</span> <span class="n">agress</span> <span class="o">...</span>
+    <span class="o">...</span> <span class="k">with</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span> <span class="n">to</span> <span class="n">within</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span><span class="s">&#39;s errors      ...</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n</strong> (<em>integer</em>) &#8211; Maximum number of simulated data sets made by iterator.</li>
+<li><strong>pexact</strong> (<em>dictionary of numbers</em>) &#8211; Correct parameter values for fits to the simulated 
+data &#8212; fit results should agree with <tt class="docutils literal"><span class="pre">pexact</span></tt> to within
+errors. If <tt class="docutils literal"><span class="pre">None</span></tt>, uses <tt class="docutils literal"><span class="pre">self.fit.pmean</span></tt> from the last fit.</li>
+<li><strong>data</strong> (dictionary of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s or arrays of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s) &#8211; Correlator data. If <tt class="docutils literal"><span class="pre">None</span></tt>, uses <tt class="docutils literal"><span class="pre">self.data</span></tt> from 
+the last fit.</li>
+<li><strong>prior</strong> (dictionary of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s or arrays of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s) &#8211; Prior for fits. If <tt class="docutils literal"><span class="pre">None</span></tt>, uses <tt class="docutils literal"><span class="pre">self.fit.prior</span></tt> 
+from the last fit.</li>
+<li><strong>svdcut</strong> (<em>None or number</em>) &#8211; <em>SVD</em> cut applied to covariance matrix (from <tt class="docutils literal"><span class="pre">data</span></tt>)
+used to compute the Gaussian fluctuations about the exact 
+correlator values. See documentation for <tt class="xref py py-func docutils literal"><span class="pre">CoffFitter.lsqfit()</span></tt>
+for more information.</li>
+<li><strong>svdnum</strong> (<em>None or integer
+for more information.</em>) &#8211; <em>SVD</em> cut applied to covariance matrix (from <tt class="docutils literal"><span class="pre">data</span></tt>)
+used to compute the Gaussian fluctuations about the exact 
+correlator values. See documentation for <tt class="xref py py-func docutils literal"><span class="pre">CoffFitter.lsqfit()</span></tt>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -2309,7 +2474,7 @@ Partial % Errors:
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.5.1+ documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.6b documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -17,7 +17,7 @@ Settings:
 
 ============================== nterm = 2
 Chained Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 2.4 [69]    Q = 6.7e-10    logGBF = 1549.6    itns = 26
+  chi2/dof [dof] = 2.4 [69]    Q = 6.7e-10    logGBF = 1549.6    itns = 33
 
 Parameters:
   log(etas:a) 0   -1.51996 (68)      [ -1.2 (1.0) ]  
@@ -46,7 +46,7 @@ Settings:
 
 ============================== nterm = 3
 Chained Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.68 [69]    Q = 0.98    logGBF = 1592    itns = 34
+  chi2/dof [dof] = 0.68 [69]    Q = 0.98    logGBF = 1592    itns = 31
 
 Parameters:
   log(etas:a) 0   -1.52177 (76)      [ -1.2 (1.0) ]  
@@ -91,7 +91,7 @@ Settings:
 
 ============================== nterm = 4
 Chained Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.68 [69]    Q = 0.98    logGBF = 1591.9    itns = 31
+  chi2/dof [dof] = 0.68 [69]    Q = 0.98    logGBF = 1591.9    itns = 25
 
 Parameters:
   log(etas:a) 0   -1.52167 (75)      [ -1.2 (1.0) ]  
@@ -155,7 +155,7 @@ Settings:
   svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
 
 Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.68 [69]    Q = 0.98    logGBF = 1687.8    itns = 38
+  chi2/dof [dof] = 0.68 [69]    Q = 0.98    logGBF = 1687.8    itns = 39
 
 Parameters:
   log(etas:a) 0   -1.52156 (68)      [ -1.52167 (76) ]  

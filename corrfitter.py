@@ -58,7 +58,7 @@ import math
 import collections
 import copy
 import time
-__version__ = '3.5.1+'
+__version__ = '3.6b'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -945,6 +945,11 @@ class CorrFitter(object):
             fast = self.fast
         self.prior = prior
         self.data = data
+        self.chained = False
+        self.flat = True
+        self.parallel = False
+        self.fast = fast
+        self.nterm = nterm
 
         # do the fit and print results
         data = self.builddata(data=data, prior=prior, nterm=nterm)
@@ -1072,6 +1077,10 @@ class CorrFitter(object):
             fast = self.fast
         self.prior = prior
         self.data = data
+        self.chained = True
+        self.flat = flat
+        self.parallel = parallel
+        self.fast = fast
 
         # prepare data, do fits
         processed_data = (
@@ -1131,7 +1140,7 @@ class CorrFitter(object):
                     processed_data=processed_data
                     )
                 lastfit = fitter.chained_lsqfit(
-                    data=data, prior=m_prior,
+                    data=data, prior=m_prior, p0=p0,
                     print_fit=False, parallel=(not parallel), 
                     fast=fast
                     )
@@ -1226,45 +1235,212 @@ class CorrFitter(object):
                         for d in datalist)
         for bs_fit in self.fit.bootstrap_iter(n, datalist=datalist):
             yield bs_fit
+
+    bootstrap_fit_iter = bootstrap_iter
     
-    def make_fake_data(self, fit=None, data=None):
-        """ make fake data """
-        if fit is None:
-            fit = self.fit
-        if data is None:
-            data = self.data
-        newmean = self.buildfitfcn(self.prior.keys())(fit.pmean)
-        fitdata = self.builddata(data=data, prior=self.prior, nterm=(None, None))
-        newdata = _gvar.BufferDict(
-            newmean, buf=_gvar.gvar(newmean.buf, _gvar.evalcov(fitdata.buf))
-            )
-        dataiter = _gvar.bootstrap_iter(newdata, svdcut=self.svdcut, svdnum=self.svdnum)
-        return dataiter.next()
+    def simulated_gaussian_data_iter(
+        self, n, pexact=None, data=None, prior=None, svdcut=None, svdnum=None
+        ):
+        """ Create iterator that returns simulated copies of ``data``.
 
-    def make_fake_prior(self, nterm=None, fit=None, prior=None):
-        if prior is None:
-            prior = self.prior
-        if fit is None:
-            fit = self.fit
-        if nterm is None:
-            if self.nterm is None:
-                return prior
-            nterm = self.nterm
-        ans = _gvar.BufferDict()
+        A simulated copy of ``data`` has the same covariance matrix as ``data``
+        but means that fluctuate randomly, from copy to copy, around
+        the value of the fitter's fit function evaluated at ``p=pexact``. 
+        The fluctuations are Gaussian with a covariance matrix equal to 
+        that of ``data`` (possible with *SVD* cuts).
+
+        The best-fit results from a fit to a simulated copy of ``data`` should 
+        agree with the numbers in ``pexact`` to within the errors specified
+        by the fit (to the simulated data) --- ``pexact`` gives the "correct" 
+        values for the parameters. Knowing the correct value for each 
+        fit parameter ahead of a fit allows us to test the reliability of
+        the fit's error estimates and to explore the impact of various fit 
+        options (*e.g.*, ``fitter.chained_fit`` versus ``fitter.lsqfit``, 
+        choice of *SVD* cuts, omission of select models, etc.)
+
+        Typically one need examine only a few simulated fits in order 
+        to evaluate fit reliability, since we know the correct values
+        for the parameters ahead of time. Consequently this method is
+        much faster than traditional bootstrap analyses.
+
+        Parameters ``pexact``, ``data``, ``prior``, *etc.* are taken from 
+        the last fit done by the fitter (``self``) unless overridden in 
+        the call to :func:`CorrFitter.simulated_gaussian_data_iter`.
+        Typical usage is as follows::
+
+            fit = fitter.lsqfit(data=data, ...)
+            ...
+            for sdata in fitter.simulated_gaussian_data_iter(n=4):
+                # redo fit 4 times with different simulated data each time
+                # here pexact=fit.pmean is set implicitly
+                sfit = fitter.lsqfit(data=sdata, ...)
+                ... check that sfit.p (or functions of it) agress ...
+                ... with fit.pmean to within sfit.p's errors      ...
+
+        :param n: Maximum number of simulated data sets made by iterator.
+        :type n: integer
+        :param pexact: Correct parameter values for fits to the simulated 
+            data --- fit results should agree with ``pexact`` to within
+            errors. If ``None``, uses ``self.fit.pmean`` from the last fit.
+        :type pexact: dictionary of numbers
+        :param data: Correlator data. If ``None``, uses ``self.data`` from 
+            the last fit.
+        :type data: dictionary of |GVar|\s or arrays of |GVar|\s
+        :param prior: Prior for fits. If ``None``, uses ``self.fit.prior`` 
+            from the last fit.
+        :type prior: dictionary of |GVar|\s or arrays of |GVar|\s
+        :param svdcut: *SVD* cut applied to covariance matrix (from ``data``)
+            used to compute the Gaussian fluctuations about the exact 
+            correlator values. See documentation for :func:`CoffFitter.lsqfit`
+            for more information.
+        :type svdcut: None or number
+        :param svdnum: *SVD* cut applied to covariance matrix (from ``data``)
+            used to compute the Gaussian fluctuations about the exact 
+            correlator values. See documentation for :func:`CoffFitter.lsqfit`.
+        :type svdnum: None or integer
+            for more information.
+        """
+        if self.fit is not None:
+            # info from last fit if not provided
+            svdcut = self.fit.svdcut if svdcut is None else svdcut
+            svdnum = self.fit.svdnum if svdnum is None else svdnum
+            pexact = self.fit.pmean if pexact is None else pexact
+            prior = self.fit.prior if prior is None else prior
+            data = self.data if data is None else data
+        else:
+            # no last fit
+            svdcut = svdcut 
+            svdnum = svdnum
+            if pexact is None:
+                raise ValueError('must specify pexact')
+            if data is None:
+                raise ValueError('must specify data')
+            if prior is None:
+                raise ValueError('must specify prior')
+        if isinstance(svdcut, tuple):
+            svdcut = svdcut[0]
+        if isinstance(svdnum, tuple):
+            svdnum = svdnum[0]
+        priorkeys = prior.keys()
+        newdata = _gvar.BufferDict()
         for m in self.flat_models:
-            ans.update(m.buildprior(prior=prior, nterm=nterm))
-        return ans
+            m_data = data[m.datatag]
+            m_fcn = lsqfit.transform_p(priorkeys,0)(m.fitfcn)
+            newdata[m.datatag] = (
+                m_data + (
+                    m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None)) - 
+                    _gvar.mean(m_data)
+                    )
+                ) 
+        return _gvar.bootstrap_iter(newdata, n=n, svdcut=svdcut, svdnum=svdnum)
 
-    def make_fake_fitter(self):
-        newfitter = CorrFitter(
-            models=copy.deepcopy(self.models), 
-            svdcut=self.svdcut, svdnum=self.svdnum, tol=self.tol,
-            maxit=self.maxit, nterm=self.nterm, ratio=self.ratio, fast=self.fast,
-            processed_data=None
-            )
-        for m in newfitter.flat_models:
-            m.tdata = list(m.tfit)
-        return newfitter
+    def simulated_bootstrap_data_iter(
+        self, n, dataset, pexact=None, prior=None, rescale=1.
+        ):
+        """ Create iterator that returns simulated fit data from ``dataset``.
+
+        Simulated fit data has the same covariance matrix as 
+        ``data=gvar.dataset.avg_data(dataset)``, but mean values that 
+        fluctuate randomly, from copy to copy, around
+        the value of the fitter's fit function evaluated at ``p=pexact``. 
+        The fluctuations are generated from averages of bootstrap copies
+        of ``dataset``.
+
+        The best-fit results from a fit to such simulated copies of ``data``  
+        should agree with the numbers in ``pexact`` to within the errors specified
+        by the fits (to the simulated data) --- ``pexact`` gives the "correct" 
+        values for the parameters. Knowing the correct value for each 
+        fit parameter ahead of a fit allows us to test the reliability of
+        the fit's error estimates and to explore the impact of various fit 
+        options (*e.g.*, ``fitter.chained_fit`` versus ``fitter.lsqfit``, 
+        choice of *SVD* cuts, omission of select models, etc.)
+
+        Typically one need examine only a few simulated fits in order 
+        to evaluate fit reliability, since we know the correct values
+        for the parameters ahead of time. Consequently this method is
+        much faster than traditional bootstrap analyses.
+
+        Parameters ``pexact`` and ``prior``, *etc.* are taken from 
+        the last fit done by the fitter (``self``) unless overridden in 
+        the call to :func:`CorrFitter.simulated_gaussian_data_iter`.
+        Typical usage is as follows::
+
+            data = gvar.dataset.avg_data(dataset)
+            ...
+            fit = fitter.lsqfit(data=data, ...)
+            ...
+            for sdata in fitter.simulated_bootstrap_data_iter(n=4, dataset):
+                # redo fit 4 times with different simulated data each time
+                # here pexact=fit.pmean is set implicitly
+                sfit = fitter.lsqfit(data=sdata, ...)
+                ... check that sfit.p (or functions of it) agrees ...
+                ... with pexact=fit.pmean to within sfit.p's errors      ...
+
+        :param n: Maximum number of simulated data sets made by iterator.
+        :type n: integer
+        :param dataset: Dataset containing Monte Carlo copies of the correlators.
+        :type dataset: gvar.dataset.Dataset
+        :param pexact: Correct parameter values for fits to the simulated 
+            data --- fit results should agree with ``pexact`` to within
+            errors. If ``None``, uses ``self.fit.pmean`` from the last fit.
+        :type pexact: dictionary of numbers
+        :param prior: Prior for fits. If ``None``, uses ``self.fit.prior`` 
+            from the last fit.
+        :type prior: dictionary of |GVar|\s or arrays of |GVar|\s
+        :param rescale: Rescale errors in simulated data by ``rescale``
+            (*i.e.*, multiply covariance matrix by ``rescale ** 2``).
+            Default is one, which implies no rescaling.
+        :type rescale: positive number
+        """
+        if self.fit is not None:
+            # info from last fit if not provided
+            pexact = self.fit.pmean if pexact is None else pexact
+            prior = self.fit.prior if prior is None else prior
+        else:
+            # no last fit
+            if pexact is None:
+                raise ValueError('must specify pexact')
+            if prior is None:
+                raise ValueError('must specify prior')
+        tmpdata = _gvar.dataset.avg_data(dataset)
+        # reorder data (and prune if necessary)
+        data = _gvar.BufferDict()
+        for m in self.flat_models:
+            data[m.datatag] = tmpdata[m.datatag]
+        datamean = _gvar.mean(data)
+        datacov = _gvar.evalcov(data.buf)
+        del tmpdata
+        del data
+        priorkeys = prior.keys()
+        fcn_mean = _gvar.BufferDict()
+        for m in self.flat_models:
+            m_fcn = lsqfit.transform_p(priorkeys,0)(m.fitfcn)
+            fcn_mean[m.datatag] = (
+                m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None)) 
+                )
+        if rescale is None or rescale == 1.:
+            rescale = None
+            correction = _gvar.BufferDict(
+                fcn_mean, buf=fcn_mean.buf - datamean.buf
+                )
+            del fcn_mean
+        else:
+            datacov *= rescale ** 2
+        for bs_dataset in _gvar.dataset.bootstrap_iter(dataset, n=n):
+            bs_mean = _gvar.dataset.avg_data(bs_dataset, noerror=True)
+            ans = _gvar.BufferDict()
+            if rescale is None:
+                for datatag in correction:
+                    ans[datatag] = bs_mean[datatag] + correction[datatag]
+            else:
+                for datatag in fcn_mean:
+                    ans[datatag] = (fcn_mean[datatag] +
+                        (bs_mean[datatag] - datamean[datatag]) * rescale
+                        )
+            yield _gvar.BufferDict(
+                ans,
+                buf=_gvar.gvar(ans.buf, datacov)
+                )
 
     def collect_fitresults(self):
         """ Collect results from last fit for plots, tables etc.
