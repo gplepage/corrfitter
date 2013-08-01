@@ -26,7 +26,7 @@ from corrfitter import *
 
 PRINT_FITS = False  # print lots of fit info while doing tests
 DISPLAY_PLOTS = False # display plots for some fits
-NSIG = 5.5           # number of sigmas allowed before signalling an error
+NSIG = 6.0           # number of sigmas allowed before signalling an error
 NTERM = 3           # number of terms (ie, len(dE)) in correlators
 SVDCUT = 1e-6       # svd cut used for all fits -- to minimize roundoff problems
 FAST = False        # skips bootstrap tests if True
@@ -213,6 +213,34 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
             print("Eeff chi2/dof = %.2g [1]\n" % ((Eeff.mean - Etrue)**2/Eeff.sdev**2))
             print("Aeff chi2/dof = %.2g [1]\n" % ((Aeff.mean - Atrue)**2/Aeff.sdev**2))
     ##
+    def test_simulation(self):
+        """ CorrFitter.simulated_data_iter """
+        models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=None) ]
+        fitter = self.dofit(models)
+        data = self.data
+        diter = gv.BufferDict()
+        k = list(data.keys())[0]
+        # make n config dataset corresponding to data
+        n = 100
+        diter = gv.raniter(
+            g = gv.gvar(gv.mean(self.data[k]), gv.evalcov(self.data[k]) * n),
+            n = n
+            )
+        dataset = gv.dataset.Dataset()
+        for d in diter:
+            dataset.append(k, d)
+        pexact = fitter.fit.pmean
+        covexact = gv.evalcov(gv.dataset.avg_data(dataset)[k])
+        for sdata in fitter.simulated_data_iter(n=2, dataset=dataset):
+            sfit = fitter.lsqfit(
+                data=sdata, prior=self.prior, p0=pexact, print_fit=False
+                )
+            diff = dict()
+            for i in ['a', 'logdE']:
+                diff[i] = sfit.p[i][0] - pexact[i][0]
+            self.assertLess(gv.chi2(diff)/gv.chi2.dof, 15.)
+            self.assert_arraysclose(gv.evalcov(sdata[k]), covexact)
+
     def test_periodic(self):
         """ corr2 -- periodic correlator """
         if PRINT_FITS:
@@ -281,6 +309,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
     ##        
     def test_matrix1(self):
         """ corr2 -- 2x2 matrix fit (use othertags) """
+        global NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="a", b="a", dE="logdE"),
@@ -288,10 +317,13 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                    self.mkcorr(a="a", b="logb", dE="logdE", othertags=[3]),
                    self.mkcorr(a="logb", b="a", dE="logdE", othertags=[2])]
         self.dofit(models=models[:-1], data_models=models)
+        NSIG *= 1.5
         self.dofit_chd(models)
+        NSIG /= 1.5
     ##
     def test_matrix2(self):
         """ corr2 -- 2x2 matrix fit (without othertags) """
+        global NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="a", b="a", dE="logdE"),
@@ -299,10 +331,13 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                    self.mkcorr(a="a", b="logb", dE="logdE"),
                    self.mkcorr(a="logb", b="a", dE="logdE")]
         self.dofit(models)
+        NSIG *= 2.
         self.dofit_chd(models)
+        NSIG /= 2.
     ##
     def test_chained(self):
         """ test chained fit variations """
+        global NSIG
         models =[ 
                 self.mkcorr(a='a', b='a', dE='logdE'),
                 [
@@ -310,7 +345,8 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                 self.mkcorr(a='b', b='a', dE='logdE')
                 ],
                 self.mkcorr(a='b', b='b', dE='logdE')
-                ]
+                ] 
+        NSIG *= 2.   # do this because so many fits
         self.dofit_chd(models, parallel=True, flat=False, fast=True)
         self.dofit_chd(models, parallel=True, flat=False, fast=False)
         self.dofit_chd(models, parallel=True, flat=True, fast=True)
@@ -328,9 +364,11 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         self.dofit_chd(models, parallel=False, flat=False, fast=False, nterm=2)
         self.dofit_chd(models, parallel=False, flat=True, fast=True, nterm=2)
         self.dofit_chd(models, parallel=False, flat=True, fast=False, nterm=2)
+        NSIG /= 2.
 
     def test_marginalization(self):
         """ corr2 -- marginalization (2x2 matrix)"""
+        global NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="a", b="a", dE="logdE"),
@@ -338,7 +376,9 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                    self.mkcorr(a="a", b="logb", dE="logdE"),
                    self.mkcorr(a="logb", b="a", dE="logdE")]
         self.dofit(models, nterm=1, ratio=True)
+        NSIG *= 1.5
         self.dofit_chd(models)
+        NSIG /= 1.5
     ##
     def test_oscillating1(self):
         """ corr2 -- oscillating part """
@@ -584,6 +624,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
     ##
     def test_transpose_osc(self):
         """ corr3 -- transpose V with osc"""
+        global NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ 
@@ -603,10 +644,13 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             
         ]
         self.dofit(models)
+        NSIG *= 2.
         self.dofit_chd(models)
+        NSIG /= 2.
     ##
     def test_periodic(self):
         """ corr3 -- periodic correlators """
+        global NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
         tp = 3*self.T
@@ -621,8 +665,10 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
                          Vnn="Vnn", Von="Von", Vno="Vno", Voo="Voo",
                          tpa=tp, tpb=tp)
         ]
+        NSIG *= 2.
         self.dofit(models)
         self.dofit_chd(models)
+        NSIG /= 2.
     ##
     def test_antiperiodic(self):
         """ corr3 -- anti-periodic correlators """
@@ -671,7 +717,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
     ##
     def test_marginalization(self):
         """ corr3 -- marginalization """
-        global PRINT_FITS
+        global PRINT_FITS, NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ 
@@ -682,10 +728,9 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
                          dEb=("logdEa", "logdEao"), 
                          Vnn="Vnn_sym" ,symmetric_V=True)
         ]
+        NSIG *= 2.
         self.dofit(models, nterm=(NTERM-1, NTERM-1), ratio=True)
-    ##
-##
-        
+        NSIG /= 2.
 
 
 def unpack(p,k):

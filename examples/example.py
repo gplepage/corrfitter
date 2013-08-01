@@ -20,9 +20,30 @@ def main():
         prior = make_prior(N)               
         fit = fitter.lsqfit(data=data, prior=prior, p0=p0) 
         p0 = fit.pmean
-    print_results(fit, prior, data)  
+    print_results(fit, prior, data) 
     if DISPLAYPLOTS:
         fitter.display_plots()
+    test_fit(fitter,'example.data') 
+
+def test_fit(fitter, datafile):
+    gv.ranseed((5339893179535759510, 4088224360017966188, 7597275990505476522))
+    print('\nRandom seed:', gv.ranseed.seed)
+    dataset = gv.dataset.Dataset(datafile)
+    pexact = fitter.fit.pmean
+    prior = fitter.fit.prior
+    for sdata in fitter.simulated_data_iter(n=2, dataset=dataset, pexact=pexact):
+        print('\n============================== simulation')
+        sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact, nterm=(2,2))
+        diff = []
+        # check chi**2 for leading parameters
+        for k in sfit.p: 
+            diff.append(sfit.p[k].flat[0] - pexact[k].flat[0])
+        print(
+            'Leading parameter chi2/dof [dof] = %.2f' % 
+            (gv.chi2(diff) / gv.chi2.dof),
+            '[%d]' % gv.chi2.dof, 
+            '  Q = %.1f' % gv.chi2.Q
+            )
 
 def make_data(datafile):
     """ Read data from datafile and average it. """
@@ -60,7 +81,7 @@ def make_models():
             Vnn='Vnn', Vno='Vno'
             )
         ]
-    return models
+    return [models[:2]] + models[2:]
 
 def make_prior(N):
     """ Create priors for fit parameters. """

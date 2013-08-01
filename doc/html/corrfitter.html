@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.6b documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.6 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '3.6b',
+        VERSION:     '3.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.6b documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.6 documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.6b documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -451,11 +451,10 @@ models alternate between chained and parallel fits.</p>
 but using the best-fit parameters from the chained fit as the prior for
 the ordinary fit: for example,</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">chained_lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>
-<span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>where we have included a larger <em>svd</em> cut in the second fit
-to avoid possible problems with roundoff errors. The second fit should,
+<p>The second fit should,
 in principle, have no effect on the results since it adds no new
 information. In some cases, however, it polishes the results by making small
 (compared to the errors) corrections that tighten up the overall fit. It is
@@ -660,6 +659,58 @@ In this case <tt class="docutils literal"><span class="pre">Vnn</span></tt> and 
 <tt class="docutils literal"><span class="pre">N(N+1)/2</span></tt> elements corresponding to the upper parts of each matrix,
 where <tt class="docutils literal"><span class="pre">N</span></tt> is the number of exponentials (that is, the number of
 <tt class="docutils literal"><span class="pre">a[i]</span></tt>s).</p>
+</div>
+<div class="section" id="testing-fits-with-simulated-data">
+<h2>Testing Fits with Simulated Data<a class="headerlink" href="#testing-fits-with-simulated-data" title="Permalink to this headline">¶</a></h2>
+<p>Large fits are complicated and often involve nontrivial choices about
+algorithms (<em>e.g.</em>, chained fits versus regular fits), priors, and
+<em>svd</em> cuts &#8212; choices that affect the values and errors for the fit
+parameters. In such situations it is often a good idea to test the
+fit protocol that has been selected. This can be done by fitting simulated
+data. Simulated data looks almost identical to the original fit
+data but has means that have been adjusted to correspond to fluctuations
+around a correlator with known (before the fit) parameter values: <tt class="docutils literal"><span class="pre">p=pexact</span></tt>.
+The <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a> iterator <tt class="docutils literal"><span class="pre">simulated_data_iter</span></tt> creates any number of
+different simulated data sets of this kind. Fitting any of these with
+a particular fit protocol tests the reliability of that protocol since
+the fit results should agree with <tt class="docutils literal"><span class="pre">pexact</span></tt>
+to within the (simulated) fit&#8217;s errors. One or two fit simulations of this
+sort are usually enough to establish the validity of a protocol. It is also
+easy to compare the performance of different fit options by applying these in
+fits of simulated data, again because we know the correct answers (<tt class="docutils literal"><span class="pre">pexact</span></tt>)
+ahead of time.</p>
+<p>Typically one obtains reasonable values for <tt class="docutils literal"><span class="pre">pexact</span></tt> from a fit to the
+real data. Assuming these have been dumped into a file named <tt class="docutils literal"><span class="pre">&quot;pexact_file&quot;</span></tt>
+(using, for example, <tt class="docutils literal"><span class="pre">fit.dump_pmean(&quot;pexact_file&quot;)</span></tt>), a testing script
+might look something like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">gvar</span> <span class="kn">as</span> <span class="nn">gv</span>
+<span class="kn">import</span> <span class="nn">lsqfit</span>
+<span class="kn">import</span> <span class="nn">corrfitter</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>       <span class="c"># from original fit code</span>
+    <span class="n">fitter</span> <span class="o">=</span> <span class="n">corrfitter</span><span class="o">.</span><span class="n">CorrFitter</span><span class="p">(</span>         <span class="c"># from original fit code</span>
+        <span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+        <span class="o">...</span>
+        <span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">2</span>                                   <span class="c"># number of simulations</span>
+    <span class="n">pexact</span> <span class="o">=</span> <span class="n">lsqfit</span><span class="o">.</span><span class="n">nonlinear_fit</span><span class="o">.</span><span class="n">load_parameters</span><span class="p">(</span><span class="s">&quot;pexact_file&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">sdata</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">simulated_data_iter</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">pexact</span><span class="o">=</span><span class="n">pexact</span><span class="p">):</span>
+        <span class="c"># sfit = fit to the simulated data sdata</span>
+        <span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdata</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">pexact</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=...</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+        <span class="o">...</span> <span class="n">check</span> <span class="n">that</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span> <span class="n">values</span> <span class="n">agree</span> <span class="k">with</span> <span class="n">pexact</span> <span class="n">to</span> <span class="n">within</span> <span class="n">sfit</span><span class="o">.</span><span class="n">psdev</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>Simulated fits provide an alternative to a <em>bootstrap analysis</em> (see next
+section). By collecting results from many simulated fits, one can test whether
+or not fit results are distributed in Gaussian distributions around <tt class="docutils literal"><span class="pre">pexact</span></tt>,
+with widths that equal the standard deviations from the fit (<tt class="docutils literal"><span class="pre">fit.psdev</span></tt>
+or <tt class="docutils literal"><span class="pre">sfit.psdev</span></tt>).</p>
+<p>Fit simulations are particularly useful for setting <em>svd</em> cuts. Given
+a set of approximate parameter values to use for <tt class="docutils literal"><span class="pre">pexact</span></tt>, it is easy
+to run fits with a range of <em>svd</em> cuts to see how small <tt class="docutils literal"><span class="pre">svdcut</span></tt>
+can be made before the parameters of interest deviate too far from <tt class="docutils literal"><span class="pre">pexact</span></tt>.</p>
 </div>
 <div class="section" id="bootstrap-analyses">
 <h2>Bootstrap Analyses<a class="headerlink" href="#bootstrap-analyses" title="Permalink to this headline">¶</a></h2>
@@ -1448,8 +1499,8 @@ further keyword arguments are passed on to
 </dd></dl>
 
 <dl class="method">
-<dt id="corrfitter.CorrFitter.simulated_bootstrap_data_iter">
-<tt class="descname">simulated_bootstrap_data_iter</tt><big>(</big><em>n</em>, <em>dataset</em>, <em>pexact=None</em>, <em>prior=None</em>, <em>rescale=1.0</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.simulated_bootstrap_data_iter" title="Permalink to this definition">¶</a></dt>
+<dt id="corrfitter.CorrFitter.simulated_data_iter">
+<tt class="descname">simulated_data_iter</tt><big>(</big><em>n</em>, <em>dataset</em>, <em>pexact=None</em>, <em>rescale=1.0</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.simulated_data_iter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create iterator that returns simulated fit data from <tt class="docutils literal"><span class="pre">dataset</span></tt>.</p>
 <p>Simulated fit data has the same covariance matrix as 
 <tt class="docutils literal"><span class="pre">data=gvar.dataset.avg_data(dataset)</span></tt>, but mean values that 
@@ -1468,12 +1519,16 @@ choice of <em>SVD</em> cuts, omission of select models, etc.)</p>
 <p>Typically one need examine only a few simulated fits in order 
 to evaluate fit reliability, since we know the correct values
 for the parameters ahead of time. Consequently this method is
-much faster than traditional bootstrap analyses.</p>
-<p>Parameters <tt class="docutils literal"><span class="pre">pexact</span></tt> and <tt class="docutils literal"><span class="pre">prior</span></tt>, <em>etc.</em> are taken from 
-the last fit done by the fitter (<tt class="docutils literal"><span class="pre">self</span></tt>) unless overridden in 
-the call to <tt class="xref py py-func docutils literal"><span class="pre">CorrFitter.simulated_gaussian_data_iter()</span></tt>.
+much faster than traditional bootstrap analyses. More 
+thorough testing would involve running many simulations and
+examining the distribution of fit parameters or functions 
+of fit parameters around their exact values (from <tt class="docutils literal"><span class="pre">pexact</span></tt>). 
+This is overkill for most problems, however.</p>
+<p><tt class="docutils literal"><span class="pre">pexact</span></tt> is usually taken from the last fit done by the fitter 
+(<tt class="docutils literal"><span class="pre">self.fit.pmean</span></tt>) unless overridden in the function call.
 Typical usage is as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">data</span> <span class="o">=</span> <span class="n">gvar</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">dataset</span> <span class="o">=</span> <span class="n">gvar</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">gvar</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 <span class="o">...</span>
 <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 <span class="o">...</span>
@@ -1495,74 +1550,9 @@ Typical usage is as follows:</p>
 <li><strong>pexact</strong> (<em>dictionary of numbers</em>) &#8211; Correct parameter values for fits to the simulated 
 data &#8212; fit results should agree with <tt class="docutils literal"><span class="pre">pexact</span></tt> to within
 errors. If <tt class="docutils literal"><span class="pre">None</span></tt>, uses <tt class="docutils literal"><span class="pre">self.fit.pmean</span></tt> from the last fit.</li>
-<li><strong>prior</strong> (dictionary of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s or arrays of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s) &#8211; Prior for fits. If <tt class="docutils literal"><span class="pre">None</span></tt>, uses <tt class="docutils literal"><span class="pre">self.fit.prior</span></tt> 
-from the last fit.</li>
 <li><strong>rescale</strong> (<em>positive number</em>) &#8211; Rescale errors in simulated data by <tt class="docutils literal"><span class="pre">rescale</span></tt>
 (<em>i.e.</em>, multiply covariance matrix by <tt class="docutils literal"><span class="pre">rescale</span> <span class="pre">**</span> <span class="pre">2</span></tt>).
 Default is one, which implies no rescaling.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="corrfitter.CorrFitter.simulated_gaussian_data_iter">
-<tt class="descname">simulated_gaussian_data_iter</tt><big>(</big><em>n</em>, <em>pexact=None</em>, <em>data=None</em>, <em>prior=None</em>, <em>svdcut=None</em>, <em>svdnum=None</em><big>)</big><a class="headerlink" href="#corrfitter.CorrFitter.simulated_gaussian_data_iter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create iterator that returns simulated copies of <tt class="docutils literal"><span class="pre">data</span></tt>.</p>
-<p>A simulated copy of <tt class="docutils literal"><span class="pre">data</span></tt> has the same covariance matrix as <tt class="docutils literal"><span class="pre">data</span></tt>
-but means that fluctuate randomly, from copy to copy, around
-the value of the fitter&#8217;s fit function evaluated at <tt class="docutils literal"><span class="pre">p=pexact</span></tt>. 
-The fluctuations are Gaussian with a covariance matrix equal to 
-that of <tt class="docutils literal"><span class="pre">data</span></tt> (possible with <em>SVD</em> cuts).</p>
-<p>The best-fit results from a fit to a simulated copy of <tt class="docutils literal"><span class="pre">data</span></tt> should 
-agree with the numbers in <tt class="docutils literal"><span class="pre">pexact</span></tt> to within the errors specified
-by the fit (to the simulated data) &#8212; <tt class="docutils literal"><span class="pre">pexact</span></tt> gives the &#8220;correct&#8221; 
-values for the parameters. Knowing the correct value for each 
-fit parameter ahead of a fit allows us to test the reliability of
-the fit&#8217;s error estimates and to explore the impact of various fit 
-options (<em>e.g.</em>, <tt class="docutils literal"><span class="pre">fitter.chained_fit</span></tt> versus <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt>, 
-choice of <em>SVD</em> cuts, omission of select models, etc.)</p>
-<p>Typically one need examine only a few simulated fits in order 
-to evaluate fit reliability, since we know the correct values
-for the parameters ahead of time. Consequently this method is
-much faster than traditional bootstrap analyses.</p>
-<p>Parameters <tt class="docutils literal"><span class="pre">pexact</span></tt>, <tt class="docutils literal"><span class="pre">data</span></tt>, <tt class="docutils literal"><span class="pre">prior</span></tt>, <em>etc.</em> are taken from 
-the last fit done by the fitter (<tt class="docutils literal"><span class="pre">self</span></tt>) unless overridden in 
-the call to <tt class="xref py py-func docutils literal"><span class="pre">CorrFitter.simulated_gaussian_data_iter()</span></tt>.
-Typical usage is as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
-<span class="o">...</span>
-<span class="k">for</span> <span class="n">sdata</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">simulated_gaussian_data_iter</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
-    <span class="c"># redo fit 4 times with different simulated data each time</span>
-    <span class="c"># here pexact=fit.pmean is set implicitly</span>
-    <span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdata</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
-    <span class="o">...</span> <span class="n">check</span> <span class="n">that</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span> <span class="p">(</span><span class="ow">or</span> <span class="n">functions</span> <span class="n">of</span> <span class="n">it</span><span class="p">)</span> <span class="n">agress</span> <span class="o">...</span>
-    <span class="o">...</span> <span class="k">with</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span> <span class="n">to</span> <span class="n">within</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span><span class="s">&#39;s errors      ...</span>
-</pre></div>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n</strong> (<em>integer</em>) &#8211; Maximum number of simulated data sets made by iterator.</li>
-<li><strong>pexact</strong> (<em>dictionary of numbers</em>) &#8211; Correct parameter values for fits to the simulated 
-data &#8212; fit results should agree with <tt class="docutils literal"><span class="pre">pexact</span></tt> to within
-errors. If <tt class="docutils literal"><span class="pre">None</span></tt>, uses <tt class="docutils literal"><span class="pre">self.fit.pmean</span></tt> from the last fit.</li>
-<li><strong>data</strong> (dictionary of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s or arrays of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s) &#8211; Correlator data. If <tt class="docutils literal"><span class="pre">None</span></tt>, uses <tt class="docutils literal"><span class="pre">self.data</span></tt> from 
-the last fit.</li>
-<li><strong>prior</strong> (dictionary of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s or arrays of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s) &#8211; Prior for fits. If <tt class="docutils literal"><span class="pre">None</span></tt>, uses <tt class="docutils literal"><span class="pre">self.fit.prior</span></tt> 
-from the last fit.</li>
-<li><strong>svdcut</strong> (<em>None or number</em>) &#8211; <em>SVD</em> cut applied to covariance matrix (from <tt class="docutils literal"><span class="pre">data</span></tt>)
-used to compute the Gaussian fluctuations about the exact 
-correlator values. See documentation for <tt class="xref py py-func docutils literal"><span class="pre">CoffFitter.lsqfit()</span></tt>
-for more information.</li>
-<li><strong>svdnum</strong> (<em>None or integer
-for more information.</em>) &#8211; <em>SVD</em> cut applied to covariance matrix (from <tt class="docutils literal"><span class="pre">data</span></tt>)
-used to compute the Gaussian fluctuations about the exact 
-correlator values. See documentation for <tt class="xref py py-func docutils literal"><span class="pre">CoffFitter.lsqfit()</span></tt>.</li>
 </ul>
 </td>
 </tr>
@@ -2399,6 +2389,253 @@ Partial % Errors:
 </pre>
 </div>
 </li>
+<li><p class="first">Test the code by adding <tt class="docutils literal"><span class="pre">test_fit(fitter,</span> <span class="pre">'example.data')</span></tt> to the <tt class="docutils literal"><span class="pre">main</span></tt>
+program, where:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">test_fit</span><span class="p">(</span><span class="n">fitter</span><span class="p">,</span> <span class="n">datafile</span><span class="p">):</span>
+    <span class="n">gv</span><span class="o">.</span><span class="n">ranseed</span><span class="p">((</span><span class="mi">5339893179535759510</span><span class="p">,</span> <span class="mi">4088224360017966188</span><span class="p">,</span> <span class="mi">7597275990505476522</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">Random seed:&#39;</span><span class="p">,</span> <span class="n">gv</span><span class="o">.</span><span class="n">ranseed</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">datafile</span><span class="p">)</span>
+    <span class="n">pexact</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">prior</span>
+    <span class="k">for</span> <span class="n">sdata</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">simulated_data_iter</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">pexact</span><span class="o">=</span><span class="n">pexact</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">============================== simulation&#39;</span><span class="p">)</span>
+        <span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdata</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">pexact</span><span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># check chi**2 for leading parameters</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span><span class="p">:</span>
+            <span class="n">diff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sfit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">pexact</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">print</span><span class="p">(</span>
+            <span class="s">&#39;Leading parameter chi2/dof [dof] = </span><span class="si">%.2f</span><span class="s">&#39;</span> <span class="o">%</span>
+            <span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">chi2</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">/</span> <span class="n">gv</span><span class="o">.</span><span class="n">chi2</span><span class="o">.</span><span class="n">dof</span><span class="p">),</span>
+            <span class="s">&#39;[</span><span class="si">%d</span><span class="s">]&#39;</span> <span class="o">%</span> <span class="n">gv</span><span class="o">.</span><span class="n">chi2</span><span class="o">.</span><span class="n">dof</span><span class="p">,</span>
+            <span class="s">&#39;  Q = </span><span class="si">%.1f</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">gv</span><span class="o">.</span><span class="n">chi2</span><span class="o">.</span><span class="n">Q</span>
+            <span class="p">)</span>
+</pre></div>
+</div>
+<p>This code does <tt class="docutils literal"><span class="pre">n=2</span></tt> simulations of the full fit, using the means of fit
+results from the last fit done by <tt class="docutils literal"><span class="pre">fitter</span></tt> as <tt class="docutils literal"><span class="pre">pexact</span></tt>.
+The code prints out each fit,
+and for each it computes the <tt class="docutils literal"><span class="pre">chi**2</span></tt> of the difference between the leading
+parameters and <tt class="docutils literal"><span class="pre">pexact</span></tt>. The output is:</p>
+<div class="highlight-python"><pre>Random seed: (5339893179535759510, 4088224360017966188, 7597275990505476522)
+
+============================== simulation
+Least Square Fit:
+  chi2/dof [dof] = 0.68 [69]    Q = 0.98    logGBF = 1602.5    itns = 21
+
+Parameters:
+  log(etas:a) 0   -1.52103 (72)      [ -1.2 (1.0) ]  
+              1      -1.76 (32)      [ -1.2 (1.0) ]  
+              2      -1.13 (48)      [ -1.2 (1.0) ]  
+              3      -1.22 (95)      [ -1.2 (1.0) ]  
+ log(etas:dE) 0   -0.87635 (28)      [ -0.92 (50) ]  
+              1      -0.54 (12)      [ -0.7 (1.0) ]  
+              2      -0.72 (53)      [ -0.7 (1.0) ]  
+              3      -0.70 (97)      [ -0.7 (1.0) ]  
+    log(Ds:a) 0   -1.53847 (93)      [ -1.2 (1.0) ]  
+              1      -1.32 (10)      [ -1.2 (1.0) ]  
+              2      -0.83 (38)      [ -1.2 (1.0) ]  
+              3      -1.13 (98)      [ -1.2 (1.0) ]  
+   log(Ds:dE) 0    0.18379 (13)      [  0.18 (17) ]  
+              1     -0.701 (45)      [ -0.7 (1.0) ]  
+              2      -0.69 (39)      [ -0.7 (1.0) ]  
+              3      -0.75 (99)      [ -0.7 (1.0) ]  
+   log(Ds:ao) 0     -2.709 (97)      [ -2.3 (1.0) ]  
+              1      -2.46 (38)      [ -2.3 (1.0) ]  
+              2      -2.16 (82)      [ -2.3 (1.0) ]  
+              3      -2.3 (1.0)      [ -2.3 (1.0) ]  
+  log(Ds:dEo) 0     0.3691 (82)      [  0.41 (24) ]  
+              1      -1.40 (48)      [ -0.7 (1.0) ]  
+              2      -0.69 (80)      [ -0.7 (1.0) ]  
+              3      -0.7 (1.0)      [ -0.7 (1.0) ]  
+        Vnn 0,0    0.76731 (83)      [  0.0 (1.0) ]  
+            0,1     -0.487 (38)      [  0.0 (1.0) ]  
+            0,2       0.32 (43)      [  0.0 (1.0) ]  
+            0,3       0.07 (99)      [  0.0 (1.0) ]  
+            1,0      0.077 (41)      [  0.0 (1.0) ]  
+            1,1       0.60 (70)      [  0.0 (1.0) ]  
+            1,2       0.12 (99)      [  0.0 (1.0) ]  
+            1,3       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,0      -0.24 (30)      [  0.0 (1.0) ]  
+            2,1       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,2       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,3       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,0      -0.13 (98)      [  0.0 (1.0) ]  
+            3,1       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,2       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,3       0.0 (1.0)      [  0.0 (1.0) ]  
+        Vno 0,0     -0.766 (61)      [  0.0 (1.0) ]  
+            0,1       0.29 (28)      [  0.0 (1.0) ]  
+            0,2       0.11 (89)      [  0.0 (1.0) ]  
+            0,3       0.0 (1.0)      [  0.0 (1.0) ]  
+            1,0       0.08 (40)      [  0.0 (1.0) ]  
+            1,1       0.21 (96)      [  0.0 (1.0) ]  
+            1,2       0.0 (1.0)      [  0.0 (1.0) ]  
+            1,3       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,0      -0.07 (94)      [  0.0 (1.0) ]  
+            2,1       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,2       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,3       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,0      -0.0 (1.0)      [  0.0 (1.0) ]  
+            3,1       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,2       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,3       0.0 (1.0)      [  0.0 (1.0) ]  
+
+Settings:
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+
+Leading parameter chi2/dof [dof] = 0.27 [8]   Q = 1.0
+
+============================== simulation
+Least Square Fit:
+  chi2/dof [dof] = 0.63 [69]    Q = 0.99    logGBF = 1604.2    itns = 41
+
+Parameters:
+  log(etas:a) 0   -1.52248 (71)      [ -1.2 (1.0) ]  
+              1      -1.60 (18)      [ -1.2 (1.0) ]  
+              2      -1.03 (69)      [ -1.2 (1.0) ]  
+              3      -1.05 (97)      [ -1.2 (1.0) ]  
+ log(etas:dE) 0   -0.87681 (28)      [ -0.92 (50) ]  
+              1     -0.474 (72)      [ -0.7 (1.0) ]  
+              2      -0.48 (59)      [ -0.7 (1.0) ]  
+              3      -0.78 (98)      [ -0.7 (1.0) ]  
+    log(Ds:a) 0   -1.53993 (98)      [ -1.2 (1.0) ]  
+              1      -1.45 (15)      [ -1.2 (1.0) ]  
+              2      -0.81 (28)      [ -1.2 (1.0) ]  
+              3      -1.18 (98)      [ -1.2 (1.0) ]  
+   log(Ds:dE) 0    0.18356 (13)      [  0.18 (17) ]  
+              1     -0.769 (64)      [ -0.7 (1.0) ]  
+              2      -0.78 (30)      [ -0.7 (1.0) ]  
+              3      -0.74 (99)      [ -0.7 (1.0) ]  
+   log(Ds:ao) 0     -2.709 (76)      [ -2.3 (1.0) ]  
+              1      -2.38 (16)      [ -2.3 (1.0) ]  
+              2      -2.46 (98)      [ -2.3 (1.0) ]  
+              3      -2.3 (1.0)      [ -2.3 (1.0) ]  
+  log(Ds:dEo) 0     0.3681 (66)      [  0.41 (24) ]  
+              1      -1.33 (25)      [ -0.7 (1.0) ]  
+              2      -0.43 (94)      [ -0.7 (1.0) ]  
+              3      -0.7 (1.0)      [ -0.7 (1.0) ]  
+        Vnn 0,0    0.76785 (82)      [  0.0 (1.0) ]  
+            0,1     -0.443 (44)      [  0.0 (1.0) ]  
+            0,2       0.02 (26)      [  0.0 (1.0) ]  
+            0,3      -0.02 (99)      [  0.0 (1.0) ]  
+            1,0      0.047 (32)      [  0.0 (1.0) ]  
+            1,1       0.23 (70)      [  0.0 (1.0) ]  
+            1,2       0.09 (99)      [  0.0 (1.0) ]  
+            1,3       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,0      -0.21 (36)      [  0.0 (1.0) ]  
+            2,1      -0.0 (1.0)      [  0.0 (1.0) ]  
+            2,2       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,3       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,0      -0.04 (99)      [  0.0 (1.0) ]  
+            3,1       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,2       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,3       0.0 (1.0)      [  0.0 (1.0) ]  
+        Vno 0,0     -0.760 (37)      [  0.0 (1.0) ]  
+            0,1       0.31 (17)      [  0.0 (1.0) ]  
+            0,2       0.00 (98)      [  0.0 (1.0) ]  
+            0,3       0.0 (1.0)      [  0.0 (1.0) ]  
+            1,0       0.15 (38)      [  0.0 (1.0) ]  
+            1,1      -0.18 (96)      [  0.0 (1.0) ]  
+            1,2       0.0 (1.0)      [  0.0 (1.0) ]  
+            1,3       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,0       0.14 (98)      [  0.0 (1.0) ]  
+            2,1       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,2       0.0 (1.0)      [  0.0 (1.0) ]  
+            2,3       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,0       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,1       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,2       0.0 (1.0)      [  0.0 (1.0) ]  
+            3,3       0.0 (1.0)      [  0.0 (1.0) ]  
+
+Settings:
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+
+Leading parameter chi2/dof [dof] = 0.46 [8]   Q = 0.9
+</pre>
+</div>
+<p>This shows that the fit is working well, at least for the leading
+parameter for each key.</p>
+<p>Other options are easily checked. For example,
+only one line need be changed in <tt class="docutils literal"><span class="pre">test_fit</span></tt> in order to test
+a marginalized fit:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdata</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">pexact</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Running this code gives:</p>
+<div class="highlight-python"><pre>Random seed: (5339893179535759510, 4088224360017966188, 7597275990505476522)
+
+============================== simulation
+Least Square Fit (input data correlated with prior):
+  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1602.4    itns = 23
+
+Parameters:
+  log(etas:a) 0   -1.52098 (72)      [ -1.2 (1.0) ]  
+              1      -1.71 (49)      [ -1.2 (1.0) ]  
+ log(etas:dE) 0   -0.87634 (28)      [ -0.92 (50) ]  
+              1      -0.52 (16)      [ -0.7 (1.0) ]  
+    log(Ds:a) 0   -1.53883 (91)      [ -1.2 (1.0) ]  
+              1     -1.390 (78)      [ -1.2 (1.0) ]  
+   log(Ds:dE) 0    0.18377 (13)      [  0.18 (17) ]  
+              1     -0.735 (37)      [ -0.7 (1.0) ]  
+   log(Ds:ao) 0     -2.670 (58)      [ -2.3 (1.0) ]  
+              1      -2.34 (14)      [ -2.3 (1.0) ]  
+  log(Ds:dEo) 0     0.3719 (55)      [  0.41 (24) ]  
+              1      -1.20 (21)      [ -0.7 (1.0) ]  
+        Vnn 0,0    0.76751 (76)      [  0.0 (1.0) ]  
+            0,1     -0.459 (35)      [  0.0 (1.0) ]  
+            1,0      0.080 (53)      [  0.0 (1.0) ]  
+            1,1       0.72 (73)      [  0.0 (1.0) ]  
+        Vno 0,0     -0.755 (29)      [  0.0 (1.0) ]  
+            0,1       0.37 (16)      [  0.0 (1.0) ]  
+            1,0      -0.07 (40)      [  0.0 (1.0) ]  
+            1,1       0.27 (96)      [  0.0 (1.0) ]  
+
+Settings:
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+
+Leading parameter chi2/dof [dof] = 0.82 [8]   Q = 0.6
+
+============================== simulation
+Least Square Fit (input data correlated with prior):
+  chi2/dof [dof] = 0.63 [69]    Q = 0.99    logGBF = 1604.6    itns = 12
+
+Parameters:
+  log(etas:a) 0   -1.52243 (70)      [ -1.2 (1.0) ]  
+              1      -1.34 (50)      [ -1.2 (1.0) ]  
+ log(etas:dE) 0   -0.87680 (27)      [ -0.92 (50) ]  
+              1      -0.41 (13)      [ -0.7 (1.0) ]  
+    log(Ds:a) 0   -1.53999 (93)      [ -1.2 (1.0) ]  
+              1     -1.455 (75)      [ -1.2 (1.0) ]  
+   log(Ds:dE) 0    0.18355 (13)      [  0.18 (17) ]  
+              1     -0.771 (38)      [ -0.7 (1.0) ]  
+   log(Ds:ao) 0     -2.700 (72)      [ -2.3 (1.0) ]  
+              1      -2.39 (12)      [ -2.3 (1.0) ]  
+  log(Ds:dEo) 0     0.3688 (64)      [  0.41 (24) ]  
+              1      -1.32 (22)      [ -0.7 (1.0) ]  
+        Vnn 0,0    0.76780 (76)      [  0.0 (1.0) ]  
+            0,1     -0.437 (33)      [  0.0 (1.0) ]  
+            1,0      0.065 (62)      [  0.0 (1.0) ]  
+            1,1       0.15 (77)      [  0.0 (1.0) ]  
+        Vno 0,0     -0.761 (34)      [  0.0 (1.0) ]  
+            0,1       0.33 (17)      [  0.0 (1.0) ]  
+            1,0       0.07 (40)      [  0.0 (1.0) ]  
+            1,1      -0.14 (97)      [  0.0 (1.0) ]  
+
+Settings:
+  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+
+Leading parameter chi2/dof [dof] = 0.56 [8]   Q = 0.8
+</pre>
+</div>
+<p>This is also fine and confirms that <tt class="docutils literal"><span class="pre">nterm=(2,2)</span></tt> marginalized fits
+are a useful, faster substitute for full fits. Indeed the simulation
+confirms that the marginalized fit is probably somewhat more accurate
+than the original fit for the oscillating-state parameters (<tt class="docutils literal"><span class="pre">Vno</span></tt>,
+<tt class="docutils literal"><span class="pre">log(Ds:ao)</span></tt>, <tt class="docutils literal"><span class="pre">log(Ds:dEo)</span></tt> &#8212; compare the simulated results with
+the <tt class="docutils literal"><span class="pre">nterm=4</span></tt> results from the original fit, as these were used to
+define <tt class="docutils literal"><span class="pre">pexact</span></tt>).</p>
+</li>
 </ul>
 </div>
 </div>
@@ -2428,6 +2665,7 @@ Partial % Errors:
 <li><a class="reference internal" href="#variations">Variations</a></li>
 <li><a class="reference internal" href="#very-fast-but-limited-fits">Very Fast (But Limited) Fits</a></li>
 <li><a class="reference internal" href="#point-correlators">3-Point Correlators</a></li>
+<li><a class="reference internal" href="#testing-fits-with-simulated-data">Testing Fits with Simulated Data</a></li>
 <li><a class="reference internal" href="#bootstrap-analyses">Bootstrap Analyses</a></li>
 <li><a class="reference internal" href="#implementation">Implementation</a></li>
 <li><a class="reference internal" href="#correlator-model-objects">Correlator Model Objects</a></li>
@@ -2474,7 +2712,7 @@ Partial % Errors:
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.6b documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

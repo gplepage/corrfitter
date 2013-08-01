@@ -58,7 +58,7 @@ import math
 import collections
 import copy
 import time
-__version__ = '3.6b'
+__version__ = '3.6'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -1238,105 +1238,8 @@ class CorrFitter(object):
 
     bootstrap_fit_iter = bootstrap_iter
     
-    def simulated_gaussian_data_iter(
-        self, n, pexact=None, data=None, prior=None, svdcut=None, svdnum=None
-        ):
-        """ Create iterator that returns simulated copies of ``data``.
 
-        A simulated copy of ``data`` has the same covariance matrix as ``data``
-        but means that fluctuate randomly, from copy to copy, around
-        the value of the fitter's fit function evaluated at ``p=pexact``. 
-        The fluctuations are Gaussian with a covariance matrix equal to 
-        that of ``data`` (possible with *SVD* cuts).
-
-        The best-fit results from a fit to a simulated copy of ``data`` should 
-        agree with the numbers in ``pexact`` to within the errors specified
-        by the fit (to the simulated data) --- ``pexact`` gives the "correct" 
-        values for the parameters. Knowing the correct value for each 
-        fit parameter ahead of a fit allows us to test the reliability of
-        the fit's error estimates and to explore the impact of various fit 
-        options (*e.g.*, ``fitter.chained_fit`` versus ``fitter.lsqfit``, 
-        choice of *SVD* cuts, omission of select models, etc.)
-
-        Typically one need examine only a few simulated fits in order 
-        to evaluate fit reliability, since we know the correct values
-        for the parameters ahead of time. Consequently this method is
-        much faster than traditional bootstrap analyses.
-
-        Parameters ``pexact``, ``data``, ``prior``, *etc.* are taken from 
-        the last fit done by the fitter (``self``) unless overridden in 
-        the call to :func:`CorrFitter.simulated_gaussian_data_iter`.
-        Typical usage is as follows::
-
-            fit = fitter.lsqfit(data=data, ...)
-            ...
-            for sdata in fitter.simulated_gaussian_data_iter(n=4):
-                # redo fit 4 times with different simulated data each time
-                # here pexact=fit.pmean is set implicitly
-                sfit = fitter.lsqfit(data=sdata, ...)
-                ... check that sfit.p (or functions of it) agress ...
-                ... with fit.pmean to within sfit.p's errors      ...
-
-        :param n: Maximum number of simulated data sets made by iterator.
-        :type n: integer
-        :param pexact: Correct parameter values for fits to the simulated 
-            data --- fit results should agree with ``pexact`` to within
-            errors. If ``None``, uses ``self.fit.pmean`` from the last fit.
-        :type pexact: dictionary of numbers
-        :param data: Correlator data. If ``None``, uses ``self.data`` from 
-            the last fit.
-        :type data: dictionary of |GVar|\s or arrays of |GVar|\s
-        :param prior: Prior for fits. If ``None``, uses ``self.fit.prior`` 
-            from the last fit.
-        :type prior: dictionary of |GVar|\s or arrays of |GVar|\s
-        :param svdcut: *SVD* cut applied to covariance matrix (from ``data``)
-            used to compute the Gaussian fluctuations about the exact 
-            correlator values. See documentation for :func:`CoffFitter.lsqfit`
-            for more information.
-        :type svdcut: None or number
-        :param svdnum: *SVD* cut applied to covariance matrix (from ``data``)
-            used to compute the Gaussian fluctuations about the exact 
-            correlator values. See documentation for :func:`CoffFitter.lsqfit`.
-        :type svdnum: None or integer
-            for more information.
-        """
-        if self.fit is not None:
-            # info from last fit if not provided
-            svdcut = self.fit.svdcut if svdcut is None else svdcut
-            svdnum = self.fit.svdnum if svdnum is None else svdnum
-            pexact = self.fit.pmean if pexact is None else pexact
-            prior = self.fit.prior if prior is None else prior
-            data = self.data if data is None else data
-        else:
-            # no last fit
-            svdcut = svdcut 
-            svdnum = svdnum
-            if pexact is None:
-                raise ValueError('must specify pexact')
-            if data is None:
-                raise ValueError('must specify data')
-            if prior is None:
-                raise ValueError('must specify prior')
-        if isinstance(svdcut, tuple):
-            svdcut = svdcut[0]
-        if isinstance(svdnum, tuple):
-            svdnum = svdnum[0]
-        priorkeys = prior.keys()
-        newdata = _gvar.BufferDict()
-        for m in self.flat_models:
-            m_data = data[m.datatag]
-            m_fcn = lsqfit.transform_p(priorkeys,0)(m.fitfcn)
-            newdata[m.datatag] = (
-                m_data + (
-                    m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None)) - 
-                    _gvar.mean(m_data)
-                    )
-                ) 
-        return _gvar.bootstrap_iter(newdata, n=n, svdcut=svdcut, svdnum=svdnum)
-
-    def simulated_bootstrap_data_iter(
-        self, n, dataset, pexact=None, prior=None, rescale=1.
-        ):
+    def simulated_data_iter(self, n, dataset, pexact=None, rescale=1.):
         """ Create iterator that returns simulated fit data from ``dataset``.
 
         Simulated fit data has the same covariance matrix as 
@@ -1358,13 +1261,17 @@ class CorrFitter(object):
         Typically one need examine only a few simulated fits in order 
         to evaluate fit reliability, since we know the correct values
         for the parameters ahead of time. Consequently this method is
-        much faster than traditional bootstrap analyses.
+        much faster than traditional bootstrap analyses. More 
+        thorough testing would involve running many simulations and
+        examining the distribution of fit parameters or functions 
+        of fit parameters around their exact values (from ``pexact``). 
+        This is overkill for most problems, however.
 
-        Parameters ``pexact`` and ``prior``, *etc.* are taken from 
-        the last fit done by the fitter (``self``) unless overridden in 
-        the call to :func:`CorrFitter.simulated_gaussian_data_iter`.
+        ``pexact`` is usually taken from the last fit done by the fitter 
+        (``self.fit.pmean``) unless overridden in the function call.
         Typical usage is as follows::
 
+            dataset = gvar.dataset.Dataset(...)
             data = gvar.dataset.avg_data(dataset)
             ...
             fit = fitter.lsqfit(data=data, ...)
@@ -1384,9 +1291,6 @@ class CorrFitter(object):
             data --- fit results should agree with ``pexact`` to within
             errors. If ``None``, uses ``self.fit.pmean`` from the last fit.
         :type pexact: dictionary of numbers
-        :param prior: Prior for fits. If ``None``, uses ``self.fit.prior`` 
-            from the last fit.
-        :type prior: dictionary of |GVar|\s or arrays of |GVar|\s
         :param rescale: Rescale errors in simulated data by ``rescale``
             (*i.e.*, multiply covariance matrix by ``rescale ** 2``).
             Default is one, which implies no rescaling.
@@ -1395,13 +1299,10 @@ class CorrFitter(object):
         if self.fit is not None:
             # info from last fit if not provided
             pexact = self.fit.pmean if pexact is None else pexact
-            prior = self.fit.prior if prior is None else prior
         else:
             # no last fit
             if pexact is None:
                 raise ValueError('must specify pexact')
-            if prior is None:
-                raise ValueError('must specify prior')
         tmpdata = _gvar.dataset.avg_data(dataset)
         # reorder data (and prune if necessary)
         data = _gvar.BufferDict()
@@ -1411,10 +1312,10 @@ class CorrFitter(object):
         datacov = _gvar.evalcov(data.buf)
         del tmpdata
         del data
-        priorkeys = prior.keys()
+        keys = pexact.keys()
         fcn_mean = _gvar.BufferDict()
         for m in self.flat_models:
-            m_fcn = lsqfit.transform_p(priorkeys,0)(m.fitfcn)
+            m_fcn = lsqfit.transform_p(keys,0)(m.fitfcn)
             fcn_mean[m.datatag] = (
                 m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None)) 
                 )

@@ -440,10 +440,9 @@ but using the best-fit parameters from the chained fit as the prior for
 the ordinary fit: for example, ::
 
         fit = fitter.chained_lsqfit(data=data, prior=prior) 
-        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-4)
+        fit = fitter.lsqfit(data=data, prior=fit.p)
 
-where we have included a larger *svd* cut in the second fit
-to avoid possible problems with roundoff errors. The second fit should,
+The second fit should,
 in principle, have no effect on the results since it adds no new
 information. In some cases, however, it polishes the results by making small
 (compared to the errors) corrections that tighten up the overall fit. It is
@@ -664,7 +663,62 @@ In this case ``Vnn`` and ``Voo`` are treated as one-dimensional arrays with
 ``N(N+1)/2`` elements corresponding to the upper parts of each matrix,
 where ``N`` is the number of exponentials (that is, the number of
 ``a[i]``\s).
-    
+
+Testing Fits with Simulated Data
+-------------------------------- 
+Large fits are complicated and often involve nontrivial choices about 
+algorithms (*e.g.*, chained fits versus regular fits), priors, and
+*svd* cuts --- choices that affect the values and errors for the fit 
+parameters. In such situations it is often a good idea to test the 
+fit protocol that has been selected. This can be done by fitting simulated
+data. Simulated data looks almost identical to the original fit
+data but has means that have been adjusted to correspond to fluctuations
+around a correlator with known (before the fit) parameter values: ``p=pexact``. 
+The |CorrFitter| iterator ``simulated_data_iter`` creates any number of
+different simulated data sets of this kind. Fitting any of these with
+a particular fit protocol tests the reliability of that protocol since
+the fit results should agree with ``pexact`` 
+to within the (simulated) fit's errors. One or two fit simulations of this
+sort are usually enough to establish the validity of a protocol. It is also
+easy to compare the performance of different fit options by applying these in
+fits of simulated data, again because we know the correct answers (``pexact``)
+ahead of time.
+
+Typically one obtains reasonable values for ``pexact`` from a fit to the 
+real data. Assuming these have been dumped into a file named ``"pexact_file"``
+(using, for example, ``fit.dump_pmean("pexact_file")``), a testing script
+might look something like::
+
+    import gvar as gv
+    import lsqfit 
+    import corrfitter
+
+    def main():
+        dataset = gv.dataset.Dataset(...)       # from original fit code
+        fitter = corrfitter.CorrFitter(         # from original fit code
+            models = make_models(...),
+            prior = make_prior(...), 
+            ...
+            )
+        n = 2                                   # number of simulations
+        pexact = lsqfit.nonlinear_fit.load_parameters("pexact_file")
+        for sdata in fitter.simulated_data_iter(n, dataset, pexact=pexact):
+            # sfit = fit to the simulated data sdata
+            sfit = fitter.lsqfit(data=sdata, p0=pexact, prior=prior, svdcut=..., ...)
+            ... check that sfit.p values agree with pexact to within sfit.psdev ...
+
+Simulated fits provide an alternative to a *bootstrap analysis* (see next 
+section). By collecting results from many simulated fits, one can test whether
+or not fit results are distributed in Gaussian distributions around ``pexact``,
+with widths that equal the standard deviations from the fit (``fit.psdev``
+or ``sfit.psdev``).
+
+Fit simulations are particularly useful for setting *svd* cuts. Given 
+a set of approximate parameter values to use for ``pexact``, it is easy
+to run fits with a range of *svd* cuts to see how small ``svdcut``
+can be made before the parameters of interest deviate too far from ``pexact``.
+
+
 Bootstrap Analyses
 ------------------
 A *bootstrap analysis* gives more robust error estimates for fit parameters
@@ -811,7 +865,7 @@ The ``main`` method follows the pattern described in :ref:`faster-fits`::
             prior = make_prior(N)               
             fit = fitter.lsqfit(data=data, prior=prior, p0=p0) 
             p0 = fit.pmean
-        print_results(fit, prior, data)  
+        print_results(fit, prior, data) 
         fitter.display_plots()
 
 The raw Monte Carlo data is in a file named ``'example.data'``. We are doing
@@ -1237,3 +1291,55 @@ Note:
   so bad):
 
   .. literalinclude:: example-marginalize.out
+
+- Test the code by adding ``test_fit(fitter, 'example.data')`` to the ``main`` 
+  program, where::
+
+    def test_fit(fitter, datafile):
+        gv.ranseed((5339893179535759510, 4088224360017966188, 7597275990505476522))
+        print('\nRandom seed:', gv.ranseed.seed)
+        dataset = gv.dataset.Dataset(datafile)
+        pexact = fitter.fit.pmean
+        prior = fitter.fit.prior
+        for sdata in fitter.simulated_data_iter(n=2, dataset=dataset, pexact=pexact):
+            print('\n============================== simulation')
+            sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact)
+            diff = []
+            # check chi**2 for leading parameters
+            for k in sfit.p: 
+                diff.append(sfit.p[k].flat[0] - pexact[k].flat[0])
+            print(
+                'Leading parameter chi2/dof [dof] = %.2f' % 
+                (gv.chi2(diff) / gv.chi2.dof),
+                '[%d]' % gv.chi2.dof, 
+                '  Q = %.1f' % gv.chi2.Q
+                )
+
+  This code does ``n=2`` simulations of the full fit, using the means of fit 
+  results from the last fit done by ``fitter`` as ``pexact``. 
+  The code prints out each fit,
+  and for each it computes the ``chi**2`` of the difference between the leading
+  parameters and ``pexact``. The output is:
+
+  .. literalinclude:: example-test1.out
+
+  This shows that the fit is working well, at least for the leading 
+  parameter for each key. 
+
+  Other options are easily checked. For example,
+  only one line need be changed in ``test_fit`` in order to test 
+  a marginalized fit::
+
+    sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact, nterm=(2,2))
+
+  Running this code gives:
+
+  .. literalinclude:: example-test2.out
+
+  This is also fine and confirms that ``nterm=(2,2)`` marginalized fits 
+  are a useful, faster substitute for full fits. Indeed the simulation 
+  confirms that the marginalized fit is probably somewhat more accurate
+  than the original fit for the oscillating-state parameters (``Vno``, 
+  ``log(Ds:ao)``, ``log(Ds:dEo)`` --- compare the simulated results with
+  the ``nterm=4`` results from the original fit, as these were used to 
+  define ``pexact``).
