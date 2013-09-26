@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -6,15 +7,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.6 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.6.1 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '3.6',
+        URL_ROOT:    '',
+        VERSION:     '3.6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.6 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.6.1 documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -43,7 +44,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.6.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -88,9 +89,9 @@ containing values for <tt class="docutils literal"><span class="pre">Gaa(t)</spa
 is a Gaussian random variable of type <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>, and specifies the mean and
 standard deviation for the corresponding data point:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;Gaa&#39;</span><span class="p">]</span>
-<span class="go">[0.159791 +- 4.13311e-06 0.0542088 +- 3.06973e-06 ... ]</span>
+<span class="go">[0.1597910(41) 0.0542088(31) ... ]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;Gab&#39;</span><span class="p">]</span>
-<span class="go">[0.156145 +- 1.83572e-05 0.102335 +- 1.5199e-05 ... ]</span>
+<span class="go">[0.156145(18) 0.102335(15) ... ]</span>
 </pre></div>
 </div>
 <p><tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s can also capture any statistical correlations between different
@@ -234,9 +235,9 @@ example, implies that <tt class="docutils literal"><span class="pre">prior['a'][
 <tt class="docutils literal"><span class="pre">a[i]</span></tt> here is set to <tt class="docutils literal"><span class="pre">0.1±0.5</span></tt>, while that for each <tt class="docutils literal"><span class="pre">b[i]</span></tt> is
 <tt class="docutils literal"><span class="pre">1±5</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">prior</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span>
-<span class="go">[0.1 +- 0.5 0.1 +- 0.5 0.1 +- 0.5 0.1 +- 0.5]</span>
+<span class="go">[0.10(50) 0.10(50) 0.10(50) 0.10(50)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">prior</span><span class="p">[</span><span class="s">&#39;b&#39;</span><span class="p">]</span>
-<span class="go">[1 +- 5 1 +- 5 1 +- 5 1 +- 5]</span>
+<span class="go">[1.0(5.0) 1.0(5.0) 1.0(5.0) 1.0(5.0)]</span>
 </pre></div>
 </div>
 <p>Similarly the <em>a priori</em> value for each energy difference is <tt class="docutils literal"><span class="pre">0.25±0.25</span></tt>.
@@ -395,6 +396,48 @@ inputs = {'loga':prior['loga'], 'b':prior['b'], 'logdE':fit.prior['logdE'],
 fitter, in addition to the exponentials of the <tt class="docutils literal"><span class="pre">'loga'</span></tt> and <tt class="docutils literal"><span class="pre">'logdE'</span></tt>
 parameters.</p>
 </div>
+<div class="section" id="faster-fits-marginalization">
+<span id="marginalized-fits"></span><h2>Faster Fits &#8212; Marginalization<a class="headerlink" href="#faster-fits-marginalization" title="Permalink to this headline">¶</a></h2>
+<p>Often we care only about parameters in the leading term of the fit function,
+or just a few of the leading terms. The non-leading terms are needed for a
+good fit, but we are uninterested in the values of their parameters. In such
+cases the non-leading terms can be absorbed into the fit data, leaving behind
+only the leading terms to be fit (to the modified fit data) &#8212; non-leading
+parameters are, in effect, integrated out of the analysis, or <em>marginalized</em>.
+The errors in the modified data are adjusted to account for uncertainties in
+the marginalized terms, as specified by their priors. The resulting fit
+function has many fewer parameters, and so the fit can be much faster.</p>
+<p>Continuing with the example in <a class="reference internal" href="#faster-fits"><em>Faster Fits</em></a>, imagine that <tt class="docutils literal"><span class="pre">Nmax=8</span></tt>
+terms are needed to get a good fit, but we only care about parameter values
+for the first couple of terms. The code from that section can be modified to
+fit only the leading <tt class="docutils literal"><span class="pre">N</span></tt> terms where <tt class="docutils literal"><span class="pre">N&lt;Nmax</span></tt>, while incorporating
+(marginalizing) the remaining, non-leading terms as corrections to the data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Nmax</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;mcfile&#39;</span><span class="p">)</span>
+<span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">()</span>
+<span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
+<span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">Nmax</span><span class="p">)</span>        <span class="c"># build priors for Nmax terms</span>
+<span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]:</span>
+    <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">)</span> <span class="c"># fit N terms</span>
+    <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
+</pre></div>
+</div>
+<p>Here the <tt class="docutils literal"><span class="pre">nterm</span></tt> parameter in <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt> specifies how many terms are
+used in the fit functions. The prior specifies <tt class="docutils literal"><span class="pre">Nmax</span></tt> terms in all, but only
+parameters in <tt class="docutils literal"><span class="pre">nterm=N</span></tt> terms are varied in the fit. The remaining terms
+specified by the prior are automatically incorporated into the fit data by
+<a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a>.</p>
+<p>Remarkably this method is usually as accurate with <tt class="docutils literal"><span class="pre">N=1</span></tt> or <tt class="docutils literal"><span class="pre">2</span></tt> as a full
+<tt class="docutils literal"><span class="pre">Nmax</span></tt>-term fit with the original fit data; but it is much faster. If this
+is not the case, check for singular priors, where the mean is much smaller
+than the standard deviation. These can lead to singularities in the covariance
+matrix for the corrected fit data. Such priors are easily fixed: for example,
+use <tt class="docutils literal"><span class="pre">gvar.gvar(0.1,1.)</span></tt> rather than <tt class="docutils literal"><span class="pre">gvar.gvar(0.0,1.)</span></tt>.
+In some situations an <em>svd</em> cut (see below) can also
+help.</p>
+</div>
 <div class="section" id="faster-fits-chained-fits">
 <span id="chained-fits"></span><h2>Faster Fits &#8212; Chained Fits<a class="headerlink" href="#faster-fits-chained-fits" title="Permalink to this headline">¶</a></h2>
 <p>Large complicated fits, where lots of models and data are fit simultaneously,
@@ -402,15 +445,14 @@ can  take a very long time. This is especially true if there are strong
 correlations in the data. Such correlations can also cause  problems from
 numerical roundoff errors when the inverse of the data&#8217;s covariance matrix is
 computed for the <tt class="docutils literal"><span class="pre">chi**2</span></tt> function, requiring large <em>svd</em> cuts which can
-degrade precision (see below). An alternative approach, that often leads to
-more robust and faster fits, is to used <em>chained</em> fits.  In a chained fit,
-each model is fit by itself in sequence, but with the best-fit parameters from
-each fit serving as priors for fit parameters in  the next fit. All parameters
-from one fit become fit parameters in the next, including those parameters
-that are  not explicitly needed by the next fit (since they may be correlated
-with the input data for the next fit or with its priors). Statistical
-correlations between data/priors from different models are preserved
-throughout (this is essential to the method).</p>
+degrade precision (see below). An alternative approach is to use <em>chained</em>
+fits.  In a chained fit, each model is fit by itself in sequence, but with the
+best-fit parameters from each fit serving as priors for fit parameters in  the
+next fit. All parameters from one fit become fit parameters in the next,
+including those parameters that are  not explicitly needed by the next fit
+(since they may be correlated with the input data for the next fit or with its
+priors). Statistical  correlations between data/priors from different models
+are preserved  throughout (approximately).</p>
 <p>The results from a chained fit are identical to a standard simultaneous fit in
 the limit of large statistics (that is, in the Gaussian limit), but a  chained
 fit never involves fitting more than a single correlator at a time.
@@ -462,48 +504,6 @@ generally fairly fast since the prior (<tt class="docutils literal"><span class=
 It is also possible to polish fits using <tt class="docutils literal"><span class="pre">fitter.chained_lsqfit</span></tt>, with
 parameters <tt class="docutils literal"><span class="pre">parallel=True</span></tt> and <tt class="docutils literal"><span class="pre">flat=True</span></tt>, rather than using
 <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt>. This can be faster for very large fits.</p>
-</div>
-<div class="section" id="faster-fits-marginalization">
-<span id="marginalized-fits"></span><h2>Faster Fits &#8212; Marginalization<a class="headerlink" href="#faster-fits-marginalization" title="Permalink to this headline">¶</a></h2>
-<p>Often we care only about parameters in the leading term of the fit function,
-or just a few of the leading terms. The non-leading terms are needed for a
-good fit, but we are uninterested in the values of their parameters. In such
-cases the non-leading terms can be absorbed into the fit data, leaving behind
-only the leading terms to be fit (to the modified fit data) &#8212; non-leading
-parameters are, in effect, integrated out of the analysis, or <em>marginalized</em>.
-The errors in the modified data are adjusted to account for uncertainties in
-the marginalized terms, as specified by their priors. The resulting fit
-function has many fewer parameters, and so the fit can be much faster.</p>
-<p>Continuing with the example in <a class="reference internal" href="#faster-fits"><em>Faster Fits</em></a>, imagine that <tt class="docutils literal"><span class="pre">Nmax=8</span></tt>
-terms are needed to get a good fit, but we only care about parameter values
-for the first couple of terms. The code from that section can be modified to
-fit only the leading <tt class="docutils literal"><span class="pre">N</span></tt> terms where <tt class="docutils literal"><span class="pre">N&lt;Nmax</span></tt>, while incorporating
-(marginalizing) the remaining, non-leading terms as corrections to the data:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">Nmax</span> <span class="o">=</span> <span class="mi">8</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;mcfile&#39;</span><span class="p">)</span>
-<span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">()</span>
-<span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
-<span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">Nmax</span><span class="p">)</span>        <span class="c"># build priors for Nmax terms</span>
-<span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
-<span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]:</span>
-    <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">)</span> <span class="c"># fit N terms</span>
-    <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-    <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
-</pre></div>
-</div>
-<p>Here the <tt class="docutils literal"><span class="pre">nterm</span></tt> parameter in <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt> specifies how many terms are
-used in the fit functions. The prior specifies <tt class="docutils literal"><span class="pre">Nmax</span></tt> terms in all, but only
-parameters in <tt class="docutils literal"><span class="pre">nterm=N</span></tt> terms are varied in the fit. The remaining terms
-specified by the prior are automatically incorporated into the fit data by
-<a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a>.</p>
-<p>Remarkably this method is often as accurate with <tt class="docutils literal"><span class="pre">N=1</span></tt> or <tt class="docutils literal"><span class="pre">2</span></tt> as a full
-<tt class="docutils literal"><span class="pre">Nmax</span></tt>-term fit with the original fit data; but it is much faster. If this
-is not the case, check for singular priors, where the mean is much smaller
-than the standard deviation. These can lead to singularities in the covariance
-matrix for the corrected fit data. Such priors are easily fixed: for example,
-use <tt class="docutils literal"><span class="pre">gvar.gvar(0.1,1.)</span></tt> rather than <tt class="docutils literal"><span class="pre">gvar.gvar(0.0,1.)</span></tt>.
-In some situations an <em>svd</em> cut (see below) can also
-help.</p>
 </div>
 <div class="section" id="variations">
 <h2>Variations<a class="headerlink" href="#variations" title="Permalink to this headline">¶</a></h2>
@@ -1083,19 +1083,30 @@ all terms.</p>
 
 <dl class="class">
 <dt id="corrfitter.BaseModel">
-<em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">BaseModel</tt><big>(</big><em>datatag</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">corrfitter.</tt><tt class="descname">BaseModel</tt><big>(</big><em>datatag</em>, <em>othertags=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#corrfitter.BaseModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for correlator models.</p>
 <p>Derived classes must define methods <tt class="docutils literal"><span class="pre">fitfcn</span></tt>, <tt class="docutils literal"><span class="pre">buildprior</span></tt>, and 
 <tt class="docutils literal"><span class="pre">builddata</span></tt>, all of which are described below. In addition they
 can have attributes:</p>
-<dl class="attribute">
+<blockquote>
+<div><dl class="attribute">
 <dt id="BaseModel.datatag">
 <tt class="descname">datatag</tt><a class="headerlink" href="#BaseModel.datatag" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a> builds fit data for the correlator by extracting the
+<dd><p><a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></tt></a> builds fit data for the correlator by extracting the
 data in an input <tt class="xref py py-class docutils literal"><span class="pre">gvar.dataset.Dataset</span></tt> labelled by string <tt class="docutils literal"><span class="pre">datatag</span></tt>. This
 label is stored in the <tt class="docutils literal"><span class="pre">BaseModel</span></tt> and must be passed to its
-constructor.</div></blockquote>
+constructor.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="BaseModel.all_datatags">
+<tt class="descname">all_datatags</tt><a class="headerlink" href="#BaseModel.all_datatags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Models can specify more than one set of fit data to use in fitting.
+The list of all the datatags used is <tt class="docutils literal"><span class="pre">self.all_datatags</span></tt>. The 
+first entry is always <tt class="docutils literal"><span class="pre">self.datatag</span></tt>; the other entries are
+from <tt class="docutils literal"><span class="pre">othertags</span></tt>.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="BaseModel._abscissa">
 <tt class="descname">_abscissa</tt><a class="headerlink" href="#BaseModel._abscissa" title="Permalink to this definition">¶</a></dt>
@@ -1104,8 +1115,7 @@ fit corresponding to the model. Plots are not made for a model that
 doesn&#8217;t specify this attribute.</p>
 </dd></dl>
 
-</dd></dl>
-
+</div></blockquote>
 <dl class="method">
 <dt id="corrfitter.BaseModel.builddata">
 <tt class="descname">builddata</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#corrfitter.BaseModel.builddata" title="Permalink to this definition">¶</a></dt>
@@ -1763,13 +1773,9 @@ format:</p>
 individual lines in <tt class="docutils literal"><span class="pre">example.data</span></tt>: for example,</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;example.data&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;Ds&#39;</span><span class="p">])</span>
-<span class="go">[0.230715 +- 7.29014e-06 0.0446523 +- 3.20528e-06 0.00899232 +- 1.48815e-06</span>
-<span class="go"> ...</span>
-<span class="go"> 0.0446527 +- 3.17288e-06]</span>
+<span class="go">[0.2307150(73) 0.0446523(32) 0.0089923(15) ... 0.0446527(32)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;3ptT16&#39;</span><span class="p">])</span>
-<span class="go">[1.45833e-10 +- 2.07244e-13 3.36392e-10 +- 4.39267e-13</span>
-<span class="go"> ...</span>
-<span class="go"> 2.3155e-05 +- 3.03965e-08]</span>
+<span class="go">[1.4583(21)e-10 3.3639(44)e-10 ... 0.000023155(30)]</span>
 </pre></div>
 </div>
 <p>Here each entry in <tt class="docutils literal"><span class="pre">data</span></tt> is an array of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s representing the Monte
@@ -1873,7 +1879,7 @@ variable, specified by an object of type  <tt class="xref py py-class docutils l
 <tt class="docutils literal"><span class="pre">gvar.gvar()</span></tt> can make a list of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s from a list of strings of the form
 <tt class="docutils literal"><span class="pre">'0.1(1)'</span></tt>: for example,</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">([</span><span class="s">&#39;1(2)&#39;</span><span class="p">,</span> <span class="s">&#39;3(2)&#39;</span><span class="p">]))</span>
-<span class="go">[1 +- 2 3 +- 2]</span>
+<span class="go">[1.0(2.0) 3.0(2.0)]</span>
 </pre></div>
 </div>
 <p>In this particular fit, we can assume that all the sinks/sources
@@ -1907,7 +1913,7 @@ verify that simulations gives correct masses.</p>
 of <tt class="docutils literal"><span class="pre">Vnn</span></tt>; it is one of the most succinct ways of creating a large number of
 <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s. The latter creates only a single <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt> and uses it repeatedly for
 every element <tt class="docutils literal"><span class="pre">Vnn</span></tt>, thereby forcing every element of <tt class="docutils literal"><span class="pre">Vnn</span></tt>  to be equal
-to every other element in the fit (since the difference between any two of
+to every other element when fitting (since the difference between any two of
 their priors is <tt class="docutils literal"><span class="pre">0±0</span></tt>); it is almost certainly not what is desired.
 Usually one wants to create the array of strings first, and then convert it to
 <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s using <tt class="docutils literal"><span class="pre">gvar.gvar()</span></tt>.</p>
@@ -1923,26 +1929,26 @@ for the fit parameters from the last fit:</p>
     # etas
     E_etas = np.cumsum(p['etas:dE'])
     a_etas = p['etas:a'])
-    print('  Eetas:', ' '.join(gv.fmt(E_etas[:3])))
-    print('  aetas:', ' '.join(gv.fmt(a_etas[:3])))
+    print('  Eetas:', E_etas[:3])
+    print('  aetas:', a_etas[:3])
 
     # Ds
     E_Ds = np.cumsum(p['Ds:dE'])
     a_Ds = p['Ds:a'])
-    print('\n  EDs:', ' '.join(gv.fmt(E_Ds[:3])))
-    print(  '  aDs:', ' '.join(gv.fmt(a_Ds[:3])))
+    print('\n  EDs:', E_Ds[:3])
+    print(  '  aDs:', a_Ds[:3])
 
     # Dso -- oscillating piece
     E_Dso = np.cumsum(p['Ds:dEo'])
     a_Dso = p['Ds:ao']
-    print('\n  EDso:', ' '.join(gv.fmt(E_Dso[:3])))
-    print(  '  aDso:', ' '.join(gv.fmt(a_Dso[:3])))
+    print('\n  EDso:', E_Dso[:3])
+    print(  '  aDso:', a_Dso[:3])
 
     # V
     Vnn = p['Vnn']
     Vno = p['Vno']
-    print('\n  etas-&gt;V-&gt;Ds:', Vnn[0, 0].fmt())
-    print('  etas-&gt;V-&gt;Dso:', Vno[0, 0].fmt())
+    print('\n  etas-&gt;V-&gt;Ds:', Vnn[0, 0])
+    print('  etas-&gt;V-&gt;Dso:', Vno[0, 0])
 
     # error budget
     outputs = gv.BufferDict()
@@ -1965,19 +1971,16 @@ for the fit parameters from the last fit:</p>
 <p>The best-fit parameter values are stored in dictionary <tt class="docutils literal"><span class="pre">p=fit.transformed_p</span></tt>,
 as are the exponentials of the log-normal parameters.
 We also turn energy differences into energies using <tt class="xref py py-mod docutils literal"><span class="pre">numpy</span></tt>&#8216;s cummulative
-sum function <tt class="xref py py-func docutils literal"><span class="pre">numpy.cumsum()</span></tt>. We use <tt class="xref py py-func docutils literal"><span class="pre">gvar.fmt()</span></tt> to convert arrays
-of <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s into arrays of strings representing those Gaussian variables
-with the format, for example, <tt class="docutils literal"><span class="pre">1.55(41)</span></tt>; and we use <tt class="xref py py-func docutils literal"><span class="pre">join()</span></tt> to join
-these into a single output string. The final output is:</p>
+sum function <tt class="xref py py-func docutils literal"><span class="pre">numpy.cumsum()</span></tt>. The final output is:</p>
 <div class="highlight-python"><pre>Fit results:
-  Eetas: 0.41619(12) 1.007(89) 1.43(34)
-  aetas: 0.21834(16) 0.170(74) 0.30(12)
+  Eetas: [0.41619(12) 1.007(89) 1.43(34)]
+  aetas: [0.21834(16) 0.170(74) 0.30(12)]
 
-  EDs: 1.20166(16) 1.704(17) 2.29(20)
-  aDs: 0.21466(20) 0.275(20) 0.52(20)
+  EDs: [1.20166(16) 1.704(17) 2.29(20)]
+  aDs: [0.21466(20) 0.275(20) 0.52(20)]
 
-  EDso: 1.442(16) 1.65(11) 2.17(44)
-  aDso: 0.0634(90) 0.080(26) 0.116(93)
+  EDso: [1.442(16) 1.65(11) 2.17(44)]
+  aDso: [0.0634(90) 0.080(26) 0.116(93)]
 
   etas-&gt;V-&gt;Ds  = 0.76725(76)
   etas-&gt;V-&gt;Dso = -0.793(92)</pre>
@@ -2177,14 +2180,14 @@ Settings:
   svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
 
 Fit results:
-  Eetas: 0.41619(12) 1.007(89) 1.43(34)
-  aetas: 0.21834(16) 0.170(74) 0.30(12)
+  Eetas: [0.41619(12) 1.007(89) 1.43(34)]
+  aetas: [0.21834(16) 0.170(74) 0.30(12)]
 
-  EDs: 1.20166(16) 1.704(17) 2.29(20)
-  aDs: 0.21466(20) 0.275(20) 0.52(20)
+  EDs: [1.20166(16) 1.704(17) 2.29(20)]
+  aDs: [0.21466(20) 0.275(20) 0.52(20)]
 
-  EDso: 1.442(16) 1.65(11) 2.17(44)
-  aDso: 0.0634(90) 0.080(26) 0.116(93)
+  EDso: [1.442(16) 1.65(11) 2.17(44)]
+  aDso: [0.0634(90) 0.080(26) 0.116(93)]
 
   etas-&gt;V-&gt;Ds  = 0.76725(76)
   etas-&gt;V-&gt;Dso = -0.793(92)
@@ -2588,7 +2591,7 @@ Parameters:
             1,1       0.72 (73)      [  0.0 (1.0) ]  
         Vno 0,0     -0.755 (29)      [  0.0 (1.0) ]  
             0,1       0.37 (16)      [  0.0 (1.0) ]  
-            1,0      -0.07 (40)      [  0.0 (1.0) ]  
+            1,0    -0.067 (398)      [  0.0 (1.0) ]  
             1,1       0.27 (96)      [  0.0 (1.0) ]  
 
 Settings:
@@ -2619,7 +2622,7 @@ Parameters:
             1,1       0.15 (77)      [  0.0 (1.0) ]  
         Vno 0,0     -0.761 (34)      [  0.0 (1.0) ]  
             0,1       0.33 (17)      [  0.0 (1.0) ]  
-            1,0       0.07 (40)      [  0.0 (1.0) ]  
+            1,0     0.071 (399)      [  0.0 (1.0) ]  
             1,1      -0.14 (97)      [  0.0 (1.0) ]  
 
 Settings:
@@ -2630,7 +2633,7 @@ Leading parameter chi2/dof [dof] = 0.56 [8]   Q = 0.8
 </div>
 <p>This is also fine and confirms that <tt class="docutils literal"><span class="pre">nterm=(2,2)</span></tt> marginalized fits
 are a useful, faster substitute for full fits. Indeed the simulation
-confirms that the marginalized fit is probably somewhat more accurate
+suggests that the marginalized fit is somewhat more accurate
 than the original fit for the oscillating-state parameters (<tt class="docutils literal"><span class="pre">Vno</span></tt>,
 <tt class="docutils literal"><span class="pre">log(Ds:ao)</span></tt>, <tt class="docutils literal"><span class="pre">log(Ds:dEo)</span></tt> &#8212; compare the simulated results with
 the <tt class="docutils literal"><span class="pre">nterm=4</span></tt> results from the original fit, as these were used to
@@ -2660,8 +2663,8 @@ define <tt class="docutils literal"><span class="pre">pexact</span></tt>).</p>
 </li>
 <li><a class="reference internal" href="#faster-fits">Faster Fits</a></li>
 <li><a class="reference internal" href="#faster-fits-postive-parameters">Faster Fits &#8212; Postive Parameters</a></li>
-<li><a class="reference internal" href="#faster-fits-chained-fits">Faster Fits &#8212; Chained Fits</a></li>
 <li><a class="reference internal" href="#faster-fits-marginalization">Faster Fits &#8212; Marginalization</a></li>
+<li><a class="reference internal" href="#faster-fits-chained-fits">Faster Fits &#8212; Chained Fits</a></li>
 <li><a class="reference internal" href="#variations">Variations</a></li>
 <li><a class="reference internal" href="#very-fast-but-limited-fits">Very Fast (But Limited) Fits</a></li>
 <li><a class="reference internal" href="#point-correlators">3-Point Correlators</a></li>
@@ -2712,12 +2715,12 @@ define <tt class="docutils literal"><span class="pre">pexact</span></tt>).</p>
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.6.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010-12, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

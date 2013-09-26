@@ -11,16 +11,28 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version 3.6.1 - 2013-09-26
+==========================
+
+- Fixed bug in CorrFitter causing it sometimes to ignore othertags in models.
+
+- Added attribute all_datatags to models. This is a list containing the
+  datatag and any tags included in othertags.
+
+- Changes to correct test and example output for changes introduced in 
+  lsqfit v4.5.2.
+
+
 Version 3.6 - 2013-07-31
 ===================================
 This release adds a new procedure for testing fits: simulated data. Simulated
 data is created from real data by adjusting the mean values to correspond 
 to fluctuations around correlators computed with know parameters, p=pexact.
 This means that fits to simulated data should behave quite similarly to the
-original fits, but for simulated data we know what the correct answer should
-be for every parameter. This provides a very flexible tool for assessing 
+original fits, but for simulated data we know what the correct answer is
+for every parameter. This provides a very flexible tool for assessing 
 the reliability of a fit and for testing variations on the original fits.
-See CorrFitter.simulated_bootstrap_data_iter. Note that this procedure 
+See CorrFitter.simulated_data_iter. Note that this procedure 
 seems superficially similar to bootstrap analysis but it is really quite
 different, very much faster and much more useful.
 

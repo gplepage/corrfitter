@@ -98,20 +98,20 @@ def print_results(fit, prior, data):
     # etas
     E_etas = np.cumsum(gv.exp(fit.p['log(etas:dE)']))
     a_etas = gv.exp(fit.p['log(etas:a)'])
-    print('  Eetas:', ' '.join(gv.fmt(E_etas[:3])))
-    print('  aetas:', ' '.join(gv.fmt(a_etas[:3])))
+    print('  Eetas:', E_etas[:3])
+    print('  aetas:', a_etas[:3])
 
     # Ds
     E_Ds = np.cumsum(gv.exp(fit.p['log(Ds:dE)']))
     a_Ds = gv.exp(fit.p['log(Ds:a)'])
-    print('\n  EDs:', ' '.join(gv.fmt(E_Ds[:3])))
-    print(  '  aDs:', ' '.join(gv.fmt(a_Ds[:3])))
+    print('\n  EDs:', E_Ds[:3])
+    print(  '  aDs:', a_Ds[:3])
 
     # Dso -- oscillating piece
     E_Dso = np.cumsum(gv.exp(fit.p['log(Ds:dEo)']))
     a_Dso = gv.exp(fit.p['log(Ds:ao)'])
-    print('\n  EDso:', ' '.join(gv.fmt(E_Dso[:3])))
-    print(  '  aDso:', ' '.join(gv.fmt(a_Dso[:3])))
+    print('\n  EDso:', E_Dso[:3])
+    print(  '  aDso:', a_Dso[:3])
 
     # V
     Vnn = fit.p['Vnn']

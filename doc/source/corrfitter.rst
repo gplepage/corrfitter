@@ -48,9 +48,9 @@ is a Gaussian random variable of type |GVar|, and specifies the mean and
 standard deviation for the corresponding data point::
         
     >>> print data['Gaa']
-    [0.159791 +- 4.13311e-06 0.0542088 +- 3.06973e-06 ... ]
+    [0.1597910(41) 0.0542088(31) ... ]
     >>> print data['Gab']
-    [0.156145 +- 1.83572e-05 0.102335 +- 1.5199e-05 ... ]
+    [0.156145(18) 0.102335(15) ... ]
         
 |GVar|\s can also capture any statistical correlations between different
 pieces of data.
@@ -200,9 +200,9 @@ example, implies that ``prior['a'][i]``, ``prior['b'][i]`` and
 ``1±5``::
         
     >>> print prior['a']
-    [0.1 +- 0.5 0.1 +- 0.5 0.1 +- 0.5 0.1 +- 0.5]
+    [0.10(50) 0.10(50) 0.10(50) 0.10(50)]
     >>> print prior['b']
-    [1 +- 5 1 +- 5 1 +- 5 1 +- 5]
+    [1.0(5.0) 1.0(5.0) 1.0(5.0) 1.0(5.0)]
         
 Similarly the *a priori* value for each energy difference is ``0.25±0.25``.
 (See the :mod:`lsqfit` documentation for further information on priors.)
@@ -375,6 +375,52 @@ Here ``fit.transformed_p`` contains the best-fit parameter values from the
 fitter, in addition to the exponentials of the ``'loga'`` and ``'logdE'``
 parameters.
 
+.. _marginalized-fits:
+
+Faster Fits --- Marginalization
+-------------------------------       
+Often we care only about parameters in the leading term of the fit function,
+or just a few of the leading terms. The non-leading terms are needed for a
+good fit, but we are uninterested in the values of their parameters. In such
+cases the non-leading terms can be absorbed into the fit data, leaving behind
+only the leading terms to be fit (to the modified fit data) --- non-leading
+parameters are, in effect, integrated out of the analysis, or *marginalized*.
+The errors in the modified data are adjusted to account for uncertainties in
+the marginalized terms, as specified by their priors. The resulting fit
+function has many fewer parameters, and so the fit can be much faster.
+        
+Continuing with the example in :ref:`faster-fits`, imagine that ``Nmax=8``
+terms are needed to get a good fit, but we only care about parameter values
+for the first couple of terms. The code from that section can be modified to
+fit only the leading ``N`` terms where ``N<Nmax``, while incorporating
+(marginalizing) the remaining, non-leading terms as corrections to the data::
+        
+    Nmax = 8
+    data = make_data('mcfile')  
+    models = make_models()
+    fitter = CorrFitter(models=make_models()) 
+    prior = make_prior(Nmax)        # build priors for Nmax terms
+    p0 = None
+    for N in [1,2,3]:
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, nterm=N) # fit N terms
+        print_results(fit, prior, data)
+        p0 = fit.pmean
+        
+Here the ``nterm`` parameter in ``fitter.lsqfit`` specifies how many terms are
+used in the fit functions. The prior specifies ``Nmax`` terms in all, but only
+parameters in ``nterm=N`` terms are varied in the fit. The remaining terms
+specified by the prior are automatically incorporated into the fit data by
+|CorrFitter|.
+        
+Remarkably this method is usually as accurate with ``N=1`` or ``2`` as a full
+``Nmax``-term fit with the original fit data; but it is much faster. If this
+is not the case, check for singular priors, where the mean is much smaller
+than the standard deviation. These can lead to singularities in the covariance
+matrix for the corrected fit data. Such priors are easily fixed: for example,
+use ``gvar.gvar(0.1,1.)`` rather than ``gvar.gvar(0.0,1.)``. 
+In some situations an *svd* cut (see below) can also
+help.
+
 .. _chained-fits:
 
 Faster Fits --- Chained Fits
@@ -384,15 +430,14 @@ can  take a very long time. This is especially true if there are strong
 correlations in the data. Such correlations can also cause  problems from
 numerical roundoff errors when the inverse of the data's covariance matrix is
 computed for the ``chi**2`` function, requiring large *svd* cuts which can
-degrade precision (see below). An alternative approach, that often leads to
-more robust and faster fits, is to used *chained* fits.  In a chained fit,
-each model is fit by itself in sequence, but with the best-fit parameters from
-each fit serving as priors for fit parameters in  the next fit. All parameters
-from one fit become fit parameters in the next, including those parameters
-that are  not explicitly needed by the next fit (since they may be correlated
-with the input data for the next fit or with its priors). Statistical 
-correlations between data/priors from different models are preserved 
-throughout (this is essential to the method).
+degrade precision (see below). An alternative approach is to use *chained*
+fits.  In a chained fit, each model is fit by itself in sequence, but with the
+best-fit parameters from each fit serving as priors for fit parameters in  the
+next fit. All parameters from one fit become fit parameters in the next,
+including those parameters that are  not explicitly needed by the next fit
+(since they may be correlated with the input data for the next fit or with its
+priors). Statistical  correlations between data/priors from different models
+are preserved  throughout (approximately).
 
 The results from a chained fit are identical to a standard simultaneous fit in
 the limit of large statistics (that is, in the Gaussian limit), but a  chained
@@ -451,51 +496,6 @@ It is also possible to polish fits using ``fitter.chained_lsqfit``, with
 parameters ``parallel=True`` and ``flat=True``, rather than using
 ``fitter.lsqfit``. This can be faster for very large fits.
 
-.. _marginalized-fits:
-
-Faster Fits --- Marginalization
--------------------------------       
-Often we care only about parameters in the leading term of the fit function,
-or just a few of the leading terms. The non-leading terms are needed for a
-good fit, but we are uninterested in the values of their parameters. In such
-cases the non-leading terms can be absorbed into the fit data, leaving behind
-only the leading terms to be fit (to the modified fit data) --- non-leading
-parameters are, in effect, integrated out of the analysis, or *marginalized*.
-The errors in the modified data are adjusted to account for uncertainties in
-the marginalized terms, as specified by their priors. The resulting fit
-function has many fewer parameters, and so the fit can be much faster.
-        
-Continuing with the example in :ref:`faster-fits`, imagine that ``Nmax=8``
-terms are needed to get a good fit, but we only care about parameter values
-for the first couple of terms. The code from that section can be modified to
-fit only the leading ``N`` terms where ``N<Nmax``, while incorporating
-(marginalizing) the remaining, non-leading terms as corrections to the data::
-        
-    Nmax = 8
-    data = make_data('mcfile')  
-    models = make_models()
-    fitter = CorrFitter(models=make_models()) 
-    prior = make_prior(Nmax)        # build priors for Nmax terms
-    p0 = None
-    for N in [1,2,3]:
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, nterm=N) # fit N terms
-        print_results(fit, prior, data)
-        p0 = fit.pmean
-        
-Here the ``nterm`` parameter in ``fitter.lsqfit`` specifies how many terms are
-used in the fit functions. The prior specifies ``Nmax`` terms in all, but only
-parameters in ``nterm=N`` terms are varied in the fit. The remaining terms
-specified by the prior are automatically incorporated into the fit data by
-|CorrFitter|.
-        
-Remarkably this method is often as accurate with ``N=1`` or ``2`` as a full
-``Nmax``-term fit with the original fit data; but it is much faster. If this
-is not the case, check for singular priors, where the mean is much smaller
-than the standard deviation. These can lead to singularities in the covariance
-matrix for the corrected fit data. Such priors are easily fixed: for example,
-use ``gvar.gvar(0.1,1.)`` rather than ``gvar.gvar(0.0,1.)``. 
-In some situations an *svd* cut (see below) can also
-help.
       
 
 Variations
@@ -932,13 +932,9 @@ individual lines in ``example.data``: for example, ::
 
     >>> data = make_data('example.data')
     >>> print(data['Ds'])
-    [0.230715 +- 7.29014e-06 0.0446523 +- 3.20528e-06 0.00899232 +- 1.48815e-06
-     ...
-     0.0446527 +- 3.17288e-06]
+    [0.2307150(73) 0.0446523(32) 0.0089923(15) ... 0.0446527(32)]
     >>> print(data['3ptT16'])
-    [1.45833e-10 +- 2.07244e-13 3.36392e-10 +- 4.39267e-13
-     ...
-     2.3155e-05 +- 3.03965e-08]
+    [1.4583(21)e-10 3.3639(44)e-10 ... 0.000023155(30)]
 
 Here each entry in ``data`` is an array of |GVar|\s representing the Monte
 Carlo estimates (mean and covariance) for the corresponding correlator. This 
@@ -1043,7 +1039,7 @@ variable, specified by an object of type  |GVar|. Here we use the fact that
 ``'0.1(1)'``: for example, ::
 
     >>> print(gv.gvar(['1(2)', '3(2)']))
-    [1 +- 2 3 +- 2]
+    [1.0(2.0) 3.0(2.0)]
 
 In this particular fit, we can assume that all the sinks/sources
 are positive, and we can require that the energy differences be positive. To
@@ -1078,7 +1074,7 @@ The former creates ``N ** 2`` independent |GVar|\s, with one for each element
 of ``Vnn``; it is one of the most succinct ways of creating a large number of
 |GVar|\s. The latter creates only a single |GVar| and uses it repeatedly for
 every element ``Vnn``, thereby forcing every element of ``Vnn``  to be equal
-to every other element in the fit (since the difference between any two of
+to every other element when fitting (since the difference between any two of
 their priors is ``0±0``); it is almost certainly not what is desired.
 Usually one wants to create the array of strings first, and then convert it to
 |GVar|\s using ``gvar.gvar()``.
@@ -1095,26 +1091,26 @@ for the fit parameters from the last fit::
         # etas
         E_etas = np.cumsum(p['etas:dE'])
         a_etas = p['etas:a'])
-        print('  Eetas:', ' '.join(gv.fmt(E_etas[:3])))
-        print('  aetas:', ' '.join(gv.fmt(a_etas[:3])))
+        print('  Eetas:', E_etas[:3])
+        print('  aetas:', a_etas[:3])
 
         # Ds
         E_Ds = np.cumsum(p['Ds:dE'])
         a_Ds = p['Ds:a'])
-        print('\n  EDs:', ' '.join(gv.fmt(E_Ds[:3])))
-        print(  '  aDs:', ' '.join(gv.fmt(a_Ds[:3])))
+        print('\n  EDs:', E_Ds[:3])
+        print(  '  aDs:', a_Ds[:3])
 
         # Dso -- oscillating piece
         E_Dso = np.cumsum(p['Ds:dEo'])
         a_Dso = p['Ds:ao']
-        print('\n  EDso:', ' '.join(gv.fmt(E_Dso[:3])))
-        print(  '  aDso:', ' '.join(gv.fmt(a_Dso[:3])))
+        print('\n  EDso:', E_Dso[:3])
+        print(  '  aDso:', a_Dso[:3])
 
         # V
         Vnn = p['Vnn']
         Vno = p['Vno']
-        print('\n  etas->V->Ds:', Vnn[0, 0].fmt())
-        print('  etas->V->Dso:', Vno[0, 0].fmt())
+        print('\n  etas->V->Ds:', Vnn[0, 0])
+        print('  etas->V->Dso:', Vno[0, 0])
 
         # error budget
         outputs = gv.BufferDict()
@@ -1137,20 +1133,17 @@ for the fit parameters from the last fit::
 The best-fit parameter values are stored in dictionary ``p=fit.transformed_p``,
 as are the exponentials of the log-normal parameters.
 We also turn energy differences into energies using :mod:`numpy`'s cummulative
-sum function :func:`numpy.cumsum`. We use :func:`gvar.fmt` to convert arrays
-of |GVar|\s into arrays of strings representing those Gaussian variables
-with the format, for example, ``1.55(41)``; and we use :func:`join` to join
-these into a single output string. The final output is::
+sum function :func:`numpy.cumsum`. The final output is::
 
     Fit results:
-      Eetas: 0.41619(12) 1.007(89) 1.43(34)
-      aetas: 0.21834(16) 0.170(74) 0.30(12)
+      Eetas: [0.41619(12) 1.007(89) 1.43(34)]
+      aetas: [0.21834(16) 0.170(74) 0.30(12)]
 
-      EDs: 1.20166(16) 1.704(17) 2.29(20)
-      aDs: 0.21466(20) 0.275(20) 0.52(20)
+      EDs: [1.20166(16) 1.704(17) 2.29(20)]
+      aDs: [0.21466(20) 0.275(20) 0.52(20)]
 
-      EDso: 1.442(16) 1.65(11) 2.17(44)
-      aDso: 0.0634(90) 0.080(26) 0.116(93)
+      EDso: [1.442(16) 1.65(11) 2.17(44)]
+      aDso: [0.0634(90) 0.080(26) 0.116(93)]
 
       etas->V->Ds  = 0.76725(76)
       etas->V->Dso = -0.793(92)
@@ -1338,7 +1331,7 @@ Note:
 
   This is also fine and confirms that ``nterm=(2,2)`` marginalized fits 
   are a useful, faster substitute for full fits. Indeed the simulation 
-  confirms that the marginalized fit is probably somewhat more accurate
+  suggests that the marginalized fit is somewhat more accurate
   than the original fit for the oscillating-state parameters (``Vno``, 
   ``log(Ds:ao)``, ``log(Ds:dEo)`` --- compare the simulated results with
   the ``nterm=4`` results from the original fit, as these were used to 

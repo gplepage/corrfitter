@@ -147,7 +147,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         caller_func = eval("test_corr2."+caller_name)
         return caller_func.__doc__
     ##
-    def mkcorr(self,a, b, dE, tp=None, othertags=None, s=1.):
+    def mkcorr(self,a, b, dE, tp=None, othertags=[], s=1.):
         ans = Corr2(datatag=self.ncorr, a=a, b=b, dE=dE, tdata=self.tdata,
             tfit=self.tfit, tp=tp, s=s, othertags=othertags)
         self.ncorr += 1
@@ -320,6 +320,8 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         NSIG *= 1.5
         self.dofit_chd(models)
         NSIG /= 1.5
+        self.assertEqual(models[2].all_datatags, [2, 3])
+        self.assertEqual(models[3].all_datatags, [3, 2])
     ##
     def test_matrix2(self):
         """ corr2 -- 2x2 matrix fit (without othertags) """
@@ -532,7 +534,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         self.assert_fitclose(fit.p,self.p)
         return fitter
     ##
-    def mkcorr2(self,a, b, dE, tp=None, othertags=None, s=1.):
+    def mkcorr2(self,a, b, dE, tp=None, othertags=[], s=1.):
         ans = Corr2(datatag=self.ncorr, a=a, b=b, dE=dE, tdata=self.tdata,
             tfit=self.tfit, tp=tp, s=s, othertags=othertags)
         self.ncorr += 1

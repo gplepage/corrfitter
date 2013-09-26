@@ -58,7 +58,7 @@ import math
 import collections
 import copy
 import time
-__version__ = '3.6'
+__version__ = '3.6.1'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -71,22 +71,32 @@ class BaseModel(object):
    ``builddata``, all of which are described below. In addition they
    can have attributes:
    
-   .. attribute:: datatag
+    .. attribute:: datatag
        
        |CorrFitter| builds fit data for the correlator by extracting the
        data in an input |Dataset| labelled by string ``datatag``. This
        label is stored in the ``BaseModel`` and must be passed to its
        constructor.
-        
+    
+    .. attribute:: all_datatags
+
+       Models can specify more than one set of fit data to use in fitting.
+       The list of all the datatags used is ``self.all_datatags``. The 
+       first entry is always ``self.datatag``; the other entries are
+       from ``othertags``.
+
     .. attribute:: _abscissa
         
         (Optional) Array of abscissa values used in plots of the data and
         fit corresponding to the model. Plots are not made for a model that
         doesn't specify this attribute.
     """
-    def __init__(self, datatag):
+    def __init__(self, datatag, othertags=[]):
         super(BaseModel, self).__init__()
+        if othertags is None:
+            othertags = []
         self.datatag = datatag  # label
+        self.all_datatags = [self.datatag] + list(othertags)
         self._abscissa = None   # for plots
     
     def fitfcn(self, p, nterm=None):
@@ -246,8 +256,8 @@ class Corr2(BaseModel):
     :type othertags: sequence of strings
     """
     def __init__(self, datatag, tdata, tfit, a, b, dE=None, logdE=None,    #):
-                    s=1.0, tp=None, othertags=None):
-        super(Corr2, self).__init__(datatag)
+                    s=1.0, tp=None, othertags=[]):
+        super(Corr2, self).__init__(datatag, othertags)
         self.a = self._param(a)
         self.b = self._param(b)
         self.dE = self._dE(dE, logdE)
@@ -275,7 +285,6 @@ class Corr2(BaseModel):
                                       +str(tfit)+" "+str(tdata))
         
         self.tfit = numpy.array(ntfit)
-        self.othertags = othertags
         self._abscissa = self.tfit
     
     def buildprior(self, prior, nterm):
@@ -312,16 +321,16 @@ class Corr2(BaseModel):
         in the (1-D) array ``data[self.datatag]`` are assumed to be
         |GVar|\s and correspond to the ``t``s in ``self.tdata``.
         """
-        tags = [self.datatag]
-        if self.othertags is not None:
-            tags.extend(self.othertags)
+        # tags = self.all_datatags
+        # if self.othertags is not None:
+        #     tags.extend(self.othertags)
         tdata = self.tdata
         tp = self.tp
         if tp is not None:
             pfac = math.copysign(1,tp)
             tp = abs(tp)
         ans = []
-        for tag in tags:
+        for tag in self.all_datatags:
             odata = data[tag]
             ndata = [] 
             for t in self.tfit:
@@ -522,8 +531,8 @@ class Corr3(BaseModel):
                  sa=1., sb=1.,
                  Vno=None, Von=None, Voo=None, transpose_V=False,
                  symmetric_V=False, tpa=None, tpb=None,
-                 othertags=None):
-        super(Corr3, self).__init__(datatag)
+                 othertags=[]):
+        super(Corr3, self).__init__(datatag, othertags)
         self.a = self._param(a)
         self.dEa = self._dE(dEa, logdEa)
         self.sa = self._param(sa, -1.)
@@ -544,7 +553,6 @@ class Corr3(BaseModel):
                 ntfit.append(t)
         self.tfit = numpy.array(ntfit)
         self._abscissa = self.tfit
-        self.othertags = othertags
     
     def buildprior(self, prior, nterm):
         """ Create fit prior by extracting relevant pieces of ``prior``. 
@@ -600,11 +608,11 @@ class Corr3(BaseModel):
         array ``data[self.datatag]`` are assumed to be |GVar|\s and
         correspond to the ``t``s in ``self.tdata``.
         """
-        tags = [self.datatag]
-        if self.othertags is not None:
-            tags.extend(self.othertags)
+        # tags = [self.datatag]
+        # if self.othertags is not None:
+        #     tags.extend(self.othertags)
         ans = []
-        for tag in tags:
+        for tag in self.all_datatags:
             odata = data[tag]
             tdata = self.tdata
             ndata = []
@@ -1307,7 +1315,8 @@ class CorrFitter(object):
         # reorder data (and prune if necessary)
         data = _gvar.BufferDict()
         for m in self.flat_models:
-            data[m.datatag] = tmpdata[m.datatag]
+            for tag in m.all_datatags:
+                data[tag] = tmpdata[tag]
         datamean = _gvar.mean(data)
         datacov = _gvar.evalcov(data.buf)
         del tmpdata
@@ -1316,9 +1325,11 @@ class CorrFitter(object):
         fcn_mean = _gvar.BufferDict()
         for m in self.flat_models:
             m_fcn = lsqfit.transform_p(keys,0)(m.fitfcn)
-            fcn_mean[m.datatag] = (
+            m_fcn_mean = (
                 m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None)) 
                 )
+            for tag in m.all_datatags:
+                fcn_mean[tag] = m_fcn_mean
         if rescale is None or rescale == 1.:
             rescale = None
             correction = _gvar.BufferDict(
