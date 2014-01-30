@@ -1,6 +1,6 @@
 ============================== nterm = 1
 Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.98 [69]    Q = 0.53    logGBF = 1586.4    itns = 8
+  chi2/dof [dof] = 0.98 [69]    Q = 0.53    logGBF = 1586.4    itns = 9
 
 Parameters:
   log(etas:a) 0   -1.52151 (78)      [ -1.2 (1.0) ]  
@@ -17,7 +17,7 @@ Settings:
 
 ============================== nterm = 2
 Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.71 [69]    Q = 0.97    logGBF = 1602.3    itns = 17
+  chi2/dof [dof] = 0.71 [69]    Q = 0.97    logGBF = 1602.3    itns = 18
 
 Parameters:
   log(etas:a) 0   -1.52169 (72)      [ -1.2 (1.0) ]  

@@ -4,7 +4,7 @@
 matrix-correlator.py   --- tests matrix chained fit
 
 Created by Peter Lepage on 2012-12-02.
-Copyright (c) 2010-2013 G. Peter Lepage.
+Copyright (c) 2010-2014 G. Peter Lepage.
 """
 
 from __future__ import print_function   # makes this work for python2 and 3
@@ -45,7 +45,7 @@ else:
 def main():
     dfile = 'matrix-correlator.data'     # input data file
     if CHAINED is True:
-        svdcut = None
+        svdcut = 2e-3
         tol = 1e-10
     elif CHAINED == 'both':
         svdcut = 1e-3

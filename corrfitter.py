@@ -39,7 +39,7 @@ given in the tutorial documentation for |CorrFitter|.
 """
 
 # Created by G. Peter Lepage, Cornell University, on 2010-11-26.
-# Copyright (c) 2010-2013 G. Peter Lepage.
+# Copyright (c) 2010-2014 G. Peter Lepage.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ import math
 import collections
 import copy
 import time
-__version__ = '3.6.1'
+__version__ = '3.6.2'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -820,7 +820,6 @@ class CorrFitter(object):
    
     def buildfitfcn(self, priorkeys):
         " Create fit function, with support for log-normal,... priors. "
-
         @lsqfit.transform_p(priorkeys, pindex=0, pkey='p')
         def _fitfcn(
             p, nterm=None, default_nterm=self.nterm, models=self.flat_models
@@ -949,6 +948,8 @@ class CorrFitter(object):
             tol = self.tol
         if nterm is None:
             nterm = self.nterm
+        else:
+            nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
         if fast is None:
             fast = self.fast
         self.prior = prior
@@ -960,8 +961,8 @@ class CorrFitter(object):
         self.nterm = nterm
 
         # do the fit and print results
-        data = self.builddata(data=data, prior=prior, nterm=nterm)
-        prior = self.buildprior(prior, nterm=nterm, fast=fast)
+        data = self.builddata(data=data, prior=prior, nterm=self.nterm)
+        prior = self.buildprior(prior, nterm=self.nterm, fast=fast)
         fitfcn = self.buildfitfcn(prior.keys())
         self.fit = lsqfit.nonlinear_fit( #
             data=data, p0=p0, fcn=fitfcn, prior=prior, 
@@ -1081,6 +1082,8 @@ class CorrFitter(object):
             tol = self.tol
         if nterm is None:
             nterm = self.nterm
+        else:
+            nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
         if fast is None:
             fast = self.fast
         self.prior = prior

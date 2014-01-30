@@ -4,7 +4,7 @@
 matrix-correlator.py   --- tests matrix fit
 
 Created by Peter Lepage on 2012-12-02.
-Copyright (c) 2010-2013 G. Peter Lepage.
+Copyright (c) 2010-2014 G. Peter Lepage.
 """
 
 from __future__ import print_function   # makes this work for python2 and 3
@@ -40,7 +40,7 @@ if TEST:
 
 def main():
     dfile = 'matrix-correlator.data'     # input data file
-    svdcut = 1e-3          # needed even without marginalization
+    svdcut = 2e-3          # needed even without marginalization
     svdnum = 113            # number of samples in ups.bin24
     data = avg_data(Dataset(dfile))
     # for k in data:
