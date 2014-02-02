@@ -28,7 +28,7 @@ PRINT_FITS = False  # print lots of fit info while doing tests
 DISPLAY_PLOTS = False # display plots for some fits
 NSIG = 6.0           # number of sigmas allowed before signalling an error
 NTERM = 3           # number of terms (ie, len(dE)) in correlators
-SVDCUT = 1e-6       # svd cut used for all fits -- to minimize roundoff problems
+SVDCUT = 1e-4      # svd cut used for all fits -- to minimize roundoff problems
 FAST = False        # skips bootstrap tests if True
 
 class ArrayTests(object):
@@ -193,7 +193,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
             for k in fit.p:
                 print("%10s:"%str(k),self.p[k])
             print()
-        self.assert_fitclose(fit.p,self.p)
+        self.assert_fitclose(fit.p, self.p)
         self.data = data
         self.fit = fit
         return fitter
@@ -339,7 +339,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
     ##
     def test_chained(self):
         """ test chained fit variations """
-        global NSIG
+        global NSIG, PRINT_FITS
         models =[ 
                 self.mkcorr(a='a', b='a', dE='logdE'),
                 [
@@ -348,6 +348,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                 ],
                 self.mkcorr(a='b', b='b', dE='logdE')
                 ] 
+        # PRINT_FITS = True
         NSIG *= 2.   # do this because so many fits
         self.dofit_chd(models, parallel=True, flat=False, fast=True)
         self.dofit_chd(models, parallel=True, flat=False, fast=False)
@@ -367,6 +368,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         self.dofit_chd(models, parallel=False, flat=True, fast=True, nterm=2)
         self.dofit_chd(models, parallel=False, flat=True, fast=False, nterm=2)
         NSIG /= 2.
+        # PRINT_FITS = False
 
     def test_marginalization(self):
         """ corr2 -- marginalization (2x2 matrix)"""

@@ -58,7 +58,7 @@ import math
 import collections
 import copy
 import time
-__version__ = '3.6.2'
+__version__ = '3.6.3'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -997,7 +997,8 @@ class CorrFitter(object):
         each model is fit separately, using the original ``prior``. Parallel
         fits make sense when models share few or no parameters; the results
         from the individual fits are combined using weighted averages of 
-        the best-fit values for each parameter from every fit.
+        the best-fit values for each parameter from every fit. Parallel 
+        fits can require larger *svd* cuts.
 
         Entries ``self.models[i]`` in the list of models can themselves  be
         lists of models, rather than just an individual model. In such a
@@ -1189,7 +1190,7 @@ class CorrFitter(object):
                         ))
         if parallel:
             self.fit._p = _gvar.BufferDict(
-                lsqfit.wavg(parallel_parameters, svdcut=1e-15)
+                lsqfit.wavg(parallel_parameters, svdcut=svdcut, svdnum=svdnum)
                 )
             self.fit.pmean = _gvar.mean(self.fit.p)
             self.fit._palt = self.fit.p
@@ -1267,7 +1268,7 @@ class CorrFitter(object):
         fit parameter ahead of a fit allows us to test the reliability of
         the fit's error estimates and to explore the impact of various fit 
         options (*e.g.*, ``fitter.chained_fit`` versus ``fitter.lsqfit``, 
-        choice of *SVD* cuts, omission of select models, etc.)
+        choice of *svd* cuts, omission of select models, etc.)
 
         Typically one need examine only a few simulated fits in order 
         to evaluate fit reliability, since we know the correct values
