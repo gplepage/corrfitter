@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.6.2 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 3.6.3 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.6.2',
+        VERSION:     '3.6.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 3.6.2 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 3.6.3 documentation" href="index.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.6.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.6.3 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -1357,7 +1357,8 @@ Results from the individual fits can be found in dictionary
 each model is fit separately, using the original <tt class="docutils literal"><span class="pre">prior</span></tt>. Parallel
 fits make sense when models share few or no parameters; the results
 from the individual fits are combined using weighted averages of 
-the best-fit values for each parameter from every fit.</p>
+the best-fit values for each parameter from every fit. Parallel 
+fits can require larger <em>svd</em> cuts.</p>
 <p>Entries <tt class="docutils literal"><span class="pre">self.models[i]</span></tt> in the list of models can themselves  be
 lists of models, rather than just an individual model. In such a
 chase, the models listed in <tt class="docutils literal"><span class="pre">self.models[i]</span></tt> are fit together using
@@ -1525,7 +1526,7 @@ values for the parameters. Knowing the correct value for each
 fit parameter ahead of a fit allows us to test the reliability of
 the fit&#8217;s error estimates and to explore the impact of various fit 
 options (<em>e.g.</em>, <tt class="docutils literal"><span class="pre">fitter.chained_fit</span></tt> versus <tt class="docutils literal"><span class="pre">fitter.lsqfit</span></tt>, 
-choice of <em>SVD</em> cuts, omission of select models, etc.)</p>
+choice of <em>svd</em> cuts, omission of select models, etc.)</p>
 <p>Typically one need examine only a few simulated fits in order 
 to evaluate fit reliability, since we know the correct values
 for the parameters ahead of time. Consequently this method is
@@ -2715,7 +2716,7 @@ define <tt class="docutils literal"><span class="pre">pexact</span></tt>).</p>
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 3.6.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 3.6.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
