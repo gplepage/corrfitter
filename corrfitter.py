@@ -789,7 +789,7 @@ class CorrFitter(object):
     :type ratio: boolean
     """
     def __init__(
-        self, models, svdcut=(1e-15, 1e-15), svdnum=None, tol=1e-10,
+        self, models, svdcut=1e-15, svdnum=None, tol=1e-10,
         maxit=500, nterm=None, ratio=False, fast=False,
         processed_data=None
         ): 
@@ -966,7 +966,7 @@ class CorrFitter(object):
         fitfcn = self.buildfitfcn(prior.keys())
         self.fit = lsqfit.nonlinear_fit( #
             data=data, p0=p0, fcn=fitfcn, prior=prior, 
-            svdcut=svdcut, svdnum=svdnum, reltol=tol, 
+            svdcut=svdcut, reltol=tol, 
             abstol=tol, maxit=maxit, **args
             )
         if print_fit:
@@ -1134,7 +1134,7 @@ class CorrFitter(object):
                     return fitfcn(p, nterm=nterm)
                 lastfit = lsqfit.nonlinear_fit(
                     data=processed_data[m.datatag], fcn=m_fitfcn, prior=m_prior, 
-                    p0=p0, svdcut=svdcut, svdnum=svdnum, reltol=tol, 
+                    p0=p0, svdcut=svdcut, reltol=tol, 
                     abstol=tol, maxit=maxit, **args
                     )
                 fits[m.datatag] = lastfit
@@ -1147,7 +1147,7 @@ class CorrFitter(object):
                     m_prior = _gvar.BufferDict(truncated_prior)
                     m_prior.update(chained_prior)
                 fitter = CorrFitter(
-                    models=m, svdcut=svdcut, svdnum=svdnum, tol=tol,
+                    models=m, svdcut=svdcut, tol=tol,
                     maxit=maxit, nterm=nterm, ratio=self.ratio,
                     processed_data=processed_data
                     )
@@ -1190,7 +1190,7 @@ class CorrFitter(object):
                         ))
         if parallel:
             self.fit._p = _gvar.BufferDict(
-                lsqfit.wavg(parallel_parameters, svdcut=svdcut, svdnum=svdnum)
+                lsqfit.wavg(parallel_parameters, svdcut=svdcut)
                 )
             self.fit.pmean = _gvar.mean(self.fit.p)
             self.fit._palt = self.fit.p
@@ -1567,7 +1567,7 @@ class fastfit(object):
             b = model.b[0]
             dE = model.dE[0]
         # extract relevant data 
-        fitter = CorrFitter(models=[model], svdcut=svdcut, svdnum=svdnum,
+        fitter = CorrFitter(models=[model], svdcut=svdcut,
                             ratio=ratio, nterm=nterm)
         G = fitter.builddata(data=data, prior=prior)[model.datatag] * Gfac
         
@@ -1581,7 +1581,7 @@ class fastfit(object):
         # compute E 
         self.Elist = _gvar.arccosh(0.5*(G[2:]+G[:-2])/G[1:-1])
         Elist = self.Elist.tolist() + [E_prior]
-        self.E = lsqfit.wavg(Elist, svdcut=svdcut, svdnum=svdnum)
+        self.E = lsqfit.wavg(Elist, svdcut=svdcut)
         self.chi2 = lsqfit.wavg.chi2
         self.dof = lsqfit.wavg.dof
         self.Q = lsqfit.wavg.Q
@@ -1598,7 +1598,7 @@ class fastfit(object):
         ii = slice(1, -1)
         self.ampllist = G[ii]/G0[ii]
         amplist = self.ampllist.tolist() + [ampl_prior]
-        self.ampl = lsqfit.wavg(self.ampllist, svdcut=svdcut, svdnum=svdnum)
+        self.ampl = lsqfit.wavg(self.ampllist, svdcut=svdcut)
         self.chi2 = numpy.array([self.chi2, lsqfit.wavg.chi2])
         self.dof = numpy.array([self.dof, lsqfit.wavg.dof])
         self.Q = numpy.array([self.Q, lsqfit.wavg.Q])
