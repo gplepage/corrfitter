@@ -952,13 +952,13 @@ to fit the data::
         models = [
             Corr2(
                 datatag='etas', 
-                tp=tp,  tdata=range(tmin),  tfit=range(tmin, tp-tmin),  
+                tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),  
                 a='etas:a',  b='etas:a',  dE='etas:dE'
                 ),  
                 
             Corr2(
                 datatag='Ds',
-                tp=tp,  tdata=range(tmin),  tfit=range(tmin, tp-tmin),  
+                tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),  
                 a=('Ds:a', 'Ds:ao'), b=('Ds:a', 'Ds:ao'), 
                 dE=('Ds:dE', 'Ds:dEo'), s=(1., -1.)
                 ),
