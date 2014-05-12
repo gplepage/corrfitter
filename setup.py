@@ -8,7 +8,7 @@ setup(name='corrfitter',
     author_email='g.p.lepage@cornell.edu',
     license='GPLv3+',
     py_modules=['corrfitter'],
-    requires=["lsqfit (>=4.4.4)"],
+    requires=["lsqfit (>=4.8)"],
     platforms="Any",
     url="https://github.com/gplepage/corrfitter.git",
     long_description="""\
