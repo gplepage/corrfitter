@@ -65,7 +65,7 @@ log(etas:dEo) 0    -0.1591 (74)      [  -0.13 (23) ]
             2,2   0.006 (1.000)      [ 0.01 (1.00) ]  
 
 Settings:
-  svdcut/n = 1e-05/0    reltol/abstol = 0.0001/0.0001    (itns/time = 1/0.2)
+  svdcut/n = 1e-05/0    reltol/abstol = 0.0001/0.0001    (itns/time = 1/0.1)
 
 etas:dE = 0.6717(11)  0.584(56)  0.94(19)
  etas:E = 0.6717(11)  1.256(57)  2.19(24)
