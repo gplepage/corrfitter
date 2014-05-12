@@ -58,7 +58,7 @@ import math
 import collections
 import copy
 import time
-__version__ = '3.6.3'
+__version__ = '3.7'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
