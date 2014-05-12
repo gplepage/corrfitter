@@ -11,8 +11,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-Version ????
-====================
+Version 3.7 - 2014-05-12
+=========================
+This version was modified to make it consistent with lsqfit v4.8. The 
+main change here is that option svdnum is no longer supported (use svdcut
+instead).
 
 - Corrected typo in documentation (annotated example).
 

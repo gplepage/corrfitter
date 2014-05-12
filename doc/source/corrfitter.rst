@@ -542,11 +542,8 @@ situations are usually improved by introducing an *svd* cut: for example, ::
 
 Introducing an *svd* cut increases the effective errors and so is a
 conservative move. For more information about *svd* cuts see the :mod:`lsqfit`
-tutorial and documentation. Parameters ``svdcut`` and ``svdnum`` are used to
-specify an *svd* cut. (It is often useful to to set ``svdnum`` equal to the
-number of measurements used to determine the covariance matrix for ``G(t)``
-since that is the largest number of eigenmodes possible in the covariance
-matrix.)
+tutorial and documentation. Parameter ``svdcut`` is used to
+specify an *svd* cut. 
 
 
 Very Fast (But Limited) Fits

@@ -1,6 +1,6 @@
 ============================== 8
-Chained Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.88 [207]    Q = 0.9    logGBF = 1822.3    itns = 40
+Chained Least Square Fit:
+  chi2/dof [dof] = 0.88 [207]    Q = 0.9    logGBF = 1822.3
 
 Parameters:
          logl 0    -0.6827 (14)      [ -0.9 (1.0) ]  
@@ -45,7 +45,7 @@ Parameters:
               7      -0.66 (99)      [ -0.7 (1.0) ]  
 
 Settings:
-  svdcut = (0.002,None)   svdnum = (1.1e+02,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 0.002/2    reltol/abstol = 1e-10/1e-10    (itns/time = 39/1.6)
 
    E = 0.25634(20)  0.514(11)  0.884(58)  1.29(15)  1.76(37)  2.41(69)  3.05(88)  3.6(1.0)   (En-E0 for n>0)
    l = 0.50525(69)  0.399(20)  0.328(75)  0.46(18)  0.30(22)  0.21(18)  0.24(21)  0.28(25)
@@ -70,5 +70,5 @@ Partial % Errors:
 correlators:
     ['1s0.ll', '1s0.lg', '1s0.gg', '1s0.le', '1s0.ge', '1s0.ee', '1s0.ld', '1s0.gd', '1s0.dd']
 
-t=1.1 ====
+t=2.0 ====
 

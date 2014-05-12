@@ -542,11 +542,8 @@ situations are usually improved by introducing an *svd* cut: for example, ::
 
 Introducing an *svd* cut increases the effective errors and so is a
 conservative move. For more information about *svd* cuts see the :mod:`lsqfit`
-tutorial and documentation. Parameters ``svdcut`` and ``svdnum`` are used to
-specify an *svd* cut. (It is often useful to to set ``svdnum`` equal to the
-number of measurements used to determine the covariance matrix for ``G(t)``
-since that is the largest number of eigenmodes possible in the covariance
-matrix.)
+tutorial and documentation. Parameter ``svdcut`` is used to
+specify an *svd* cut. 
 
 
 Very Fast (But Limited) Fits
@@ -952,13 +949,13 @@ to fit the data::
         models = [
             Corr2(
                 datatag='etas', 
-                tp=tp,  tdata=range(tmin),  tfit=range(tmin, tp-tmin),  
+                tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),  
                 a='etas:a',  b='etas:a',  dE='etas:dE'
                 ),  
                 
             Corr2(
                 datatag='Ds',
-                tp=tp,  tdata=range(tmin),  tfit=range(tmin, tp-tmin),  
+                tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),  
                 a=('Ds:a', 'Ds:ao'), b=('Ds:a', 'Ds:ao'), 
                 dE=('Ds:dE', 'Ds:dEo'), s=(1., -1.)
                 ),

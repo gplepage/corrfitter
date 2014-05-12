@@ -53,7 +53,7 @@ def main():
     else:
         svdcut = 1e-3
         tol = 3e-5
-    svdnum = 113            # number of samples in ups.bin24
+    # svdnum = 113            # number of samples in ups.bin24
     data = avg_data(Dataset(dfile))
     models = make_models()
     starttime = time.clock()
@@ -61,7 +61,7 @@ def main():
     for nterm in ntermlist:
         print(30 * "=", nterm)
         prior = make_prior(nterm)
-        fitter = CorrFitter(models=models, svdcut=svdcut, svdnum=svdnum, tol=tol)
+        fitter = CorrFitter(models=models, svdcut=svdcut, tol=tol)
         if CHAINED:
             fit = fitter.chained_lsqfit(prior=prior, data=data, p0=p0, maxit=1000)
         if not CHAINED or CHAINED == 'both':

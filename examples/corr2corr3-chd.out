@@ -1,6 +1,6 @@
 ========================== nexp = 6
-Chained Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.66 [69]    Q = 0.99    logGBF = 1592.5    itns = 16
+Chained Least Square Fit:
+  chi2/dof [dof] = 0.66 [69]    Q = 0.99    logGBF = 1592.5
 
 Parameters:
   log(etas:a) 0     -1.52172 (71)       [  -1.2 (1.0) ]  
@@ -113,7 +113,7 @@ Parameters:
             5,5       0.01 (1.00)       [ 0.01 (1.00) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 16/1.2)
 
 etas:dE = 0.41619(12)  0.590(29)  0.446(88)
  etas:E = 0.41619(12)  1.006(29)  1.452(70)

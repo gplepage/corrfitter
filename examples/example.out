@@ -1,6 +1,6 @@
 ============================== nterm = 1
 Least Square Fit:
-  chi2/dof [dof] = 7.4e+03 [69]    Q = 0    logGBF = -2.5405e+05    itns = 28
+  chi2/dof [dof] = 7.4e+03 [69]    Q = 0    logGBF = -2.5405e+05
 
 Parameters:
   log(etas:a) 0   -1.38766 (30)      [ -1.2 (1.0) ]  
@@ -13,11 +13,11 @@ Parameters:
         Vno 0,0    -1.0474 (21)      [  0.0 (1.0) ]  *
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 24/0.2)
 
 ============================== nterm = 2
 Least Square Fit:
-  chi2/dof [dof] = 3 [69]    Q = 6e-16    logGBF = 1531.1    itns = 75
+  chi2/dof [dof] = 3 [69]    Q = 6e-16    logGBF = 1531.1
 
 Parameters:
   log(etas:a) 0   -1.52065 (64)      [ -1.2 (1.0) ]  
@@ -42,11 +42,11 @@ Parameters:
             1,1     0.06 (1.00)      [  0.0 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 75/0.8)
 
 ============================== nterm = 3
 Least Square Fit:
-  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1601.6    itns = 74
+  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1601.6
 
 Parameters:
   log(etas:a) 0     -1.52172 (73)       [ -1.2 (1.0) ]  
@@ -87,11 +87,11 @@ Parameters:
             2,2   0.0007 (1.0000)       [  0.0 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 73/0.8)
 
 ============================== nterm = 4
 Least Square Fit:
-  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1602.1    itns = 24
+  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1602.1
 
 Parameters:
   log(etas:a) 0       -1.52170 (73)        [ -1.2 (1.0) ]  
@@ -129,11 +129,11 @@ Parameters:
             2,0          -0.07 (19)        [  0.0 (1.0) ]  
             2,1         0.05 (1.00)        [  0.0 (1.0) ]  
             2,2     0.0004 (1.0000)        [  0.0 (1.0) ]  
-            2,3   -1.22861e-05 +- 1        [  0.0 (1.0) ]  
+            2,3   -1.22862e-05 +- 1        [  0.0 (1.0) ]  
             3,0         0.002 (977)        [  0.0 (1.0) ]  
             3,1       0.003 (1.000)        [  0.0 (1.0) ]  
             3,2    2.80928e-05 +- 1        [  0.0 (1.0) ]  
-            3,3     1.8681e-07 +- 1        [  0.0 (1.0) ]  
+            3,3    1.86812e-07 +- 1        [  0.0 (1.0) ]  
         Vno 0,0         -0.793 (92)        [  0.0 (1.0) ]  
             0,1           0.25 (33)        [  0.0 (1.0) ]  
             0,2         0.005 (845)        [  0.0 (1.0) ]  
@@ -149,10 +149,10 @@ Parameters:
             3,0        -0.03 (1.00)        [  0.0 (1.0) ]  
             3,1      -0.003 (1.000)        [  0.0 (1.0) ]  
             3,2    1.25677e-05 +- 1        [  0.0 (1.0) ]  
-            3,3    3.95646e-07 +- 1        [  0.0 (1.0) ]  
+            3,3    3.95644e-07 +- 1        [  0.0 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 20/0.4)
 
 Fit results:
   Eetas: [0.41619(12) 1.007(89) 1.43(34)]
@@ -196,8 +196,8 @@ Partial % Errors:
 Random seed: (5339893179535759510, 4088224360017966188, 7597275990505476522)
 
 ============================== simulation
-Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1602.4    itns = 24
+Least Square Fit:
+  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1602.4
 
 Parameters:
   log(etas:a) 0   -1.52098 (72)      [ -1.2 (1.0) ]  
@@ -222,13 +222,13 @@ Parameters:
             1,1       0.27 (96)      [  0.0 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 22/0.2)
 
 Leading parameter chi2/dof [dof] = 0.82 [8]   Q = 0.6
 
 ============================== simulation
-Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.63 [69]    Q = 0.99    logGBF = 1604.6    itns = 12
+Least Square Fit:
+  chi2/dof [dof] = 0.63 [69]    Q = 0.99    logGBF = 1604.6
 
 Parameters:
   log(etas:a) 0   -1.52243 (70)      [ -1.2 (1.0) ]  
@@ -253,6 +253,6 @@ Parameters:
             1,1      -0.14 (97)      [  0.0 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 11/0.2)
 
 Leading parameter chi2/dof [dof] = 0.56 [8]   Q = 0.8

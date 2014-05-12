@@ -40,7 +40,7 @@ else:
     
 def main():
     dfile = "antiperiodic.data"   # data file
-    data = avg_data(Dataset(dfile)) # compute avg and cov for data
+    data = avg_data(Dataset(dfile).trim()) # compute avg and cov for data
     pfile = "antiperiodic.p"  # last fit stored here if not TEST
     fitter = CorrFitter(models=build_models())
     p0 = P0_TEST if TEST else pfile

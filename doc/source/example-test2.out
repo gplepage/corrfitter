@@ -1,8 +1,8 @@
 Random seed: (5339893179535759510, 4088224360017966188, 7597275990505476522)
 
 ============================== simulation
-Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1602.4    itns = 23
+Least Square Fit:
+  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1602.4
 
 Parameters:
   log(etas:a) 0   -1.52098 (72)      [ -1.2 (1.0) ]  
@@ -23,17 +23,17 @@ Parameters:
             1,1       0.72 (73)      [  0.0 (1.0) ]  
         Vno 0,0     -0.755 (29)      [  0.0 (1.0) ]  
             0,1       0.37 (16)      [  0.0 (1.0) ]  
-            1,0    -0.067 (398)      [  0.0 (1.0) ]  
+            1,0      -0.07 (40)      [  0.0 (1.0) ]  
             1,1       0.27 (96)      [  0.0 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 22/0.2)
 
 Leading parameter chi2/dof [dof] = 0.82 [8]   Q = 0.6
 
 ============================== simulation
-Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.63 [69]    Q = 0.99    logGBF = 1604.6    itns = 12
+Least Square Fit:
+  chi2/dof [dof] = 0.63 [69]    Q = 0.99    logGBF = 1604.6
 
 Parameters:
   log(etas:a) 0   -1.52243 (70)      [ -1.2 (1.0) ]  
@@ -54,10 +54,10 @@ Parameters:
             1,1       0.15 (77)      [  0.0 (1.0) ]  
         Vno 0,0     -0.761 (34)      [  0.0 (1.0) ]  
             0,1       0.33 (17)      [  0.0 (1.0) ]  
-            1,0     0.071 (399)      [  0.0 (1.0) ]  
+            1,0       0.07 (40)      [  0.0 (1.0) ]  
             1,1      -0.14 (97)      [  0.0 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 11/0.2)
 
 Leading parameter chi2/dof [dof] = 0.56 [8]   Q = 0.8

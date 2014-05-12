@@ -41,7 +41,7 @@ if TEST:
 def main():
     dfile = 'matrix-correlator.data'     # input data file
     svdcut = 2e-3          # needed even without marginalization
-    svdnum = 113            # number of samples in ups.bin24
+    # svdnum = 113            # number of samples in ups.bin24
     data = avg_data(Dataset(dfile))
     # for k in data:
     #     print(k,gd.is_independent(data[k])[0])
@@ -57,10 +57,10 @@ def main():
             prior = make_prior(nterm)
         fitter = CorrFitter(models=models,svdcut=svdcut,
                             nterm=nterm if USE_MARGINALIZATION else None,
-                            ratio=RATIO,maxit=10000)
+                            ratio=RATIO, maxit=10000)
         print(30*'=','nterm =',nterm,'  nterm_prior =',len(prior['logdE']),
               '   RATIO =',RATIO)
-        fit = fitter.lsqfit(prior=prior,data=data,p0=p0,svdnum=svdnum)
+        fit = fitter.lsqfit(prior=prior,data=data,p0=p0)
         # print fit
         print_results(fitter,prior,data)
         if nterm==1:

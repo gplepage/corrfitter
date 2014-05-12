@@ -33,7 +33,7 @@ def test_fit(fitter, datafile):
     prior = fitter.fit.prior
     for sdata in fitter.simulated_data_iter(n=2, dataset=dataset, pexact=pexact):
         print('\n============================== simulation')
-        sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact, nterm=(2,2))
+        sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact) # , nterm=(2,2))
         diff = []
         # check chi**2 for leading parameters
         for k in sfit.p: 

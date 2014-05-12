@@ -1,6 +1,6 @@
 ============================== nterm = 1
-Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.98 [69]    Q = 0.53    logGBF = 1586.4    itns = 9
+Least Square Fit:
+  chi2/dof [dof] = 0.98 [69]    Q = 0.53    logGBF = 1586.4
 
 Parameters:
   log(etas:a) 0   -1.52151 (78)      [ -1.2 (1.0) ]  
@@ -13,11 +13,11 @@ Parameters:
         Vno 0,0     -0.710 (11)      [  0.0 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 10/0.1)
 
 ============================== nterm = 2
-Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.71 [69]    Q = 0.97    logGBF = 1602.3    itns = 18
+Least Square Fit:
+  chi2/dof [dof] = 0.71 [69]    Q = 0.97    logGBF = 1602.3
 
 Parameters:
   log(etas:a) 0   -1.52169 (72)      [ -1.2 (1.0) ]  
@@ -42,7 +42,7 @@ Parameters:
             1,1       0.29 (95)      [  0.0 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 17/0.2)
 
 Fit results:
   Eetas: [0.41619(12) 1.00(10)]

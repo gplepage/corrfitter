@@ -1,6 +1,6 @@
 ========================== nexp = 1   ratio = True
-Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 0.92 [69]    Q = 0.66    logGBF = 1585.4    itns = 1
+Least Square Fit:
+  chi2/dof [dof] = 0.92 [69]    Q = 0.66    logGBF = 1585.4
 
 Parameters:
   log(etas:a) 0   -1.52165 (76)      [ -1.2 (1.0) ]  
@@ -13,7 +13,7 @@ Parameters:
         Vno 0,0     -0.747 (18)      [  0.1 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 1/0.0)
 
 etas:dE = 0.41618(12)
  etas:E = 0.41618(12)  0.41618(12)  0.41618(12)
@@ -45,8 +45,8 @@ Partial % Errors:
 
 
 ========================== nexp = 1   ratio = False
-Least Square Fit (input data correlated with prior):
-  chi2/dof [dof] = 1.2 [69]    Q = 0.18    logGBF = 1580.2    itns = 1
+Least Square Fit:
+  chi2/dof [dof] = 1.2 [69]    Q = 0.18    logGBF = 1580.2
 
 Parameters:
   log(etas:a) 0   -1.52152 (78)      [ -1.2 (1.0) ]  
@@ -59,7 +59,7 @@ Parameters:
         Vno 0,0     -0.725 (11)      [  0.1 (1.0) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 1/0.0)
 
 etas:dE = 0.41618(12)
  etas:E = 0.41618(12)  0.41618(12)  0.41618(12)

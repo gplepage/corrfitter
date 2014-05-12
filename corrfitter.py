@@ -755,21 +755,13 @@ class CorrFitter(object):
         is ignored by the other methods.   
     :type models: list or other sequence
     :param svdcut: If ``svdcut`` is positive, eigenvalues ``ev[i]`` of the 
-        (rescaled) data covariance matrix that are smaller than
-        ``svdcut*max(ev)`` are replaced by ``svdcut*max(ev)`` in the
-        covariance matrix. If ``svdcut`` is negative, eigenvalues less than
-        ``|svdcut|*max(ev)`` are set to zero in the covariance matrix. The
-        covariance matrix is left unchanged if ``svdcut`` is set equal to
-        ``None`` (default). If ``svdcut`` is a 2-tuple, *svd* cuts are applied
-        to both the correlator data (``svdcut[0]``) and to the prior
-        (``svdcut[1]``).
-    :type svdcut: number or ``None`` or 2-tuple
-    :param svdnum: At most ``svdnum`` eigenmodes are retained in the 
-        (rescaled) data covariance matrix; the modes with the smallest
-        eigenvalues are discarded. ``svdnum`` is ignored if it is set to
-        ``None``. If ``svdnum`` is a 2-tuple, *svd* cuts are applied to both
-        the correlator data (``svdnum[0]``) and to the prior (``svdnum[1]``).
-    :type svdnum: integer or ``None`` or 2-tuple
+        correlation matrix that are smaller than
+        ``svdcut*max(ev)`` are replaced by ``svdcut*max(ev)``. 
+        If ``svdcut`` is negative, eigenvalues less than
+        ``|svdcut|*max(ev)`` are set to zero in the correlation matrix. The
+        correlation matrix is left unchanged if ``svdcut`` is set equal to
+        ``None`` (default). 
+    :type svdcut: number or ``None``
     :param tol: Tolerance used in :func:`lsqfit.nonlinear_fit` for the 
         least-squares fits (default=1e-10).
     :type tol: positive number less than 1
@@ -789,7 +781,7 @@ class CorrFitter(object):
     :type ratio: boolean
     """
     def __init__(
-        self, models, svdcut=1e-15, svdnum=None, tol=1e-10,
+        self, models, svdcut=1e-15, tol=1e-10,
         maxit=500, nterm=None, ratio=False, fast=False,
         processed_data=None
         ): 
@@ -798,7 +790,6 @@ class CorrFitter(object):
         self.flat_models = CorrFitter._flatten_models(models)
         self.models = models
         self.svdcut = svdcut
-        self.svdnum = svdnum
         self.tol = tol
         self.maxit = maxit
         self.fit = None
@@ -820,7 +811,7 @@ class CorrFitter(object):
    
     def buildfitfcn(self, priorkeys):
         " Create fit function, with support for log-normal,... priors. "
-        @lsqfit.transform_p(priorkeys, pindex=0, pkey='p')
+        @lsqfit.transform_p(priorkeys)
         def _fitfcn(
             p, nterm=None, default_nterm=self.nterm, models=self.flat_models
             ):
@@ -901,7 +892,7 @@ class CorrFitter(object):
     
     def lsqfit(
         self, data, prior, p0=None, print_fit=True, nterm=None,
-        svdcut=None, svdnum=None, tol=None, maxit=None, fast=None,
+        svdcut=None, tol=None, maxit=None, fast=None,
         **args
         ):
         """ Compute least-squares fit of the correlator models to data.
@@ -933,15 +924,13 @@ class CorrFitter(object):
 
         The following parameters overwrite the values specified in the
         |CorrFitter| constructor when set to anything other than ``None``:
-        ``nterm``, ``svdcut``, ``svdnum``, ``tol``, and ``maxit``. Any
+        ``nterm``, ``svdcut``, ``tol``, and ``maxit``. Any
         further keyword arguments are passed on to
         :func:`lsqfit.nonlinear_fit`, which does the fit.
         """
         # setup
         if svdcut is None:
             svdcut = self.svdcut
-        if svdnum is None:
-            svdnum = self.svdnum
         if maxit is None:
             maxit = self.maxit
         if tol is None:
@@ -975,7 +964,7 @@ class CorrFitter(object):
 
     def chained_lsqfit(
         self, data, prior, p0=None, print_fit=True, nterm=None,
-        svdcut=None, svdnum=None, tol=None, maxit=None, parallel=False,
+        svdcut=None, tol=None, maxit=None, parallel=False,
         flat=False, fast=None,
         **args
         ):
@@ -1068,15 +1057,13 @@ class CorrFitter(object):
 
         The following parameters overwrite the values specified in the
         |CorrFitter| constructor when set to anything other than ``None``:
-        ``nterm``, ``svdcut``, ``svdnum``, ``tol``, and ``maxit``. Any
+        ``nterm``, ``svdcut``, ``tol``, and ``maxit``. Any
         further keyword arguments are passed on to
         :func:`lsqfit.nonlinear_fit`, which does the fit.
         """        # setup
         cpu_time = time.clock()
         if svdcut is None:
             svdcut = self.svdcut
-        if svdnum is None:
-            svdnum = self.svdnum
         if maxit is None:
             maxit = self.maxit
         if tol is None:
@@ -1125,7 +1112,7 @@ class CorrFitter(object):
                         m_prior.update(chained_prior)
                 else:
                     m_prior = truncated_prior if parallel else chained_prior
-                @lsqfit.transform_p(m_prior, 0)
+                @lsqfit.transform_p(m_prior)
                 def m_fitfcn(
                     p, nterm=None, default_nterm=self.nterm, fitfcn = m.fitfcn
                     ):
@@ -1171,8 +1158,9 @@ class CorrFitter(object):
         chi2 = 0.0
         dof = 0
         logGBF = 0.0
+        svdn = 0
         nit = 0
-        svdcorrection = collections.OrderedDict()
+        svdcorrection = None
         all_y = _gvar.BufferDict()
         for key in self.fit.fits:
             f = self.fit.fits[key]
@@ -1180,14 +1168,12 @@ class CorrFitter(object):
             chi2 += f.chi2
             dof += f.dof
             logGBF += f.logGBF
+            svdn += f.svdn
             nit += f.nit
-            for i in f.svdcorrection:
-                if i not in svdcorrection or svdcorrection[i] is None:
-                    svdcorrection[i] = f.svdcorrection[i]
-                elif f.svdcorrection[i] is not None:
-                    svdcorrection[i] = numpy.concatenate((
-                        svdcorrection[i], f.svdcorrection[i]
-                        ))
+            if svdcorrection is None:
+                svdcorrection = f.svdcorrection
+            else:
+                svdcorrection = numpy.concatenate((svdcorrection, f.svdcorrection))
         if parallel:
             self.fit._p = _gvar.BufferDict(
                 lsqfit.wavg(parallel_parameters, svdcut=svdcut)
@@ -1205,6 +1191,8 @@ class CorrFitter(object):
         self.fit.prior = truncated_prior
         self.fit.fcn = self.buildfitfcn(self.fit.prior.keys())
         self.fit.svdcorrection = svdcorrection
+        self.fit.svdn = svdn
+        self.fit.nblocks = {}
         if p0file is not None:
             self.fit.dump_pmean(p0file)
         self.fit.time = time.clock() - cpu_time
@@ -1328,7 +1316,7 @@ class CorrFitter(object):
         keys = pexact.keys()
         fcn_mean = _gvar.BufferDict()
         for m in self.flat_models:
-            m_fcn = lsqfit.transform_p(keys,0)(m.fitfcn)
+            m_fcn = lsqfit.transform_p(keys)(m.fitfcn)
             m_fcn_mean = (
                 m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None)) 
                 )
@@ -1542,11 +1530,12 @@ class fastfit(object):
     :type osc: Bool
         
     In addition an *svd* cut can be specified, as in |CorrFitter|, using
-    parameters ``svdcut`` and ``svdnum``. Also the type of marginalization
+    parameter ``svdcut``. Also the type of marginalization
     use can be specified with parameter ``ratio`` (see |CorrFitter|).
     """
-    def __init__(self, data, prior, model, svdcut=None, svdnum=None, #):
-                 ratio=True, osc=False):
+    def __init__(
+        self, data, prior, model, svdcut=None, ratio=True, osc=False
+        ):
         assert isinstance(model, Corr2), "model must be type Corr2"
         prior = _gvar.BufferDict(prior)
         t = model.tfit

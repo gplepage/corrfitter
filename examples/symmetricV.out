@@ -1,6 +1,6 @@
 ========================== nexp = 3
 Least Square Fit:
-  chi2/dof [dof] = 0.7 [56]    Q = 0.96    logGBF = 1608.9    itns = 1
+  chi2/dof [dof] = 0.7 [56]    Q = 0.96    logGBF = 1608.9
 
 Parameters:
             a 0    0.21135 (87)      [ 0.01 (1.00) ]  
@@ -38,7 +38,7 @@ Parameters:
             2,2     0.01 (1.00)      [ 0.01 (1.00) ]  
 
 Settings:
-  svdcut = (1e-15,1e-15)   svdnum = (None,None)    reltol/abstol = 1e-10/1e-10
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 1/0.1)
 
 dE = 1.31180(57)  0.418(40)  0.451(16)
  E = 1.31180(57)  1.729(40)  2.181(28)
