@@ -6,8 +6,8 @@ run run-all run-examples:
 	-diff -w -I 't=' -I svdcut example.tmp example.out
 	-$(PYTHON) example-marginalize.py > example-marginalize.tmp	# few sec
 	-diff -w -I 't=' -I svdcut example-marginalize.tmp example-marginalize.out
-	-$(PYTHON) example-chained.py > example-chained.tmp	# few sec
-	-diff -w -I 't=' -I svdcut example-chained.tmp example-chained.out
+	# -$(PYTHON) example-chained.py > example-chained.tmp	# few sec
+	# -diff -w -I 't=' -I svdcut example-chained.tmp example-chained.out
 	-$(PYTHON) corr2corr3.py > corr2corr3.tmp	# few sec
 	-diff -w -I 't=' -I svdcut corr2corr3.tmp corr2corr3.out
 	-$(PYTHON) corr2corr3-chd.py > corr2corr3-chd.tmp	# few sec
