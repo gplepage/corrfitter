@@ -5,7 +5,7 @@ import numpy as np
 import collections
 from corrfitter import CorrFitter, Corr2, Corr3
 
-DISPLAYPLOTS = False         # display plots at end of fitting
+DISPLAYPLOTS = True         # display plots at end of fitting
 try: 
     import matplotlib
 except ImportError:
