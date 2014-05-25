@@ -44,7 +44,7 @@ def main():
     for nexp in NEXP_LIST:
         print('========================== nexp =',nexp)
         prior = build_prior(nexp)
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, debug=True)
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, debug=True, tol=(1e-10, 0.0))
         p0 = fit.pmean
         print_results(fit, prior, data)
         print('\n\n')

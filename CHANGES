@@ -11,6 +11,14 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version 3.7+ - ????
+====================
+
+- Allow tol=(reltol,abstol) in CorrFitter so relative and absolute 
+  fit tolerances can be set separately. In the past tol was a single
+  number which was used for both reltol and abstol. This is still 
+  supported but one can instead use a tuple to specify them separately.
+
 Version 3.7 - 2014-05-12
 =========================
 This version was modified to make it consistent with lsqfit v4.8. The 

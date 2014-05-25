@@ -1224,8 +1224,10 @@ If <tt class="docutils literal"><span class="pre">svdcut</span></tt> is negative
 <tt class="docutils literal"><span class="pre">|svdcut|*max(ev)</span></tt> are set to zero in the correlation matrix. The
 correlation matrix is left unchanged if <tt class="docutils literal"><span class="pre">svdcut</span></tt> is set equal to
 <tt class="docutils literal"><span class="pre">None</span></tt> (default).</li>
-<li><strong>tol</strong> (<em>positive number less than 1</em>) &#8211; Tolerance used in <tt class="xref py py-func docutils literal"><span class="pre">lsqfit.nonlinear_fit()</span></tt> for the 
-least-squares fits (default=1e-10).</li>
+<li><strong>tol</strong> (<em>number or tuple</em>) &#8211; Tolerance used in <tt class="xref py py-func docutils literal"><span class="pre">lsqfit.nonlinear_fit()</span></tt> for the 
+least-squares fits. Use a tuple to specify separate values for
+the relative and absolute tolerances: <tt class="docutils literal"><span class="pre">tol=(reltol,</span> <span class="pre">abstol)</span></tt>;
+otherwise they are both set equal to <tt class="docutils literal"><span class="pre">tol</span></tt> (default=1e-10).</li>
 <li><strong>maxit</strong> (<em>integer</em>) &#8211; Maximum number of iterations to use in least-squares fit 
 (default=500).</li>
 <li><strong>nterm</strong> (number or <tt class="docutils literal"><span class="pre">None</span></tt>; or two-tuple of numbers or <tt class="docutils literal"><span class="pre">None</span></tt>) &#8211; Number of terms fit in the non-oscillating parts of fit 

@@ -763,8 +763,10 @@ class CorrFitter(object):
         ``None`` (default). 
     :type svdcut: number or ``None``
     :param tol: Tolerance used in :func:`lsqfit.nonlinear_fit` for the 
-        least-squares fits (default=1e-10).
-    :type tol: positive number less than 1
+        least-squares fits. Use a tuple to specify separate values for
+        the relative and absolute tolerances: ``tol=(reltol, abstol)``;
+        otherwise they are both set equal to ``tol`` (default=1e-10).
+    :type tol: number or tuple
     :param maxit: Maximum number of iterations to use in least-squares fit 
         (default=500).
     :type maxit: integer
@@ -935,6 +937,14 @@ class CorrFitter(object):
             maxit = self.maxit
         if tol is None:
             tol = self.tol
+        if not isinstance(tol, tuple):
+            tol = (tol, tol)
+        reltol = tol[0] if 'reltol' not in args else args['reltol']
+        abstol = tol[1] if 'abstol' not in args else args['abstol']
+        argscopy = dict(args)
+        for k in ['reltol', 'abstol']:
+            if k in argscopy:
+                del argscopy[k]
         if nterm is None:
             nterm = self.nterm
         else:
@@ -955,8 +965,8 @@ class CorrFitter(object):
         fitfcn = self.buildfitfcn(prior.keys())
         self.fit = lsqfit.nonlinear_fit( #
             data=data, p0=p0, fcn=fitfcn, prior=prior, 
-            svdcut=svdcut, reltol=tol, 
-            abstol=tol, maxit=maxit, **args
+            svdcut=svdcut, reltol=reltol, 
+            abstol=abstol, maxit=maxit, **argscopy
             )
         if print_fit:
             print(self.fit.format())
@@ -1068,6 +1078,14 @@ class CorrFitter(object):
             maxit = self.maxit
         if tol is None:
             tol = self.tol
+        if not isinstance(tol, tuple):
+            tol = (tol, tol)
+        reltol = tol[0] if 'reltol' not in args else args['reltol']
+        abstol = tol[1] if 'abstol' not in args else args['abstol']
+        argscopy = dict(args)
+        for k in ['reltol', 'abstol']:
+            if k in argscopy:
+                del argscopy[k]
         if nterm is None:
             nterm = self.nterm
         else:
@@ -1121,8 +1139,8 @@ class CorrFitter(object):
                     return fitfcn(p, nterm=nterm)
                 lastfit = lsqfit.nonlinear_fit(
                     data=processed_data[m.datatag], fcn=m_fitfcn, prior=m_prior, 
-                    p0=p0, svdcut=svdcut, reltol=tol, 
-                    abstol=tol, maxit=maxit, **args
+                    p0=p0, svdcut=svdcut, reltol=reltol, 
+                    abstol=abstol, maxit=maxit, **argscopy
                     )
                 fits[m.datatag] = lastfit
             else:
@@ -1141,6 +1159,7 @@ class CorrFitter(object):
                 lastfit = fitter.chained_lsqfit(
                     data=data, prior=m_prior, p0=p0,
                     print_fit=False, parallel=(not parallel), 
+                    abstol=abstol, reltol=reltol,
                     fast=fast
                     )
                 for k in lastfit.fits:
