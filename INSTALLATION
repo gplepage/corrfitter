@@ -31,7 +31,8 @@ To install:
    successful if the output ends with "OK". (To test an installation
    for a different version of Python, say python3, use 'make PYTHON=python3 
 	tests'.) If 'make' is unavailable (non-unix systems), 
-	'python -m unittest discover' can be used to run the tests.
+	'python -m unittest discover' can be used to run the tests from 
+	inside the tests/ directory.
 	
 4. (Optional) Look at the examples of corrfitter use in the examples/
    directory; run them all using 'make run-examples'.

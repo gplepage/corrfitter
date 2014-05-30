@@ -11,13 +11,33 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-Version 3.7+ - ????
-====================
+Version 3.7.1 - 2014-05-30
+===========================
+Small updates.
 
 - Allow tol=(reltol,abstol) in CorrFitter so relative and absolute 
   fit tolerances can be set separately. In the past tol was a single
   number which was used for both reltol and abstol. This is still 
   supported but one can instead use a tuple to specify them separately.
+  The default tolerance (1e-10) is probably smaller than it should be;
+  1e-4 is probably good enough for many applications.
+
+- New function corrfitter.read_dataset(files) reads Monte Carlo data
+  for correlators into a gvar.dataset.Dataset. Instead of writing
+
+    dset = gvar.dataset.Dataset(files)
+
+  one can now write
+
+    dset = corrfitter.read_dataset(files)
+
+  Either method works, but the second method supports a new file format
+  for correlator data. A lot of simulation code dumps each correlator 
+  into a separate file, with each line having a t and G(t). This format
+  can be read by read_data directly, without having to convert to the 
+  traditional gvar.dataset.Dataset format. To use this format, argument
+  files has to be a dictionary. Each key k is the name (datatag) of a correlator,
+  and files[k] is the name of the file containing that correlator's data.
 
 Version 3.7 - 2014-05-12
 =========================

@@ -25,7 +25,7 @@ tests test-all:
 	@echo '     (less than 1 in 100 times) due to multi-sigma fluctuations.'
 	@echo '     Run again if any test fails.'
 	@echo ''
-	$(PYTHON) -m unittest discover
+	cd tests; $(PYTHON) -m unittest discover; cd ..
 
 run-examples:
 	$(MAKE) -C examples run-all

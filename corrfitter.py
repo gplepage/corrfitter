@@ -56,9 +56,10 @@ import gvar as _gvar
 import numpy
 import math
 import collections
+import fileinput
 import copy
 import time
-__version__ = '3.7'
+__version__ = '3.7.1'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -1612,4 +1613,77 @@ class fastfit(object):
         self.Q = numpy.array([self.Q, lsqfit.wavg.Q])
     
        
+def read_dataset(inputfiles, tcol=0, Gcol=1):
+    """ Read correlator Monte Carlo data from files into a :class:`gvar.dataset.Dataset`.
+
+    Two files formats are supported by :func:`read_dataset`, depending upon the 
+    data type of ``inputfiles``. 
+
+    The first file format is that normally used by :class:`gvar.dataset.Dataset`:
+    each line consists of a  tag or key identifying a correlator
+    followed by data corresponding to  a single Monte Carlo measurement of the
+    correlator. This format is assumed if ``inputfiles`` is a filename or a
+    list of filenames. It allows a single file to contain an arbitrary number
+    of measurements for an arbitrary number of different correlators. The data
+    can also be spread over multiple files. A typical file might look like ::
+
+        # this is a comment; it is ignored
+        aa 1.237 0.912 0.471            
+        bb 3.214 0.535 0.125 
+        aa 1.035 0.851 0.426            
+        bb 2.951 0.625 0.091
+        ...
+
+    which describes two correlators, ``aa`` and ``bb``, each having 
+    three different ``t`` values.
+
+    The second file format is assumed when ``inputfiles`` is a dictionary. The
+    dictionary's keys and values identify the (one-dimensional) correlators
+    and the files containing their Monte Carlo data, respectively. So the
+    data for correlators ``aa`` and ``bb`` above are in separate files::
+
+        fileinputs = dict(aa='aafile', bb='bbfile')
+
+    Each line in these data files consists of an index ``t`` value followed by
+    the corresponding value for correlator ``G(t)``.  The ``t``\s increase
+    from line to line up to their maximum value,  at which point they repeat.
+    The ``aafile`` file for correlator ``aa`` above  would look like::
+
+        # this is a comment; it is ignored
+        1 1.237                
+        2 0.912
+        3 0.471
+        1 1.035                 
+        2 0.851
+        3 0.426
+        ...
+
+    The columns in these files containing ``t`` and ``G(t)`` are 
+    assumed to be columns 0 and 1, respectively. These can be changed 
+    by setting arguments ``tcol`` and ``Gcol``, respectively.
+    """
+    if not hasattr(inputfiles, 'keys'):
+        # inputfiles is a filename or list of filenames (or files)
+        return _gvar.dataset.Dataset(inputfiles)
+    # inputfiles is a dictionary 
+    # files are in t-G format
+    dset = _gvar.dataset.Dataset()
+    for k in inputfiles:
+        tlast = - float('inf')
+        G = []
+        for line in fileinput.input([inputfiles[k]]):
+            f = line.split()
+            if f[0][0] == '#':
+                # comment
+                continue
+            t = eval(f[tcol])
+            if t <= tlast:
+                dset.append(k, numpy.array(G))
+                G = [eval(f[Gcol])]
+            else:
+                G.append(eval(f[Gcol]))
+            tlast = t
+        dset.append(k, numpy.array(G))
+    return dset
+
 

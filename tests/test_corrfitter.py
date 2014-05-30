@@ -212,7 +212,30 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("Eeff chi2/dof = %.2g [1]\n" % ((Eeff.mean - Etrue)**2/Eeff.sdev**2))
             print("Aeff chi2/dof = %.2g [1]\n" % ((Aeff.mean - Atrue)**2/Aeff.sdev**2))
-    ##
+
+    def test_read_dataset(self):
+        " read_dataset "
+        # format 1
+        dset = read_dataset('format1-file')
+        np.testing.assert_allclose( 
+            dset['aa'], 
+            [np.array([ 1.237,  0.912,  0.471]), np.array([ 1.035,  0.851,  0.426])]
+            )
+        np.testing.assert_allclose( 
+            dset['bb'], 
+            [np.array([ 3.214,  0.535,  0.125]), np.array([ 2.951,  0.625,  0.091])]
+            )
+        # format 2
+        dset = read_dataset(dict(aa='format2-file.aa', bb='format2-file.bb'))
+        np.testing.assert_allclose( 
+            dset['aa'], 
+            [np.array([ 1.237,  0.912,  0.471]), np.array([ 1.035,  0.851,  0.426])]
+            )
+        np.testing.assert_allclose( 
+            dset['bb'], 
+            [np.array([ 3.214,  0.535,  0.125]), np.array([ 2.951,  0.625,  0.091])]
+            )
+
     def test_simulation(self):
         """ CorrFitter.simulated_data_iter """
         models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=None) ]
