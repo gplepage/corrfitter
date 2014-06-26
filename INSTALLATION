@@ -19,9 +19,6 @@ To install:
 	used instead of 'make install'. This is useful for non-unix systems 
 	where 'make' is  unavailable.
 	
-	Note: use 'make install-dataset' if the old dataset.py is needed for
-	legacy code (use gvar.dataset for new code).
-	
 	Note: To install corrfitter for an alternative version of python, say
 	python3 for example, use 'make PYTHON=python3 install'. Python's standard
 	directories are structured in such a way that it is necessary to do a
@@ -57,5 +54,5 @@ Problems:
 
  
 Created by G. Peter Lepage (Cornell University) on 2008-02-12.
-Copyright (c) 2008--2013 G. Peter Lepage. 
+Copyright (c) 2008--2014 G. Peter Lepage. 
 All rights reserved.

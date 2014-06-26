@@ -1,8 +1,8 @@
 from __future__ import print_function   # makes this work for python2 and 3
 
+import collections
 import gvar as gv
 import numpy as np
-import collections
 from corrfitter import CorrFitter, Corr2, EigenBasis, read_dataset
 
 DISPLAYPLOTS = False         # display plots at end of fits?
@@ -54,12 +54,14 @@ def print_results(fit, basis, prior, data):
     print(basis.tabulate(fit.transformed_p, keyfmt='etab.{s1}'))
     print(basis.tabulate(fit.transformed_p, keyfmt='etab.{s1}', eig_srcs=True))
     E = np.cumsum(fit.transformed_p['etab.dE']) 
-    outputs = {
-        'a*E(2s-1s)':E[1] - E[0],
-        'a*E(3s-1s)':E[2] - E[0],
-        'E(3s-1s)/E(2s-1s)': (E[2] - E[0]) / (E[1] - E[0]),
-        }
-    inputs = dict(data=data, prior=prior, svdcut=fit.svdcorrection)
+    outputs = collections.OrderedDict()
+    outputs['a*E(2s-1s)'] = E[1] - E[0]
+    outputs['a*E(3s-1s)'] = E[2] - E[0]
+    outputs['E(3s-1s)/E(2s-1s)'] = (E[2] - E[0]) / (E[1] - E[0])
+    inputs = collections.OrderedDict()
+    inputs['prior'] = prior
+    inputs['data'] = data
+    inputs['svdcut'] = fit.svdcorrection
     print(gv.fmt_values(outputs))
     print(gv.fmt_errorbudget(outputs, inputs, colwidth=18))
 

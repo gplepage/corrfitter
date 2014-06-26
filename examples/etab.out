@@ -10,7 +10,7 @@ Parameters:
  log(etab.dE) 0    -0.38175 (57)       [ -1.3 (2.3) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 15/0.7)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 16/0.4)
 
 ============================== nterm = 2
 Least Square Fit:
@@ -29,7 +29,7 @@ Parameters:
               1    -0.1968 (21)      [ -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 30/0.9)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 31/0.6)
 
 ============================== nterm = 3
 Least Square Fit:
@@ -53,7 +53,7 @@ Parameters:
               2    -0.8493 (59)      [ -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 23/0.9)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 23/0.6)
 
 ============================== nterm = 4
 Least Square Fit:
@@ -82,7 +82,7 @@ Parameters:
               3     -0.564 (46)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 38/1.0)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 40/0.8)
 
 ============================== nterm = 5
 Least Square Fit:
@@ -116,7 +116,7 @@ Parameters:
               4      -0.72 (18)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 60/1.4)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 61/1.2)
 
 ============================== nterm = 6
 Least Square Fit:
@@ -155,7 +155,7 @@ Parameters:
               5      -0.71 (77)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 63/1.6)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 64/1.4)
 
 ============================== nterm = 7
 Least Square Fit:
@@ -199,7 +199,7 @@ Parameters:
               6      -0.16 (92)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 108/2.4)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 110/2.4)
 
 ============================== nterm = 8
 Least Square Fit:
@@ -248,7 +248,7 @@ Parameters:
               7      -0.40 (96)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 75/2.1)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 75/1.9)
 
 ============================== nterm = 9
 Least Square Fit:
@@ -302,7 +302,7 @@ Parameters:
               8      -0.46 (99)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 142/3.6)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 146/3.7)
 
 ============================== Results
 
@@ -321,16 +321,16 @@ Settings:
      3 1.48(14)    -0.025(38)   -0.037(61)    0.057(84)    0.74(14)   
 
 Values:
-  E(3s-1s)/E(2s-1s): 1.567(33)           
          a*E(2s-1s): 0.5231(57)          
          a*E(3s-1s): 0.820(21)           
+  E(3s-1s)/E(2s-1s): 1.567(33)           
 
 Partial % Errors:
-                     E(3s-1s)/E(2s-1s)        a*E(2s-1s)        a*E(3s-1s)
+                            a*E(2s-1s)        a*E(3s-1s) E(3s-1s)/E(2s-1s)
 --------------------------------------------------------------------------
-              prior:              0.71              0.44              0.96
-               data:              1.13              0.73              1.44
-             svdcut:              1.62              0.69              1.89
+              prior:              0.44              0.96              0.71
+               data:              0.73              1.44              1.13
+             svdcut:              0.69              1.89              1.62
 --------------------------------------------------------------------------
-              total:              2.10              1.10              2.56
+              total:              1.10              2.56              2.10
 

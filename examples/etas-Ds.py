@@ -1,8 +1,8 @@
 from __future__ import print_function   # makes this work for python2 and 3
 
+import collections
 import gvar as gv
 import numpy as np
-import collections
 from corrfitter import CorrFitter, Corr2, Corr3, read_dataset
 
 DISPLAYPLOTS = True         # display plots at end of fitting?

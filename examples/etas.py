@@ -1,8 +1,8 @@
 from __future__ import print_function   # makes this work for python2 and 3
 
+import collections
 import gvar as gv
 import numpy as np
-import collections
 from corrfitter import CorrFitter, Corr2, read_dataset
 
 def main():
@@ -30,10 +30,9 @@ def make_models():
 
 def make_prior(N):
     """ Create prior for N-state fit. """
-    prior = dict(                                       
-        a=gv.gvar(N * ['0(1)']),  
-        logdE=gv.log(gv.gvar(N * ['0.5(5)']))
-        )
+    prior = collections.OrderedDict()
+    prior['a'] = gv.gvar(N * ['0(1)'])
+    prior['logdE'] = gv.log(gv.gvar(N * ['0.5(5)']))                       
     return prior
 
 def print_results(fit):
