@@ -264,7 +264,7 @@ Results for the fourth and higher states have larger errors, as expected.
 
 Note that while the chi-squared value for this last fit is almost identical to
 that in the  original fit, the Bayes Factor (from ``logGBF``) is
-exp(2171-2158.6)≈240,000 times larger for the original fit. The Bayes Factor
+exp(2171-2158.6)=240,000 times larger for the original fit. The Bayes Factor
 gives us a sense of which prior the data prefer. Specifically it says that
 our Monte Carlo data are 240,000 times more likely to have come from a model
 with the original prior than from one with the more conservative prior. This

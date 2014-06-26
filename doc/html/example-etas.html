@@ -91,9 +91,9 @@ The data are from the HPQCD collaboration.</p>
 code is:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>   <span class="c"># makes this work for python2 and 3</span>
 
+<span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">gvar</span> <span class="kn">as</span> <span class="nn">gv</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">CorrFitter</span><span class="p">,</span> <span class="n">Corr2</span><span class="p">,</span> <span class="n">read_dataset</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -121,10 +121,9 @@ code is:</p>
 
 <span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Create prior for N-state fit. &quot;&quot;&quot;</span>
-    <span class="n">prior</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>                                       
-        <span class="n">a</span><span class="o">=</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0(1)&#39;</span><span class="p">]),</span>  
-        <span class="n">logdE</span><span class="o">=</span><span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.5(5)&#39;</span><span class="p">]))</span>
-        <span class="p">)</span>
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0(1)&#39;</span><span class="p">])</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;logdE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.5(5)&#39;</span><span class="p">]))</span>                       
     <span class="k">return</span> <span class="n">prior</span>
 
 <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">):</span>

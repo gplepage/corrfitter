@@ -51,14 +51,14 @@ given in the tutorial documentation for |CorrFitter|.
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import lsqfit
-import gvar as _gvar
-import numpy
-import math
 import collections
-import fileinput
 import copy
+import fileinput
+import math
 import time
+import gvar as _gvar
+import lsqfit
+import numpy
 __version__ = '4.0'
 
 if not hasattr(collections,'OrderedDict'):
@@ -1197,7 +1197,7 @@ class CorrFitter(object):
         logGBF = 0.0
         svdn = 0
         nit = 0
-        svdcorrection = None
+        svdcorrection = _gvar.gvar('0(0)')
         all_y = _gvar.BufferDict()
         for key in self.fit.fits:
             f = self.fit.fits[key]
@@ -1207,10 +1207,7 @@ class CorrFitter(object):
             logGBF += f.logGBF
             svdn += f.svdn
             nit += f.nit
-            if svdcorrection is None:
-                svdcorrection = f.svdcorrection
-            else:
-                svdcorrection = numpy.concatenate((svdcorrection, f.svdcorrection))
+            svdcorrection += f.svdcorrection
         if parallel:
             self.fit._p = _gvar.BufferDict(
                 lsqfit.wavg(parallel_parameters, svdcut=svdcut)
