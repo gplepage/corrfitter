@@ -12,6 +12,9 @@ Contents:
    :maxdepth: 2
 
    corrfitter.rst
+   example-etas.rst
+   example-etas-Ds.rst  
+   example-etab.rst
    
 Indices and tables
 ==================

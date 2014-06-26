@@ -1,0 +1,566 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Annotated Example: Matrix Correlator &mdash; corrfitter 4.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="corrfitter 4.0 documentation" href="index.html" />
+    <link rel="prev" title="Annotated Example: Transition Form Factor" href="example-etas-Ds.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">corrfitter 4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="annotated-example-matrix-correlator">
+<h1>Annotated Example: Matrix Correlator<a class="headerlink" href="#annotated-example-matrix-correlator" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Matrix correlators, built from multiple sources and sinks,
+greatly improve results for the excited states in the correlators.
+Here we analyze <img class="math" src="_images/math/024aac0edad2d8a1e6ab741b50bf56eae0de379e.png" alt="\eta_b" style="vertical-align: -3px"/> correlators using 4 sources/sinks using
+a prior designed by <a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.EigenBasis</span></tt></a>.</p>
+<p>A major challenge when studying excited states with multi-source
+fits is the appearance in the fit of spurious states, with amplitudes that
+are essentially zero, between the real states in the correlator.
+These states contribute little to the correlators, because of their
+vanishing amplitudes, but they usually have a strong negative impact
+on the errors of states just below them and above them. They also can cause
+the fitter to stall, taking 1000s of iterations to change nothing other
+than the parameters of the spurious state.
+<a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.EigenBasis</span></tt></a> addresses this problem by creating a prior that discourages
+spurious states. It encodes the fact that only a small number of states
+still couple to the matrix correlator by moderate values of <tt class="docutils literal"><span class="pre">t</span></tt>, and
+therefore, that there exist linear combinations of the sources that
+couple strongly to individual low-lying states but not the others. This
+leaves little room for spurious low-lying states.</p>
+<p>This example involves only two-point correlators. Priors generated
+by <a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.EigenBasis</span></tt></a> are also useful in fits to three-point correlators,
+with multiple eigen-bases if different types of hadron are involved.</p>
+<p>The source code (<tt class="docutils literal"><span class="pre">etab.py</span></tt>) and data file
+(<tt class="docutils literal"><span class="pre">etab.data</span></tt>) are included with the <a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><tt class="xref py py-mod docutils literal"><span class="pre">corrfitter</span></tt></a> distribution,
+in the <tt class="docutils literal"><span class="pre">examples/</span></tt> directory.
+The data are from the HPQCD collaboration.</p>
+</div>
+<div class="section" id="code">
+<h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
+<p>The main method follows the template in <a class="reference internal" href="corrfitter.html#basic-fits"><em>Basic Fits</em></a>, but
+modified to handle the|EigenBasis| object <tt class="docutils literal"><span class="pre">basis</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>   <span class="c"># makes this work for python2 and 3</span>
+
+<span class="kn">import</span> <span class="nn">gvar</span> <span class="kn">as</span> <span class="nn">gv</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">CorrFitter</span><span class="p">,</span> <span class="n">Corr2</span><span class="p">,</span> <span class="n">EigenBasis</span><span class="p">,</span> <span class="n">read_dataset</span>
+
+<span class="n">DISPLAYPLOTS</span> <span class="o">=</span> <span class="bp">False</span>         <span class="c"># display plots at end of fits?</span>
+<span class="k">try</span><span class="p">:</span> 
+    <span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">DISPLAYPLOTS</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">data</span><span class="p">,</span> <span class="n">basis</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;etab.data&#39;</span><span class="p">)</span> 
+    <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">(</span><span class="n">basis</span><span class="p">))</span>
+    <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>  
+        <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nterm =&#39;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">)</span>          
+        <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">0.0004</span><span class="p">)</span> 
+        <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
+    <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> 
+    <span class="k">if</span> <span class="n">DISPLAYPLOTS</span><span class="p">:</span>
+        <span class="n">fitter</span><span class="o">.</span><span class="n">display_plots</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The eigen-basis is created by <tt class="docutils literal"><span class="pre">make_data('etab.data')</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+    <span class="n">basis</span> <span class="o">=</span> <span class="n">EigenBasis</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;1s0.{s1}{s2}&#39;</span><span class="p">,</span> <span class="n">srcs</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;l&#39;</span><span class="p">,</span> <span class="s">&#39;g&#39;</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">,</span> <span class="s">&#39;e&#39;</span><span class="p">],</span> 
+        <span class="n">t</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">24</span><span class="p">),</span> 
+        <span class="p">)</span> 
+    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">basis</span>
+</pre></div>
+</div>
+<p>It reads Monte Carlo
+data from file <tt class="docutils literal"><span class="pre">'etab.data'</span></tt>, which has the following format:</p>
+<div class="highlight-python"><div class="highlight"><pre>1s0.dd 0.143715 0.0588148 0.030329 ...
+1s0.dd 0.129067 0.0538892 0.0426075 ...
+...
+1s0.de 0.120838 0.0510525 0.0306193 ...
+1s0.de 0.110661 0.0610127 0.0369064 ...
+...
+1s0.dg 0.115676 0.0973511 0.0795044 ...
+1s0.dg 0.123485 0.10629 0.0885328  ...
+...
+</pre></div>
+</div>
+<p>There are 113 lines in the file for each distinct tag <tt class="docutils literal"><span class="pre">1s0.dd</span></tt>, <tt class="docutils literal"><span class="pre">1s0.de</span></tt> ...,
+each with 23 numbers. Each line is a separate Monte Carlo estimate
+of the correlator identified by the tag for <tt class="docutils literal"><span class="pre">t=1...23</span></tt>. There are
+sixteen different correlators in all, with tags given by:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;1s0.{s1}{s2}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s1</span><span class="o">=</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="o">=</span><span class="n">s2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">s1</span></tt> and <tt class="docutils literal"><span class="pre">s2</span></tt> are  drawn from the source list
+<tt class="docutils literal"><span class="pre">['l',</span> <span class="pre">'g',</span> <span class="pre">'d',</span> <span class="pre">'e']</span></tt>.</p>
+<p>The data are read in, and their means and covariance matrix computed
+using <tt class="xref py py-func docutils literal"><span class="pre">gvar.dataset.avg_data()</span></tt>. <a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.EigenBasis</span></tt></a> then creates an
+eigen-basis by solving a generalized eigenvalue problem involving the
+matrices of correlators at <tt class="docutils literal"><span class="pre">t=1</span></tt> and <tt class="docutils literal"><span class="pre">t=2</span></tt>. (One might want
+larger <tt class="docutils literal"><span class="pre">t</span></tt> values generally, but these data are too noisy.)
+The eigenanalysis constructs a set of eigen-sources
+that are linear combinations of the original sources chosen
+so that each eigen-source overlaps strongly with one of the
+lowest four states in the correlator, and weakly with all the others.
+This eigen-basis is used later to construct the prior.</p>
+<p>A correlator fitter, called <tt class="docutils literal"><span class="pre">fitter</span></tt>, is created from the list of correlator
+models returned by <tt class="docutils literal"><span class="pre">make_models(basis)</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_models</span><span class="p">(</span><span class="n">basis</span><span class="p">):</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s1</span> <span class="ow">in</span> <span class="n">basis</span><span class="o">.</span><span class="n">srcs</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">basis</span><span class="o">.</span><span class="n">srcs</span><span class="p">:</span>
+            <span class="n">tfit</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">tdata</span> <span class="k">if</span> <span class="n">s1</span> <span class="o">==</span> <span class="n">s2</span> <span class="k">else</span> <span class="n">basis</span><span class="o">.</span><span class="n">tdata</span><span class="p">[:</span><span class="mi">14</span><span class="p">]</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Corr2</span><span class="p">(</span>
+                    <span class="n">datatag</span><span class="o">=</span><span class="n">basis</span><span class="o">.</span><span class="n">keyfmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s1</span><span class="o">=</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="o">=</span><span class="n">s2</span><span class="p">),</span>
+                    <span class="n">tdata</span><span class="o">=</span><span class="n">basis</span><span class="o">.</span><span class="n">tdata</span><span class="p">,</span> <span class="n">tfit</span><span class="o">=</span><span class="n">tfit</span><span class="p">,</span>
+                    <span class="n">a</span><span class="o">=</span><span class="s">&#39;etab.&#39;</span> <span class="o">+</span> <span class="n">s1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s">&#39;etab.&#39;</span> <span class="o">+</span> <span class="n">s2</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;etab.dE&#39;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">models</span>
+</pre></div>
+</div>
+<p>There is one model for each correlator to be fit, so 16 in all. The keys
+(<tt class="docutils literal"><span class="pre">datatag</span></tt>) for the correlator data are constructed from information
+stored in the <tt class="docutils literal"><span class="pre">basis</span></tt>. Each correlator
+has data (<tt class="docutils literal"><span class="pre">tdata</span></tt>) for <tt class="docutils literal"><span class="pre">t=1...23</span></tt>.
+We fit all <tt class="docutils literal"><span class="pre">t</span></tt> values (<tt class="docutils literal"><span class="pre">tfit</span></tt>) for the diagonal elements of the
+matrix correlator, but only about half the <tt class="docutils literal"><span class="pre">t</span></tt> values for other
+correlators &#8212; the information at large <tt class="docutils literal"><span class="pre">t</span></tt> is highly correlated between
+different correlators, and therefore somewhat redundant. The
+amplitudes are labeled by <tt class="docutils literal"><span class="pre">'etab.l'</span></tt>, <tt class="docutils literal"><span class="pre">'etab.g'</span></tt>, <tt class="docutils literal"><span class="pre">'etab.d'</span></tt>, and
+<tt class="docutils literal"><span class="pre">'etab.e'</span></tt> in the prior. The energy differences are labeled by <tt class="docutils literal"><span class="pre">'etab.dE'</span></tt>.</p>
+<p>We try fits with <tt class="docutils literal"><span class="pre">N=1,2..9</span></tt> terms in the fit function. The number of
+terms is encoded in the prior, which is constructed by
+<tt class="docutils literal"><span class="pre">make_prior(N,</span> <span class="pre">basis)</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;etab.{s1}&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The prior looks complicated</p>
+<div class="highlight-python"><div class="highlight"><pre>k            prior[k]
+------------ ---------------------------------------------------------------
+etab.l       [-0.51(17),  -0.45(16),   0.49(17),   0.103(93), -0.07(87) ...]
+etab.g       [-0.88(27),   0.107(98),  0.051(93), -0.004(90), -0.13(90) ...]
+etab.d       [-0.244(86), -0.50(15),  -0.274(92), -0.166(71), -0.22(60) ...]
+etab.e       [-0.212(84), -0.41(13),  -0.31(10),   0.27(10),  -0.12(62) ...]
+
+log(etab.dE) [-1.3(2.3),  -0.5(1.0),  -0.5(1.0),  -0.5(1.0),  -0.5(1.0) ...]
+</pre></div>
+</div>
+<p>but its underlying structure becomes clear if we project it unto the
+eigen-basis using <tt class="docutils literal"><span class="pre">p_eig</span> <span class="pre">=</span> <span class="pre">basis.apply(prior,</span> <span class="pre">keyfmt='etab.{s1}')</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>k         p_eig[k]
+------    ------------------------------------------------------------
+etab.0    [1.00(30),    .03(10),   .03(10),   .03(10),   .2(1.0) ... ]
+etag.1    [ .03(10),   1.00(30),   .03(10),   .03(10),   .2(1.0) ... ]
+etab.2    [ .03(10),    .03(10),  1.00(30),   .03(10),   .2(1.0) ... ]
+etab.3    [ .03(10),    .03(10),   .03(10),  1.00(30),   .2(1.0) ... ]
+</pre></div>
+</div>
+<p>The <em>a priori</em> expectation built into <tt class="docutils literal"><span class="pre">p_eig</span></tt> (and therefore <tt class="docutils literal"><span class="pre">prior</span></tt>) is
+that the ground state  overlaps strongly with the first source in the
+eigen-basis, and weakly  with the other three. Similarly the first excited state
+overlaps strongly with the second eigen-source, but none of the others. And so
+on. The fifth  and higher excited states can overlap with every eigen-source.
+The priors for the energy differences between successive levels are based
+upon the energies obtained from the eigenanalysis (<tt class="docutils literal"><span class="pre">basis.E</span></tt>): the <tt class="docutils literal"><span class="pre">dE</span></tt>
+prior for the ground state is taken to be <tt class="docutils literal"><span class="pre">E0(E0)</span></tt>, where <tt class="docutils literal"><span class="pre">E0=basis.E[0]</span></tt>,
+while for the other states it equals <tt class="docutils literal"><span class="pre">dE1(dE1)</span></tt>,  where
+<tt class="docutils literal"><span class="pre">dE1=basis.E[1]-basis.E[0]</span></tt>. The prior specifies log-normal  statistics for
+<tt class="docutils literal"><span class="pre">etab.dE</span></tt> and so replaces it by <tt class="docutils literal"><span class="pre">log(etab.dE)</span></tt>.</p>
+<p>The fit is done by <tt class="docutils literal"><span class="pre">fitter.lsqfit(...)</span></tt>. An <em>svd</em> cut is needed
+(<tt class="docutils literal"><span class="pre">svdcut=0.0004</span></tt>) because the data are highly correlated.
+The data are also over-binned, to keep down the size of the
+<a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><tt class="xref py py-mod docutils literal"><span class="pre">corrfitter</span></tt></a> distribution, and this mandates an <em>svd</em> cut, as well.</p>
+<p>Final results are printed out by <tt class="docutils literal"><span class="pre">print_results(...)</span></tt>
+after the last fit is finished:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;Results</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">transformed_p</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;etab.{s1}&#39;</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">transformed_p</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;etab.{s1}&#39;</span><span class="p">,</span> <span class="n">eig_srcs</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">transformed_p</span><span class="p">[</span><span class="s">&#39;etab.dE&#39;</span><span class="p">])</span> 
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;a*E(2s-1s)&#39;</span><span class="p">:</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s">&#39;a*E(3s-1s)&#39;</span><span class="p">:</span><span class="n">E</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s">&#39;E(3s-1s)/E(2s-1s)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+        <span class="p">}</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">svdcorrection</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_values</span><span class="p">(</span><span class="n">outputs</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_errorbudget</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">colwidth</span><span class="o">=</span><span class="mi">18</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This method first writes out two tables listing energies and amplitudes for
+the first 4 states in the correlator. The first table shows results for the
+original sources, while the second is for the eigen-sources. The correlators
+are from NRQCD so only energy differences are physical. The energy differences
+for each of the first two excited states relative to the ground states are
+stored in dictionary <tt class="docutils literal"><span class="pre">outputs</span></tt>. These are in lattice units. <tt class="docutils literal"><span class="pre">outputs</span></tt>
+also contains the ratio of <tt class="docutils literal"><span class="pre">3s-1s</span></tt> difference to the <tt class="docutils literal"><span class="pre">2s-1s</span></tt> difference,
+and here the lattice spacing cancels out. The code automatically handles
+statistical correlations between different energies as it does the arithmetic
+for <tt class="docutils literal"><span class="pre">outputs</span></tt> &#8212; the fit results are all <tt class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></tt>s. The <tt class="docutils literal"><span class="pre">outputs</span></tt>
+are tabulated using <tt class="xref py py-func docutils literal"><span class="pre">gvar.fmt_values()</span></tt>. An error budget is also
+produced, using <tt class="xref py py-func docutils literal"><span class="pre">gvar.fmt_errorbudget()</span></tt>, showing how much error
+for each quantity comes from uncertainties in the prior and data, and
+from uncertainties introduced by the <em>svd</em> cut.</p>
+<p>Finally plots showing the data divided by the fit for each correlator are
+displayed (optionally).</p>
+</div>
+<div class="section" id="results">
+<h2>Results<a class="headerlink" href="#results" title="Permalink to this headline">¶</a></h2>
+<p>Running the code produces the following output for the last fit (<tt class="docutils literal"><span class="pre">N=9</span></tt>):</p>
+<div class="highlight-python"><div class="highlight"><pre>============================== nterm = 9
+Least Square Fit:
+  chi2/dof [dof] = 0.99 [260]    Q = 0.52    logGBF = 2171
+
+Parameters:
+       etab.l 0   -0.50672 (53)      [  -0.51 (17) ]  
+              1    -0.3915 (61)      [  -0.45 (16) ]  
+              2      0.350 (31)      [   0.49 (17) ]  
+              3      0.145 (76)      [  0.103 (93) ]  
+              4      -0.49 (20)      [  -0.07 (87) ]  
+              5       0.25 (45)      [  -0.07 (87) ]  
+              6      -0.12 (40)      [  -0.07 (87) ]  
+              7       0.21 (38)      [  -0.07 (87) ]  
+              8      -0.13 (46)      [  -0.07 (87) ]  
+       etab.g 0   -0.87028 (87)      [  -0.88 (27) ]  
+              1     0.1436 (52)      [  0.107 (98) ]  
+              2      0.040 (11)      [  0.051 (93) ]  
+              3      0.033 (35)      [ -0.004 (90) ]  
+              4     -0.173 (82)      [  -0.13 (90) ]  
+              5      -0.15 (24)      [  -0.13 (90) ]  
+              6      -0.04 (37)      [  -0.13 (90) ]  
+              7       0.18 (33)      [  -0.13 (90) ]  
+              8      -0.14 (44)      [  -0.13 (90) ]  
+       etab.d 0   -0.21632 (29)      [ -0.244 (86) ]  
+              1    -0.4100 (72)      [  -0.50 (15) ]  
+              2     -0.250 (17)      [ -0.274 (92) ]  
+              3     -0.093 (34)      [ -0.166 (71) ]  *
+              4     -0.106 (77)      [  -0.22 (60) ]  
+              5       0.04 (23)      [  -0.22 (60) ]  
+              6      -0.16 (35)      [  -0.22 (60) ]  
+              7      -0.33 (42)      [  -0.22 (60) ]  
+              8      -0.45 (46)      [  -0.22 (60) ]  
+       etab.e 0   -0.19704 (25)      [ -0.212 (84) ]  
+              1    -0.3413 (73)      [  -0.41 (13) ]  
+              2     -0.296 (15)      [  -0.31 (10) ]  
+              3      0.221 (54)      [   0.27 (10) ]  
+              4     -0.052 (77)      [  -0.12 (62) ]  
+              5       0.06 (17)      [  -0.12 (62) ]  
+              6       0.05 (40)      [  -0.12 (62) ]  
+              7      -0.30 (41)      [  -0.12 (62) ]  
+              8      -0.51 (43)      [  -0.12 (62) ]  
+ log(etab.dE) 0   -1.36212 (67)      [  -1.3 (2.3) ]  
+              1     -0.648 (11)      [  -0.5 (1.0) ]  
+              2     -1.216 (61)      [  -0.5 (1.0) ]  
+              3      -0.91 (36)      [  -0.5 (1.0) ]  
+              4      -1.06 (79)      [  -0.5 (1.0) ]  
+              5      -0.83 (93)      [  -0.5 (1.0) ]  
+              6      -0.54 (96)      [  -0.5 (1.0) ]  
+              7      -0.45 (95)      [  -0.5 (1.0) ]  
+              8      -0.46 (99)      [  -0.5 (1.0) ]  
+
+Settings:
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 142/3.6)
+</pre></div>
+</div>
+<p>This is a good fit, with a chi-squared per degree of freedom of 0.99 for
+260 degrees of freedom (the number of data points fit); the <em>Q</em> or <em>p</em>-value
+is 0.52. This fit required 142 iterations, but took only a few seconds
+on a laptop.</p>
+<p>The final energies and amplitudes for the original sources are listed as</p>
+<div class="highlight-python"><div class="highlight"><pre>       E            l            g            d            e          
+    ==================================================================
+     0 0.25612(17) -0.50672(53) -0.87028(87) -0.21632(29) -0.19704(25)
+     1 0.7792(57)  -0.3915(61)   0.1436(52)  -0.4100(72)  -0.3413(73) 
+     2 1.076(21)    0.350(31)    0.040(11)   -0.250(17)   -0.296(15)  
+     3 1.48(14)     0.145(76)    0.033(35)   -0.093(34)    0.221(54)  
+</pre></div>
+</div>
+<p>while for the eigen-sources they are</p>
+<div class="highlight-python"><div class="highlight"><pre>       E            0            1            2            3          
+    ==================================================================
+     0 0.25612(17)  0.97956(97)  0.00644(46) -0.00238(21)  0.00164(14)
+     1 0.7792(57)  -0.0337(47)   0.877(11)   -0.019(13)    0.0139(55) 
+     2 1.076(21)    0.036(10)    0.099(41)    0.803(32)   -0.034(22)  
+     3 1.48(14)    -0.025(38)   -0.037(61)    0.057(84)    0.74(14)   
+</pre></div>
+</div>
+<p>The latter shows that the eigen-sources align quite well with the first
+four states, as hoped. The errors, especially for the first three states,
+are much smaller than the prior errors, which indicates strong signals for
+these states.</p>
+<p>Finally values and an error budget are presented for the <tt class="docutils literal"><span class="pre">2s-1s</span></tt> and
+<tt class="docutils literal"><span class="pre">3s-1s</span></tt> energy differences (in lattice units) and the ratio of the two:</p>
+<div class="highlight-python"><div class="highlight"><pre>Values:
+  E(3s-1s)/E(2s-1s): 1.567(33)           
+         a*E(2s-1s): 0.5231(57)          
+         a*E(3s-1s): 0.820(21)           
+
+Partial % Errors:
+                     E(3s-1s)/E(2s-1s)        a*E(2s-1s)        a*E(3s-1s)
+--------------------------------------------------------------------------
+              prior:              0.71              0.44              0.96
+               data:              1.13              0.73              1.44
+             svdcut:              1.62              0.69              1.89
+--------------------------------------------------------------------------
+              total:              2.10              1.10              2.56
+</pre></div>
+</div>
+<p>The first excited state is obviously more accurately determined than
+the second state, but the fit improves our knowledge of both.
+The energies for the fifth and higher states merely echo the
+<em>a priori</em> information in the prior &#8212; the data are not sufficiently
+accurate to add much new information to what was in the prior. The prior
+is less important for the three quantities tabulated here. The dominant
+source of error in each case comes from the <em>svd</em> cut.</p>
+</div>
+<div class="section" id="fit-stability">
+<h2>Fit Stability<a class="headerlink" href="#fit-stability" title="Permalink to this headline">¶</a></h2>
+<p>It is a good idea in fits like this one to test the stability of the
+results to significant changes in the prior. This is especially true for
+quantities like the <tt class="docutils literal"><span class="pre">3s-1s</span></tt> splitting that involve more highly excited
+states. The default prior in effect assigns each of the four sources in the
+new basis to one of the four states in the correlator with the lowest
+energies. Typically the actual correspondence between source and low-energy
+state weakens as the energy increases. So an obvious test is to rerun the
+fit but with a prior that associates states with only three of the sources,
+leaving the fourth source unconstrained. This is done by replacing</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;etab.{s1}&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>with</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;etab.{s1}&#39;</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>in the code. The <tt class="docutils literal"><span class="pre">states</span></tt> option in the second <tt class="docutils literal"><span class="pre">basis.make_prior(...)</span></tt>
+assigns the three lowest lying states (in order of increasing energy)
+to the first three eigen-sources, but leaves the fourth and higher states
+unassigned. The prior for the amplitudes projected onto the eigen-basis
+then becomes</p>
+<div class="highlight-python"><div class="highlight"><pre>k         p_eig[k]
+------    ----------------------------------------------------------
+etab.0    [1.00(30),    .03(10),   .03(10),  .2(1.0),  .2(1.0) ... ]
+etab.1    [ .03(10),   1.00(30),   .03(10),  .2(1.0),  .2(1.0) ... ]
+etab.2    [ .03(10),    .03(10),  1.00(30),  .2(1.0),  .2(1.0) ... ]
+etab.3    [ .2(1.0),    .2(1.0),   .2(1.0),  .2(1.0),  .2(1.0) ... ]
+</pre></div>
+</div>
+<p>where now no strong assumption is made about the overlaps of the first three
+eigen-sources with the fourth state, or about the overlap of the fourth source
+with any state. Running with this (more conservative) prior gives
+the following results for the last fit and summary:</p>
+<div class="highlight-python"><div class="highlight"><pre>============================== nterm = 9
+Least Square Fit:
+  chi2/dof [dof] = 0.98 [260]    Q = 0.57    logGBF = 2158.6
+
+Parameters:
+       etab.l 0   -0.50649 (58)      [ -0.49 (20) ]  
+              1    -0.3889 (78)      [ -0.43 (19) ]  
+              2      0.346 (39)      [  0.51 (21) ]  
+              3      -0.29 (15)      [ -0.07 (87) ]  
+              4      -0.07 (42)      [ -0.07 (87) ]  
+              5       0.49 (22)      [ -0.07 (87) ]  
+              6       0.23 (50)      [ -0.07 (87) ]  
+              7       0.10 (75)      [ -0.07 (87) ]  
+              8      -0.14 (45)      [ -0.07 (87) ]  
+       etab.g 0   -0.86991 (97)      [ -0.88 (27) ]  
+              1     0.1438 (56)      [ 0.110 (99) ]  
+              2      0.039 (14)      [ 0.054 (94) ]  
+              3     -0.111 (66)      [ -0.13 (90) ]  
+              4      -0.11 (14)      [ -0.13 (90) ]  
+              5    -0.008 (198)      [ -0.13 (90) ]  
+              6       0.22 (33)      [ -0.13 (90) ]  
+              7       0.10 (78)      [ -0.13 (90) ]  
+              8      -0.17 (48)      [ -0.13 (90) ]  
+       etab.d 0   -0.21622 (31)      [ -0.27 (16) ]  
+              1    -0.4085 (81)      [ -0.52 (20) ]  
+              2     -0.247 (20)      [ -0.30 (17) ]  
+              3      0.020 (96)      [ -0.22 (60) ]  
+              4     -0.161 (85)      [ -0.22 (60) ]  
+              5       0.12 (14)      [ -0.22 (60) ]  
+              6      -0.15 (36)      [ -0.22 (60) ]  
+              7      -0.20 (53)      [ -0.22 (60) ]  
+              8      -0.47 (40)      [ -0.22 (60) ]  
+       etab.e 0   -0.19695 (27)      [ -0.16 (31) ]  
+              1    -0.3389 (86)      [ -0.36 (32) ]  
+              2     -0.304 (22)      [ -0.26 (31) ]  
+              3      -0.17 (12)      [ -0.12 (62) ]  
+              4       0.13 (15)      [ -0.12 (62) ]  
+              5      0.052 (91)      [ -0.12 (62) ]  
+              6      -0.09 (39)      [ -0.12 (62) ]  
+              7      -0.20 (55)      [ -0.12 (62) ]  
+              8      -0.59 (39)      [ -0.12 (62) ]  
+ log(etab.dE) 0   -1.36217 (67)      [ -1.3 (2.3) ]  
+              1     -0.651 (12)      [ -0.5 (1.0) ]  
+              2     -1.206 (60)      [ -0.5 (1.0) ]  
+              3      -1.07 (53)      [ -0.5 (1.0) ]  
+              4      -1.23 (61)      [ -0.5 (1.0) ]  
+              5      -0.99 (77)      [ -0.5 (1.0) ]  
+              6      -0.42 (94)      [ -0.5 (1.0) ]  
+              7      -0.39 (96)      [ -0.5 (1.0) ]  
+              8      -0.43 (98)      [ -0.5 (1.0) ]  
+
+Settings:
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 500/11.1)
+
+============================== Results
+
+       E            l            g            d            e          
+    ==================================================================
+     0 0.25611(17) -0.50649(58) -0.86991(97) -0.21622(31) -0.19695(27)
+     1 0.7776(65)  -0.3889(78)   0.1438(56)  -0.4085(81)  -0.3389(86) 
+     2 1.077(20)    0.346(39)    0.039(14)   -0.247(20)   -0.304(22)  
+     3 1.42(18)    -0.29(15)    -0.111(66)    0.020(96)   -0.17(12)   
+
+       E            0           1            2            3          
+    =================================================================
+     0 0.25611(17)  0.9791(11)  0.00641(46) -0.00237(21)  0.00165(14)
+     1 0.7776(65)  -0.0343(58)  0.873(13)   -0.018(14)    0.0165(63) 
+     2 1.077(20)    0.036(16)   0.100(47)    0.802(33)   -0.060(35)  
+     3 1.42(18)     0.121(78)   0.15(13)    -0.20(21)    -0.49(42)   
+
+Values:
+  E(3s-1s)/E(2s-1s): 1.574(33)           
+         a*E(2s-1s): 0.5215(65)          
+         a*E(3s-1s): 0.821(20)           
+
+Partial % Errors:
+                     E(3s-1s)/E(2s-1s)        a*E(2s-1s)        a*E(3s-1s)
+--------------------------------------------------------------------------
+              prior:              0.69              0.55              0.83
+               data:              1.20              0.79              1.48
+             svdcut:              1.59              0.79              1.82
+--------------------------------------------------------------------------
+              total:              2.11              1.25              2.49
+</pre></div>
+</div>
+<p>The energies and amplitudes for the first three states are almost unchanged,
+which gives us confidence in the original results.
+Results for the fourth and higher states have larger errors, as expected.</p>
+<p>Note that while the chi-squared value for this last fit is almost identical to
+that in the  original fit, the Bayes Factor (from <tt class="docutils literal"><span class="pre">logGBF</span></tt>) is
+exp(2171-2158.6)≈240,000 times larger for the original fit. The Bayes Factor
+gives us a sense of which prior the data prefer. Specifically it says that
+our Monte Carlo data are 240,000 times more likely to have come from a model
+with the original prior than from one with the more conservative prior. This
+further reinforces our confidence in the original results.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Annotated Example: Matrix Correlator</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#code">Code</a></li>
+<li><a class="reference internal" href="#results">Results</a></li>
+<li><a class="reference internal" href="#fit-stability">Fit Stability</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="example-etas-Ds.html"
+                        title="previous chapter">Annotated Example: Transition Form Factor</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor"
+             >previous</a> |</li>
+        <li><a href="index.html">corrfitter 4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-12, G.P. Lepage.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

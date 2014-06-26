@@ -1,16 +1,20 @@
 :mod:`corrfitter` - Least-Squares Fit to Correlators
 =====================================================
 
+.. module:: corrfitter
+   :synopsis: Least-Squares Fit to Correlators.
+
 .. moduleauthor:: G.P. Lepage <g.p.lepage@cornell.edu>
 
 .. |CorrFitter| replace:: :class:`corrfitter.CorrFitter`
 .. |Corr2| replace:: :class:`corrfitter.Corr2`
 .. |Corr3| replace:: :class:`corrfitter.Corr3`
+.. |EigenBasis| replace:: :class:`corrfitter.EigenBasis`
 .. |BaseModel| replace:: :class:`corrfitter.BaseModel`
 .. |Dataset| replace:: :class:`gvar.dataset.Dataset`
 .. |GVar| replace:: :class:`gvar.GVar`
 
-Introduction 
+Introduction  
 ------------------
 This module contains tools that facilitate least-squares fits, as functions
 of time ``t``, of simulation (or other statistical) data for 2-point and
@@ -33,8 +37,11 @@ correlations between the correlators. Any number of correlators may be
 described and fit by a single |CorrFitter| object.
 
 We now review the basic features of :mod:`corrfitter`. These features are also
-illustrated in the context of a real application in an 
-:ref:`annotated-example`, at the end.
+illustrated for real applications in a series of annotated
+examples following this section. Impatient readers may wish to jump 
+directly to these examples.
+
+.. _basic-fits: 
 
 Basic Fits
 ----------
@@ -374,6 +381,10 @@ would change had we used log-normal priors for ``a`` and ``dE``::
 Here ``fit.transformed_p`` contains the best-fit parameter values from the
 fitter, in addition to the exponentials of the ``'loga'`` and ``'logdE'``
 parameters.
+
+Finally note that another option for stabilizings fits involving many 
+sources and sinks is to generate priors for the 
+fit amplitudes and energies using |EigenBasis|. 
 
 .. _marginalized-fits:
 
@@ -716,7 +727,7 @@ to run fits with a range of *svd* cuts to see how small ``svdcut``
 can be made before the parameters of interest deviate too far from ``pexact``.
 
 
-Bootstrap Analyses
+Bootstrap Analyses 
 ------------------
 A *bootstrap analysis* gives more robust error estimates for fit parameters
 and functions of fit parameters than the conventional fit when errors are
@@ -740,7 +751,7 @@ large, or fluctuations are non-Gaussian. A typical code looks something like::
     # bootstrap analysis
     print 'Bootstrap fit results:'
     nbootstrap = 10                     # number of bootstrap iterations
-    bs_datalist = (ds.avg_data(d) for d in dset.bootstrap_iter(nbootstrap))
+    bs_datalist = (ds.avg_data(d) for d in ds.bootstrap_iter(dset, nbootstrap))
     bs = ds.Dataset()                   # bootstrap output stored in bs
     for bs_fit in fitter.bootstrap_iter(bs_datalist): # bs_fit = lsqfit output
         p = bs_fit.pmean    # best fit values for current bootstrap iteration
@@ -791,10 +802,11 @@ when parameter ``ratio`` in |CorrFitter| is set to ``False``. Results are
 similar to the other implementation.
 
 Background information on the some of the fitting strategies used by
-|corrfitter| can be found by doing web searches for "hep-lat/0110175" and
-"arXiv:1111.1363". These are two papers by G.P. Lepage and collaborators 
-whose published versions are: G.P. Lepage et al, Nucl.Phys.Proc.Suppl. 
-106 (2002) 12-20; and K. Hornbostel et al, Phys.Rev. D85 (2012) 031504.
+|corrfitter| can be found by doing a web searches for "hep-lat/0110175",
+"arXiv:1111.1363", and ":arXiv:1406.2279" (appendix). These are papers by 
+G.P. Lepage and collaborators whose published versions are: G.P. Lepage et al, 
+Nucl.Phys.Proc.Suppl. 106 (2002) 12-20; K. Hornbostel et al, 
+Phys.Rev. D85 (2012) 031504; and C. Bouchard et al, ...
 
 
 Correlator Model Objects
@@ -822,514 +834,59 @@ identified by the data tag that labels it in the input file or |Dataset|.
 
 
 |CorrFitter| Objects
----------------------
+---------------------  
 |CorrFitter| objects are wrappers for :func:`lsqfit.nonlinear_fit()` which
 is used to fit a collection of models to a collection of Monte Carlo data.
 
 .. autoclass:: corrfitter.CorrFitter
    :members:
 
+:class:`corrfitter.EigenBasis` Objects
+--------------------------------------
+:class:`corrfitter.EigenBasis` objects are useful for analyzing two-point and 
+three-point correlators with multiplle sources and sinks. 
+The current interface for :class:`EigenBasis` is experimental. 
+It may change in the near future, as experience 
+accumulates from its use.
+
+
+.. autoclass:: corrfitter.EigenBasis
+    
+    In addition to ``keyfmt``, ``srcs``, ``t`` and ``tdata`` above,
+    the main attributes are:
+
+    .. attribute:: E
+
+        Array of approximate energies obtained from the eigenanalysis.
+
+    .. attribute:: eig_srcs
+
+        List of labels for the sources in the eigen-basis: ``'0'``, ``'1'`` ...
+
+    .. attribute:: v 
+
+        ``v[a]`` is the eigenvector corresponding to source ``a`` 
+        in the new basis, where ``a=0,1...``.
+
+
+    .. attribute:: v_inv
+
+        ``v_inv[i]`` is the inverse-eigenvector for transforming from the 
+        new basis back to the original basis.
+
+    The main methods are:
+
+    .. automethod:: apply
+
+    .. automethod:: make_prior
+
+    .. automethod:: tabulate
+
+    .. automethod:: unapply
+
+
+
 Fast Fit Objects
 -----------------
 
 .. autoclass:: corrfitter.fastfit
-
-.. _annotated-example:
-
-Annotated Example
-----------------------------
-In this section we describe a complete script that uses :mod:`corrfitter` to
-extract energies, amplitudes, and transition matrix elements for  the
-:math:`\eta_s` and :math:`D_s` mesons. The source code (``example.py``) and  
-data file (``example.data``) are included with the :mod:`corrfitter`
-distribution, in the ``examples/`` directory.
-
-The ``main`` method follows the pattern described in :ref:`faster-fits`::
-
-    from __future__ import print_function   # makes this work for python2 and 3
-
-    import gvar as gv
-    import numpy as np
-    import collections
-    from corrfitter import CorrFitter, Corr2, Corr3
-
-    def main():
-        data = make_data('example.data')          
-        fitter = CorrFitter(models=make_models())
-        p0 = None
-        for N in [1, 2, 3, 4]:  
-            print(30 * '=', 'nterm =', N)
-            prior = make_prior(N)               
-            fit = fitter.lsqfit(data=data, prior=prior, p0=p0) 
-            p0 = fit.pmean
-        print_results(fit, prior, data) 
-        fitter.display_plots()
-
-The raw Monte Carlo data is in a file named ``'example.data'``. We are doing
-four fits, with 1, 2, 3, and 4 terms in the fit function. Each fit starts its
-minimization at point ``p0``, which is set equal to the mean values of the
-best-fit parameters from the previous fit (``p0 = fit.pmean``). This reduces
-the  number of iterations needed for convergence in the ``N = 4`` fit, for
-example, from 217 to 23. It also makes multi-term fits more stable.
-
-The last line displays plots of the fit data divided by the fit, provided 
-:mod:`matplotlib` is installed. A plot is made for each correlator, and the
-ratios should equal one to within errors. To 
-move from one plot to the next press "n" on the keyboard; to move to a 
-previous plot press "p"; to quit the plots press "q".
-
-We now look at each other major routine in turn.
-
-a) make_data
-________________
-Method ``make_data('example.data')`` reads in the Monte Carlo data, averages
-it, and formats it for use by |CorrFitter|. The data file (``'example.data'``)
-contains 225 lines,  each with 64 numbers on it, of the form::
-
-    etas    0.3045088594E+00    0.7846334531E-01    0.3307295938E-01 ...
-    etas    0.3058093438E+00    0.7949004688E-01    0.3344648906E-01 ...
-    ...
-
-Each of these lines is a single Monte Carlo estimate for the :math:`\eta_s` 
-correlator on a lattice with 64 lattice points in the ``t`` direction; 
-there are 225 Monte Carlo estimates in all. The same file also contains
-225 lines describing the :math:`D_s` meson correlator::
-
-    Ds    0.2303351094E+00    0.4445243750E-01    0.8941437344E-02 ...
-    Ds    0.2306766563E+00    0.4460026875E-01    0.8991960781E-02 ...
-    ...
-
-And it contains 225 lines each giving the 3-point amplitude for 
-:math:`\eta_s \to D_s`
-where the source and sink are separated by 15 and 16 time steps on the
-lattice::
-
-    3ptT15    0.4679643906E-09    0.1079643844E-08    0.2422032031E-08 ...
-    3ptT15    0.4927106406E-09    0.1162639109E-08    0.2596277812E-08 ...
-    ...
-
-    3ptT16     0.1420718453E-09    0.3205214219E-09    0.7382921875E-09 ...
-    3ptT16     0.1501385469E-09    0.3478552344E-09    0.8107883594E-09 ...
-    ...
-
-The first, second, third, *etc.* lines for each label come from the first, 
-second, third, *etc.* Monte Carlo iterations, respectively; this allows
-the code to compute correlations between different 
-types of data.
-
-We use the tools in :mod:`gvar.dataset` designed for reading files in this
-format::
-
-    def make_data(datafile):
-        """ Read data from datafile and average it. """
-        return gv.dataset.avg_data(gv.dataset.Dataset(datafile))
-
-This routine returns a dictionary whose keys are the strings used to label the
-individual lines in ``example.data``: for example, ::
-
-    >>> data = make_data('example.data')
-    >>> print(data['Ds'])
-    [0.2307150(73) 0.0446523(32) 0.0089923(15) ... 0.0446527(32)]
-    >>> print(data['3ptT16'])
-    [1.4583(21)e-10 3.3639(44)e-10 ... 0.000023155(30)]
-
-Here each entry in ``data`` is an array of |GVar|\s representing the Monte
-Carlo estimates (mean and covariance) for the corresponding correlator. This 
-is the format needed by |CorrFitter|.
-
-b) make_models
-__________________
-Method ``make_models()`` specifies the theoretical models that will be used 
-to fit the data::
-
-    def make_models():
-        """ Create models to fit data. """
-        tmin = 5
-        tp = 64
-        models = [
-            Corr2(
-                datatag='etas', 
-                tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),  
-                a='etas:a',  b='etas:a',  dE='etas:dE'
-                ),  
-                
-            Corr2(
-                datatag='Ds',
-                tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),  
-                a=('Ds:a', 'Ds:ao'), b=('Ds:a', 'Ds:ao'), 
-                dE=('Ds:dE', 'Ds:dEo'), s=(1., -1.)
-                ),
-
-            Corr3(
-                datatag='3ptT15', 
-                tdata=range(16), T=15, tfit=range(tmin, 16-tmin), 
-                a='etas:a', dEa='etas:dE', tpa=tp, 
-                b=('Ds:a', 'Ds:ao'), dEb=('Ds:dE', 'Ds:dEo'), tpb=tp, sb=(1, -1.), 
-                Vnn='Vnn', Vno='Vno'
-                ), 
-                
-            Corr3(
-                datatag='3ptT16', 
-                tdata=range(17), T=16, tfit=range(tmin, 17-tmin), 
-                a='etas:a', dEa='etas:dE', tpa=tp, 
-                b=('Ds:a', 'Ds:ao'), dEb=('Ds:dE', 'Ds:dEo'), tpb=tp, sb=(1, -1.), 
-                Vnn='Vnn', Vno='Vno'
-                )
-            ]
-        return models
-
-Four models are specified, one for each correlator to be fit. The first two
-are for the :math:`\eta_s` and :math:`D_s` two-point correlators, corresponding to
-entries in the data dictionary with keys ``'etas'`` and ``'Ds'``,
-respectively. These are periodic propagators, with period 64 (``tp``), and we want to
-omit the first and last 5 (``tmin``) time steps in the correlator. The
-``t``\s to be fit are listed in ``tfit``, while the ``t``\s contained in the
-data are in ``tdata``. Labels for the fit parameters corresponding to the
-sources (and sinks) are specified for each, ``'etas:a'`` and ``'Ds:a'``, as
-are labels for the energy differences, ``'etas:dE'`` and ``'Ds:dE'``.  The
-:math:`D_s` propagator also has an oscillating piece because this data comes from
-a staggered-quark analysis. Sources/sinks and energy differences are
-specified for these as well: ``'Ds:ao'`` and ``'Ds:dEo'``.
-
-Finally three-point models are specifies for the data corresponding to 
-data-dictionary keys ``'3ptT15'`` and ``'3ptT16'``. These share several 
-parameters with the two-point correlators, but introduce new parameters
-for the transition elements: ``'Vnn'`` connecting normal states, and 
-``'Vno'`` connecting normal states with oscillating states.
-
-c) make_prior
-_________________
-Method ``make_prior(N)`` creates *a priori* estimates for each fit 
-parameter, to be used as priors in the fitter::
-
-    def make_prior(N):
-        """ Create priors for fit parameters. """
-        prior = gv.BufferDict()
-        # etas
-        metas = gv.gvar('0.4(2)')
-        prior['log(etas:a)'] = gv.log(gv.gvar(N * ['0.3(3)']))   
-        prior['log(etas:dE)'] = gv.log(gv.gvar(N * ['0.5(5)']))
-        prior['log(etas:dE)'][0] = gv.log(metas)
-
-        # Ds
-        mDs = gv.gvar('1.2(2)')
-        prior['log(Ds:a)'] = gv.log(gv.gvar(N * ['0.3(3)']))
-        prior['log(Ds:dE)'] = gv.log(gv.gvar(N * ['0.5(5)']))
-        prior['log(Ds:dE)'][0] = gv.log(mDs)
-
-        # Ds -- oscillating part
-        prior['log(Ds:ao)'] = gv.log(gv.gvar(N * ['0.1(1)']))
-        prior['log(Ds:dEo)'] = gv.log(gv.gvar(N * ['0.5(5)']))
-        prior['log(Ds:dEo)'][0] = gv.log(mDs + gv.gvar('0.3(3)'))
-
-        # V
-        prior['Vnn'] = gv.gvar(N * [N * ['0(1)']])
-        prior['Vno'] = gv.gvar(N * [N * ['0(1)']])
-
-        return prior
-
-Parameter ``N`` specifies how many terms are kept in the fit functions. The
-priors are specified in a dictionary ``prior``. Each entry is an array, of
-length ``N``, with one entry for each term. Each entry is a Gaussian random
-variable, specified by an object of type  |GVar|. Here we use the fact that
-``gvar.gvar()`` can make a list of |GVar|\s from a list of strings of the form
-``'0.1(1)'``: for example, ::
-
-    >>> print(gv.gvar(['1(2)', '3(2)']))
-    [1.0(2.0) 3.0(2.0)]
-
-In this particular fit, we can assume that all the sinks/sources
-are positive, and we can require that the energy differences be positive. To
-force positivity, we use log-normal distributions for these parameters by
-defining priors for ``'log(etas:a)'``, ``'log(etas:dE)'``,... rather than
-``'etas:a'``,  ``'etas:dE'``,... (see :ref:`positive-parameters`). The *a
-priori* values for these fit parameters are the logarithms of the values for
-the parameters themselves: for example, each ``etas:a'`` has prior ``0.3(3)``,
-while the actual fit parameters, ``log(etas:a)``, have priors
-``log(0.3(3)) = -1.2(1.0)``.
-
-We override the default priors for the ground-state energies in each case.
-This is not unusual since ``dE[0]``, unlike the other ``dE``\s,  is an energy,
-not an energy difference. For the oscillating :math:`D_s` state, we require
-that its mass be ``0.3(3)`` larger than the :math:`D_s` mass. One could  put
-more precise information into the priors if that made sense given the goals
-of the simulation. For example, if the main objective is a value for ``Vnn``,
-one might include fairly exact information about the :math:`D_s` and
-:math:`\eta_s` masses in the prior, using results from experiment or from 
-earlier simulations. This would make no sense, however, if the goal is to 
-verify that simulations gives correct masses.
-
-Note, finally, that a statement like ::
-
-    prior['Vnn'] = gv.gvar(N * [N* ['0(1)']])       # correct 
-
-is *not* the same as ::
-
-    prior['Vnn'] = N * [N * [gv.gvar('0(1)')]]      # wrong
-
-The former creates ``N ** 2`` independent |GVar|\s, with one for each element
-of ``Vnn``; it is one of the most succinct ways of creating a large number of
-|GVar|\s. The latter creates only a single |GVar| and uses it repeatedly for
-every element ``Vnn``, thereby forcing every element of ``Vnn``  to be equal
-to every other element when fitting (since the difference between any two of
-their priors is ``0±0``); it is almost certainly not what is desired.
-Usually one wants to create the array of strings first, and then convert it to
-|GVar|\s using ``gvar.gvar()``.
-
-d) print_results
-_____________________
-Method ``print_results(fit, prior, data)`` reports on the best-fit values
-for the fit parameters from the last fit::
-
-    def print_results(fit, prior, data):
-        print('Fit results:')
-        p = fit.transformed_p                   # best-fit parameterss
-
-        # etas
-        E_etas = np.cumsum(p['etas:dE'])
-        a_etas = p['etas:a'])
-        print('  Eetas:', E_etas[:3])
-        print('  aetas:', a_etas[:3])
-
-        # Ds
-        E_Ds = np.cumsum(p['Ds:dE'])
-        a_Ds = p['Ds:a'])
-        print('\n  EDs:', E_Ds[:3])
-        print(  '  aDs:', a_Ds[:3])
-
-        # Dso -- oscillating piece
-        E_Dso = np.cumsum(p['Ds:dEo'])
-        a_Dso = p['Ds:ao']
-        print('\n  EDso:', E_Dso[:3])
-        print(  '  aDso:', a_Dso[:3])
-
-        # V
-        Vnn = p['Vnn']
-        Vno = p['Vno']
-        print('\n  etas->V->Ds:', Vnn[0, 0])
-        print('  etas->V->Dso:', Vno[0, 0])
-
-        # error budget
-        outputs = gv.BufferDict()
-        outputs['metas'] = E_etas[0]
-        outputs['mDs'] = E_Ds[0]
-        outputs['mDso-mDs'] = E_Dso[0] - E_Ds[0]
-        outputs['Vnn'] = Vnn[0, 0]
-        outputs['Vno'] = Vno[0, 0]
-
-        inputs = collections.OrderedDict()      # can use dict() instead
-        inputs['statistics'] = data             # statistical errors in data
-        inputs.update(prior)                    # all entries in prior
-        inputs['svd'] = fit.svdcorrection       # svd cut (if present)
-
-        print('\n' + gv.fmt_values(outputs))
-        print(gv.fmt_errorbudget(outputs, inputs))
-
-        print('\n')
-
-The best-fit parameter values are stored in dictionary ``p=fit.transformed_p``,
-as are the exponentials of the log-normal parameters.
-We also turn energy differences into energies using :mod:`numpy`'s cummulative
-sum function :func:`numpy.cumsum`. The final output is::
-
-    Fit results:
-      Eetas: [0.41619(12) 1.007(89) 1.43(34)]
-      aetas: [0.21834(16) 0.170(74) 0.30(12)]
-
-      EDs: [1.20166(16) 1.704(17) 2.29(20)]
-      aDs: [0.21466(20) 0.275(20) 0.52(20)]
-
-      EDso: [1.442(16) 1.65(11) 2.17(44)]
-      aDso: [0.0634(90) 0.080(26) 0.116(93)]
-
-      etas->V->Ds  = 0.76725(76)
-      etas->V->Dso = -0.793(92)
-
-
-Finally we  create an error budget for the :math:`\eta_s`
-and :math:`D_s` masses, for the mass difference between the :math:`D_s` and its
-opposite-parity partner, and for the ground-state transition amplitudes
-``Vnn`` and ``Vno``. The quantities of interest are specified in dictionary
-``outputs``. For the error budget, we need another dictionary, ``inputs``,
-specifying various inputs to the calculation: the Monte Carlo data, the
-priors, and the results from any *svd* cuts (none here). Each of these inputs
-contributes to the errors in the final results, as detailed in the
-error budget::
-
-    Values:
-                  metas: 0.41619(12)         
-                    mDs: 1.20166(16)         
-               mDso-mDs: 0.240(16)           
-                    Vnn: 0.76725(76)         
-                    Vno: -0.793(92)          
-
-    Partial % Errors:
-                             metas       mDs  mDso-mDs       Vnn       Vno
-    ----------------------------------------------------------------------
-             statistics:      0.03      0.01      4.51      0.09      8.60
-            log(etas:a):      0.00      0.00      0.11      0.01      0.39
-           log(etas:dE):      0.00      0.00      0.06      0.01      0.38
-              log(Ds:a):      0.00      0.00      0.53      0.02      0.96
-             log(Ds:dE):      0.00      0.00      0.44      0.02      0.59
-             log(Ds:ao):      0.00      0.00      1.10      0.01      3.85
-            log(Ds:dEo):      0.00      0.00      1.14      0.01      5.66
-                    Vnn:      0.00      0.00      0.58      0.03      1.03
-                    Vno:      0.00      0.00      4.25      0.01      3.39
-                    svd:      0.00      0.00      0.00      0.00      0.00
-    ----------------------------------------------------------------------
-                  total:      0.03      0.01      6.46      0.10     11.61
-
-
-The error budget shows, for example, that the largest sources of uncertainty
-in every quantity are the statistical errors in the input data. 
-
-e) Final Results
-_________________
-The output from running this code is as follows:
-
-.. literalinclude:: example.out
-
-Note:
-
-- This is a relatively simple fit, taking only a couple of seconds on a 
-  laptop.
-
-- Fits with only one or two terms in the fit function are poor, with 
-  ``chi2/dof``\s that are significantly larger than one.
-
-- Fits with three terms work well, and adding futher terms has almost no 
-  impact. The ``chi**2`` does not improve and parameters for the
-  added terms differ little from their prior values (since the data are 
-  not sufficiently accurate to add new information).
-
-- Chained fits (see :ref:`chained-fits`) are used if ``fitter.lsqfit(...)`` 
-  is replaced by ``fitter.chained_lsqfit(...)`` in ``main()``. The results
-  are about the same: for example, ::
-
-        Values:
-                      metas: 0.41619(12)         
-                        mDs: 1.20156(17)         
-                   mDso-mDs: 0.2554(41)          
-                        Vnn: 0.7676(12)          
-                        Vno: -0.754(26)          
-
-  We obtain more or less the same results, ::
-
-        Values:
-                      metas: 0.41619(11)         
-                        mDs: 1.20156(15)         
-                   mDso-mDs: 0.2576(27)          
-                        Vnn: 0.76666(67)         
-                        Vno: -0.747(15)          
-
-
-  if we polish the final results from the chained fit using 
-  a final call to ``fitter.lsqfit`` (see :ref:`chained-fits`)::
-
-        fit = fitter.chained_lsqfit(data=data, prior=prior, p0=p0) 
-        fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-4)
-
-  Another variation is to replace the last line (``return models``) 
-  in ``make_models()`` by::
-
-        return [models[:2]] + models[2:]
-
-  This causes the two 2-point correlators (``models[:2]``) to be fit
-  in parallel, which makes sense since they share no parameters.
-  The result of the (parallel) fit of the 2-point correlators is used
-  as a prior for the chained fits of the 3-point correlators (``models[2:]``).
-  The fit results are mostly unchanged, although the polishing fit 
-  is significantly faster (more than 2x) in this case::
-
-        Values:
-                      metas: 0.41620(11)         
-                        mDs: 1.20154(15)         
-                   mDso-mDs: 0.2557(29)          
-                        Vnn: 0.76718(60)         
-                        Vno: -0.746(15)          
-
-
-- Marginalization (see :ref:`marginalized-fits`) can speed up fits like 
-  this one. To use an 8-term fit function, while tuning parameters for only
-  ``N`` terms, we change only four lines in the main program::
-
-    def main():
-        data = make_data('example.data')          
-        models = make_models()   
-        fitter = CorrFitter(models=make_models(), ratio=False)                  #1
-        p0 = None
-        for N in [1, 2]:                                                        #2
-            print(30 * '=', 'nterm =', N)
-            prior = make_prior(8)                                               #3
-            fit = fitter.lsqfit(data=data, prior=prior, p0=p0, nterm=(N, N))    #4 
-            p0 = fit.pmean
-        print_results(fit, prior, data)  
-        fitter.display_plots()
-
-  The first modification (``#1``) is in the definition of ``fitter``, where we add
-  an extra argument to tell |CorrFitter| what kind of marginalization 
-  to use (that is, not the ratio method). The second modification (``#2``) 
-  limits the
-  fits to ``N=1,2``, because that is all that will be needed to get good
-  values for the leading term.
-  The third modification (``#3``) sets the prior to eight terms, no matter what value
-  ``N`` has. The last (``#4``) tells ``fitter.lsqfit`` to fit parameters from 
-  only the first ``N`` terms in the fit function; parts of the prior that are
-  not being fit are incorporated (*marginalized*) into the fit data. The output 
-  shows that
-  results for the leading term have converged by ``N=2`` (and even ``N=1`` isn't
-  so bad):
-
-  .. literalinclude:: example-marginalize.out
-
-- Test the code by adding ``test_fit(fitter, 'example.data')`` to the ``main`` 
-  program, where::
-
-    def test_fit(fitter, datafile):
-        gv.ranseed((5339893179535759510, 4088224360017966188, 7597275990505476522))
-        print('\nRandom seed:', gv.ranseed.seed)
-        dataset = gv.dataset.Dataset(datafile)
-        pexact = fitter.fit.pmean
-        prior = fitter.fit.prior
-        for sdata in fitter.simulated_data_iter(n=2, dataset=dataset, pexact=pexact):
-            print('\n============================== simulation')
-            sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact)
-            diff = []
-            # check chi**2 for leading parameters
-            for k in sfit.p: 
-                diff.append(sfit.p[k].flat[0] - pexact[k].flat[0])
-            print(
-                'Leading parameter chi2/dof [dof] = %.2f' % 
-                (gv.chi2(diff) / gv.chi2.dof),
-                '[%d]' % gv.chi2.dof, 
-                '  Q = %.1f' % gv.chi2.Q
-                )
-
-  This code does ``n=2`` simulations of the full fit, using the means of fit 
-  results from the last fit done by ``fitter`` as ``pexact``. 
-  The code prints out each fit,
-  and for each it computes the ``chi**2`` of the difference between the leading
-  parameters and ``pexact``. The output is:
-
-  .. literalinclude:: example-test1.out
-
-  This shows that the fit is working well, at least for the leading 
-  parameter for each key. 
-
-  Other options are easily checked. For example,
-  only one line need be changed in ``test_fit`` in order to test 
-  a marginalized fit::
-
-    sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact, nterm=(2,2))
-
-  Running this code gives:
-
-  .. literalinclude:: example-test2.out
-
-  This is also fine and confirms that ``nterm=(2,2)`` marginalized fits 
-  are a useful, faster substitute for full fits. Indeed the simulation 
-  suggests that the marginalized fit is somewhat more accurate
-  than the original fit for the oscillating-state parameters (``Vno``, 
-  ``log(Ds:ao)``, ``log(Ds:dEo)`` --- compare the simulated results with
-  the ``nterm=4`` results from the original fit, as these were used to 
-  define ``pexact``).

@@ -11,6 +11,60 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version 4.0 - 2014-06-25
+=========================
+The main change here is the new EigenBasis class.
+
+- A series of Annotated Examples have been added to the documentation. 
+  Each describes in detail a specific fit code and its results. Code 
+  and data for each example are included in the examples/ file. There
+  are three Annotated Examples right now. Eventually there may be one 
+  or two more. These are meant to provide code templates for various 
+  types of problem. They might also be useful for people who don't like
+  to read documentation. The code that used to be in the examples/ 
+  directory is now gone. Going forward this directory will be for 
+  Annotated Examples only.
+
+- A new class EigenBasis is provided for fits that involve matrix correlators.
+  It does a generalized eigenanalysis of the correlator at moderate values of
+  t, and uses that information to create priors for the amplitudes  and
+  energies associated with the matrix correlator. These "eigen-priors"  can
+  significantly improve the quality of results for the excited states in the
+  matrix correlator. They are easily combined with priors for  other sorts of
+  correlators, and so can be used, for example, in  joint fits of 2-point and
+  3-point correlators. They tend to  stabilize the low-lying excited states in
+  a fit, discouraging  the appearance of spurious states with near-zero
+  amplitudes. Introducing an eigen-prior into an existing code is generally 
+  trivial, requiring just a few lines of code (and usually removing many 
+  more, since EigenBasis creates a prior for the matrix correlator parameters).
+
+  See the Annotated Example on matrix correlators in the documentation for
+  a code example.
+
+  This class merges the advantages of multi-exponential fitting with  those of
+  the Generalized Eigenvalue approach (which is easily  implement using
+  EigenBasis, if desired). It makes fewer assumptions than the latter and
+  these assumptions are readily checked and altered.  The interface for this
+  class is experimental; it may change in the near future as we gain
+  experience with it.
+
+  This class also requires the scipy library for Python, in addition to 
+  numpy.
+
+- The print_fit option to lsqfit can be a dictionary containing arguments
+  for lsqfit.nonlinear_fit.format(). Alternatively it is True or False, 
+  as before.
+
+- Beginning with this version of corrfitter, version numbers will be consistent
+  with the rules of "semantic versioning" (http://semver.org). The most 
+  important consequence is that any change that is *not* backwards compatible 
+  with the current interface (as defined by the documentation) will be signaled
+  by a change in the major version number, where the full version number has the 
+  format major.minor.patch (so the major version number is 4 for version 4.0). 
+  A side effect of this is that increases in the major version number can 
+  be triggered by relatively obscure changes in the interface that will have
+  no effect whatsoever on almost all existing codes. 
+
 Version 3.7.1 - 2014-05-30
 ===========================
 Small updates.

@@ -3,7 +3,8 @@ To install:
 1. If not already installed, install the entire lsqfit system and the other 
 	libraries needed for it. The lsqfit and corrfitter codes work for 
 	Python 2.7 and 3.3 (and later). This version requires
-	lsqfit version 4.4.4 or later.
+	lsqfit version 4.4.4 or later. Also install scipy in Python if 
+	you want to use the corrfitter.EigenBasis class.
 
 2. Use 'make install' to copy the relevant files into your Python. The 	
 	files are installed in a standard directory (that Python knows about) in 

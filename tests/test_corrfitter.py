@@ -3,7 +3,7 @@
 """
 test_corrfitter.py
 """
-# Copyright (c) 2012 G. Peter Lepage.
+# Copyright (c) 2012-2014 G. Peter Lepage.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,12 +24,12 @@ import gvar as gv
 import gvar.dataset as ds
 from corrfitter import *
 
-PRINT_FITS = False  # print lots of fit info while doing tests
-DISPLAY_PLOTS = False # display plots for some fits
-NSIG = 6.0           # number of sigmas allowed before signalling an error
-NTERM = 3           # number of terms (ie, len(dE)) in correlators
-SVDCUT = 1e-4      # svd cut used for all fits -- to minimize roundoff problems
-FAST = False        # skips bootstrap tests if True
+PRINT_FITS = False      # print lots of fit info while doing tests
+DISPLAY_PLOTS = False   # display plots for some fits
+NSIG = 6.0              # number of sigmas allowed before signalling an error
+NTERM = 3               # number of terms (ie, len(dE)) in correlators
+SVDCUT = 1e-4           # svd cut used for all fits -- to minimize roundoff problems
+FAST = False            # skips bootstrap tests if True
 
 class ArrayTests(object):
     def __init__(self):
@@ -759,6 +759,107 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         self.dofit(models, nterm=(NTERM-1, NTERM-1), ratio=True)
         NSIG /= 2.
 
+
+class test_corrbasis(unittest.TestCase, FitTests, ArrayTests):
+    def setUp(self):
+        self.u = np.array([[1., 0.5], [1., 2.]])
+        self.E = np.array([1., 3.])
+
+    def make_G(self, tdata, keyfmt, srcs):
+        G = collections.OrderedDict()
+        tdata = np.array(tdata)
+        for i, s1 in enumerate(srcs):
+            for j, s2 in enumerate(srcs):
+                key = keyfmt.format(s1=s1, s2=s2)
+                G[key] = 0
+                for n in range(2):
+                    G[key] += (
+                        self.u[n, i] * self.u[n, j] * gv.exp(-self.E[n] * tdata) 
+                        * gv.gvar('1.00(1)')
+                        )
+        return G
+
+    def test_apply(self):
+        " EigenBasis EigenBasis.apply EigenBasis.unapply "
+        for tdata in [
+            [1., 2., 3., 4.],
+            [2., 4., 6., 8.],
+            [0, 1., 2.],
+            ]:
+            tdata = np.array(tdata)
+            G = self.make_G(tdata, keyfmt='{s1}{s2}', srcs='ab')
+            basis = EigenBasis(
+                data=G, keyfmt='{s1}{s2}', srcs='ab',
+                t=2, tdata=tdata,
+                )
+            np.testing.assert_allclose(basis.E, self.E)
+            newG = basis.apply(G, '{s1}{s2}')
+            newG_mean = gv.mean(newG)
+            np.testing.assert_allclose(newG_mean['00'], gv.exp(-self.E[0] * tdata))
+            np.testing.assert_allclose(newG_mean['11'], gv.exp(-self.E[1] * tdata))
+            np.testing.assert_allclose(newG_mean['01'], 0, atol=1e-10)
+            np.testing.assert_allclose(newG_mean['10'], 0, atol=1e-10)
+            oldG = basis.unapply(newG, '{s1}{s2}')
+            for k in ['aa', 'ab', 'ba', 'bb']:
+                np.testing.assert_allclose(gv.mean(oldG[k] - G[k]), 0, atol=1e-10)
+                np.testing.assert_allclose(gv.sdev(oldG[k] - G[k]), 0, atol=1e-10)
+
+    def test_make_prior(self): 
+        " EigenBasis.make_prior "
+        tdata = np.arange(4.)
+        datafmt = 'G.{s1}.{s2}'
+        srcs = 'ab'
+        G = self.make_G(tdata=tdata, keyfmt=datafmt, srcs=srcs)
+        basis = EigenBasis(
+            data=G, keyfmt=datafmt, srcs=srcs, t=(1,2),
+            )
+        nterm = 4
+        ampl = '1.0(2)', '0.03(20)', '0.2(2.0)'
+        dEfac = '1(1)'
+        one, small, big = ampl
+
+        # case 1 - canonical
+        prior = basis.make_prior(
+            nterm=nterm, keyfmt='a.{s1}', ampl=ampl, dEfac=dEfac, eig_srcs=True
+            )
+        dE = gv.gvar(nterm * [dEfac]) * (self.E[1] - self.E[0])
+        dE[0] += self.E[0] - dE[0].mean
+        self.assert_gvclose(gv.exp(prior['log(a.dE)']), dE)
+        a0 = gv.gvar(nterm * [big])
+        a0[0] = gv.gvar(one)
+        a0[1] = gv.gvar(small)
+        self.assert_gvclose(prior['a.0'], a0)
+        a1 = gv.gvar(nterm * [big])
+        a1[0] = gv.gvar(small)
+        a1[1] = gv.gvar(one)
+        self.assert_gvclose(prior['a.1'], a1)
+
+        # default values
+        ampl = '1.0(3)', '0.03(10)', '0.2(1.0)'
+        dEfac = '1(1)'
+        one, small, big = ampl
+
+        # case 2 - omit state
+        prior = basis.make_prior(nterm=nterm, keyfmt='a.{s1}', states=[0], eig_srcs=True)
+        a0 = gv.gvar(nterm * [big])
+        a0[0] = gv.gvar(one)
+        self.assert_gvclose(prior['a.0'], a0)
+        a1 = gv.gvar(nterm * [big])
+        self.assert_gvclose(prior['a.1'], a1)
+
+        # case 3 - swap states
+        prior = basis.make_prior(nterm=nterm, keyfmt='a.{s1}', states=[1, 0], eig_srcs=True)
+        dE = gv.gvar(nterm * ['1(1)']) * (self.E[1] - self.E[0])
+        dE[0] += self.E[0] - dE[0].mean
+        self.assert_gvclose(gv.exp(prior['log(a.dE)']), dE)
+        a1 = gv.gvar(nterm * [big])
+        a1[0] = gv.gvar(one)
+        a1[1] = gv.gvar(small)
+        self.assert_gvclose(prior['a.1'], a1)
+        a0 = gv.gvar(nterm * [big])
+        a0[0] = gv.gvar(small)
+        a0[1] = gv.gvar(one)
+        self.assert_gvclose(prior['a.0'], a0)
 
 def unpack(p,k):
     """ unpacks parameter k in dictionary p """
