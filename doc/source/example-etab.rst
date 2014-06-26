@@ -239,7 +239,7 @@ in the code. The ``states`` option in the second ``basis.make_prior(...)``
 assigns the three lowest lying states (in order of increasing energy) 
 to the first three eigen-sources, but leaves the fourth and higher states
 unassigned. The prior for the amplitudes projected onto the eigen-basis
-then becomes ::
+then becomes :: 
 
 
     k         p_eig[k]
