@@ -11,6 +11,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version ???
+===============
+
+- Added save option to CorrFitter.display_plots so it can save copies of the 
+  plots in (separate) files.
+
 Version 4.0 - 2014-06-25
 =========================
 The main change here is the new EigenBasis class.

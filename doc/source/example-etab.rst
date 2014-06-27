@@ -154,7 +154,7 @@ Final results are printed out by ``print_results(...)``
 after the last fit is finished:
 
 .. literalinclude:: etab/etab.py
-    :lines: 52-64
+    :lines: 52-66
 
 This method first writes out two tables listing energies and amplitudes for 
 the first 4 states in the correlator. The first table shows results for the 
