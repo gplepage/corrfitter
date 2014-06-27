@@ -42,7 +42,7 @@ The data are from the HPQCD collaboration.
 Code
 -----------------
 The main method follows the template in :ref:`basic-fits`, but 
-modified to handle the|EigenBasis| object ``basis``:
+modified to handle the |EigenBasis| object ``basis``:
 
 .. literalinclude:: etab/etab.py
     :lines: 1-25
