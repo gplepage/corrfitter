@@ -863,6 +863,16 @@ accumulates from its use.
 
         List of labels for the sources in the eigen-basis: ``'0'``, ``'1'`` ...
 
+    .. attribute:: svdcorrection
+
+        The sum of the SVD corrections added to the data by the last call 
+        to :func:`EigenBasis.svd`.
+
+    .. attribute:: svdn
+
+        The number of degrees of freedom modified by the SVD correction
+        in the last call to :func:`EigenBasis.svd`.
+
     .. attribute:: v 
 
         ``v[a]`` is the eigenvector corresponding to source ``a`` 
@@ -879,6 +889,8 @@ accumulates from its use.
     .. automethod:: apply
 
     .. automethod:: make_prior
+
+    .. automethod:: svd
 
     .. automethod:: tabulate
 

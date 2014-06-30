@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 4.0 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 4.1 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.0',
+        VERSION:     '4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 4.0 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 4.1 documentation" href="index.html" />
     <link rel="next" title="Annotated Example: Two-Point Correlator" href="example-etas.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 4.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -1695,8 +1695,8 @@ Amplitude <tt class="docutils literal"><span class="pre">p_eig</span></tt> is no
 is built into <tt class="docutils literal"><span class="pre">prior['m.local']</span></tt> and <tt class="docutils literal"><span class="pre">prior['smeared']</span></tt>.</p>
 <p>It is easy to check that fit results are  consistent with the underlying
 prior. This can be done by projecting the  best-fit parameters unto the
-eigen-basis using  <tt class="docutils literal"><span class="pre">p_eig</span> <span class="pre">=</span> <span class="pre">basis.apply(fit.p)</span></tt>. Alternatively, a table
-listing the  amplitudes in the new eigen-basis, together with the
+eigen-basis using  <tt class="docutils literal"><span class="pre">p_eig</span> <span class="pre">=</span> <span class="pre">basis.apply(fit.p)</span></tt>. Alternatively, a
+table listing the  amplitudes in the new eigen-basis, together with the
 energies,  is printed by:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">print</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">transformed_p</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;m.{s1}&#39;</span><span class="p">,</span> <span class="n">eig_srcs</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 </pre></div>
@@ -1763,6 +1763,20 @@ the main attributes are:</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="corrfitter.EigenBasis.svdcorrection">
+<tt class="descname">svdcorrection</tt><a class="headerlink" href="#corrfitter.EigenBasis.svdcorrection" title="Permalink to this definition">¶</a></dt>
+<dd><p>The sum of the SVD corrections added to the data by the last call
+to <a class="reference internal" href="#corrfitter.EigenBasis.svd" title="corrfitter.EigenBasis.svd"><tt class="xref py py-func docutils literal"><span class="pre">EigenBasis.svd()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="corrfitter.EigenBasis.svdn">
+<tt class="descname">svdn</tt><a class="headerlink" href="#corrfitter.EigenBasis.svdn" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of degrees of freedom modified by the SVD correction
+in the last call to <a class="reference internal" href="#corrfitter.EigenBasis.svd" title="corrfitter.EigenBasis.svd"><tt class="xref py py-func docutils literal"><span class="pre">EigenBasis.svd()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="corrfitter.EigenBasis.v">
 <tt class="descname">v</tt><a class="headerlink" href="#corrfitter.EigenBasis.v" title="Permalink to this definition">¶</a></dt>
 <dd><p><tt class="docutils literal"><span class="pre">v[a]</span></tt> is the eigenvector corresponding to source <tt class="docutils literal"><span class="pre">a</span></tt>
@@ -1782,12 +1796,17 @@ new basis back to the original basis.</p>
 <tt class="descname">apply</tt><big>(</big><em>data</em>, <em>keyfmt='{s1}'</em><big>)</big><a class="headerlink" href="#corrfitter.EigenBasis.apply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform <tt class="docutils literal"><span class="pre">data</span></tt> to the eigen-basis.</p>
 <p>The data to be transformed is <tt class="docutils literal"><span class="pre">data[k]</span></tt> where key <tt class="docutils literal"><span class="pre">k</span></tt> 
-equals <tt class="docutils literal"><span class="pre">keyfmt.format(s1=s1)</span></tt> for vector data 
-or <tt class="docutils literal"><span class="pre">keyfmt.format(s1=s1,</span> <span class="pre">s2=s2)</span></tt> for matrix data where
-<tt class="docutils literal"><span class="pre">s1</span></tt> and <tt class="docutils literal"><span class="pre">s2</span></tt> are sources from <tt class="docutils literal"><span class="pre">self.srcs</span></tt>. 
+equals <tt class="docutils literal"><span class="pre">keyfmt.format(s1=s1)</span></tt> for vector data,
+or <tt class="docutils literal"><span class="pre">keyfmt.format(s1=s1,</span> <span class="pre">s2=s2)</span></tt> for matrix data with sources
+<tt class="docutils literal"><span class="pre">s1</span></tt> and <tt class="docutils literal"><span class="pre">s2</span></tt> drawn from <tt class="docutils literal"><span class="pre">self.srcs</span></tt>. 
 A dictionary containing the transformed data is returned 
 using the same keys but with the sources replaced by <tt class="docutils literal"><span class="pre">'0',</span> 
 <span class="pre">'1'</span> <span class="pre">...</span></tt> (from <tt class="docutils literal"><span class="pre">basis.eig_srcs</span></tt>).</p>
+<p>If <tt class="docutils literal"><span class="pre">keyfmt</span></tt> is an array of formats, the transformation is 
+applied for each format and a dictionary containing all of the
+results is returned. This is useful when the same sources 
+and sinks are used for different types of correlators (e.g.,
+in both two-point and three-point correlators).</p>
 </dd></dl>
 
 <dl class="method">
@@ -1855,6 +1874,24 @@ and states are aligned.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="corrfitter.EigenBasis.svd">
+<tt class="descname">svd</tt><big>(</big><em>data</em>, <em>keyfmt=None</em>, <em>svdcut=1e-15</em><big>)</big><a class="headerlink" href="#corrfitter.EigenBasis.svd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply SVD cut to data in the eigen-basis.</p>
+<p>The SVD cut is applied to <tt class="docutils literal"><span class="pre">data[k]</span></tt> where key <tt class="docutils literal"><span class="pre">k</span></tt> 
+equals <tt class="docutils literal"><span class="pre">keyfmt.format(s1=s1)</span></tt> for vector data,
+or <tt class="docutils literal"><span class="pre">keyfmt.format(s1=s1,</span> <span class="pre">s2=s2)</span></tt> for matrix data with sources
+<tt class="docutils literal"><span class="pre">s1</span></tt> and <tt class="docutils literal"><span class="pre">s2</span></tt> drawn from <tt class="docutils literal"><span class="pre">self.srcs</span></tt>. The data 
+are transformed to the eigen-basis of sources/sinks before 
+the cut is applied and then transformed back to the 
+original basis of sources. Results are returned in 
+a dictionary containing the modified correlators.</p>
+<p>If <tt class="docutils literal"><span class="pre">keyfmt</span></tt> is a list of formats, the SVD cut is 
+applied to the collection of data formed from each 
+format. The defaul value for <tt class="docutils literal"><span class="pre">keyfmt</span></tt> is 
+<tt class="docutils literal"><span class="pre">self.keyfmt</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="corrfitter.EigenBasis.tabulate">
 <tt class="descname">tabulate</tt><big>(</big><em>p</em>, <em>keyfmt='{s1}'</em>, <em>nterm=None</em>, <em>nsrcs=None</em>, <em>eig_srcs=False</em>, <em>indent='    '</em><big>)</big><a class="headerlink" href="#corrfitter.EigenBasis.tabulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create table containing energies and amplitudes for <tt class="docutils literal"><span class="pre">nterm</span></tt> states.</p>
@@ -1903,11 +1940,16 @@ Default is <tt class="docutils literal"><span class="pre">4</span> <span class="
 <tt class="descname">unapply</tt><big>(</big><em>data</em>, <em>keyfmt='{s1}'</em><big>)</big><a class="headerlink" href="#corrfitter.EigenBasis.unapply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform <tt class="docutils literal"><span class="pre">data</span></tt> from the eigen-basis to the original basis.</p>
 <p>The data to be transformed is <tt class="docutils literal"><span class="pre">data[k]</span></tt> where key <tt class="docutils literal"><span class="pre">k</span></tt> 
-equals <tt class="docutils literal"><span class="pre">keyfmt.format(s1=s1)</span></tt> for vector data 
-or <tt class="docutils literal"><span class="pre">keyfmt.format(s1=s1,</span> <span class="pre">s2=s2)</span></tt> for matrix data where
-<tt class="docutils literal"><span class="pre">s1</span></tt> and <tt class="docutils literal"><span class="pre">s2</span></tt> are sources from <tt class="docutils literal"><span class="pre">self.eig_srcs</span></tt>. A dictionary 
+equals <tt class="docutils literal"><span class="pre">keyfmt.format(s1=s1)</span></tt> for vector data, 
+or <tt class="docutils literal"><span class="pre">keyfmt.format(s1=s1,</span> <span class="pre">s2=s2)</span></tt> for matrix data with sources
+<tt class="docutils literal"><span class="pre">s1</span></tt> and <tt class="docutils literal"><span class="pre">s2</span></tt> drawn from <tt class="docutils literal"><span class="pre">self.eig_srcs</span></tt>. A dictionary 
 containing the transformed data is returned using the same keys but 
 with the original sources (from <tt class="docutils literal"><span class="pre">self.srcs</span></tt>).</p>
+<p>If <tt class="docutils literal"><span class="pre">keyfmt</span></tt> is an array of formats, the transformation is 
+applied for each format and a dictionary containing all of the
+results is returned. This is useful when the same sources 
+and sinks are used for different types of correlators (e.g.,
+in both two-point and three-point correlators).</p>
 </dd></dl>
 
 </dd></dl>
@@ -2107,11 +2149,11 @@ use can be specified with parameter <tt class="docutils literal"><span class="pr
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 4.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010-12, G.P. Lepage.
+        &copy; Copyright 2010-14, G.P. Lepage.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

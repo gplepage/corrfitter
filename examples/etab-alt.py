@@ -18,7 +18,7 @@ def main():
     for N in range(1, 10):  
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N, basis)          
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=0.0004) 
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=0.005 )    #1
         p0 = fit.pmean
     print_results(fit, basis, prior, data) 
     if DISPLAYPLOTS:
@@ -30,12 +30,12 @@ def make_data(filename):
         data, keyfmt='1s0.{s1}{s2}', srcs=['l', 'g', 'd', 'e'], 
         t=(1,2), tdata=range(1,24), 
         ) 
-    return data, basis
+    return basis.apply(data, keyfmt='1s0.{s1}{s2}'), basis                  #2
 
 def make_models(basis):
     models = []
-    for s1 in basis.srcs:
-        for s2 in basis.srcs:
+    for s1 in basis.eig_srcs:                                               #3
+        for s2 in basis.eig_srcs:                                           #4
             tfit = basis.tdata if s1 == s2 else basis.tdata[:14]
             models.append(
                 Corr2(
@@ -47,7 +47,7 @@ def make_models(basis):
     return models
 
 def make_prior(N, basis):
-    return basis.make_prior(nterm=N, keyfmt='etab.{s1}', states=[0, 1, 2])
+    return basis.make_prior(nterm=N, keyfmt='etab.{s1}', eig_srcs=True)     #5
 
 def print_results(fit, basis, prior, data):
     print(30 * '=', 'Results\n')

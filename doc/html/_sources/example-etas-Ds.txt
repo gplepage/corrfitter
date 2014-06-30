@@ -41,7 +41,7 @@ Code
 The ``main`` method for this code follows the pattern described 
 in :ref:`basic-fits`:
 
-.. literalinclude:: etas-Ds/etas-Ds.py
+.. literalinclude:: examples/etas-Ds.py
     :lines: 1-25, 158-
 
 The raw Monte Carlo data is in a file named ``'etas-Ds.data'``. We are doing
@@ -103,7 +103,7 @@ in this format (among others). We use it to read the data, and
 :func:`gvar.dataset.avg_data` to compute the means and covariance 
 matrix of the data:
 
-.. literalinclude:: etas-Ds/etas-Ds.py
+.. literalinclude:: examples/etas-Ds.py
     :lines: 49-51
 
 This routine returns a dictionary whose keys are the strings used to label the
@@ -124,7 +124,7 @@ __________________
 Method ``make_models()`` specifies the theoretical models that will be used 
 to fit the data:
 
-.. literalinclude:: etas-Ds/etas-Ds.py
+.. literalinclude:: examples/etas-Ds.py
     :lines: 53-85
 
 Four models are specified, one for each correlator to be fit. The first two
@@ -152,7 +152,7 @@ _________________
 Method ``make_prior(N)`` creates *a priori* estimates for each fit 
 parameter, to be used as priors in the fitter:
 
-.. literalinclude:: etas-Ds/etas-Ds.py
+.. literalinclude:: examples/etas-Ds.py
     :lines: 87-110
 
 Parameter ``N`` specifies how many terms are kept in the fit functions. The
@@ -208,7 +208,7 @@ _____________________
 Method ``print_results(fit, prior, data)`` reports on the best-fit values
 for the fit parameters from the last fit:
 
-.. literalinclude:: etas-Ds/etas-Ds.py
+.. literalinclude:: examples/etas-Ds.py
     :lines: 112-156
 
 The best-fit parameter values are stored in dictionary ``p=fit.transformed_p``,
@@ -216,7 +216,7 @@ as are the exponentials of the log-normal parameters.
 We also turn energy differences into energies using :mod:`numpy`'s cummulative
 sum function :func:`numpy.cumsum`. The final output is:
 
-.. literalinclude:: etas-Ds/etas-Ds.out
+.. literalinclude:: examples/etas-Ds.out
     :lines: 157-168
 
 Finally we  create an error budget for the |etas|
@@ -229,7 +229,7 @@ priors, and the results from any *svd* cuts (none here). Each of these inputs
 contributes to the errors in the final results, as detailed in the
 error budget:
 
-.. literalinclude:: etas-Ds/etas-Ds.out
+.. literalinclude:: examples/etas-Ds.out
     :lines: 170-191
 
 The error budget shows, for example, that the largest sources of uncertainty
@@ -239,7 +239,7 @@ Results
 --------------
 The output from running the code is as follows:
 
-.. literalinclude:: etas-Ds/etas-Ds.out
+.. literalinclude:: examples/etas-Ds.out
     :lines: 1-191
 
 Note:
@@ -261,7 +261,7 @@ Note:
   for example, shows correlator data divided by fit result as a 
   function of ``t``:
 
-  .. image:: etas-Ds/Ds.*
+  .. image:: examples/Ds.*
       :width: 70%
 
   The points with error bars are the correlator data points; the fit 
@@ -279,7 +279,7 @@ Marginalization (see :ref:`marginalized-fits`) can speed up fits like
 this one. To use an 8-term fit function, while tuning parameters for only
 ``N`` terms, we change only four lines in the main program:
 
-.. literalinclude:: etas-Ds/etas-Ds-marginalize.py
+.. literalinclude:: examples/etas-Ds-marginalize.py
     :lines: 14-27
 
 The first modification (``#1``) is in the definition of ``fitter``, where we add
@@ -296,7 +296,7 @@ shows that
 results for the leading term have converged by ``N=2`` (and even ``N=1`` isn't
 so bad):
 
-.. literalinclude:: etas-Ds/etas-Ds-marginalize.out
+.. literalinclude:: examples/etas-Ds-marginalize.out
     :lines: 1-81
 
 
@@ -306,19 +306,19 @@ Chained fits (see :ref:`chained-fits`) are used if ``fitter.lsqfit(...)``
 is replaced by ``fitter.chained_lsqfit(...)`` in ``main()``. The results
 are about the same: for example,
 
-.. literalinclude:: etas-Ds/etas-Ds-chained.out
+.. literalinclude:: examples/etas-Ds-chained.out
     :lines: 170-175
 
 We obtain more or less the same results,
 
-.. literalinclude:: etas-Ds/etas-Ds-chained.out
+.. literalinclude:: examples/etas-Ds-chained.out
     :lines: 273-278
 
 
 if we polish the final results from the chained fit using 
 a final call to ``fitter.lsqfit`` (see :ref:`chained-fits`):
 
-.. literalinclude:: etas-Ds/etas-Ds-chained.py
+.. literalinclude:: examples/etas-Ds-chained.py
     :lines: 30
 
 Another variation is to replace the last line (``return models``) 
@@ -333,7 +333,7 @@ as a prior for the chained fits of the 3-point correlators (``models[2:]``).
 The fit results are mostly unchanged, although the polishing fit 
 is significantly faster (more than 2x) in this case:
 
-.. literalinclude:: etas-Ds/etas-Ds-chained.out
+.. literalinclude:: examples/etas-Ds-chained.out
     :lines: 441-446
 
 Test the Analysis
@@ -342,7 +342,7 @@ We can test our analysis by adding
 ``test_fit(fitter, 'etas-Ds.data')`` to the ``main`` 
 program, where:
 
-.. literalinclude:: etas-Ds/etas-Ds.py
+.. literalinclude:: examples/etas-Ds.py
     :lines: 28-47
 
 This code does ``n=2`` simulations of the full fit, using the means of fit 
@@ -351,7 +351,7 @@ The code prints out each fit,
 and for each it computes the ``chi**2`` of the difference between the leading
 parameters and ``pexact``. The output is:
 
-.. literalinclude:: etas-Ds/etas-Ds.out
+.. literalinclude:: examples/etas-Ds.out
     :lines: 196-
 
 This shows that the fit is working well, at least for the leading 
@@ -365,7 +365,7 @@ a marginalized fit::
 
 Running this code gives:
 
-.. literalinclude:: etas-Ds/etas-Ds-marginalize.out
+.. literalinclude:: examples/etas-Ds-marginalize.out
     :lines: 86-
 
 This is also fine and confirms that ``nterm=(2,2)`` marginalized fits 

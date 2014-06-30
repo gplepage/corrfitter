@@ -44,12 +44,12 @@ Code
 The main method follows the template in :ref:`basic-fits`, but 
 modified to handle the |EigenBasis| object ``basis``:
 
-.. literalinclude:: etab/etab.py
+.. literalinclude:: examples/etab.py
     :lines: 1-25
 
 The eigen-basis is created by ``make_data('etab.data')``:
 
-.. literalinclude:: etab/etab.py
+.. literalinclude:: examples/etab.py
     :lines: 27-33
 
 It reads Monte Carlo
@@ -89,7 +89,7 @@ This eigen-basis is used later to construct the prior.
 A correlator fitter, called ``fitter``, is created from the list of correlator 
 models returned by ``make_models(basis)``:
 
-.. literalinclude:: etab/etab.py
+.. literalinclude:: examples/etab.py
     :lines: 35-47
 
 There is one model for each correlator to be fit, so 16 in all. The keys 
@@ -107,7 +107,7 @@ We try fits with ``N=1,2..9`` terms in the fit function. The number of
 terms is encoded in the prior, which is constructed by 
 ``make_prior(N, basis)``:
 
-.. literalinclude:: etab/etab.py
+.. literalinclude:: examples/etab.py
     :lines: 49-50
 
 The prior looks complicated ::
@@ -124,16 +124,16 @@ The prior looks complicated ::
 
 
 but its underlying structure becomes clear if we project it unto the 
-eigen-basis using ``p_eig = basis.apply(prior, keyfmt='etab.{s1}')``::
+eigen-basis using ``prior_eig = basis.apply(prior, keyfmt='etab.{s1}')``::
 
-    k         p_eig[k]
+    k         prior_eig[k]
     ------    ------------------------------------------------------------ 
     etab.0    [1.00(30),    .03(10),   .03(10),   .03(10),   .2(1.0) ... ]
     etag.1    [ .03(10),   1.00(30),   .03(10),   .03(10),   .2(1.0) ... ]
     etab.2    [ .03(10),    .03(10),  1.00(30),   .03(10),   .2(1.0) ... ]
     etab.3    [ .03(10),    .03(10),   .03(10),  1.00(30),   .2(1.0) ... ]
 
-The *a priori* expectation built into ``p_eig`` (and therefore ``prior``) is
+The *a priori* expectation built into ``prior_eig`` (and therefore ``prior``) is
 that the ground state  overlaps strongly with the first source in the 
 eigen-basis, and weakly  with the other three. Similarly the first excited state
 overlaps strongly with the second eigen-source, but none of the others. And so
@@ -145,15 +145,24 @@ while for the other states it equals ``dE1(dE1)``,  where
 ``dE1=basis.E[1]-basis.E[0]``. The prior specifies log-normal  statistics for
 ``etab.dE`` and so replaces it by ``log(etab.dE)``.
 
-The fit is done by ``fitter.lsqfit(...)``. An *svd* cut is needed 
-(``svdcut=0.0004``) because the data are highly correlated. 
-The data are also over-binned, to keep down the size of the 
-:mod:`corrfitter` distribution, and this mandates an *svd* cut, as well.
+The fit is done by ``fitter.lsqfit(...)``. An SVD cut is needed
+(``svdcut=0.0004``) because the data are highly correlated.  The data are also
+over-binned, to keep down the size of the  :mod:`corrfitter` distribution, and
+this mandates an SVD cut, as well. Fit stability is sometimes improved by
+applying the SVD cut to the data in the  eigen-basis rather than in the
+original source basis. Here this could be done by replacing the last line of
+``make_data(...)`` with::
+
+        return basis.svd(data, svdcut=5e-3), basis
+
+and dropping the ``svdcut=0.0004`` from ``fitter.lsqfit(...)``. The size
+of the ``svdcut`` is usually different.
+
 
 Final results are printed out by ``print_results(...)``
 after the last fit is finished:
 
-.. literalinclude:: etab/etab.py
+.. literalinclude:: examples/etab.py
     :lines: 52-66
 
 This method first writes out two tables listing energies and amplitudes for 
@@ -178,22 +187,22 @@ Results
 ----------
 Running the code produces the following output for the last fit (``N=9``):
 
-.. literalinclude:: etab/etab.out
+.. literalinclude:: examples/etab.out
     :lines: 253-305
 
 This is a good fit, with a chi-squared per degree of freedom of 0.99 for 
 260 degrees of freedom (the number of data points fit); the *Q* or *p*-value
-is 0.52. This fit required 142 iterations, but took only a few seconds
-on a laptop.
+is 0.52. This fit required 146 iterations, but took only a few seconds
+on a laptop. The results are almost identical to those from ``N=7`` and ``N=8``.
 
 The final energies and amplitudes for the original sources are listed as
 
-.. literalinclude:: etab/etab.out
+.. literalinclude:: examples/etab.out
     :lines: 309-314
 
 while for the eigen-sources they are
 
-.. literalinclude:: etab/etab.out
+.. literalinclude:: examples/etab.out
     :lines: 316-321
 
 The latter shows that the eigen-sources align quite well with the first
@@ -204,7 +213,7 @@ these states.
 Finally values and an error budget are presented for the ``2s-1s`` and 
 ``3s-1s`` energy differences (in lattice units) and the ratio of the two:
 
-.. literalinclude:: etab/etab.out
+.. literalinclude:: examples/etab.out
     :lines: 323-335
 
 The first excited state is obviously more accurately determined than
@@ -227,12 +236,12 @@ state weakens as the energy increases. So an obvious test is to rerun the
 fit but with a prior that associates states with only three of the sources,
 leaving the fourth source unconstrained. This is done by replacing
 
-.. literalinclude:: etab/etab.py
+.. literalinclude:: examples/etab.py
     :lines: 49-50
 
 with 
 
-.. literalinclude:: etab/etab-stab.py
+.. literalinclude:: examples/etab-stab.py
     :lines: 49-50
 
 in the code. The ``states`` option in the second ``basis.make_prior(...)`` 
@@ -242,7 +251,7 @@ unassigned. The prior for the amplitudes projected onto the eigen-basis
 then becomes :: 
 
 
-    k         p_eig[k]
+    k         prior_eig[k]
     ------    ---------------------------------------------------------- 
     etab.0    [1.00(30),    .03(10),   .03(10),  .2(1.0),  .2(1.0) ... ]
     etab.1    [ .03(10),   1.00(30),   .03(10),  .2(1.0),  .2(1.0) ... ]
@@ -255,7 +264,7 @@ eigen-sources with the fourth state, or about the overlap of the fourth source
 with any state. Running with this (more conservative) prior gives 
 the following results for the last fit and summary:
 
-.. literalinclude:: etab/etab-stab.out
+.. literalinclude:: examples/etab-stab.out
     :lines: 253-
 
 The energies and amplitudes for the first three states are almost unchanged,
@@ -269,3 +278,28 @@ gives us a sense of which prior the data prefer. Specifically it says that
 our Monte Carlo data are 240,000 times more likely to have come from a model
 with the original prior than from one with the more conservative prior. This
 further reinforces our confidence in the original results.
+
+Alternative Organization
+-------------------------
+
+Our |etab| fit uses the |EigenBasis| to construct a special prior for the fit,
+but leaves the correlators unchanged. An alternative approach is  to project
+the correlators unto the eigen-basis, and then to fit them with a fit function
+defined directly in terms of the eigen-basis. This approach is conceptually
+identical to that above, but in practice it gives somewhat different
+results since the SVD cut  enters differently. A version of the code above
+that uses this approach is:
+
+.. literalinclude:: examples/etab-alt.py
+
+Only five lines in this code differ from the original:
+the SVD cut is different (``#1``); the data are projected onto the
+eigen-basis (``#2``); the models are defined in terms 
+of the eigen-sources (``#3`` and ``#4``); and the prior is defined
+for the eigen-sources (``#5``). 
+
+The fit results from the new code are very similar to before; there is 
+little difference between the two approaches in this case:
+
+.. literalinclude:: examples/etab-alt.out
+    :lines: 253-

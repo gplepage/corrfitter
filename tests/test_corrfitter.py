@@ -804,6 +804,21 @@ class test_corrbasis(unittest.TestCase, FitTests, ArrayTests):
                 np.testing.assert_allclose(gv.mean(oldG[k] - G[k]), 0, atol=1e-10)
                 np.testing.assert_allclose(gv.sdev(oldG[k] - G[k]), 0, atol=1e-10)
 
+    def test_svd(self):
+        " EigenBasis.svd "
+        tdata = [1,2,3,4]
+        G = self.make_G(tdata, keyfmt='{s1}{s2}', srcs='ab')
+        basis = EigenBasis(
+            data=G, keyfmt='{s1}{s2}', srcs='ab',
+            t=2, tdata=tdata,
+            )
+        Gsvd = basis.svd(G, svdcut=0.9)
+        self.assertEqual(basis.svdn, 15)
+        self.assertEqual(str(basis.svdcorrection), '0.000(30)')
+        for k in G:
+            np.testing.assert_allclose(gv.mean(G[k]), gv.mean(Gsvd[k]))
+            self.assertTrue(np.all(gv.sdev(Gsvd[k]) > gv.sdev(G[k])))
+
     def test_make_prior(self): 
         " EigenBasis.make_prior "
         tdata = np.arange(4.)

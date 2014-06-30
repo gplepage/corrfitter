@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Annotated Example: Matrix Correlator &mdash; corrfitter 4.0 documentation</title>
+    <title>Annotated Example: Matrix Correlator &mdash; corrfitter 4.1 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.0',
+        VERSION:     '4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 4.0 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 4.1 documentation" href="index.html" />
     <link rel="prev" title="Annotated Example: Transition Form Factor" href="example-etas-Ds.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">corrfitter 4.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -204,8 +204,8 @@ log(etab.dE) [-1.3(2.3),  -0.5(1.0),  -0.5(1.0),  -0.5(1.0),  -0.5(1.0) ...]
 </pre></div>
 </div>
 <p>but its underlying structure becomes clear if we project it unto the
-eigen-basis using <tt class="docutils literal"><span class="pre">p_eig</span> <span class="pre">=</span> <span class="pre">basis.apply(prior,</span> <span class="pre">keyfmt='etab.{s1}')</span></tt>:</p>
-<div class="highlight-python"><div class="highlight"><pre>k         p_eig[k]
+eigen-basis using <tt class="docutils literal"><span class="pre">prior_eig</span> <span class="pre">=</span> <span class="pre">basis.apply(prior,</span> <span class="pre">keyfmt='etab.{s1}')</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>k         prior_eig[k]
 ------    ------------------------------------------------------------
 etab.0    [1.00(30),    .03(10),   .03(10),   .03(10),   .2(1.0) ... ]
 etag.1    [ .03(10),   1.00(30),   .03(10),   .03(10),   .2(1.0) ... ]
@@ -213,7 +213,7 @@ etab.2    [ .03(10),    .03(10),  1.00(30),   .03(10),   .2(1.0) ... ]
 etab.3    [ .03(10),    .03(10),   .03(10),  1.00(30),   .2(1.0) ... ]
 </pre></div>
 </div>
-<p>The <em>a priori</em> expectation built into <tt class="docutils literal"><span class="pre">p_eig</span></tt> (and therefore <tt class="docutils literal"><span class="pre">prior</span></tt>) is
+<p>The <em>a priori</em> expectation built into <tt class="docutils literal"><span class="pre">prior_eig</span></tt> (and therefore <tt class="docutils literal"><span class="pre">prior</span></tt>) is
 that the ground state  overlaps strongly with the first source in the
 eigen-basis, and weakly  with the other three. Similarly the first excited state
 overlaps strongly with the second eigen-source, but none of the others. And so
@@ -224,10 +224,18 @@ prior for the ground state is taken to be <tt class="docutils literal"><span cla
 while for the other states it equals <tt class="docutils literal"><span class="pre">dE1(dE1)</span></tt>,  where
 <tt class="docutils literal"><span class="pre">dE1=basis.E[1]-basis.E[0]</span></tt>. The prior specifies log-normal  statistics for
 <tt class="docutils literal"><span class="pre">etab.dE</span></tt> and so replaces it by <tt class="docutils literal"><span class="pre">log(etab.dE)</span></tt>.</p>
-<p>The fit is done by <tt class="docutils literal"><span class="pre">fitter.lsqfit(...)</span></tt>. An <em>svd</em> cut is needed
-(<tt class="docutils literal"><span class="pre">svdcut=0.0004</span></tt>) because the data are highly correlated.
-The data are also over-binned, to keep down the size of the
-<a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><tt class="xref py py-mod docutils literal"><span class="pre">corrfitter</span></tt></a> distribution, and this mandates an <em>svd</em> cut, as well.</p>
+<p>The fit is done by <tt class="docutils literal"><span class="pre">fitter.lsqfit(...)</span></tt>. An SVD cut is needed
+(<tt class="docutils literal"><span class="pre">svdcut=0.0004</span></tt>) because the data are highly correlated.  The data are also
+over-binned, to keep down the size of the  <a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><tt class="xref py py-mod docutils literal"><span class="pre">corrfitter</span></tt></a> distribution, and
+this mandates an SVD cut, as well. Fit stability is sometimes improved by
+applying the SVD cut to the data in the  eigen-basis rather than in the
+original source basis. Here this could be done by replacing the last line of
+<tt class="docutils literal"><span class="pre">make_data(...)</span></tt> with:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">5e-3</span><span class="p">),</span> <span class="n">basis</span>
+</pre></div>
+</div>
+<p>and dropping the <tt class="docutils literal"><span class="pre">svdcut=0.0004</span></tt> from <tt class="docutils literal"><span class="pre">fitter.lsqfit(...)</span></tt>. The size
+of the <tt class="docutils literal"><span class="pre">svdcut</span></tt> is usually different.</p>
 <p>Final results are printed out by <tt class="docutils literal"><span class="pre">print_results(...)</span></tt>
 after the last fit is finished:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
@@ -319,13 +327,13 @@ Parameters:
               8      -0.46 (99)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 146/3.7)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 143/3.8)
 </pre></div>
 </div>
 <p>This is a good fit, with a chi-squared per degree of freedom of 0.99 for
 260 degrees of freedom (the number of data points fit); the <em>Q</em> or <em>p</em>-value
-is 0.52. This fit required 142 iterations, but took only a few seconds
-on a laptop.</p>
+is 0.52. This fit required 146 iterations, but took only a few seconds
+on a laptop. The results are almost identical to those from <tt class="docutils literal"><span class="pre">N=7</span></tt> and <tt class="docutils literal"><span class="pre">N=8</span></tt>.</p>
 <p>The final energies and amplitudes for the original sources are listed as</p>
 <div class="highlight-python"><div class="highlight"><pre>       E            l            g            d            e          
     ==================================================================
@@ -398,7 +406,7 @@ assigns the three lowest lying states (in order of increasing energy)
 to the first three eigen-sources, but leaves the fourth and higher states
 unassigned. The prior for the amplitudes projected onto the eigen-basis
 then becomes</p>
-<div class="highlight-python"><div class="highlight"><pre>k         p_eig[k]
+<div class="highlight-python"><div class="highlight"><pre>k         prior_eig[k]
 ------    ----------------------------------------------------------
 etab.0    [1.00(30),    .03(10),   .03(10),  .2(1.0),  .2(1.0) ... ]
 etab.1    [ .03(10),   1.00(30),   .03(10),  .2(1.0),  .2(1.0) ... ]
@@ -412,87 +420,87 @@ with any state. Running with this (more conservative) prior gives
 the following results for the last fit and summary:</p>
 <div class="highlight-python"><div class="highlight"><pre>============================== nterm = 9
 Least Square Fit:
-  chi2/dof [dof] = 0.98 [260]    Q = 0.57    logGBF = 2158.6
+  chi2/dof [dof] = 0.98 [260]    Q = 0.57    logGBF = 2158.7
 
 Parameters:
-       etab.l 0   -0.50649 (58)      [ -0.49 (20) ]  
-              1    -0.3889 (78)      [ -0.43 (19) ]  
-              2      0.346 (39)      [  0.51 (21) ]  
-              3      -0.29 (15)      [ -0.07 (87) ]  
-              4      -0.07 (42)      [ -0.07 (87) ]  
-              5       0.49 (22)      [ -0.07 (87) ]  
-              6       0.23 (50)      [ -0.07 (87) ]  
-              7       0.10 (75)      [ -0.07 (87) ]  
-              8      -0.14 (45)      [ -0.07 (87) ]  
-       etab.g 0   -0.86991 (97)      [ -0.88 (27) ]  
-              1     0.1438 (56)      [ 0.110 (99) ]  
-              2      0.039 (14)      [ 0.054 (94) ]  
-              3     -0.111 (66)      [ -0.13 (90) ]  
-              4      -0.11 (14)      [ -0.13 (90) ]  
-              5    -0.008 (198)      [ -0.13 (90) ]  
-              6       0.22 (33)      [ -0.13 (90) ]  
-              7       0.10 (78)      [ -0.13 (90) ]  
-              8      -0.17 (48)      [ -0.13 (90) ]  
-       etab.d 0   -0.21622 (31)      [ -0.27 (16) ]  
-              1    -0.4085 (81)      [ -0.52 (20) ]  
-              2     -0.247 (20)      [ -0.30 (17) ]  
-              3      0.020 (96)      [ -0.22 (60) ]  
-              4     -0.161 (85)      [ -0.22 (60) ]  
-              5       0.12 (14)      [ -0.22 (60) ]  
-              6      -0.15 (36)      [ -0.22 (60) ]  
-              7      -0.20 (53)      [ -0.22 (60) ]  
+       etab.l 0   -0.50654 (57)      [ -0.49 (20) ]  
+              1    -0.3887 (74)      [ -0.43 (19) ]  
+              2      0.346 (38)      [  0.51 (21) ]  
+              3      -0.30 (13)      [ -0.07 (87) ]  
+              4      -0.15 (43)      [ -0.07 (87) ]  
+              5       0.47 (26)      [ -0.07 (87) ]  
+              6       0.23 (49)      [ -0.07 (87) ]  
+              7       0.09 (75)      [ -0.07 (87) ]  
+              8      -0.14 (47)      [ -0.07 (87) ]  
+       etab.g 0   -0.86999 (94)      [ -0.88 (27) ]  
+              1     0.1438 (53)      [ 0.110 (99) ]  
+              2      0.038 (13)      [ 0.054 (94) ]  
+              3     -0.100 (62)      [ -0.13 (90) ]  
+              4      -0.13 (13)      [ -0.13 (90) ]  
+              5      -0.03 (22)      [ -0.13 (90) ]  
+              6       0.23 (32)      [ -0.13 (90) ]  
+              7       0.09 (78)      [ -0.13 (90) ]  
+              8      -0.17 (49)      [ -0.13 (90) ]  
+       etab.d 0   -0.21624 (30)      [ -0.27 (16) ]  
+              1    -0.4085 (80)      [ -0.52 (20) ]  
+              2     -0.247 (19)      [ -0.30 (17) ]  
+              3      0.033 (89)      [ -0.22 (60) ]  
+              4     -0.169 (80)      [ -0.22 (60) ]  
+              5       0.11 (15)      [ -0.22 (60) ]  
+              6      -0.16 (36)      [ -0.22 (60) ]  
+              7      -0.21 (53)      [ -0.22 (60) ]  
               8      -0.47 (40)      [ -0.22 (60) ]  
-       etab.e 0   -0.19695 (27)      [ -0.16 (31) ]  
-              1    -0.3389 (86)      [ -0.36 (32) ]  
-              2     -0.304 (22)      [ -0.26 (31) ]  
-              3      -0.17 (12)      [ -0.12 (62) ]  
-              4       0.13 (15)      [ -0.12 (62) ]  
-              5      0.052 (91)      [ -0.12 (62) ]  
-              6      -0.09 (39)      [ -0.12 (62) ]  
-              7      -0.20 (55)      [ -0.12 (62) ]  
-              8      -0.59 (39)      [ -0.12 (62) ]  
- log(etab.dE) 0   -1.36217 (67)      [ -1.3 (2.3) ]  
+       etab.e 0   -0.19697 (27)      [ -0.16 (31) ]  
+              1    -0.3389 (85)      [ -0.36 (32) ]  
+              2     -0.304 (21)      [ -0.26 (31) ]  
+              3      -0.18 (10)      [ -0.12 (62) ]  
+              4       0.11 (16)      [ -0.12 (62) ]  
+              5       0.06 (10)      [ -0.12 (62) ]  
+              6      -0.08 (39)      [ -0.12 (62) ]  
+              7      -0.21 (55)      [ -0.12 (62) ]  
+              8      -0.59 (40)      [ -0.12 (62) ]  
+ log(etab.dE) 0   -1.36215 (67)      [ -1.3 (2.3) ]  
               1     -0.651 (12)      [ -0.5 (1.0) ]  
-              2     -1.206 (60)      [ -0.5 (1.0) ]  
-              3      -1.07 (53)      [ -0.5 (1.0) ]  
-              4      -1.23 (61)      [ -0.5 (1.0) ]  
-              5      -0.99 (77)      [ -0.5 (1.0) ]  
-              6      -0.42 (94)      [ -0.5 (1.0) ]  
-              7      -0.39 (96)      [ -0.5 (1.0) ]  
-              8      -0.43 (98)      [ -0.5 (1.0) ]  
+              2     -1.206 (59)      [ -0.5 (1.0) ]  
+              3      -1.01 (45)      [ -0.5 (1.0) ]  
+              4      -1.17 (63)      [ -0.5 (1.0) ]  
+              5      -0.97 (82)      [ -0.5 (1.0) ]  
+              6      -0.44 (94)      [ -0.5 (1.0) ]  
+              7      -0.40 (96)      [ -0.5 (1.0) ]  
+              8      -0.45 (98)      [ -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 500/10.8)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 500/11.6)
 
 ============================== Results
 
        E            l            g            d            e          
     ==================================================================
-     0 0.25611(17) -0.50649(58) -0.86991(97) -0.21622(31) -0.19695(27)
-     1 0.7776(65)  -0.3889(78)   0.1438(56)  -0.4085(81)  -0.3389(86) 
-     2 1.077(20)    0.346(39)    0.039(14)   -0.247(20)   -0.304(22)  
-     3 1.42(18)    -0.29(15)    -0.111(66)    0.020(96)   -0.17(12)   
+     0 0.25611(17) -0.50654(57) -0.86999(94) -0.21624(30) -0.19697(27)
+     1 0.7775(65)  -0.3887(74)   0.1438(53)  -0.4085(80)  -0.3389(85) 
+     2 1.077(20)    0.346(38)    0.038(13)   -0.247(19)   -0.304(21)  
+     3 1.44(16)    -0.30(13)    -0.100(62)    0.033(89)   -0.18(10)   
 
        E            0           1            2            3          
     =================================================================
-     0 0.25611(17)  0.9791(11)  0.00641(46) -0.00237(21)  0.00165(14)
-     1 0.7776(65)  -0.0343(58)  0.873(13)   -0.018(14)    0.0165(63) 
-     2 1.077(20)    0.036(16)   0.100(47)    0.802(33)   -0.060(35)  
-     3 1.42(18)     0.121(78)   0.15(13)    -0.20(21)    -0.49(42)   
+     0 0.25611(17)  0.9792(10)  0.00641(46) -0.00237(21)  0.00165(14)
+     1 0.7775(65)  -0.0344(53)  0.873(13)   -0.018(14)    0.0166(63) 
+     2 1.077(20)    0.037(13)   0.100(46)    0.802(33)   -0.060(34)  
+     3 1.44(16)     0.108(76)   0.15(11)    -0.21(18)    -0.55(36)   
 
 Values:
-         a*E(2s-1s): 0.5215(65)          
+         a*E(2s-1s): 0.5214(64)          
          a*E(3s-1s): 0.821(20)           
   E(3s-1s)/E(2s-1s): 1.574(33)           
 
 Partial % Errors:
                             a*E(2s-1s)        a*E(3s-1s) E(3s-1s)/E(2s-1s)
 --------------------------------------------------------------------------
-              prior:              0.55              0.83              0.69
-               data:              0.79              1.48              1.20
-             svdcut:              0.79              1.82              1.59
+              prior:              0.53              0.81              0.66
+               data:              0.79              1.49              1.21
+             svdcut:              0.79              1.82              1.57
 --------------------------------------------------------------------------
-              total:              1.25              2.49              2.11
+              total:              1.23              2.49              2.09
 </pre></div>
 </div>
 <p>The energies and amplitudes for the first three states are almost unchanged,
@@ -505,6 +513,179 @@ gives us a sense of which prior the data prefer. Specifically it says that
 our Monte Carlo data are 240,000 times more likely to have come from a model
 with the original prior than from one with the more conservative prior. This
 further reinforces our confidence in the original results.</p>
+</div>
+<div class="section" id="alternative-organization">
+<h2>Alternative Organization<a class="headerlink" href="#alternative-organization" title="Permalink to this headline">¶</a></h2>
+<p>Our <img class="math" src="_images/math/024aac0edad2d8a1e6ab741b50bf56eae0de379e.png" alt="\eta_b" style="vertical-align: -3px"/> fit uses the <a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><tt class="xref py py-class docutils literal"><span class="pre">corrfitter.EigenBasis</span></tt></a> to construct a special prior for the fit,
+but leaves the correlators unchanged. An alternative approach is  to project
+the correlators unto the eigen-basis, and then to fit them with a fit function
+defined directly in terms of the eigen-basis. This approach is conceptually
+identical to that above, but in practice it gives somewhat different
+results since the SVD cut  enters differently. A version of the code above
+that uses this approach is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>   <span class="c"># makes this work for python2 and 3</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">gvar</span> <span class="kn">as</span> <span class="nn">gv</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">CorrFitter</span><span class="p">,</span> <span class="n">Corr2</span><span class="p">,</span> <span class="n">EigenBasis</span><span class="p">,</span> <span class="n">read_dataset</span>
+
+<span class="n">DISPLAYPLOTS</span> <span class="o">=</span> <span class="bp">False</span>         <span class="c"># display plots at end of fits?</span>
+<span class="k">try</span><span class="p">:</span> 
+    <span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">DISPLAYPLOTS</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">data</span><span class="p">,</span> <span class="n">basis</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;etab.data&#39;</span><span class="p">)</span> 
+    <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">(</span><span class="n">basis</span><span class="p">))</span>
+    <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>  
+        <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nterm =&#39;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">)</span>          
+        <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">0.005</span> <span class="p">)</span>    <span class="c">#1</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
+    <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> 
+    <span class="k">if</span> <span class="n">DISPLAYPLOTS</span><span class="p">:</span>
+        <span class="n">fitter</span><span class="o">.</span><span class="n">display_plots</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+    <span class="n">basis</span> <span class="o">=</span> <span class="n">EigenBasis</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;1s0.{s1}{s2}&#39;</span><span class="p">,</span> <span class="n">srcs</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;l&#39;</span><span class="p">,</span> <span class="s">&#39;g&#39;</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">,</span> <span class="s">&#39;e&#39;</span><span class="p">],</span> 
+        <span class="n">t</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">24</span><span class="p">),</span> 
+        <span class="p">)</span> 
+    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;1s0.{s1}{s2}&#39;</span><span class="p">),</span> <span class="n">basis</span>                  <span class="c">#2</span>
+
+<span class="k">def</span> <span class="nf">make_models</span><span class="p">(</span><span class="n">basis</span><span class="p">):</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s1</span> <span class="ow">in</span> <span class="n">basis</span><span class="o">.</span><span class="n">eig_srcs</span><span class="p">:</span>                                               <span class="c">#3</span>
+        <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">basis</span><span class="o">.</span><span class="n">eig_srcs</span><span class="p">:</span>                                           <span class="c">#4</span>
+            <span class="n">tfit</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">tdata</span> <span class="k">if</span> <span class="n">s1</span> <span class="o">==</span> <span class="n">s2</span> <span class="k">else</span> <span class="n">basis</span><span class="o">.</span><span class="n">tdata</span><span class="p">[:</span><span class="mi">14</span><span class="p">]</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Corr2</span><span class="p">(</span>
+                    <span class="n">datatag</span><span class="o">=</span><span class="n">basis</span><span class="o">.</span><span class="n">keyfmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s1</span><span class="o">=</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="o">=</span><span class="n">s2</span><span class="p">),</span>
+                    <span class="n">tdata</span><span class="o">=</span><span class="n">basis</span><span class="o">.</span><span class="n">tdata</span><span class="p">,</span> <span class="n">tfit</span><span class="o">=</span><span class="n">tfit</span><span class="p">,</span>
+                    <span class="n">a</span><span class="o">=</span><span class="s">&#39;etab.&#39;</span> <span class="o">+</span> <span class="n">s1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s">&#39;etab.&#39;</span> <span class="o">+</span> <span class="n">s2</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;etab.dE&#39;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">models</span>
+
+<span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;etab.{s1}&#39;</span><span class="p">,</span> <span class="n">eig_srcs</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>     <span class="c">#5</span>
+
+<span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;Results</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">transformed_p</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;etab.{s1}&#39;</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">transformed_p</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;etab.{s1}&#39;</span><span class="p">,</span> <span class="n">eig_srcs</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">transformed_p</span><span class="p">[</span><span class="s">&#39;etab.dE&#39;</span><span class="p">])</span> 
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;a*E(2s-1s)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;a*E(3s-1s)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;E(3s-1s)/E(2s-1s)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;prior&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prior</span>
+    <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;svdcut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">svdcorrection</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_values</span><span class="p">(</span><span class="n">outputs</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_errorbudget</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">colwidth</span><span class="o">=</span><span class="mi">18</span><span class="p">))</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Only five lines in this code differ from the original:
+the SVD cut is different (<tt class="docutils literal"><span class="pre">#1</span></tt>); the data are projected onto the
+eigen-basis (<tt class="docutils literal"><span class="pre">#2</span></tt>); the models are defined in terms
+of the eigen-sources (<tt class="docutils literal"><span class="pre">#3</span></tt> and <tt class="docutils literal"><span class="pre">#4</span></tt>); and the prior is defined
+for the eigen-sources (<tt class="docutils literal"><span class="pre">#5</span></tt>).</p>
+<p>The fit results from the new code are very similar to before; there is
+little difference between the two approaches in this case:</p>
+<div class="highlight-python"><div class="highlight"><pre>============================== nterm = 9
+Least Square Fit:
+  chi2/dof [dof] = 0.94 [260]    Q = 0.77    logGBF = 1945.7
+
+Parameters:
+       etab.0 0     0.9815 (11)      [  1.00 (30) ]  
+              1    -0.0390 (55)      [  0.03 (10) ]  
+              2      0.048 (10)      [  0.03 (10) ]  
+              3     -0.036 (32)      [  0.03 (10) ]  
+              4      0.222 (83)      [  0.2 (1.0) ]  
+              5      -0.13 (24)      [  0.2 (1.0) ]  
+              6     0.004 (850)      [  0.2 (1.0) ]  
+              7      -0.16 (41)      [  0.2 (1.0) ]  
+              8       0.17 (29)      [  0.2 (1.0) ]  
+       etab.1 0    0.00601 (52)      [  0.03 (10) ]  
+              1      0.883 (12)      [  1.00 (30) ]  
+              2      0.058 (40)      [  0.03 (10) ]  
+              3     -0.063 (72)      [  0.03 (10) ]  
+              4       0.39 (14)      [  0.2 (1.0) ]  
+              5       0.07 (46)      [  0.2 (1.0) ]  
+              6       0.13 (93)      [  0.2 (1.0) ]  
+              7       0.68 (51)      [  0.2 (1.0) ]  
+              8       0.54 (68)      [  0.2 (1.0) ]  
+       etab.2 0   -0.00260 (18)      [  0.03 (10) ]  
+              1   -0.0005 (131)      [  0.03 (10) ]  
+              2      0.802 (34)      [  1.00 (30) ]  
+              3      0.061 (86)      [  0.03 (10) ]  
+              4      -0.49 (18)      [  0.2 (1.0) ]  
+              5      -0.19 (48)      [  0.2 (1.0) ]  
+              6       0.13 (92)      [  0.2 (1.0) ]  
+              7       0.10 (69)      [  0.2 (1.0) ]  
+              8       1.04 (54)      [  0.2 (1.0) ]  
+       etab.3 0   0.001639 (60)      [  0.03 (10) ]  
+              1     0.0155 (50)      [  0.03 (10) ]  
+              2     -0.031 (20)      [  0.03 (10) ]  
+              3       0.66 (14)      [  1.00 (30) ]  *
+              4       0.04 (28)      [  0.2 (1.0) ]  
+              5      -0.51 (44)      [  0.2 (1.0) ]  
+              6       0.21 (94)      [  0.2 (1.0) ]  
+              7       0.35 (69)      [  0.2 (1.0) ]  
+              8      -0.53 (65)      [  0.2 (1.0) ]  
+ log(etab.dE) 0   -1.36278 (75)      [ -1.3 (2.3) ]  
+              1     -0.649 (12)      [ -0.5 (1.0) ]  
+              2     -1.229 (73)      [ -0.5 (1.0) ]  
+              3      -0.93 (37)      [ -0.5 (1.0) ]  
+              4      -0.86 (56)      [ -0.5 (1.0) ]  
+              5      -0.88 (92)      [ -0.5 (1.0) ]  
+              6      -0.52 (93)      [ -0.5 (1.0) ]  
+              7      -0.53 (94)      [ -0.5 (1.0) ]  
+              8      -0.59 (96)      [ -0.5 (1.0) ]  
+
+Settings:
+  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 103/2.9)
+
+============================== Results
+
+       E            l            g            d            e          
+    ==================================================================
+     0 0.25595(19) -0.50766(58) -0.87211(96) -0.21649(34) -0.19720(29)
+     1 0.7787(65)  -0.3819(82)   0.1506(50)  -0.4166(74)  -0.3477(73) 
+     2 1.071(22)    0.363(30)    0.024(11)   -0.233(19)   -0.280(17)  
+     3 1.46(14)     0.156(76)    0.039(28)   -0.069(43)    0.211(56)  
+
+       E            0           1            2            3           
+    ==================================================================
+     0 0.25595(19)  0.9815(11)  0.00601(52) -0.00260(18)  0.001639(60)
+     1 0.7787(65)  -0.0390(55)  0.883(12)   -0.0005(131)  0.0155(50)  
+     2 1.071(22)    0.048(10)   0.058(40)    0.802(34)   -0.031(20)   
+     3 1.46(14)    -0.036(32)  -0.063(72)    0.061(86)    0.66(14)    
+
+Values:
+         a*E(2s-1s): 0.5228(65)          
+         a*E(3s-1s): 0.815(22)           
+  E(3s-1s)/E(2s-1s): 1.560(42)           
+
+Partial % Errors:
+                            a*E(2s-1s)        a*E(3s-1s) E(3s-1s)/E(2s-1s)
+--------------------------------------------------------------------------
+              prior:              0.38              1.12              1.14
+               data:              0.70              1.37              1.28
+             svdcut:              0.96              1.98              2.09
+--------------------------------------------------------------------------
+              total:              1.24              2.66              2.71
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -521,6 +702,7 @@ further reinforces our confidence in the original results.</p>
 <li><a class="reference internal" href="#code">Code</a></li>
 <li><a class="reference internal" href="#results">Results</a></li>
 <li><a class="reference internal" href="#fit-stability">Fit Stability</a></li>
+<li><a class="reference internal" href="#alternative-organization">Alternative Organization</a></li>
 </ul>
 </li>
 </ul>
@@ -557,11 +739,11 @@ further reinforces our confidence in the original results.</p>
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor"
              >previous</a> |</li>
-        <li><a href="index.html">corrfitter 4.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">corrfitter 4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010-12, G.P. Lepage.
+        &copy; Copyright 2010-14, G.P. Lepage.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

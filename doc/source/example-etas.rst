@@ -42,7 +42,7 @@ Code
 Following the template outlined in :ref:`basic-fits`, the entire
 code is:
 
-.. literalinclude:: etas/etas.py
+.. literalinclude:: examples/etas.py
     :lines: 1-
 
 
@@ -103,7 +103,7 @@ Results
 --------
 The output from this fit code is:
 
-.. literalinclude:: etas/etas.out
+.. literalinclude:: examples/etas.out
     :lines: 1-
 
 These fits are very fast --- a small fraction of a second each on a laptop. 

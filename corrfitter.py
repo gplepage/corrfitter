@@ -59,7 +59,7 @@ import time
 import gvar as _gvar
 import lsqfit
 import numpy
-__version__ = '4.0'
+__version__ = '4.1'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -1574,8 +1574,8 @@ class EigenBasis:
 
     It is easy to check that fit results are  consistent with the underlying
     prior. This can be done by projecting the  best-fit parameters unto the
-    eigen-basis using  ``p_eig = basis.apply(fit.p)``. Alternatively, a table
-    listing the  amplitudes in the new eigen-basis, together with the
+    eigen-basis using  ``p_eig = basis.apply(fit.p)``. Alternatively, a
+    table listing the  amplitudes in the new eigen-basis, together with the
     energies,  is printed by::
 
         print(basis.tabulate(fit.transformed_p, keyfmt='m.{s1}', eig_srcs=True))
@@ -1634,6 +1634,8 @@ class EigenBasis:
         self.keyfmt = keyfmt
         self.srcs = srcs
         self.eig_srcs = [str(s) for s in numpy.arange(len(self.srcs))]
+        self.svdcorrection = _gvar.gvar('0(0)')
+        self.svdn = 0
         G = EigenBasis.assemble_data(
             data=data, 
             keys=EigenBasis.generate_keys(keyfmt, self.srcs),
@@ -1750,6 +1752,11 @@ class EigenBasis:
             states = numpy.arange(len(self.eig_srcs))
         else:
             states = numpy.asarray(states, int)
+        # nsrcs can be larger than nstates
+        nsrcs = len(states)
+        if numpy.any(states >= nterm):
+            n = min(numpy.nonzero(states >= nterm)[0])
+            states = states[:n]
         if len(states) > nterm:
             states = states[:nterm]
         one, small, big = ampl
@@ -1758,8 +1765,9 @@ class EigenBasis:
         nstates = len(states)
         for i, k in enumerate(EigenBasis.generate_keys(keyfmt, srcs=self.eig_srcs)):
             prior[k] = _gvar.gvar(nterm * [big])
-            if i < nstates:
+            if i < nsrcs:
                 prior[k][states] = _gvar.gvar(nstates * [small])
+            if i < nstates:
                 prior[k][states[i]] = _gvar.gvar(one)
         if not eig_srcs:
             prior = self.unapply(prior, keyfmt=keyfmt)
@@ -1858,43 +1866,93 @@ class EigenBasis:
             ans += fmt.format(*line)
         return ans
 
+    def svd(self, data, keyfmt=None, svdcut=1e-15):
+        """ Apply SVD cut to data in the eigen-basis.
+
+        The SVD cut is applied to ``data[k]`` where key ``k`` 
+        equals ``keyfmt.format(s1=s1)`` for vector data,
+        or ``keyfmt.format(s1=s1, s2=s2)`` for matrix data with sources
+        ``s1`` and ``s2`` drawn from ``self.srcs``. The data 
+        are transformed to the eigen-basis of sources/sinks before 
+        the cut is applied and then transformed back to the 
+        original basis of sources. Results are returned in 
+        a dictionary containing the modified correlators.
+
+        If ``keyfmt`` is a list of formats, the SVD cut is 
+        applied to the collection of data formed from each 
+        format. The defaul value for ``keyfmt`` is 
+        ``self.keyfmt``.
+        """
+        if keyfmt is None:
+            keyfmt = [self.keyfmt]
+        elif isinstance(keyfmt, str):
+            keyfmt = [keyfmt]
+        newdata = self.apply(data, keyfmt=keyfmt)
+        newdata = _gvar.svd(newdata, svdcut=svdcut)
+        self.svdcorrection = numpy.sum(_gvar.svd.correction)
+        self.svdn = _gvar.svd.nmod
+        newdata = self.unapply(newdata, keyfmt=keyfmt)
+        for i in data:
+            if i not in newdata:
+                newdata[i] = data[i]
+        return newdata
 
     def apply(self, data, keyfmt='{s1}'):
         """ Transform ``data`` to the eigen-basis.
 
         The data to be transformed is ``data[k]`` where key ``k`` 
-        equals ``keyfmt.format(s1=s1)`` for vector data 
-        or ``keyfmt.format(s1=s1, s2=s2)`` for matrix data where
-        ``s1`` and ``s2`` are sources from ``self.srcs``. 
+        equals ``keyfmt.format(s1=s1)`` for vector data,
+        or ``keyfmt.format(s1=s1, s2=s2)`` for matrix data with sources
+        ``s1`` and ``s2`` drawn from ``self.srcs``. 
         A dictionary containing the transformed data is returned 
         using the same keys but with the sources replaced by ``'0', 
         '1' ...`` (from ``basis.eig_srcs``).
+
+        If ``keyfmt`` is an array of formats, the transformation is 
+        applied for each format and a dictionary containing all of the
+        results is returned. This is useful when the same sources 
+        and sinks are used for different types of correlators (e.g.,
+        in both two-point and three-point correlators).
         """
-        if keyfmt is None:
-            keyfmt = '{s1}'
+        if isinstance(keyfmt, str):
+            keyfmt = [keyfmt]
+        newdata = collections.OrderedDict()
         oldsrcs = self.srcs
         newsrcs = self.eig_srcs
-        return EigenBasis._apply(
-            data=data, keyfmt=keyfmt, oldsrcs=oldsrcs, newsrcs=newsrcs, v=self.v
-            )
+        for fmt in keyfmt:
+            newdata.update(EigenBasis._apply(
+                data=data, keyfmt=fmt, oldsrcs=oldsrcs, newsrcs=newsrcs, 
+                v=self.v
+                ))
+        return newdata
 
     def unapply(self, data, keyfmt='{s1}'):
         """ Transform ``data`` from the eigen-basis to the original basis.
 
         The data to be transformed is ``data[k]`` where key ``k`` 
-        equals ``keyfmt.format(s1=s1)`` for vector data 
-        or ``keyfmt.format(s1=s1, s2=s2)`` for matrix data where
-        ``s1`` and ``s2`` are sources from ``self.eig_srcs``. A dictionary 
+        equals ``keyfmt.format(s1=s1)`` for vector data, 
+        or ``keyfmt.format(s1=s1, s2=s2)`` for matrix data with sources
+        ``s1`` and ``s2`` drawn from ``self.eig_srcs``. A dictionary 
         containing the transformed data is returned using the same keys but 
         with the original sources (from ``self.srcs``).
+
+        If ``keyfmt`` is an array of formats, the transformation is 
+        applied for each format and a dictionary containing all of the
+        results is returned. This is useful when the same sources 
+        and sinks are used for different types of correlators (e.g.,
+        in both two-point and three-point correlators).
         """
-        if keyfmt is None:
-            keyfmt = '{s1}'
+        if isinstance(keyfmt, str):
+            keyfmt = [keyfmt]
+        newdata = collections.OrderedDict()
         oldsrcs = self.eig_srcs
         newsrcs = self.srcs
-        return EigenBasis._apply(
-            data=data, keyfmt=keyfmt, oldsrcs=oldsrcs, newsrcs=newsrcs, v=self.v_inv
-            )
+        for fmt in keyfmt:
+            newdata.update(EigenBasis._apply(
+                data=data, keyfmt=fmt, oldsrcs=oldsrcs, newsrcs=newsrcs, 
+                v=self.v_inv
+                ))
+        return newdata
 
     @staticmethod
     def _apply(data, keyfmt, oldsrcs, newsrcs, v):
@@ -1935,7 +1993,8 @@ class EigenBasis:
         """ Extract array from ``data`` specified by array ``keys``. """
         keys = numpy.asarray(keys, object)
         data_shape = numpy.shape(data[keys.flat[0]])
-        ans = numpy.empty(keys.shape + data_shape, object)
+        data_type = data[keys.flat[0]].dtype
+        ans = numpy.empty(keys.shape + data_shape, data_type)
         for idx in numpy.ndindex(keys.shape):
             ans[idx] = data[keys[idx]]
         return ans

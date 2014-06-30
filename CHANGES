@@ -11,11 +11,17 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-Version ???
-===============
+Version 4.1 - 2014-06-30
+==========================
+
+- Additions/refinements to EigenBasis including a new method, Eigenbasis.svd,
+  which transforms data to the eigen-basis, applies an svd cut, and then 
+  transforms the data back to the original basis. Applying svd cuts in 
+  the eigen-basis can sometimes improve fit stability.
 
 - Added save option to CorrFitter.display_plots so it can save copies of the 
   plots in (separate) files.
+
 
 Version 4.0 - 2014-06-25
 =========================
