@@ -178,7 +178,7 @@ for ``outputs`` --- the fit results are all |GVar|\s. The ``outputs``
 are tabulated using :func:`gvar.fmt_values`. An error budget is also 
 produced, using :func:`gvar.fmt_errorbudget`, showing how much error 
 for each quantity comes from uncertainties in the prior and data, and 
-from uncertainties introduced by the *svd* cut.
+from uncertainties introduced by the SVD cut.
 
 Finally plots showing the data divided by the fit for each correlator are 
 displayed (optionally).
@@ -222,7 +222,8 @@ The energies for the fifth and higher states merely echo the
 *a priori* information in the prior --- the data are not sufficiently 
 accurate to add much new information to what was in the prior. The prior
 is less important for the three quantities tabulated here. The dominant
-source of error in each case comes from the *svd* cut.
+source of error in each case comes from either the SVD cut or the statistical
+errors in the data.
 
 Fit Stability
 ---------------

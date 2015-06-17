@@ -28,8 +28,8 @@ def main():
     test_fit(fitter, 'etas-Ds.data')
 
 def test_fit(fitter, datafile):
-    """ Test the fit with simulated data """
-    gv.ranseed((5339893179535759510, 4088224360017966188, 7597275990505476522))
+    """ Test the fit with simulated data """ 
+    gv.ranseed((623738625, 435880512, 1745400596))
     print('\nRandom seed:', gv.ranseed.seed)
     dataset = read_dataset(datafile)
     pexact = fitter.fit.pmean
@@ -41,11 +41,12 @@ def test_fit(fitter, datafile):
         # check chi**2 for leading parameters
         for k in sfit.p: 
             diff.append(sfit.p[k].flat[0] - pexact[k].flat[0])
+        chi2_diff = gv.chi2(diff)
         print(
             'Leading parameter chi2/dof [dof] = %.2f' % 
-            (gv.chi2(diff) / gv.chi2.dof),
-            '[%d]' % gv.chi2.dof, 
-            '  Q = %.1f' % gv.chi2.Q
+            (chi2_diff / chi2_diff.dof),
+            '[%d]' % chi2_diff.dof, 
+            '  Q = %.1f' % chi2_diff.Q
             )
 
 # reuse code from etas-Ds.py

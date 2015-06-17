@@ -11,6 +11,18 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+Version 4.1.1 - 2015-06-17
+===========================
+Very minor fixes.
+
+- Fixed tests so that they are compatible with gvar v7.0 and greater.
+
+- EigenBasis.tabulate(p) now works for fit.p as well as fit.transformed_p. It
+  also works for priors that it creates.
+  
+- Fixed some examples that became inconsistent with numpy's new rule about 
+  random number seeds.
+  
 Version 4.1 - 2014-06-30
 ==========================
 

@@ -59,7 +59,7 @@ import time
 import gvar as _gvar
 import lsqfit
 import numpy
-__version__ = '4.1'
+__version__ = '4.1.1'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -296,6 +296,13 @@ class Corr2(BaseModel):
         self.tfit = numpy.array(ntfit)
         self._abscissa = self.tfit
     
+    def __str__(self):
+        ans = "{c.datatag}[a={c.a}"
+        for f in ['b', 'dE', 's', 'tp']:
+            ans += ', ' + f + '={c.' + f +'}'
+        ans += ', tfit=[{t1}...{t2}]]'
+        return ans.format(c=self, t1=self.tfit[0], t2=self.tfit[-1])
+
     def buildprior(self, prior, nterm):
         """ Create fit prior by extracting relevant pieces of ``prior``. 
 
@@ -370,8 +377,9 @@ class Corr2(BaseModel):
         ofac = (None if self.s[0] == 0.0 else self.s[0],
                 (None if self.s[1] == 0.0 else self.s[1]*(-1)**t))
         ans = 0.0
-        for _ai, _bi, _dEi, ofaci, ntermi in zip(self.a, self.b, 
-                                              self.dE, ofac, nterm):
+        for _ai, _bi, _dEi, ofaci, ntermi in zip(
+            self.a, self.b, self.dE, ofac, nterm
+            ):
             if _ai is None or _bi is None or _dEi is None or ofaci is None:
                 continue
             if ntermi is not None:
@@ -535,12 +543,13 @@ class Corr3(BaseModel):
         implies that the correlators are not periodic.
     :type tpb: integer or ``None``
     """
-    def __init__(self, datatag, T, tdata, tfit,          #):
-                 Vnn, a, b, dEa=None, dEb=None, logdEa=None, logdEb=None, 
-                 sa=1., sb=1.,
-                 Vno=None, Von=None, Voo=None, transpose_V=False,
-                 symmetric_V=False, tpa=None, tpb=None,
-                 othertags=[]):
+    def __init__(
+        self, datatag, T, tdata, tfit,          
+        Vnn, a, b, dEa=None, dEb=None, logdEa=None, logdEb=None, sa=1., sb=1.,
+        Vno=None, Von=None, Voo=None, transpose_V=False, symmetric_V=False, 
+        tpa=None, tpb=None,
+        othertags=[]
+        ):
         super(Corr3, self).__init__(datatag, othertags)
         self.a = self._param(a)
         self.dEa = self._dE(dEa, logdEa)
@@ -1823,7 +1832,11 @@ class EigenBasis:
             nsrcs = len(self.srcs)
         if nterm is None:
             nterm = nsrcs
-        dE = p[keyfmt.format(s1='dE')]
+        try:
+            dE = p[keyfmt.format(s1='dE')]
+        except KeyError:
+            logdE = p['log({})'.format(keyfmt.format(s1='dE'))]
+            dE = numpy.exp(logdE)
         E = numpy.cumsum(dE)
         if nterm > len(E):
             nterm = len(E)

@@ -10,7 +10,7 @@ Parameters:
  log(etab.dE) 0    -0.38176 (57)       [  -1.3 (2.3) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 14/0.8)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 14/0.6)
 
 ============================== nterm = 2
 Least Square Fit:
@@ -29,7 +29,7 @@ Parameters:
               1    -0.1969 (21)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 23/0.8)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 23/0.7)
 
 ============================== nterm = 3
 Least Square Fit:
@@ -53,7 +53,7 @@ Parameters:
               2    -0.8493 (59)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 21/0.9)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 21/0.7)
 
 ============================== nterm = 4
 Least Square Fit:
@@ -116,7 +116,7 @@ Parameters:
               4      -0.72 (18)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 61/1.5)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 61/1.3)
 
 ============================== nterm = 6
 Least Square Fit:
@@ -155,7 +155,7 @@ Parameters:
               5      -0.71 (77)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 64/1.8)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 64/1.4)
 
 ============================== nterm = 7
 Least Square Fit:
@@ -199,7 +199,7 @@ Parameters:
               6      -0.16 (92)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 109/2.7)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 109/2.3)
 
 ============================== nterm = 8
 Least Square Fit:
@@ -248,7 +248,7 @@ Parameters:
               7      -0.40 (96)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 74/2.1)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 74/1.9)
 
 ============================== nterm = 9
 Least Square Fit:
@@ -302,7 +302,7 @@ Parameters:
               8      -0.46 (99)      [  -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 143/3.8)
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 143/3.6)
 
 ============================== Results
 

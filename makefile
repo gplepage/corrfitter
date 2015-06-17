@@ -3,20 +3,32 @@
 # Created by G. Peter Lepage (Cornell University) on 2011-09-22.
 # Copyright (c) 2011-2013 G. Peter Lepage.
 
+PIP = pip
 PYTHON = python
 
 install:
-	$(PYTHON) setup.py install --user	--record files-corrfitter.$(PYTHON)
+	$(PIP) install . --user
+
+#	$(PYTHON) setup.py install --user	--record files-corrfitter.$(PYTHON)
 
 install-sys:
-	$(PYTHON) setup.py install	--record files-corrfitter.$(PYTHON)
+	$(PIP) install .
 
-uninstall:			# not sure this works --- be careful
-	- cat files-corrfitter.$(PYTHON) | xargs rm -rf
-	- cat files-dataset.$(PYTHON) | xargs rm -rf
+#	$(PYTHON) setup.py install	--record files-corrfitter.$(PYTHON)
+
+uninstall:
+	$(PIP) uninstall corrfitter
+
+#	- cat files-corrfitter.$(PYTHON) | xargs rm -rf
+#	- cat files-dataset.$(PYTHON) | xargs rm -rf
 
 install-dataset:
-	$(PYTHON) dataset-setup.py install --user --record files-dataset.$(PYTHON)
+	$(PIP) install dataset 
+	
+#	$(PYTHON) dataset-setup.py install --user --record files-dataset.$(PYTHON)
+
+uninstall-dataset:
+	$(PIP) uninstall dataset 
 
 .PHONY : tests
 

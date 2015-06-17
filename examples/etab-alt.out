@@ -10,7 +10,7 @@ Parameters:
  log(etab.dE) 0   -1.27030 (98)      [ -1.3 (2.3) ]  
 
 Settings:
-  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 25/0.9)
+  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 25/0.8)
 
 ============================== nterm = 2
 Least Square Fit:
@@ -29,7 +29,7 @@ Parameters:
               1    -0.3191 (47)      [ -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 22/0.8)
+  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 22/0.9)
 
 ============================== nterm = 3
 Least Square Fit:
@@ -53,7 +53,7 @@ Parameters:
               2     -0.945 (15)      [ -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 13/0.8)
+  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 13/0.7)
 
 ============================== nterm = 4
 Least Square Fit:
@@ -116,7 +116,7 @@ Parameters:
               4      -1.06 (50)      [ -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 31/1.2)
+  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 31/1.0)
 
 ============================== nterm = 6
 Least Square Fit:
@@ -199,7 +199,7 @@ Parameters:
               6      -0.42 (95)      [ -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 75/2.2)
+  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 75/2.1)
 
 ============================== nterm = 8
 Least Square Fit:
@@ -248,7 +248,7 @@ Parameters:
               7      -0.56 (97)      [ -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 155/3.9)
+  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 155/3.7)
 
 ============================== nterm = 9
 Least Square Fit:
@@ -302,7 +302,7 @@ Parameters:
               8      -0.59 (96)      [ -0.5 (1.0) ]  
 
 Settings:
-  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 103/2.9)
+  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 103/3.0)
 
 ============================== Results
 

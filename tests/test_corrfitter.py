@@ -261,7 +261,8 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
             diff = dict()
             for i in ['a', 'logdE']:
                 diff[i] = sfit.p[i][0] - pexact[i][0]
-            self.assertLess(gv.chi2(diff)/gv.chi2.dof, 15.)
+            c2 = gv.chi2(diff)
+            self.assertLess(c2/c2.dof, 15.)
             self.assert_arraysclose(gv.evalcov(sdata[k]), covexact)
 
     def test_periodic(self):
