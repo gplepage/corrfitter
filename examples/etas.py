@@ -36,7 +36,7 @@ def make_prior(N):
     return prior
 
 def print_results(fit):
-        p = fit.transformed_p                               
+        p = fit.p                               
         E = np.cumsum(p['dE'])                              
         a = p['a']                                          
         print('{:2}  {:15}  {:15}'.format('E', E[0], E[1])) 

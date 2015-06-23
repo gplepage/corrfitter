@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Annotated Example: Transition Form Factor &mdash; corrfitter 4.1.1 documentation</title>
+    <title>Annotated Example: Transition Form Factor &mdash; corrfitter 4.2a documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.1.1',
+        VERSION:     '4.2a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 4.1.1 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 4.2a documentation" href="index.html" />
     <link rel="next" title="Annotated Example: Matrix Correlator" href="example-etab.html" />
     <link rel="prev" title="Annotated Example: Two-Point Correlator" href="example-etas.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="example-etas.html" title="Annotated Example: Two-Point Correlator"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.1.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.2a documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -330,7 +330,7 @@ for the fit parameters from the last fit:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Report best-fit results. &quot;&quot;&quot;</span>
     <span class="k">print</span><span class="p">(</span><span class="s">&#39;Fit results:&#39;</span><span class="p">)</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">transformed_p</span>                       <span class="c"># best-fit parameters</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">p</span>                       <span class="c"># best-fit parameters</span>
 
     <span class="c"># etas</span>
     <span class="n">E_etas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;etas:dE&#39;</span><span class="p">])</span>
@@ -377,18 +377,18 @@ for the fit parameters from the last fit:</p>
 as are the exponentials of the log-normal parameters.
 We also turn energy differences into energies using <code class="xref py py-mod docutils literal"><span class="pre">numpy</span></code>&#8216;s cummulative
 sum function <code class="xref py py-func docutils literal"><span class="pre">numpy.cumsum()</span></code>. The final output is:</p>
-<div class="highlight-python"><div class="highlight"><pre>Fit results:
-  Eetas: [0.41619(12) 1.007(89) 1.43(34)]
-  aetas: [0.21834(16) 0.170(74) 0.30(12)]
-
-  EDs: [1.20166(16) 1.704(17) 2.29(20)]
-  aDs: [0.21466(20) 0.275(20) 0.52(20)]
-
-  EDso: [1.442(16) 1.65(11) 2.17(44)]
-  aDso: [0.0634(90) 0.080(26) 0.116(93)]
-
-  etas-&gt;V-&gt;Ds  = 0.76725(76)
-  etas-&gt;V-&gt;Dso = -0.793(92)
+<div class="highlight-python"><div class="highlight"><pre>              1         -1.59 (53)        [ -0.7 (1.0) ]  
+              2         -0.65 (74)        [ -0.7 (1.0) ]  
+              3         -0.7 (1.0)        [ -0.7 (1.0) ]  
+        Vnn 0,0       0.76725 (76)        [  0.0 (1.0) ]  
+            0,1        -0.492 (33)        [  0.0 (1.0) ]  
+            0,2          0.50 (51)        [  0.0 (1.0) ]  
+            0,3        0.06 (1.00)        [  0.0 (1.0) ]  
+            1,0         0.050 (42)        [  0.0 (1.0) ]  
+            1,1          0.25 (70)        [  0.0 (1.0) ]  
+            1,2     -0.005 (0.995)        [  0.0 (1.0) ]  
+            1,3   -0.0007 (1.0000)        [  0.0 (1.0) ]  
+            2,0         -0.07 (19)        [  0.0 (1.0) ]  
 </pre></div>
 </div>
 <p>Finally we  create an error budget for the <img class="math" src="_images/math/fc10e978f762ea5b244f6011ea326b9325eb4396.png" alt="\eta_s" style="vertical-align: -3px"/>
@@ -400,28 +400,28 @@ specifying various inputs to the calculation: the Monte Carlo data, the
 priors, and the results from any <em>svd</em> cuts (none here). Each of these inputs
 contributes to the errors in the final results, as detailed in the
 error budget:</p>
-<div class="highlight-python"><div class="highlight"><pre>Values:
-              metas: 0.41619(12)         
-                mDs: 1.20166(16)         
-           mDso-mDs: 0.240(16)           
-                Vnn: 0.76725(76)         
-                Vno: -0.793(92)          
-
-Partial % Errors:
-                  metas       mDs  mDso-mDs       Vnn       Vno
----------------------------------------------------------------
-  statistics:      0.03      0.01      4.51      0.09      8.60
- log(etas:a):      0.00      0.00      0.11      0.01      0.39
-log(etas:dE):      0.00      0.00      0.06      0.01      0.38
-   log(Ds:a):      0.00      0.00      0.53      0.02      0.96
-  log(Ds:dE):      0.00      0.00      0.44      0.02      0.59
-  log(Dso:a):      0.00      0.00      1.10      0.01      3.85
- log(Dso:dE):      0.00      0.00      1.14      0.01      5.66
-         Vnn:      0.00      0.00      0.58      0.03      1.03
-         Vno:      0.00      0.00      4.25      0.01      3.39
-         svd:      0.00      0.00      0.00      0.00      0.00
----------------------------------------------------------------
-       total:      0.03      0.01      6.46      0.10     11.61
+<div class="highlight-python"><div class="highlight"><pre>            2,2    0.0004 (1.0000)        [  0.0 (1.0) ]  
+            2,3        -1e-05 +- 1        [  0.0 (1.0) ]  
+            3,0        0.002 (977)        [  0.0 (1.0) ]  
+            3,1      0.003 (1.000)        [  0.0 (1.0) ]  
+            3,2         3e-05 +- 1        [  0.0 (1.0) ]  
+            3,3         2e-07 +- 1        [  0.0 (1.0) ]  
+        Vno 0,0        -0.793 (92)        [  0.0 (1.0) ]  
+            0,1          0.25 (33)        [  0.0 (1.0) ]  
+            0,2        0.005 (845)        [  0.0 (1.0) ]  
+            0,3        0.01 (1.00)        [  0.0 (1.0) ]  
+            1,0          0.38 (45)        [  0.0 (1.0) ]  
+            1,1          0.22 (95)        [  0.0 (1.0) ]  
+            1,2     -0.004 (0.999)        [  0.0 (1.0) ]  
+            1,3   -0.0009 (1.0000)        [  0.0 (1.0) ]  
+            2,0         -0.17 (93)        [  0.0 (1.0) ]  
+            2,1      0.005 (0.999)        [  0.0 (1.0) ]  
+            2,2    0.0007 (1.0000)        [  0.0 (1.0) ]  
+            2,3        -1e-05 +- 1        [  0.0 (1.0) ]  
+            3,0       -0.03 (1.00)        [  0.0 (1.0) ]  
+            3,1     -0.003 (1.000)        [  0.0 (1.0) ]  
+            3,2         1e-05 +- 1        [  0.0 (1.0) ]  
+            3,3         4e-07 +- 1        [  0.0 (1.0) ]  
 </pre></div>
 </div>
 <p>The error budget shows, for example, that the largest sources of uncertainty
@@ -444,9 +444,16 @@ Parameters:
   log(Dso:dE) 0    0.54320 (39)      [  0.41 (24) ]  
         Vnn 0,0    0.74220 (23)      [  0.0 (1.0) ]  
         Vno 0,0    -1.0474 (21)      [  0.0 (1.0) ]  *
+---------------------------------------------------
+       etas:a 0   0.249660 (75)      [  0.30 (30) ]  
+      etas:dE 0   0.447695 (64)      [  0.40 (20) ]  
+         Ds:a 0   0.257795 (52)      [  0.30 (30) ]  
+        Ds:dE 0   1.247119 (67)      [  1.20 (20) ]  
+        Dso:a 0    0.18242 (30)      [  0.10 (10) ]  
+       Dso:dE 0    1.72150 (68)      [  1.50 (36) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 23/0.1)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 23/0.2)
 
 ============================== nterm = 2
 Least Square Fit:
@@ -473,9 +480,22 @@ Parameters:
             0,1      0.946 (66)      [  0.0 (1.0) ]  
             1,0      -1.00 (13)      [  0.0 (1.0) ]  
             1,1     0.06 (1.00)      [  0.0 (1.0) ]  
+---------------------------------------------------
+       etas:a 0    0.21857 (14)      [  0.30 (30) ]  
+              1     0.2724 (42)      [  0.30 (30) ]  
+      etas:dE 0    0.41627 (11)      [  0.40 (20) ]  
+              1     0.7178 (74)      [  0.50 (50) ]  
+         Ds:a 0    0.21464 (14)      [  0.30 (30) ]  
+              1     0.3397 (23)      [  0.30 (30) ]  
+        Ds:dE 0    1.20149 (14)      [  1.20 (20) ]  
+              1     0.5555 (31)      [  0.50 (50) ]  
+        Dso:a 0    0.07417 (56)      [  0.10 (10) ]  
+              1      0.282 (21)      [  0.10 (10) ]  *
+       Dso:dE 0     1.4528 (20)      [  1.50 (36) ]  
+              1      0.724 (30)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 77/0.6)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 77/0.5)
 
 ============================== nterm = 3
 Least Square Fit:
@@ -518,6 +538,25 @@ Parameters:
             2,0        -0.17 (92)       [  0.0 (1.0) ]  
             2,1     0.006 (0.999)       [  0.0 (1.0) ]  
             2,2   0.0007 (1.0000)       [  0.0 (1.0) ]  
+------------------------------------------------------
+       etas:a 0      0.21834 (16)       [  0.30 (30) ]  
+              1        0.163 (76)       [  0.30 (30) ]  
+              2        0.324 (64)       [  0.30 (30) ]  
+      etas:dE 0      0.41619 (12)       [  0.40 (20) ]  
+              1        0.581 (97)       [  0.50 (50) ]  
+              2         0.44 (20)       [  0.50 (50) ]  
+         Ds:a 0      0.21466 (19)       [  0.30 (30) ]  
+              1        0.275 (20)       [  0.30 (30) ]  
+              2         0.56 (19)       [  0.30 (30) ]  
+        Ds:dE 0      1.20165 (16)       [  1.20 (20) ]  
+              1        0.502 (17)       [  0.50 (50) ]  
+              2         0.61 (18)       [  0.50 (50) ]  
+        Dso:a 0       0.0633 (90)       [  0.10 (10) ]  
+              1        0.080 (27)       [  0.10 (10) ]  
+              2        0.121 (94)       [  0.10 (10) ]  
+       Dso:dE 0        1.442 (16)       [  1.50 (36) ]  
+              1         0.20 (11)       [  0.50 (50) ]  
+              2         0.53 (40)       [  0.50 (50) ]  
 
 Settings:
   svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 76/0.7)
@@ -583,45 +622,6 @@ Parameters:
             3,1     -0.003 (1.000)        [  0.0 (1.0) ]  
             3,2         1e-05 +- 1        [  0.0 (1.0) ]  
             3,3         4e-07 +- 1        [  0.0 (1.0) ]  
-
-Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 24/0.4)
-
-Fit results:
-  Eetas: [0.41619(12) 1.007(89) 1.43(34)]
-  aetas: [0.21834(16) 0.170(74) 0.30(12)]
-
-  EDs: [1.20166(16) 1.704(17) 2.29(20)]
-  aDs: [0.21466(20) 0.275(20) 0.52(20)]
-
-  EDso: [1.442(16) 1.65(11) 2.17(44)]
-  aDso: [0.0634(90) 0.080(26) 0.116(93)]
-
-  etas-&gt;V-&gt;Ds  = 0.76725(76)
-  etas-&gt;V-&gt;Dso = -0.793(92)
-
-Values:
-              metas: 0.41619(12)         
-                mDs: 1.20166(16)         
-           mDso-mDs: 0.240(16)           
-                Vnn: 0.76725(76)         
-                Vno: -0.793(92)          
-
-Partial % Errors:
-                  metas       mDs  mDso-mDs       Vnn       Vno
----------------------------------------------------------------
-  statistics:      0.03      0.01      4.51      0.09      8.60
- log(etas:a):      0.00      0.00      0.11      0.01      0.39
-log(etas:dE):      0.00      0.00      0.06      0.01      0.38
-   log(Ds:a):      0.00      0.00      0.53      0.02      0.96
-  log(Ds:dE):      0.00      0.00      0.44      0.02      0.59
-  log(Dso:a):      0.00      0.00      1.10      0.01      3.85
- log(Dso:dE):      0.00      0.00      1.14      0.01      5.66
-         Vnn:      0.00      0.00      0.58      0.03      1.03
-         Vno:      0.00      0.00      4.25      0.01      3.39
-         svd:      0.00      0.00      0.00      0.00      0.00
----------------------------------------------------------------
-       total:      0.03      0.01      6.46      0.10     11.61
 </pre></div>
 </div>
 <p>Note:</p>
@@ -700,6 +700,13 @@ Parameters:
   log(Dso:dE) 0     0.3738 (32)      [  0.41 (24) ]  
         Vnn 0,0    0.76533 (60)      [  0.0 (1.0) ]  
         Vno 0,0     -0.710 (11)      [  0.0 (1.0) ]  
+---------------------------------------------------
+       etas:a 0    0.21838 (17)      [  0.30 (30) ]  
+      etas:dE 0    0.41619 (12)      [  0.40 (20) ]  
+         Ds:a 0    0.21467 (23)      [  0.30 (30) ]  
+        Ds:dE 0    1.20168 (17)      [  1.20 (20) ]  
+        Dso:a 0     0.0722 (18)      [  0.10 (10) ]  
+       Dso:dE 0     1.4533 (46)      [  1.50 (36) ]  
 
 Settings:
   svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 9/0.1)
@@ -729,6 +736,19 @@ Parameters:
             0,1       0.25 (16)      [  0.0 (1.0) ]  
             1,0       0.34 (43)      [  0.0 (1.0) ]  
             1,1       0.29 (95)      [  0.0 (1.0) ]  
+---------------------------------------------------
+       etas:a 0    0.21834 (16)      [  0.30 (30) ]  
+              1      0.164 (85)      [  0.30 (30) ]  
+      etas:dE 0    0.41619 (12)      [  0.40 (20) ]  
+              1       0.58 (10)      [  0.50 (50) ]  
+         Ds:a 0    0.21463 (19)      [  0.30 (30) ]  
+              1      0.262 (20)      [  0.30 (30) ]  
+        Ds:dE 0    1.20165 (15)      [  1.20 (20) ]  
+              1      0.491 (17)      [  0.50 (50) ]  
+        Dso:a 0     0.0642 (59)      [  0.10 (10) ]  
+              1     0.0872 (90)      [  0.10 (10) ]  
+       Dso:dE 0      1.442 (11)      [  1.50 (36) ]  
+              1      0.234 (55)      [  0.50 (50) ]  
 
 Settings:
   svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 20/0.2)
@@ -748,26 +768,6 @@ Fit results:
 
 Values:
               metas: 0.41619(12)         
-                mDs: 1.20165(15)         
-           mDso-mDs: 0.241(11)           
-                Vnn: 0.76759(74)         
-                Vno: -0.774(42)          
-
-Partial % Errors:
-                  metas       mDs  mDso-mDs       Vnn       Vno
----------------------------------------------------------------
-  statistics:      0.03      0.01      3.69      0.09      4.53
- log(etas:a):      0.00      0.00      0.10      0.01      0.54
-log(etas:dE):      0.00      0.00      0.06      0.00      0.42
-   log(Ds:a):      0.00      0.00      0.34      0.01      0.47
-  log(Ds:dE):      0.00      0.00      0.52      0.02      0.47
-  log(Dso:a):      0.00      0.00      0.40      0.00      1.37
- log(Dso:dE):      0.00      0.00      0.54      0.00      1.94
-         Vnn:      0.00      0.00      1.03      0.03      0.25
-         Vno:      0.00      0.00      2.10      0.02      1.28
-         svd:      0.00      0.00      0.00      0.00      0.00
----------------------------------------------------------------
-       total:      0.03      0.01      4.47      0.10      5.37
 </pre></div>
 </div>
 </div>
@@ -776,21 +776,21 @@ log(etas:dE):      0.00      0.00      0.06      0.00      0.42
 <p>Chained fits (see <a class="reference internal" href="corrfitter.html#chained-fits"><span>Faster Fits &#8212; Chained Fits</span></a>) are used if <code class="docutils literal"><span class="pre">fitter.lsqfit(...)</span></code>
 is replaced by <code class="docutils literal"><span class="pre">fitter.chained_lsqfit(...)</span></code> in <code class="docutils literal"><span class="pre">main()</span></code>. The results
 are about the same: for example,</p>
-<div class="highlight-python"><div class="highlight"><pre>Values:
-              metas: 0.41619(12)         
-                mDs: 1.20156(17)         
-           mDso-mDs: 0.2554(41)          
-                Vnn: 0.7676(12)          
-                Vno: -0.754(26)          
+<div class="highlight-python"><div class="highlight"><pre>            2,2    0.0004 (1.0000)        [  0.0 (1.0) ]  
+            2,3         3e-05 +- 1        [  0.0 (1.0) ]  
+            3,0         -0.04 (99)        [  0.0 (1.0) ]  
+            3,1         7e-05 +- 1        [  0.0 (1.0) ]  
+            3,2        -1e-05 +- 1        [  0.0 (1.0) ]  
+            3,3         4e-08 +- 1        [  0.0 (1.0) ]  
 </pre></div>
 </div>
 <p>We obtain more or less the same results,</p>
-<div class="highlight-python"><div class="highlight"><pre>Values:
-              metas: 0.41619(11)         
-                mDs: 1.20156(15)         
-           mDso-mDs: 0.2576(27)          
-                Vnn: 0.76666(67)         
-                Vno: -0.747(15)          
+<div class="highlight-python"><div class="highlight"><pre>              1        -1.404 (50)        [      -1.450 (94) ]  
+              2         -0.94 (18)        [       -0.99 (33) ]  
+              3         -1.07 (73)        [       -1.09 (97) ]  
+   log(Ds:dE) 0       0.18362 (12)        [     0.18362 (14) ]  
+              1        -0.743 (23)        [      -0.764 (41) ]  
+              2         -0.85 (17)        [       -0.94 (34) ]  
 </pre></div>
 </div>
 <p>if we polish the final results from the chained fit using
@@ -809,12 +809,12 @@ The result of the (parallel) fit of the 2-point correlators is used
 as a prior for the chained fits of the 3-point correlators (<code class="docutils literal"><span class="pre">models[2:]</span></code>).
 The fit results are mostly unchanged, although the polishing fit
 is significantly faster (more than 2x) in this case:</p>
-<div class="highlight-python"><div class="highlight"><pre>Values:
-              metas: 0.41619(11)         
-                mDs: 1.20156(15)         
-           mDso-mDs: 0.2576(27)          
-                Vnn: 0.76666(67)         
-                Vno: -0.747(15)          
+<div class="highlight-python"><div class="highlight"><pre>            2,1     -0.002 (1.000)        [  0.0 (1.0) ]  
+            2,2    0.0001 (1.0000)        [  0.0 (1.0) ]  
+            2,3        -2e-06 +- 1        [  0.0 (1.0) ]  
+            3,0     -0.006 (1.000)        [  0.0 (1.0) ]  
+            3,1        -6e-05 +- 1        [  0.0 (1.0) ]  
+            3,2         5e-06 +- 1        [  0.0 (1.0) ]  
 </pre></div>
 </div>
 </div>
@@ -835,7 +835,7 @@ program, where:</p>
         sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact)
         diff = []
         # check chi**2 for leading parameters
-        for k in sfit.p: 
+        for k in prior:
             diff.append(sfit.p[k].flat[0] - pexact[k].flat[0])
         chi2diff = gv.chi2(diff)
         print(
@@ -850,7 +850,71 @@ results from the last fit done by <code class="docutils literal"><span class="pr
 The code prints out each fit,
 and for each it computes the <code class="docutils literal"><span class="pre">chi**2</span></code> of the difference between the leading
 parameters and <code class="docutils literal"><span class="pre">pexact</span></code>. The output is:</p>
-<div class="highlight-python"><div class="highlight"><pre>Random seed: (1487942813, 775399747, 906327435)
+<div class="highlight-python"><div class="highlight"><pre>              3          0.27 (26)        [  0.30 (30) ]  
+      etas:dE 0       0.41619 (12)        [  0.40 (20) ]  
+              1         0.591 (89)        [  0.50 (50) ]  
+              2          0.43 (26)        [  0.50 (50) ]  
+              3          0.54 (52)        [  0.50 (50) ]  
+         Ds:a 0       0.21466 (20)        [  0.30 (30) ]  
+              1         0.275 (20)        [  0.30 (30) ]  
+              2          0.52 (20)        [  0.30 (30) ]  
+              3          0.33 (33)        [  0.30 (30) ]  
+        Ds:dE 0       1.20166 (16)        [  1.20 (20) ]  
+              1         0.502 (17)        [  0.50 (50) ]  
+              2          0.59 (19)        [  0.50 (50) ]  
+              3          0.46 (46)        [  0.50 (50) ]  
+        Dso:a 0        0.0634 (90)        [  0.10 (10) ]  
+              1         0.080 (26)        [  0.10 (10) ]  
+              2         0.116 (93)        [  0.10 (10) ]  
+              3          0.10 (10)        [  0.10 (10) ]  
+       Dso:dE 0         1.442 (16)        [  1.50 (36) ]  
+              1          0.20 (11)        [  0.50 (50) ]  
+              2          0.52 (39)        [  0.50 (50) ]  
+              3          0.48 (48)        [  0.50 (50) ]  
+
+Settings:
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 24/0.4)
+
+Fit results:
+  Eetas: [0.41619(12) 1.007(89) 1.43(34)]
+  aetas: [0.21834(16) 0.170(74) 0.30(12)]
+
+  EDs: [1.20166(16) 1.704(17) 2.29(20)]
+  aDs: [0.21466(20) 0.275(20) 0.52(20)]
+
+  EDso: [1.442(16) 1.65(11) 2.17(44)]
+  aDso: [0.0634(90) 0.080(26) 0.116(93)]
+
+  etas-&gt;V-&gt;Ds  = 0.76725(76)
+  etas-&gt;V-&gt;Dso = -0.793(92)
+
+Values:
+              metas: 0.41619(12)         
+                mDs: 1.20166(16)         
+           mDso-mDs: 0.240(16)           
+                Vnn: 0.76725(76)         
+                Vno: -0.793(92)          
+
+Partial % Errors:
+                  metas       mDs  mDso-mDs       Vnn       Vno
+---------------------------------------------------------------
+  statistics:      0.03      0.01      4.51      0.09      8.60
+ log(etas:a):      0.00      0.00      0.11      0.01      0.39
+log(etas:dE):      0.00      0.00      0.06      0.01      0.38
+   log(Ds:a):      0.00      0.00      0.53      0.02      0.96
+  log(Ds:dE):      0.00      0.00      0.44      0.02      0.59
+  log(Dso:a):      0.00      0.00      1.10      0.01      3.85
+ log(Dso:dE):      0.00      0.00      1.14      0.01      5.66
+         Vnn:      0.00      0.00      0.58      0.03      1.03
+         Vno:      0.00      0.00      4.25      0.01      3.39
+         svd:      0.00      0.00      0.00      0.00      0.00
+---------------------------------------------------------------
+       total:      0.03      0.01      6.46      0.10     11.61
+
+
+
+
+Random seed: (1487942813, 775399747, 906327435)
 
 ============================== simulation
 Least Square Fit:
@@ -913,9 +977,34 @@ Parameters:
             3,1        0.01 (1.00)        [  0.0 (1.0) ]  
             3,2        -1e-05 +- 1        [  0.0 (1.0) ]  
             3,3        -2e-06 +- 1        [  0.0 (1.0) ]  
+--------------------------------------------------------
+       etas:a 0       0.21839 (16)        [  0.30 (30) ]  
+              1         0.135 (76)        [  0.30 (30) ]  
+              2          0.26 (15)        [  0.30 (30) ]  
+              3          0.33 (22)        [  0.30 (30) ]  
+      etas:dE 0       0.41628 (12)        [  0.40 (20) ]  
+              1          0.54 (11)        [  0.50 (50) ]  
+              2          0.37 (21)        [  0.50 (50) ]  
+              3          0.43 (39)        [  0.50 (50) ]  
+         Ds:a 0       0.21490 (20)        [  0.30 (30) ]  
+              1         0.266 (27)        [  0.30 (30) ]  
+              2          0.44 (15)        [  0.30 (30) ]  
+              3          0.32 (32)        [  0.30 (30) ]  
+        Ds:dE 0       1.20190 (16)        [  1.20 (20) ]  
+              1         0.499 (22)        [  0.50 (50) ]  
+              2          0.49 (17)        [  0.50 (50) ]  
+              3          0.47 (46)        [  0.50 (50) ]  
+        Dso:a 0        0.0663 (57)        [  0.10 (10) ]  
+              1         0.092 (21)        [  0.10 (10) ]  
+              2         0.092 (87)        [  0.10 (10) ]  
+              3          0.10 (10)        [  0.10 (10) ]  
+       Dso:dE 0         1.445 (11)        [  1.50 (36) ]  
+              1         0.266 (85)        [  0.50 (50) ]  
+              2          0.58 (53)        [  0.50 (50) ]  
+              3          0.50 (50)        [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 54/0.7)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 54/0.8)
 
 Leading parameter chi2/dof [dof] = 0.91 [8]   Q = 0.5
 
@@ -980,9 +1069,34 @@ Parameters:
             3,1    -0.002 (1.000)       [  0.0 (1.0) ]  
             3,2       -4e-06 +- 1       [  0.0 (1.0) ]  
             3,3        2e-07 +- 1       [  0.0 (1.0) ]  
+------------------------------------------------------
+       etas:a 0      0.21800 (16)       [  0.30 (30) ]  
+              1        0.158 (38)       [  0.30 (30) ]  
+              2         0.42 (22)       [  0.30 (30) ]  
+              3         0.34 (33)       [  0.30 (30) ]  
+      etas:dE 0      0.41594 (12)       [  0.40 (20) ]  
+              1        0.548 (59)       [  0.50 (50) ]  
+              2         0.63 (25)       [  0.50 (50) ]  
+              3         0.46 (45)       [  0.50 (50) ]  
+         Ds:a 0      0.21433 (21)       [  0.30 (30) ]  
+              1        0.245 (28)       [  0.30 (30) ]  
+              2         0.46 (15)       [  0.30 (30) ]  
+              3         0.33 (32)       [  0.30 (30) ]  
+        Ds:dE 0      1.20137 (16)       [  1.20 (20) ]  
+              1        0.473 (24)       [  0.50 (50) ]  
+              2         0.50 (15)       [  0.50 (50) ]  
+              3         0.46 (46)       [  0.50 (50) ]  
+        Dso:a 0       0.0666 (61)       [  0.10 (10) ]  
+              1        0.085 (22)       [  0.10 (10) ]  
+              2        0.096 (86)       [  0.10 (10) ]  
+              3         0.10 (10)       [  0.10 (10) ]  
+       Dso:dE 0        1.448 (11)       [  1.50 (36) ]  
+              1        0.233 (84)       [  0.50 (50) ]  
+              2         0.56 (47)       [  0.50 (50) ]  
+              3         0.50 (50)       [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 48/0.7)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 48/0.6)
 
 Leading parameter chi2/dof [dof] = 1.19 [8]   Q = 0.3
 </pre></div>
@@ -996,7 +1110,26 @@ a marginalized fit:</p>
 </pre></div>
 </div>
 <p>Running this code gives:</p>
-<div class="highlight-python"><div class="highlight"><pre>Random seed: (623738625, 435880512, 1745400596)
+<div class="highlight-python"><div class="highlight"><pre>Partial % Errors:
+                  metas       mDs  mDso-mDs       Vnn       Vno
+---------------------------------------------------------------
+  statistics:      0.03      0.01      3.69      0.09      4.53
+ log(etas:a):      0.00      0.00      0.10      0.01      0.54
+log(etas:dE):      0.00      0.00      0.06      0.00      0.42
+   log(Ds:a):      0.00      0.00      0.34      0.01      0.47
+  log(Ds:dE):      0.00      0.00      0.52      0.02      0.47
+  log(Dso:a):      0.00      0.00      0.40      0.00      1.37
+ log(Dso:dE):      0.00      0.00      0.54      0.00      1.94
+         Vnn:      0.00      0.00      1.03      0.03      0.25
+         Vno:      0.00      0.00      2.10      0.02      1.28
+         svd:      0.00      0.00      0.00      0.00      0.00
+---------------------------------------------------------------
+       total:      0.03      0.01      4.47      0.10      5.37
+
+
+
+
+Random seed: (623738625, 435880512, 1745400596)
 
 ============================== simulation
 Least Square Fit:
@@ -1023,6 +1156,19 @@ Parameters:
             0,1      0.179 (47)      [  0.0 (1.0) ]  
             1,0       0.58 (17)      [  0.0 (1.0) ]  
             1,1      -0.01 (94)      [  0.0 (1.0) ]  
+---------------------------------------------------
+       etas:a 0    0.21856 (14)      [  0.30 (30) ]  
+              1     0.1697 (33)      [  0.30 (30) ]  
+      etas:dE 0    0.41633 (11)      [  0.40 (20) ]  
+              1     0.6007 (98)      [  0.50 (50) ]  
+         Ds:a 0    0.21465 (15)      [  0.30 (30) ]  
+              1     0.2622 (14)      [  0.30 (30) ]  
+        Ds:dE 0    1.20166 (14)      [  1.20 (20) ]  
+              1     0.4913 (28)      [  0.50 (50) ]  
+        Dso:a 0     0.0623 (20)      [  0.10 (10) ]  
+              1     0.0891 (31)      [  0.10 (10) ]  
+       Dso:dE 0     1.4360 (44)      [  1.50 (36) ]  
+              1      0.238 (20)      [  0.50 (50) ]  
 
 Settings:
   svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 8/0.1)
@@ -1054,6 +1200,19 @@ Parameters:
             0,1      0.200 (49)      [  0.0 (1.0) ]  
             1,0       0.54 (17)      [  0.0 (1.0) ]  
             1,1       0.16 (93)      [  0.0 (1.0) ]  
+---------------------------------------------------
+       etas:a 0    0.21833 (15)      [  0.30 (30) ]  
+              1     0.1668 (31)      [  0.30 (30) ]  
+      etas:dE 0    0.41626 (11)      [  0.40 (20) ]  
+              1     0.5917 (97)      [  0.50 (50) ]  
+         Ds:a 0    0.21461 (15)      [  0.30 (30) ]  
+              1     0.2615 (14)      [  0.30 (30) ]  
+        Ds:dE 0    1.20173 (14)      [  1.20 (20) ]  
+              1     0.4902 (28)      [  0.50 (50) ]  
+        Dso:a 0     0.0623 (20)      [  0.10 (10) ]  
+              1     0.0885 (31)      [  0.10 (10) ]  
+       Dso:dE 0     1.4372 (45)      [  1.50 (36) ]  
+              1      0.232 (20)      [  0.50 (50) ]  
 
 Settings:
   svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 8/0.1)
@@ -1134,7 +1293,7 @@ define <code class="docutils literal"><span class="pre">pexact</span></code>).</
         <li class="right" >
           <a href="example-etas.html" title="Annotated Example: Two-Point Correlator"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.1.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.2a documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

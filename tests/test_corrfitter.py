@@ -82,6 +82,7 @@ class FitTests(object):
         """ fit outputs fitp1 and fitp2 agree with each other (approximately)"""
         chi2 = 0
         dof = 0
+        fitp1 = lsqfit.trim_redundant_keys(fitp1)
         for k in fitp1:
             p1 = fitp1[k].flat
             p2 = fitp2[k].flat
@@ -96,6 +97,7 @@ class FitTests(object):
         """ GVars in fitp agree within NSIG sigma with parameters p. """
         chi2 = 0
         dof = 0
+        fitp = lsqfit.trim_redundant_keys(fitp)
         for k in fitp:
             for fpi,pi in zip(fitp[k].flat,p[k].flat):
                 delta_mean = abs(abs(fpi.mean)-abs(pi))
@@ -146,13 +148,13 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         caller_name = inspect.getframeinfo(caller_frame).function
         caller_func = eval("test_corr2."+caller_name)
         return caller_func.__doc__
-    ##
+    
     def mkcorr(self,a, b, dE, tp=None, othertags=[], s=1.):
         ans = Corr2(datatag=self.ncorr, a=a, b=b, dE=dE, tdata=self.tdata,
             tfit=self.tfit, tp=tp, s=s, othertags=othertags)
         self.ncorr += 1
         return ans
-    ##
+    
     def dofit(self, models, data_models=None, nterm=None, ratio=True):
         fitter = CorrFitter(models=models, nterm=nterm, ratio=ratio)
         if data_models is None:
@@ -238,7 +240,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
 
     def test_simulation(self):
         """ CorrFitter.simulated_data_iter """
-        models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=None) ]
+        models = [ self.mkcorr(a="a", b="a", dE="dE", tp=None) ]
         fitter = self.dofit(models)
         data = self.data
         diter = gv.BufferDict()
@@ -269,7 +271,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         """ corr2 -- periodic correlator """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=self.tp) ]
+        models = [ self.mkcorr(a="a", b="a", dE="dE", tp=self.tp) ]
         fitter = self.dofit(models)
         fitter = self.dofit_chd(models)
         if DISPLAY_PLOTS:
@@ -279,13 +281,13 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         """ corr2 -- fastfit(periodic) """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        self.dofastfit(self.mkcorr(a="a", b="a", dE="logdE", tp=self.tp))
+        self.dofastfit(self.mkcorr(a="a", b="a", dE="dE", tp=self.tp))
     ##        
     def test_lognormal(self):
         """ corr2 -- log normal parameters """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a="logb", b="logb", dE="logdE", tp=self.tp) ]
+        models = [ self.mkcorr(a="b", b="b", dE="dE", tp=self.tp) ]
         self.dofit(models)
         self.dofit_chd(models)
     ##
@@ -293,7 +295,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         """ corr2 -- non-periodic correlator"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=None) ]
+        models = [ self.mkcorr(a="a", b="a", dE="dE", tp=None) ]
         self.dofit(models)
         self.dofit_chd(models) 
     ##
@@ -301,14 +303,14 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         """ corr2 -- fastfit(non-periodic) """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        self.dofastfit(self.mkcorr(a="a", b="a", dE="logdE", tp=None))
+        self.dofastfit(self.mkcorr(a="a", b="a", dE="dE", tp=None))
     ##        
     @unittest.skipIf(FAST,"skipping test_bootstrap for speed")
     def test_bootstrap(self):
         """ corr2 -- bootstrap """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=None) ]
+        models = [ self.mkcorr(a="a", b="a", dE="dE", tp=None) ]
         fitter = self.dofit(models)
         bsdata = ds.Dataset()
         for fit in fitter.bootstrap_iter(n=40):
@@ -321,7 +323,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         """ corr2 -- anti-periodic correlator """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a="a", b="a", dE="logdE", tp=-self.tp) ]
+        models = [ self.mkcorr(a="a", b="a", dE="dE", tp=-self.tp) ]
         self.dofit(models)
         self.dofit_chd(models)
     ##
@@ -329,17 +331,17 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         """ corr2 -- fastfit(anti-periodic) """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        self.dofastfit(self.mkcorr(a="a", b="a", dE="logdE", tp=-self.tp))
+        self.dofastfit(self.mkcorr(a="a", b="a", dE="dE", tp=-self.tp))
     ##        
     def test_matrix1(self):
         """ corr2 -- 2x2 matrix fit (use othertags) """
         global NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a="a", b="a", dE="logdE"),
-                   self.mkcorr(a="logb", b="logb", dE="logdE"),
-                   self.mkcorr(a="a", b="logb", dE="logdE", othertags=[3]),
-                   self.mkcorr(a="logb", b="a", dE="logdE", othertags=[2])]
+        models = [ self.mkcorr(a="a", b="a", dE="dE"),
+                   self.mkcorr(a="b", b="b", dE="dE"),
+                   self.mkcorr(a="a", b="b", dE="dE", othertags=[3]),
+                   self.mkcorr(a="b", b="a", dE="dE", othertags=[2])]
         self.dofit(models=models[:-1], data_models=models)
         NSIG *= 1.5
         self.dofit_chd(models)
@@ -352,10 +354,10 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         global NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a="a", b="a", dE="logdE"),
-                   self.mkcorr(a="logb", b="logb", dE="logdE"),
-                   self.mkcorr(a="a", b="logb", dE="logdE"),
-                   self.mkcorr(a="logb", b="a", dE="logdE")]
+        models = [ self.mkcorr(a="a", b="a", dE="dE"),
+                   self.mkcorr(a="b", b="b", dE="dE"),
+                   self.mkcorr(a="a", b="b", dE="dE"),
+                   self.mkcorr(a="b", b="a", dE="dE")]
         self.dofit(models)
         NSIG *= 2.
         self.dofit_chd(models)
@@ -365,12 +367,12 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         """ test chained fit variations """
         global NSIG, PRINT_FITS
         models =[ 
-                self.mkcorr(a='a', b='a', dE='logdE'),
+                self.mkcorr(a='a', b='a', dE='dE'),
                 [
-                self.mkcorr(a='a', b='b', dE='logdE'),
-                self.mkcorr(a='b', b='a', dE='logdE')
+                self.mkcorr(a='a', b='b', dE='dE'),
+                self.mkcorr(a='b', b='a', dE='dE')
                 ],
-                self.mkcorr(a='b', b='b', dE='logdE')
+                self.mkcorr(a='b', b='b', dE='dE')
                 ] 
         # PRINT_FITS = True
         NSIG *= 2.   # do this because so many fits
@@ -399,10 +401,10 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         global NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a="a", b="a", dE="logdE"),
-                   self.mkcorr(a="logb", b="logb", dE="logdE"),
-                   self.mkcorr(a="a", b="logb", dE="logdE"),
-                   self.mkcorr(a="logb", b="a", dE="logdE")]
+        models = [ self.mkcorr(a="a", b="a", dE="dE"),
+                   self.mkcorr(a="b", b="b", dE="dE"),
+                   self.mkcorr(a="a", b="b", dE="dE"),
+                   self.mkcorr(a="b", b="a", dE="dE")]
         self.dofit(models, nterm=1, ratio=True)
         NSIG *= 1.5
         self.dofit_chd(models)
@@ -413,7 +415,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
-                   dE=("logdE","logdEo")) ]
+                   dE=("dE", "dEo")) ]
         self.dofit(models)
         self.dofit_chd(models)
     ##
@@ -422,9 +424,9 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
-                               dE=("logdE","logdEo")),
-                   self.mkcorr(a=("a","ao"), b=("logb","bo"), 
-                              dE=("logdE","logdEo")) ]
+                               dE=("dE", "dEo")),
+                   self.mkcorr(a=("a","ao"), b=("b","bo"), 
+                              dE=("dE", "dEo")) ]
         self.dofit(models)
         self.dofit_chd(models)
     ##
@@ -433,9 +435,9 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if  PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
-                               dE=("logdE","logdEo"), s=(1,-1)),
-                   self.mkcorr(a=("a","ao"), b=("logb","bo"), 
-                              dE=("logdE","logdEo"), s=(1.,-1.)) ]
+                               dE=("dE", "dEo"), s=(1,-1)),
+                   self.mkcorr(a=("a","ao"), b=("b","bo"), 
+                              dE=("dE", "dEo"), s=(1.,-1.)) ]
         self.dofit(models, nterm=(2,2), ratio=False)
         self.dofit_chd(models, nterm=(2,2), ratio=False)
         # N.B. setting ratio=True causes failures every 150 runs or so
@@ -445,7 +447,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a=(None,"a"), b=(None,"a"), 
-                   dE=(None,"logdE"), s=(0,-1.)) ]
+                   dE=(None,"dE"), s=(0,-1.)) ]
         self.dofit(models)
         self.dofit_chd(models)
     ##
@@ -454,14 +456,14 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         self.dofastfit(self.mkcorr(a=(None,"a"), b=(None,"a"), 
-                    dE=(None,"logdE"), s=(0,-1.)), osc=True)
+                    dE=(None,"dE"), s=(0,-1.)), osc=True)
     ##        
     def test_s1(self):
         """ corr2 -- s parameter #1"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
-                   dE=("logdE","logdEo"), s=(-1,1)) ]
+                   dE=("dE", "dEo"), s=(-1,1)) ]
         self.dofit(models)
         self.dofit_chd(models)
     ##
@@ -470,7 +472,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
-                   dE=("logdE","logdEo"), s=(1,1)) ]
+                   dE=("dE", "dEo"), s=(1,1)) ]
         self.dofit(models)
         self.dofit_chd(models)
    ##
@@ -580,8 +582,8 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ 
-            self.mkcorr2(a="a", b="a", dE="logdEa", tp=None),
-            self.mkcorr3(a="a", b="a", dEa="logdEa", dEb="logdEa", 
+            self.mkcorr2(a="a", b="a", dE="dEa", tp=None),
+            self.mkcorr3(a="a", b="a", dEa="dEa", dEb="dEa", 
                          symmetric_V=True, Vnn="Vnn_sym")
         ]
         self.dofit(models)
@@ -592,9 +594,9 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ 
-            self.mkcorr2(a="a", b="a", dE="logdEa"),
-            self.mkcorr2(a="logb", b="logb", dE="logdEb"),
-            self.mkcorr3(a="a", b="logb", dEa="logdEa", dEb="logdEb", 
+            self.mkcorr2(a="a", b="a", dE="dEa"),
+            self.mkcorr2(a="b", b="b", dE="dEb"),
+            self.mkcorr3(a="a", b="b", dEa="dEa", dEb="dEb", 
                          Vnn="Vnn")
         ]
         self.dofit(models)
@@ -605,11 +607,11 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ 
-            self.mkcorr2(a="a", b="a", dE="logdEa"),
-            self.mkcorr2(a="logb", b="logb", dE="logdEb"),
-            self.mkcorr3(a="a", b="logb", dEa="logdEa", dEb="logdEb", 
+            self.mkcorr2(a="a", b="a", dE="dEa"),
+            self.mkcorr2(a="b", b="b", dE="dEb"),
+            self.mkcorr3(a="a", b="b", dEa="dEa", dEb="dEb", 
                          Vnn="Vnn"),
-            self.mkcorr3(b="a", a="logb", dEb="logdEa", dEa="logdEb", 
+            self.mkcorr3(b="a", a="b", dEb="dEa", dEa="dEb", 
                          Vnn="Vnn", transpose_V=True)
             
         ]
@@ -622,10 +624,10 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             print("======== " + self.getdoc())
         models = [ 
             self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
-                         dE=("logdEa", "logdEao")),
+                         dE=("dEa", "dEao")),
             self.mkcorr3(a=("a", "ao"), b=("a", "ao"), 
-                         dEa=("logdEa", "logdEao"), 
-                         dEb=("logdEa", "logdEao"), 
+                         dEa=("dEa", "dEao"), 
+                         dEb=("dEa", "dEao"), 
                          symmetric_V=True, Vnn="Vnn_sym",
                          Von="Von", Voo="Voo_sym")
         ]
@@ -638,12 +640,12 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             print("======== " + self.getdoc())
         models = [ 
             self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
-                         dE=("logdEa", "logdEao")),
-            self.mkcorr2(a=("logb", "bo"), b=("logb", "bo"), 
-                         dE=("logdEb", "logdEbo")),
-            self.mkcorr3(a=("a", "ao"), b=("logb", "bo"), 
-                         dEa=("logdEa", "logdEao"), 
-                         dEb=("logdEb", "logdEbo"), 
+                         dE=("dEa", "dEao")),
+            self.mkcorr2(a=("b", "bo"), b=("b", "bo"), 
+                         dE=("dEb", "dEbo")),
+            self.mkcorr3(a=("a", "ao"), b=("b", "bo"), 
+                         dEa=("dEa", "dEao"), 
+                         dEb=("dEb", "dEbo"), 
                          Vnn="Vnn", Von="Von", Vno="Vno", Voo="Voo")
         ]
         fitter = self.dofit(models)
@@ -657,16 +659,16 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             print("======== " + self.getdoc())
         models = [ 
             self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
-                         dE=("logdEa", "logdEao")),
-            self.mkcorr2(a=("logb", "bo"), b=("logb", "bo"), 
-                         dE=("logdEb", "logdEbo")),
-            self.mkcorr3(a=("a", "ao"), b=("logb", "bo"), 
-                         dEa=("logdEa", "logdEao"), 
-                         dEb=("logdEb", "logdEbo"), 
+                         dE=("dEa", "dEao")),
+            self.mkcorr2(a=("b", "bo"), b=("b", "bo"), 
+                         dE=("dEb", "dEbo")),
+            self.mkcorr3(a=("a", "ao"), b=("b", "bo"), 
+                         dEa=("dEa", "dEao"), 
+                         dEb=("dEb", "dEbo"), 
                          Vnn="Vnn"),
-            self.mkcorr3(b=("a", "ao"), a=("logb", "bo"), 
-                         dEb=("logdEa", "logdEao"), 
-                         dEa=("logdEb", "logdEbo"), 
+            self.mkcorr3(b=("a", "ao"), a=("b", "bo"), 
+                         dEb=("dEa", "dEao"), 
+                         dEa=("dEb", "dEbo"), 
                          Vnn="Vnn", Vno="Vno", Von="Von", Voo="Voo",
                          transpose_V=True)
             
@@ -684,12 +686,12 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         tp = 3*self.T
         models = [ 
             self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
-                         dE=("logdEa", "logdEao"), tp=tp),
-            self.mkcorr2(a=("logb", "bo"), b=("logb", "bo"), 
-                         dE=("logdEb", "logdEbo"), tp=tp),
-            self.mkcorr3(a=("a", "ao"), b=("logb", "bo"), 
-                         dEa=("logdEa", "logdEao"), 
-                         dEb=("logdEb", "logdEbo"), 
+                         dE=("dEa", "dEao"), tp=tp),
+            self.mkcorr2(a=("b", "bo"), b=("b", "bo"), 
+                         dE=("dEb", "dEbo"), tp=tp),
+            self.mkcorr3(a=("a", "ao"), b=("b", "bo"), 
+                         dEa=("dEa", "dEao"), 
+                         dEb=("dEb", "dEbo"), 
                          Vnn="Vnn", Von="Von", Vno="Vno", Voo="Voo",
                          tpa=tp, tpb=tp)
         ]
@@ -705,12 +707,12 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         tp = -3*self.T 
         models = [ 
             self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
-                         dE=("logdEa", "logdEao"), tp=tp),
-            self.mkcorr2(a=("logb", "bo"), b=("logb", "bo"), 
-                         dE=("logdEb", "logdEbo"), tp=tp),
-            self.mkcorr3(a=("a", "ao"), b=("logb", "bo"), 
-                         dEa=("logdEa", "logdEao"), 
-                         dEb=("logdEb", "logdEbo"), 
+                         dE=("dEa", "dEao"), tp=tp),
+            self.mkcorr2(a=("b", "bo"), b=("b", "bo"), 
+                         dE=("dEb", "dEbo"), tp=tp),
+            self.mkcorr3(a=("a", "ao"), b=("b", "bo"), 
+                         dEa=("dEa", "dEao"), 
+                         dEb=("dEb", "dEbo"), 
                          Vnn="Vnn", Von="Von", Vno="Vno", Voo="Voo",
                          tpa=tp, tpb=tp)
         ]
@@ -725,12 +727,12 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         tp = 2*self.T
         models = [ 
             self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
-                         dE=("logdEa", "logdEao"), tp=tp),
-            self.mkcorr2(a=("logb", "bo"), b=("logb", "bo"), 
-                         dE=("logdEb", "logdEbo"), tp=tp),
-            self.mkcorr3(a=("a", "ao"), b=("logb", "bo"), 
-                         dEa=("logdEa", "logdEao"), 
-                         dEb=("logdEb", "logdEbo"), 
+                         dE=("dEa", "dEao"), tp=tp),
+            self.mkcorr2(a=("b", "bo"), b=("b", "bo"), 
+                         dE=("dEb", "dEbo"), tp=tp),
+            self.mkcorr3(a=("a", "ao"), b=("b", "bo"), 
+                         dEa=("dEa", "dEao"), 
+                         dEb=("dEb", "dEbo"), 
                          Vnn="Vnn", Von="Von", Vno="Vno", Voo="Voo",
                          tpa=tp, tpb=tp)
         ]
@@ -750,10 +752,10 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             print("======== " + self.getdoc())
         models = [ 
             self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
-                         dE=("logdEa", "logdEao")),
+                         dE=("dEa", "dEao")),
             self.mkcorr3(a=("a", "ao"), b=("a", "ao"), 
-                         dEa=("logdEa", "logdEao"), 
-                         dEb=("logdEa", "logdEao"), 
+                         dEa=("dEa", "dEao"), 
+                         dEb=("dEa", "dEao"), 
                          Vnn="Vnn_sym" ,symmetric_V=True)
         ]
         NSIG *= 2.
@@ -956,7 +958,6 @@ def corr3(p, m):
                     V_b += Vkl*bl
                 ans += ak * V_b
     return ans
-##   
     
 def corr2(p, m):
     """ build a corr2 -- p=param, m=model"""

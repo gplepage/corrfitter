@@ -59,7 +59,7 @@ import time
 import gvar as _gvar
 import lsqfit
 import numpy
-__version__ = '4.1.1'
+__version__ = '4.2a'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -151,26 +151,27 @@ class BaseModel(object):
     @staticmethod
     def _param(p, default=None):
         """ Parse fit-parameter label --- utility function. """
-        if not isinstance(p, tuple):
-            p = (p, default)
-        ans = [BaseModel._paramkey(i) for i in p]
-        return tuple(ans)
-
-    _paramkey = staticmethod(lsqfit.transform_p.paramkey)
-    _priorkey = staticmethod(lsqfit.transform_p.priorkey)
-
-    @staticmethod
-    def _transform_prior(prior):
-        return lsqfit.transform_p(prior.keys()).transform(prior)
-
-    @staticmethod
-    def _dE(dE, logdE):
-        """ Parse fit-parameter label for E differences --- utility fcn. """
-        if dE is None:
-            assert logdE is not None, "must specify dE"
-            return BaseModel._param(logdE, None)
+        if isinstance(p, tuple):
+            return p
         else:
-            return BaseModel._param(dE, None)
+            return (p, default)
+        # ans = [BaseModel._paramkey(i) for i in p]
+        # return tuple(ans)
+
+    _priorkey = staticmethod(lsqfit._pdict.priorkey)
+
+    # @staticmethod
+    # def _transform_prior(prior):
+    #     return lsqfit.transform_p(prior.keys()).transform(prior)
+
+    # @staticmethod
+    # def _dE(dE, logdE):
+    #     """ Parse fit-parameter label for E differences --- utility fcn. """
+    #     if dE is None:
+    #         assert logdE is not None, "must specify dE"
+    #         return BaseModel._param(logdE, None)
+    #     else:
+    #         return BaseModel._param(dE, None)
                   
 
 class Corr2(BaseModel):
@@ -263,13 +264,13 @@ class Corr2(BaseModel):
     :type othertags: sequence of strings
     """
     def __init__(
-        self, datatag, tdata, tfit, a, b, dE=None, logdE=None,  
+        self, datatag, tdata, tfit, a, b, dE=None, 
         s=1.0, tp=None, othertags=[]
         ):
         super(Corr2, self).__init__(datatag, othertags)
         self.a = self._param(a)
         self.b = self._param(b)
-        self.dE = self._dE(dE, logdE)
+        self.dE = self._param(dE)
         self.tdata = list(tdata)
         self.tp = tp
         self.s = self._param(s, -1.)
@@ -306,14 +307,13 @@ class Corr2(BaseModel):
     def buildprior(self, prior, nterm):
         """ Create fit prior by extracting relevant pieces of ``prior``. 
 
-        Priors for the fit parameters, as specificied by ``self.a`` etc., 
-        are copied from ``prior`` into a new dictionary for use by the
-        fitter. If a key ``"XX"`` cannot be found in ``prior``, the
-        ``buildprior`` looks for one of ``"logXX"``, ``"log(XX)"``, 
-        ``"sqrtXX"``, or ``"sqrt(XX)"`` and includes the corresponding
-        prior instead.
+        This routine does two things: 1) discard parts of ``prior`` 
+        that are not needed in the fit; and 2) determine whether 
+        any of the parameters has a log-normal/sqrt-normal prior, 
+        in which case the logarithm/sqrt of the parameter appears in 
+        prior, rather than the parameter itself.
 
-        The number of terms kept in each part of the fit can be 
+        The number of terms kept in each part of the fit is 
         specified using ``nterm = (n, no)`` where ``n`` is the 
         number of non-oscillating terms and ``no`` is the number 
         of oscillating terms. Setting ``nterm = None`` keeps 
@@ -545,17 +545,17 @@ class Corr3(BaseModel):
     """
     def __init__(
         self, datatag, T, tdata, tfit,          
-        Vnn, a, b, dEa=None, dEb=None, logdEa=None, logdEb=None, sa=1., sb=1.,
+        Vnn, a, b, dEa=None, dEb=None, sa=1., sb=1.,
         Vno=None, Von=None, Voo=None, transpose_V=False, symmetric_V=False, 
         tpa=None, tpb=None,
         othertags=[]
         ):
         super(Corr3, self).__init__(datatag, othertags)
         self.a = self._param(a)
-        self.dEa = self._dE(dEa, logdEa)
+        self.dEa = self._param(dEa)
         self.sa = self._param(sa, -1.)
         self.b = self._param(b)
-        self.dEb = self._dE(dEb, logdEb)
+        self.dEb = self._param(dEb)
         self.sb = self._param(sb, -1.)
         self.V = [[Vnn, Vno], [Von, Voo]]
         self.transpose_V = transpose_V
@@ -575,14 +575,13 @@ class Corr3(BaseModel):
     def buildprior(self, prior, nterm):
         """ Create fit prior by extracting relevant pieces of ``prior``. 
 
-        Priors for the fit parameters, as specificied by ``self.a`` etc., 
-        are copied from ``prior`` into a new dictionary for use by the
-        fitter. If a key ``"XX"`` cannot be found in ``prior``, the
-        ``buildprior`` looks for one of ``"logXX"``, ``"log(XX)"``, 
-        ``"sqrtXX"``, or ``"sqrt(XX)"`` and includes the corresponding
-        prior instead.
+        This routine does two things: 1) discard parts of ``prior`` 
+        that are not needed in the fit; and 2) determine whether 
+        any of the parameters has a log-normal/sqrt-normal prior, 
+        in which case the logarithm/sqrt of the parameter appears in 
+        prior, rather than the parameter itself.
 
-        The number of terms kept in each part of the fit can be 
+        The number of terms kept in each part of the fit is 
         specified using ``nterm = (n, no)`` where ``n`` is the 
         number of non-oscillating terms and ``no`` is the number 
         of oscillating terms. Setting ``nterm = None`` keeps 
@@ -830,8 +829,7 @@ class CorrFitter(object):
         return ans
    
     def buildfitfcn(self, priorkeys):
-        " Create fit function, with support for log-normal,... priors. "
-        @lsqfit.transform_p(priorkeys)
+        " Create fit function. "
         def _fitfcn(
             p, nterm=None, default_nterm=self.nterm, models=self.flat_models
             ):
@@ -861,6 +859,7 @@ class CorrFitter(object):
     def builddata(self, data, prior, nterm=None):
         """ Build fit data, corrected for marginalized terms. """
         fitdata = _gvar.BufferDict()
+        prior = lsqfit._pdict(prior) ### 
         for m in self.flat_models:
             fitdata[m.datatag] = m.builddata(data)
         # remove marginal fit parameters 
@@ -988,7 +987,8 @@ class CorrFitter(object):
         self.fit = lsqfit.nonlinear_fit( #
             data=data, p0=p0, fcn=fitfcn, prior=prior, 
             svdcut=svdcut, reltol=reltol, 
-            abstol=abstol, maxit=maxit, **argscopy
+            abstol=abstol, maxit=maxit, 
+            extend=True, **argscopy
             )
         if print_fit is not False:
             if print_fit is True:
@@ -1157,7 +1157,6 @@ class CorrFitter(object):
                         m_prior.update(chained_prior)
                 else:
                     m_prior = truncated_prior if parallel else chained_prior
-                @lsqfit.transform_p(m_prior)
                 def m_fitfcn(
                     p, nterm=None, default_nterm=self.nterm, fitfcn = m.fitfcn
                     ):
@@ -1167,7 +1166,8 @@ class CorrFitter(object):
                 lastfit = lsqfit.nonlinear_fit(
                     data=processed_data[m.datatag], fcn=m_fitfcn, prior=m_prior, 
                     p0=p0, svdcut=svdcut, reltol=reltol, 
-                    abstol=abstol, maxit=maxit, **argscopy
+                    abstol=abstol, maxit=maxit, 
+                    extend=True, **argscopy
                     )
                 fits[m.datatag] = lastfit
             else:
@@ -1359,7 +1359,7 @@ class CorrFitter(object):
         keys = pexact.keys()
         fcn_mean = _gvar.BufferDict()
         for m in self.flat_models:
-            m_fcn = lsqfit.transform_p(keys)(m.fitfcn)
+            m_fcn = m.fitfcn 
             m_fcn_mean = (
                 m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None)) 
                 )
@@ -2136,8 +2136,8 @@ class fastfit(object):
                             ratio=ratio, nterm=nterm)
         G = fitter.builddata(data=data, prior=prior)[model.datatag] * Gfac
         
-        # transform prior
-        prior = BaseModel._transform_prior(prior)
+        # extend prior
+        prior = lsqfit._pdict(prior)
         # compute priors for answers 
         E_prior =  prior[dE][0]
         ampl_prior =  prior[a][0]

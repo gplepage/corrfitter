@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 4.1.1 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &mdash; corrfitter 4.2a documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.1.1',
+        VERSION:     '4.2a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 4.1.1 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 4.2a documentation" href="index.html" />
     <link rel="next" title="Annotated Example: Two-Point Correlator" href="example-etas.html" />
     <link rel="prev" title="corrfitter Documentation" href="index.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.1.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.2a documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -921,13 +921,12 @@ in the (1-D) array <code class="docutils literal"><span class="pre">data[self.da
 <dt id="corrfitter.Corr2.buildprior">
 <code class="descname">buildprior</code><span class="sig-paren">(</span><em>prior</em>, <em>nterm</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2.buildprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create fit prior by extracting relevant pieces of <code class="docutils literal"><span class="pre">prior</span></code>.</p>
-<p>Priors for the fit parameters, as specificied by <code class="docutils literal"><span class="pre">self.a</span></code> etc., 
-are copied from <code class="docutils literal"><span class="pre">prior</span></code> into a new dictionary for use by the
-fitter. If a key <code class="docutils literal"><span class="pre">&quot;XX&quot;</span></code> cannot be found in <code class="docutils literal"><span class="pre">prior</span></code>, the
-<code class="docutils literal"><span class="pre">buildprior</span></code> looks for one of <code class="docutils literal"><span class="pre">&quot;logXX&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;log(XX)&quot;</span></code>, 
-<code class="docutils literal"><span class="pre">&quot;sqrtXX&quot;</span></code>, or <code class="docutils literal"><span class="pre">&quot;sqrt(XX)&quot;</span></code> and includes the corresponding
-prior instead.</p>
-<p>The number of terms kept in each part of the fit can be 
+<p>This routine does two things: 1) discard parts of <code class="docutils literal"><span class="pre">prior</span></code> 
+that are not needed in the fit; and 2) determine whether 
+any of the parameters has a log-normal/sqrt-normal prior, 
+in which case the logarithm/sqrt of the parameter appears in 
+prior, rather than the parameter itself.</p>
+<p>The number of terms kept in each part of the fit is 
 specified using <code class="docutils literal"><span class="pre">nterm</span> <span class="pre">=</span> <span class="pre">(n,</span> <span class="pre">no)</span></code> where <code class="docutils literal"><span class="pre">n</span></code> is the 
 number of non-oscillating terms and <code class="docutils literal"><span class="pre">no</span></code> is the number 
 of oscillating terms. Setting <code class="docutils literal"><span class="pre">nterm</span> <span class="pre">=</span> <span class="pre">None</span></code> keeps 
@@ -1088,13 +1087,12 @@ correspond to the <code class="docutils literal"><span class="pre">t``s</span> <
 <dt id="corrfitter.Corr3.buildprior">
 <code class="descname">buildprior</code><span class="sig-paren">(</span><em>prior</em>, <em>nterm</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3.buildprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create fit prior by extracting relevant pieces of <code class="docutils literal"><span class="pre">prior</span></code>.</p>
-<p>Priors for the fit parameters, as specificied by <code class="docutils literal"><span class="pre">self.a</span></code> etc., 
-are copied from <code class="docutils literal"><span class="pre">prior</span></code> into a new dictionary for use by the
-fitter. If a key <code class="docutils literal"><span class="pre">&quot;XX&quot;</span></code> cannot be found in <code class="docutils literal"><span class="pre">prior</span></code>, the
-<code class="docutils literal"><span class="pre">buildprior</span></code> looks for one of <code class="docutils literal"><span class="pre">&quot;logXX&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;log(XX)&quot;</span></code>, 
-<code class="docutils literal"><span class="pre">&quot;sqrtXX&quot;</span></code>, or <code class="docutils literal"><span class="pre">&quot;sqrt(XX)&quot;</span></code> and includes the corresponding
-prior instead.</p>
-<p>The number of terms kept in each part of the fit can be 
+<p>This routine does two things: 1) discard parts of <code class="docutils literal"><span class="pre">prior</span></code> 
+that are not needed in the fit; and 2) determine whether 
+any of the parameters has a log-normal/sqrt-normal prior, 
+in which case the logarithm/sqrt of the parameter appears in 
+prior, rather than the parameter itself.</p>
+<p>The number of terms kept in each part of the fit is 
 specified using <code class="docutils literal"><span class="pre">nterm</span> <span class="pre">=</span> <span class="pre">(n,</span> <span class="pre">no)</span></code> where <code class="docutils literal"><span class="pre">n</span></code> is the 
 number of non-oscillating terms and <code class="docutils literal"><span class="pre">no</span></code> is the number 
 of oscillating terms. Setting <code class="docutils literal"><span class="pre">nterm</span> <span class="pre">=</span> <span class="pre">None</span></code> keeps 
@@ -1349,7 +1347,7 @@ containing results from the fit to the next data set in
 <dl class="method">
 <dt id="corrfitter.CorrFitter.buildfitfcn">
 <code class="descname">buildfitfcn</code><span class="sig-paren">(</span><em>priorkeys</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.buildfitfcn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create fit function, with support for log-normal,... priors.</p>
+<dd><p>Create fit function.</p>
 </dd></dl>
 
 <dl class="method">
@@ -2149,7 +2147,7 @@ use can be specified with parameter <code class="docutils literal"><span class="
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.1.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.2a documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

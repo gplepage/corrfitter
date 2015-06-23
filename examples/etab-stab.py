@@ -51,9 +51,9 @@ def make_prior(N, basis):
 
 def print_results(fit, basis, prior, data):
     print(30 * '=', 'Results\n')
-    print(basis.tabulate(fit.transformed_p, keyfmt='etab.{s1}'))
-    print(basis.tabulate(fit.transformed_p, keyfmt='etab.{s1}', eig_srcs=True))
-    E = np.cumsum(fit.transformed_p['etab.dE']) 
+    print(basis.tabulate(fit.p, keyfmt='etab.{s1}'))
+    print(basis.tabulate(fit.p, keyfmt='etab.{s1}', eig_srcs=True))
+    E = np.cumsum(fit.p['etab.dE']) 
     outputs = collections.OrderedDict()
     outputs['a*E(2s-1s)'] = E[1] - E[0]
     outputs['a*E(3s-1s)'] = E[2] - E[0]

@@ -37,7 +37,7 @@ def test_fit(fitter, datafile):
         sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact)
         diff = []
         # check chi**2 for leading parameters
-        for k in sfit.p: 
+        for k in prior:
             diff.append(sfit.p[k].flat[0] - pexact[k].flat[0])
         chi2diff = gv.chi2(diff)
         print(
@@ -113,7 +113,7 @@ def make_prior(N):
 def print_results(fit, prior, data):
     """ Report best-fit results. """
     print('Fit results:')
-    p = fit.transformed_p                       # best-fit parameters
+    p = fit.p                       # best-fit parameters
 
     # etas
     E_etas = np.cumsum(p['etas:dE'])

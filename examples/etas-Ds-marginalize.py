@@ -39,7 +39,7 @@ def test_fit(fitter, datafile):
         sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact, nterm=(2, 2))
         diff = []
         # check chi**2 for leading parameters
-        for k in sfit.p: 
+        for k in prior: 
             diff.append(sfit.p[k].flat[0] - pexact[k].flat[0])
         chi2_diff = gv.chi2(diff)
         print(
