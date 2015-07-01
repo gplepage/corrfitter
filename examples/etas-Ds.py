@@ -3,7 +3,7 @@ from __future__ import print_function   # makes this work for python2 and 3
 import collections
 import gvar as gv
 import numpy as np
-from corrfitter import CorrFitter, Corr2, Corr3, read_dataset
+import corrfitter as cf
 
 DISPLAYPLOTS = True         # display plots at end of fitting?
 try: 
@@ -13,7 +13,7 @@ except ImportError:
 
 def main():
     data = make_data('etas-Ds.data') 
-    fitter = CorrFitter(models=make_models())
+    fitter = cf.CorrFitter(models=make_models())
     p0 = None
     for N in [1, 2, 3, 4]:  
         print(30 * '=', 'nterm =', N)
@@ -29,7 +29,7 @@ def test_fit(fitter, datafile):
     """ Test the fit with simulated data """
     gv.ranseed((1487942813, 775399747, 906327435))
     print('\nRandom seed:', gv.ranseed.seed)
-    dataset = read_dataset(datafile)
+    dataset = cf.read_dataset(datafile)
     pexact = fitter.fit.pmean
     prior = fitter.fit.prior
     for sdata in fitter.simulated_data_iter(n=2, dataset=dataset, pexact=pexact):
@@ -49,34 +49,34 @@ def test_fit(fitter, datafile):
 
 def make_data(datafile):
     """ Read data from datafile and average it. """
-    return gv.dataset.avg_data(read_dataset(datafile))
+    return gv.dataset.avg_data(cf.read_dataset(datafile))
 
 def make_models():
     """ Create models to fit data. """
     tmin = 5
     tp = 64
     models = [
-        Corr2(
+        cf.Corr2(
             datatag='etas', 
             tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),  
             a='etas:a',  b='etas:a',  dE='etas:dE'
             ),  
             
-        Corr2(
+        cf.Corr2(
             datatag='Ds',
             tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),  
             a=('Ds:a', 'Dso:a'), b=('Ds:a', 'Dso:a'), 
             dE=('Ds:dE', 'Dso:dE'), s=(1., -1.)
             ),
 
-        Corr3(
+        cf.Corr3(
             datatag='3ptT15', tdata=range(16), T=15, tfit=range(tmin, 16-tmin), 
             a='etas:a', dEa='etas:dE', tpa=tp, 
             b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'), tpb=tp, sb=(1, -1.), 
             Vnn='Vnn', Vno='Vno'
             ), 
             
-        Corr3(
+        cf.Corr3(
             datatag='3ptT16', tdata=range(17), T=16, tfit=range(tmin, 17-tmin), 
             a='etas:a', dEa='etas:dE', tpa=tp, 
             b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'), tpb=tp, sb=(1, -1.), 
@@ -106,8 +106,8 @@ def make_prior(N):
     prior['log(Dso:dE)'][0] = gv.log(mDs + gv.gvar('0.3(3)'))
 
     # V
-    prior['Vnn'] = gv.gvar(N * [N * ["0(1)"]])
-    prior['Vno'] = gv.gvar(N * [N * ["0(1)"]])
+    prior['Vnn'] = gv.gvar(N * [N * ['0(1)']])
+    prior['Vno'] = gv.gvar(N * [N * ['0(1)']])
     return prior
 
 def print_results(fit, prior, data):
@@ -136,8 +136,8 @@ def print_results(fit, prior, data):
     # V
     Vnn = p['Vnn']
     Vno = p['Vno']
-    print('\n  etas->V->Ds  =', Vnn[0, 0].fmt())
-    print('  etas->V->Dso =', Vno[0, 0].fmt())
+    print('\n  etas->V->Ds  =', Vnn[0, 0])
+    print('  etas->V->Dso =', Vno[0, 0])
 
     # error budget
     outputs = collections.OrderedDict()

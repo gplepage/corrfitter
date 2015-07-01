@@ -7,6 +7,9 @@ Annotated Example: Matrix Correlator
 .. |EigenBasis| replace:: :class:`corrfitter.EigenBasis`
 .. |Dataset| replace:: :class:`gvar.dataset.Dataset`
 .. |GVar| replace:: :class:`gvar.GVar`
+.. |~| unicode:: U+00A0 
+   :trim:
+
 
 Introduction 
 ------------
@@ -188,22 +191,22 @@ Results
 Running the code produces the following output for the last fit (``N=9``):
 
 .. literalinclude:: examples/etab.out
-    :lines: 253-305
+    :lines: 297-359
 
 This is a good fit, with a chi-squared per degree of freedom of 0.99 for 
 260 degrees of freedom (the number of data points fit); the *Q* or *p*-value
 is 0.52. This fit required 146 iterations, but took only a few seconds
 on a laptop. The results are almost identical to those from ``N=7`` and ``N=8``.
-
+    
 The final energies and amplitudes for the original sources are listed as
 
 .. literalinclude:: examples/etab.out
-    :lines: 309-314
+    :lines: 363-368
 
 while for the eigen-sources they are
 
 .. literalinclude:: examples/etab.out
-    :lines: 316-321
+    :lines: 370-375
 
 The latter shows that the eigen-sources align quite well with the first
 four states, as hoped. The errors, especially for the first three states,
@@ -214,7 +217,7 @@ Finally values and an error budget are presented for the ``2s-1s`` and
 ``3s-1s`` energy differences (in lattice units) and the ratio of the two:
 
 .. literalinclude:: examples/etab.out
-    :lines: 323-335
+    :lines: 377-389
 
 The first excited state is obviously more accurately determined than
 the second state, but the fit improves our knowledge of both. 
@@ -224,6 +227,25 @@ accurate to add much new information to what was in the prior. The prior
 is less important for the three quantities tabulated here. The dominant
 source of error in each case comes from either the SVD cut or the statistical
 errors in the data.
+
+Summary plots showing the data divided by the fit as a function of ``t`` 
+for each of the 16 |~| correlators is shown below:
+
+=================================   =================================   =================================   =================================
+=================================   =================================   =================================   =================================
+.. image:: examples/etab.1s0.ll.*   .. image:: examples/etab.1s0.lg.*   .. image:: examples/etab.1s0.ld.*   .. image:: examples/etab.1s0.le.*
+.. image:: examples/etab.1s0.gl.*   .. image:: examples/etab.1s0.gg.*   .. image:: examples/etab.1s0.gd.*   .. image:: examples/etab.1s0.ge.*
+.. image:: examples/etab.1s0.dl.*   .. image:: examples/etab.1s0.dg.*   .. image:: examples/etab.1s0.dd.*   .. image:: examples/etab.1s0.de.*
+.. image:: examples/etab.1s0.el.*   .. image:: examples/etab.1s0.eg.*   .. image:: examples/etab.1s0.ed.*   .. image:: examples/etab.1s0.ee.*
+=================================   =================================   =================================   =================================
+
+These plots are displayed by the code above if flag 
+``DISPLAYPLOTS = True`` is set at the beginning of the code. The points with
+error bars are correlator data points; the fit result is 1.0 in these
+plots; and the dashed lines show the uncertainty in the fit function 
+values for the best-fit parameters. Fit and data agree well for 
+all correlators and all ``t`` values. As expected, strong correlations 
+exist between points with near-by ``t``\s.
 
 Fit Stability
 ---------------
@@ -266,7 +288,7 @@ with any state. Running with this (more conservative) prior gives
 the following results for the last fit and summary:
 
 .. literalinclude:: examples/etab-stab.out
-    :lines: 253-
+    :lines: 297-
 
 The energies and amplitudes for the first three states are almost unchanged,
 which gives us confidence in the original results.
@@ -303,4 +325,4 @@ The fit results from the new code are very similar to before; there is
 little difference between the two approaches in this case:
 
 .. literalinclude:: examples/etab-alt.out
-    :lines: 253-
+    :lines: 297-

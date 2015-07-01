@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Annotated Example: Matrix Correlator &mdash; corrfitter 4.2a documentation</title>
+    <title>Annotated Example: Matrix Correlator &mdash; corrfitter 5.0 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.2a',
+        VERSION:     '5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 4.2a documentation" href="index.html" />
+    <link rel="top" title="corrfitter 5.0 documentation" href="index.html" />
     <link rel="prev" title="Annotated Example: Transition Form Factor" href="example-etas-Ds.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.2a documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -94,7 +94,7 @@ modified to handle the <a class="reference internal" href="corrfitter.html#corrf
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">gvar</span> <span class="kn">as</span> <span class="nn">gv</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">CorrFitter</span><span class="p">,</span> <span class="n">Corr2</span><span class="p">,</span> <span class="n">EigenBasis</span><span class="p">,</span> <span class="n">read_dataset</span>
+<span class="kn">import</span> <span class="nn">corrfitter</span> <span class="kn">as</span> <span class="nn">cf</span>
 
 <span class="n">DISPLAYPLOTS</span> <span class="o">=</span> <span class="bp">False</span>         <span class="c"># display plots at end of fits?</span>
 <span class="k">try</span><span class="p">:</span> 
@@ -104,7 +104,7 @@ modified to handle the <a class="reference internal" href="corrfitter.html#corrf
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">data</span><span class="p">,</span> <span class="n">basis</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;etab.data&#39;</span><span class="p">)</span> 
-    <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">(</span><span class="n">basis</span><span class="p">))</span>
+    <span class="n">fitter</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">(</span><span class="n">basis</span><span class="p">))</span>
     <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>  
         <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nterm =&#39;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
@@ -118,8 +118,8 @@ modified to handle the <a class="reference internal" href="corrfitter.html#corrf
 </div>
 <p>The eigen-basis is created by <code class="docutils literal"><span class="pre">make_data('etab.data')</span></code>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
-    <span class="n">basis</span> <span class="o">=</span> <span class="n">EigenBasis</span><span class="p">(</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+    <span class="n">basis</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">EigenBasis</span><span class="p">(</span>
         <span class="n">data</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s">&#39;1s0.{s1}{s2}&#39;</span><span class="p">,</span> <span class="n">srcs</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;l&#39;</span><span class="p">,</span> <span class="s">&#39;g&#39;</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">,</span> <span class="s">&#39;e&#39;</span><span class="p">],</span> 
         <span class="n">t</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">24</span><span class="p">),</span> 
         <span class="p">)</span> 
@@ -166,7 +166,7 @@ models returned by <code class="docutils literal"><span class="pre">make_models(
         <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">basis</span><span class="o">.</span><span class="n">srcs</span><span class="p">:</span>
             <span class="n">tfit</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">tdata</span> <span class="k">if</span> <span class="n">s1</span> <span class="o">==</span> <span class="n">s2</span> <span class="k">else</span> <span class="n">basis</span><span class="o">.</span><span class="n">tdata</span><span class="p">[:</span><span class="mi">14</span><span class="p">]</span>
             <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">Corr2</span><span class="p">(</span>
+                <span class="n">cf</span><span class="o">.</span><span class="n">Corr2</span><span class="p">(</span>
                     <span class="n">datatag</span><span class="o">=</span><span class="n">basis</span><span class="o">.</span><span class="n">keyfmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s1</span><span class="o">=</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="o">=</span><span class="n">s2</span><span class="p">),</span>
                     <span class="n">tdata</span><span class="o">=</span><span class="n">basis</span><span class="o">.</span><span class="n">tdata</span><span class="p">,</span> <span class="n">tfit</span><span class="o">=</span><span class="n">tfit</span><span class="p">,</span>
                     <span class="n">a</span><span class="o">=</span><span class="s">&#39;etab.&#39;</span> <span class="o">+</span> <span class="n">s1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s">&#39;etab.&#39;</span> <span class="o">+</span> <span class="n">s2</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;etab.dE&#39;</span><span class="p">,</span>
@@ -275,51 +275,7 @@ displayed (optionally).</p>
 <div class="section" id="results">
 <h2>Results<a class="headerlink" href="#results" title="Permalink to this headline">¶</a></h2>
 <p>Running the code produces the following output for the last fit (<code class="docutils literal"><span class="pre">N=9</span></code>):</p>
-<div class="highlight-python"><div class="highlight"><pre>              1     0.1435 (51)      [  0.107 (98) ]  
-              2      0.040 (10)      [  0.051 (93) ]  
-              3      0.037 (24)      [ -0.004 (90) ]  
-              4     -0.166 (84)      [  -0.13 (90) ]  
-              5      -0.22 (14)      [  -0.13 (90) ]  
-              6       0.09 (43)      [  -0.13 (90) ]  
-              7     0.008 (285)      [  -0.13 (90) ]  
-       etab.d 0   -0.21635 (28)      [ -0.244 (86) ]  
-              1    -0.4108 (63)      [  -0.50 (15) ]  
-              2     -0.248 (16)      [ -0.274 (92) ]  
-              3     -0.094 (31)      [ -0.166 (71) ]  *
-              4     -0.127 (55)      [  -0.22 (60) ]  
-              5   0.0007 (2622)      [  -0.22 (60) ]  
-              6      -0.24 (38)      [  -0.22 (60) ]  
-              7      -0.48 (36)      [  -0.22 (60) ]  
-       etab.e 0   -0.19707 (24)      [ -0.212 (84) ]  
-              1    -0.3421 (65)      [  -0.41 (13) ]  
-              2     -0.294 (15)      [  -0.31 (10) ]  
-              3      0.229 (45)      [   0.27 (10) ]  
-              4     -0.047 (57)      [  -0.12 (62) ]  
-              5       0.05 (19)      [  -0.12 (62) ]  
-              6      -0.08 (46)      [  -0.12 (62) ]  
-              7      -0.53 (27)      [  -0.12 (62) ]  
- log(etab.dE) 0   -1.36208 (66)      [  -1.3 (2.3) ]  
-              1     -0.647 (10)      [  -0.5 (1.0) ]  
-              2     -1.218 (61)      [  -0.5 (1.0) ]  
-              3      -0.85 (29)      [  -0.5 (1.0) ]  
-              4      -0.84 (35)      [  -0.5 (1.0) ]  
-              5      -0.73 (94)      [  -0.5 (1.0) ]  
-              6      -0.43 (95)      [  -0.5 (1.0) ]  
-              7      -0.40 (96)      [  -0.5 (1.0) ]  
-----------------------------------------------------
-      etab.dE 0    0.25613 (17)      [   0.28 (62) ]  
-              1     0.5234 (53)      [   0.62 (62) ]  
-              2      0.296 (18)      [   0.62 (62) ]  
-              3       0.43 (13)      [   0.62 (62) ]  
-              4       0.43 (15)      [   0.62 (62) ]  
-              5       0.48 (45)      [   0.62 (62) ]  
-              6       0.65 (62)      [   0.62 (62) ]  
-              7       0.67 (65)      [   0.62 (62) ]  
-
-Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 74/2.1)
-
-============================== nterm = 9
+<div class="highlight-python"><div class="highlight"><pre>============================== nterm = 9
 Least Square Fit:
   chi2/dof [dof] = 0.99 [260]    Q = 0.52    logGBF = 2171
 
@@ -328,37 +284,24 @@ Parameters:
               1    -0.3915 (61)      [  -0.45 (16) ]  
               2      0.350 (31)      [   0.49 (17) ]  
               3      0.145 (76)      [  0.103 (93) ]  
-</pre></div>
-</div>
-<p>This is a good fit, with a chi-squared per degree of freedom of 0.99 for
-260 degrees of freedom (the number of data points fit); the <em>Q</em> or <em>p</em>-value
-is 0.52. This fit required 146 iterations, but took only a few seconds
-on a laptop. The results are almost identical to those from <code class="docutils literal"><span class="pre">N=7</span></code> and <code class="docutils literal"><span class="pre">N=8</span></code>.</p>
-<p>The final energies and amplitudes for the original sources are listed as</p>
-<div class="highlight-python"><div class="highlight"><pre>              7       0.21 (38)      [  -0.07 (87) ]  
+              4      -0.49 (20)      [  -0.07 (87) ]  
+              5       0.25 (45)      [  -0.07 (87) ]  
+              6      -0.12 (40)      [  -0.07 (87) ]  
+              7       0.21 (38)      [  -0.07 (87) ]  
               8      -0.13 (46)      [  -0.07 (87) ]  
        etab.g 0   -0.87028 (87)      [  -0.88 (27) ]  
               1     0.1436 (52)      [  0.107 (98) ]  
               2      0.040 (11)      [  0.051 (93) ]  
               3      0.033 (35)      [ -0.004 (90) ]  
-</pre></div>
-</div>
-<p>while for the eigen-sources they are</p>
-<div class="highlight-python"><div class="highlight"><pre>              5      -0.15 (24)      [  -0.13 (90) ]  
+              4     -0.173 (82)      [  -0.13 (90) ]  
+              5      -0.15 (24)      [  -0.13 (90) ]  
               6      -0.04 (37)      [  -0.13 (90) ]  
               7       0.18 (33)      [  -0.13 (90) ]  
               8      -0.14 (44)      [  -0.13 (90) ]  
        etab.d 0   -0.21632 (29)      [ -0.244 (86) ]  
               1    -0.4100 (72)      [  -0.50 (15) ]  
-</pre></div>
-</div>
-<p>The latter shows that the eigen-sources align quite well with the first
-four states, as hoped. The errors, especially for the first three states,
-are much smaller than the prior errors, which indicates strong signals for
-these states.</p>
-<p>Finally values and an error budget are presented for the <code class="docutils literal"><span class="pre">2s-1s</span></code> and
-<code class="docutils literal"><span class="pre">3s-1s</span></code> energy differences (in lattice units) and the ratio of the two:</p>
-<div class="highlight-python"><div class="highlight"><pre>              3     -0.093 (34)      [ -0.166 (71) ]  *
+              2     -0.250 (17)      [ -0.274 (92) ]  
+              3     -0.093 (34)      [ -0.166 (71) ]  *
               4     -0.106 (77)      [  -0.22 (60) ]  
               5       0.04 (23)      [  -0.22 (60) ]  
               6      -0.16 (35)      [  -0.22 (60) ]  
@@ -371,6 +314,73 @@ these states.</p>
               4     -0.052 (77)      [  -0.12 (62) ]  
               5       0.06 (17)      [  -0.12 (62) ]  
               6       0.05 (40)      [  -0.12 (62) ]  
+              7      -0.30 (41)      [  -0.12 (62) ]  
+              8      -0.51 (43)      [  -0.12 (62) ]  
+ log(etab.dE) 0   -1.36212 (67)      [  -1.3 (2.3) ]  
+              1     -0.648 (11)      [  -0.5 (1.0) ]  
+              2     -1.216 (61)      [  -0.5 (1.0) ]  
+              3      -0.91 (36)      [  -0.5 (1.0) ]  
+              4      -1.06 (79)      [  -0.5 (1.0) ]  
+              5      -0.83 (93)      [  -0.5 (1.0) ]  
+              6      -0.54 (96)      [  -0.5 (1.0) ]  
+              7      -0.45 (95)      [  -0.5 (1.0) ]  
+              8      -0.46 (99)      [  -0.5 (1.0) ]  
+----------------------------------------------------
+      etab.dE 0    0.25612 (17)      [   0.28 (62) ]  
+              1     0.5231 (57)      [   0.62 (62) ]  
+              2      0.297 (18)      [   0.62 (62) ]  
+              3       0.40 (14)      [   0.62 (62) ]  
+              4       0.35 (27)      [   0.62 (62) ]  
+              5       0.44 (40)      [   0.62 (62) ]  
+              6       0.58 (56)      [   0.62 (62) ]  
+              7       0.64 (61)      [   0.62 (62) ]  
+              8       0.63 (62)      [   0.62 (62) ]  
+
+Settings:
+  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 143/3.8)
+</pre></div>
+</div>
+<p>This is a good fit, with a chi-squared per degree of freedom of 0.99 for
+260 degrees of freedom (the number of data points fit); the <em>Q</em> or <em>p</em>-value
+is 0.52. This fit required 146 iterations, but took only a few seconds
+on a laptop. The results are almost identical to those from <code class="docutils literal"><span class="pre">N=7</span></code> and <code class="docutils literal"><span class="pre">N=8</span></code>.</p>
+<p>The final energies and amplitudes for the original sources are listed as</p>
+<div class="highlight-python"><div class="highlight"><pre>       E            l            g            d            e          
+    ==================================================================
+     0 0.25612(17) -0.50672(53) -0.87028(87) -0.21632(29) -0.19704(25)
+     1 0.7792(57)  -0.3915(61)   0.1436(52)  -0.4100(72)  -0.3413(73) 
+     2 1.076(21)    0.350(31)    0.040(11)   -0.250(17)   -0.296(15)  
+     3 1.48(14)     0.145(76)    0.033(35)   -0.093(34)    0.221(54)  
+</pre></div>
+</div>
+<p>while for the eigen-sources they are</p>
+<div class="highlight-python"><div class="highlight"><pre>       E            0            1            2            3          
+    ==================================================================
+     0 0.25612(17)  0.97956(97)  0.00644(46) -0.00238(21)  0.00164(14)
+     1 0.7792(57)  -0.0337(47)   0.877(11)   -0.019(13)    0.0139(55) 
+     2 1.076(21)    0.036(10)    0.099(41)    0.803(32)   -0.034(22)  
+     3 1.48(14)    -0.025(38)   -0.037(61)    0.057(84)    0.74(14)   
+</pre></div>
+</div>
+<p>The latter shows that the eigen-sources align quite well with the first
+four states, as hoped. The errors, especially for the first three states,
+are much smaller than the prior errors, which indicates strong signals for
+these states.</p>
+<p>Finally values and an error budget are presented for the <code class="docutils literal"><span class="pre">2s-1s</span></code> and
+<code class="docutils literal"><span class="pre">3s-1s</span></code> energy differences (in lattice units) and the ratio of the two:</p>
+<div class="highlight-python"><div class="highlight"><pre>Values:
+         a*E(2s-1s): 0.5231(57)          
+         a*E(3s-1s): 0.820(21)           
+  E(3s-1s)/E(2s-1s): 1.567(33)           
+
+Partial % Errors:
+                            a*E(2s-1s)        a*E(3s-1s) E(3s-1s)/E(2s-1s)
+--------------------------------------------------------------------------
+              prior:              0.44              0.96              0.71
+               data:              0.73              1.44              1.13
+             svdcut:              0.69              1.89              1.62
+--------------------------------------------------------------------------
+              total:              1.10              2.56              2.10
 </pre></div>
 </div>
 <p>The first excited state is obviously more accurately determined than
@@ -381,6 +391,68 @@ accurate to add much new information to what was in the prior. The prior
 is less important for the three quantities tabulated here. The dominant
 source of error in each case comes from either the SVD cut or the statistical
 errors in the data.</p>
+<p>Summary plots showing the data divided by the fit as a function of <code class="docutils literal"><span class="pre">t</span></code>
+for each of the 16&nbsp;correlators is shown below:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><img alt="_images/etab.1s0.ll.png" class="first last" src="_images/etab.1s0.ll.png" />
+</td>
+<td><img alt="_images/etab.1s0.lg.png" class="first last" src="_images/etab.1s0.lg.png" />
+</td>
+<td><img alt="_images/etab.1s0.ld.png" class="first last" src="_images/etab.1s0.ld.png" />
+</td>
+<td><img alt="_images/etab.1s0.le.png" class="first last" src="_images/etab.1s0.le.png" />
+</td>
+</tr>
+<tr class="row-odd"><td><img alt="_images/etab.1s0.gl.png" class="first last" src="_images/etab.1s0.gl.png" />
+</td>
+<td><img alt="_images/etab.1s0.gg.png" class="first last" src="_images/etab.1s0.gg.png" />
+</td>
+<td><img alt="_images/etab.1s0.gd.png" class="first last" src="_images/etab.1s0.gd.png" />
+</td>
+<td><img alt="_images/etab.1s0.ge.png" class="first last" src="_images/etab.1s0.ge.png" />
+</td>
+</tr>
+<tr class="row-even"><td><img alt="_images/etab.1s0.dl.png" class="first last" src="_images/etab.1s0.dl.png" />
+</td>
+<td><img alt="_images/etab.1s0.dg.png" class="first last" src="_images/etab.1s0.dg.png" />
+</td>
+<td><img alt="_images/etab.1s0.dd.png" class="first last" src="_images/etab.1s0.dd.png" />
+</td>
+<td><img alt="_images/etab.1s0.de.png" class="first last" src="_images/etab.1s0.de.png" />
+</td>
+</tr>
+<tr class="row-odd"><td><img alt="_images/etab.1s0.el.png" class="first last" src="_images/etab.1s0.el.png" />
+</td>
+<td><img alt="_images/etab.1s0.eg.png" class="first last" src="_images/etab.1s0.eg.png" />
+</td>
+<td><img alt="_images/etab.1s0.ed.png" class="first last" src="_images/etab.1s0.ed.png" />
+</td>
+<td><img alt="_images/etab.1s0.ee.png" class="first last" src="_images/etab.1s0.ee.png" />
+</td>
+</tr>
+</tbody>
+</table>
+<p>These plots are displayed by the code above if flag
+<code class="docutils literal"><span class="pre">DISPLAYPLOTS</span> <span class="pre">=</span> <span class="pre">True</span></code> is set at the beginning of the code. The points with
+error bars are correlator data points; the fit result is 1.0 in these
+plots; and the dashed lines show the uncertainty in the fit function
+values for the best-fit parameters. Fit and data agree well for
+all correlators and all <code class="docutils literal"><span class="pre">t</span></code> values. As expected, strong correlations
+exist between points with near-by <code class="docutils literal"><span class="pre">t</span></code>s.</p>
 </div>
 <div class="section" id="fit-stability">
 <h2>Fit Stability<a class="headerlink" href="#fit-stability" title="Permalink to this headline">¶</a></h2>
@@ -419,51 +491,7 @@ etab.3    [ .2(1.0),    .2(1.0),   .2(1.0),  .2(1.0),  .2(1.0) ... ]
 eigen-sources with the fourth state, or about the overlap of the fourth source
 with any state. Running with this (more conservative) prior gives
 the following results for the last fit and summary:</p>
-<div class="highlight-python"><div class="highlight"><pre>              1     0.1438 (50)      [ 0.110 (99) ]  
-              2      0.038 (11)      [ 0.054 (94) ]  
-              3     -0.080 (51)      [ -0.13 (90) ]  
-              4     -0.145 (98)      [ -0.13 (90) ]  
-              5      -0.09 (26)      [ -0.13 (90) ]  
-              6       0.24 (23)      [ -0.13 (90) ]  
-              7      -0.10 (36)      [ -0.13 (90) ]  
-       etab.d 0   -0.21628 (29)      [ -0.27 (16) ]  
-              1    -0.4088 (76)      [ -0.52 (20) ]  
-              2     -0.246 (18)      [ -0.30 (17) ]  
-              3      0.059 (64)      [ -0.22 (60) ]  
-              4     -0.179 (62)      [ -0.22 (60) ]  
-              5       0.07 (19)      [ -0.22 (60) ]  
-              6      -0.19 (36)      [ -0.22 (60) ]  
-              7      -0.46 (32)      [ -0.22 (60) ]  
-       etab.e 0   -0.19700 (25)      [ -0.16 (31) ]  
-              1    -0.3392 (81)      [ -0.36 (32) ]  
-              2     -0.304 (19)      [ -0.26 (31) ]  
-              3     -0.196 (71)      [ -0.12 (62) ]  
-              4       0.07 (14)      [ -0.12 (62) ]  
-              5       0.07 (15)      [ -0.12 (62) ]  
-              6      -0.10 (41)      [ -0.12 (62) ]  
-              7      -0.57 (30)      [ -0.12 (62) ]  
- log(etab.dE) 0   -1.36212 (67)      [ -1.3 (2.3) ]  
-              1     -0.651 (12)      [ -0.5 (1.0) ]  
-              2     -1.210 (61)      [ -0.5 (1.0) ]  
-              3      -0.93 (30)      [ -0.5 (1.0) ]  
-              4      -1.02 (64)      [ -0.5 (1.0) ]  
-              5      -0.83 (90)      [ -0.5 (1.0) ]  
-              6      -0.34 (93)      [ -0.5 (1.0) ]  
-              7      -0.26 (96)      [ -0.5 (1.0) ]  
----------------------------------------------------
-      etab.dE 0    0.25612 (17)      [  0.28 (62) ]  
-              1     0.5215 (62)      [  0.62 (62) ]  
-              2      0.298 (18)      [  0.62 (62) ]  
-              3       0.39 (12)      [  0.62 (62) ]  
-              4       0.36 (23)      [  0.62 (62) ]  
-              5       0.44 (39)      [  0.62 (62) ]  
-              6       0.71 (67)      [  0.62 (62) ]  
-              7       0.77 (74)      [  0.62 (62) ]  
-
-Settings:
-  svdcut/n = 0.0004/172    reltol/abstol = 1e-10/1e-10    (itns/time = 129/2.9)
-
-============================== nterm = 9
+<div class="highlight-python"><div class="highlight"><pre>============================== nterm = 9
 Least Square Fit:
   chi2/dof [dof] = 0.98 [260]    Q = 0.57    logGBF = 2158.7
 
@@ -656,51 +684,7 @@ of the eigen-sources (<code class="docutils literal"><span class="pre">#3</span>
 for the eigen-sources (<code class="docutils literal"><span class="pre">#5</span></code>).</p>
 <p>The fit results from the new code are very similar to before; there is
 little difference between the two approaches in this case:</p>
-<div class="highlight-python"><div class="highlight"><pre>              1      0.884 (11)      [  1.00 (30) ]  
-              2      0.054 (39)      [  0.03 (10) ]  
-              3     -0.060 (72)      [  0.03 (10) ]  
-              4       0.40 (12)      [  0.2 (1.0) ]  
-              5       0.04 (40)      [  0.2 (1.0) ]  
-              6       0.45 (53)      [  0.2 (1.0) ]  
-              7       0.81 (60)      [  0.2 (1.0) ]  
-       etab.2 0   -0.00259 (18)      [  0.03 (10) ]  
-              1    0.0002 (132)      [  0.03 (10) ]  
-              2      0.800 (35)      [  1.00 (30) ]  
-              3      0.071 (85)      [  0.03 (10) ]  
-              4      -0.49 (19)      [  0.2 (1.0) ]  
-              5      -0.19 (49)      [  0.2 (1.0) ]  
-              6       0.79 (40)      [  0.2 (1.0) ]  
-              7       0.06 (75)      [  0.2 (1.0) ]  
-       etab.3 0   0.001639 (60)      [  0.03 (10) ]  
-              1     0.0155 (49)      [  0.03 (10) ]  
-              2     -0.031 (20)      [  0.03 (10) ]  
-              3       0.68 (14)      [  1.00 (30) ]  *
-              4       0.04 (26)      [  0.2 (1.0) ]  
-              5      -0.54 (40)      [  0.2 (1.0) ]  
-              6      -0.33 (56)      [  0.2 (1.0) ]  
-              7       0.47 (71)      [  0.2 (1.0) ]  
- log(etab.dE) 0   -1.36277 (74)      [ -1.3 (2.3) ]  
-              1     -0.648 (12)      [ -0.5 (1.0) ]  
-              2     -1.234 (75)      [ -0.5 (1.0) ]  
-              3      -0.91 (37)      [ -0.5 (1.0) ]  
-              4      -0.85 (55)      [ -0.5 (1.0) ]  
-              5      -0.73 (91)      [ -0.5 (1.0) ]  
-              6      -0.01 (84)      [ -0.5 (1.0) ]  
-              7      -0.56 (97)      [ -0.5 (1.0) ]  
----------------------------------------------------
-      etab.dE 0    0.25595 (19)      [  0.28 (62) ]  
-              1     0.5230 (64)      [  0.62 (62) ]  
-              2      0.291 (22)      [  0.62 (62) ]  
-              3       0.40 (15)      [  0.62 (62) ]  
-              4       0.43 (23)      [  0.62 (62) ]  
-              5       0.48 (44)      [  0.62 (62) ]  
-              6       0.99 (83)      [  0.62 (62) ]  
-              7       0.57 (56)      [  0.62 (62) ]  
-
-Settings:
-  svdcut/n = 0.005/171    reltol/abstol = 1e-10/1e-10    (itns/time = 155/3.7)
-
-============================== nterm = 9
+<div class="highlight-python"><div class="highlight"><pre>============================== nterm = 9
 Least Square Fit:
   chi2/dof [dof] = 0.94 [260]    Q = 0.77    logGBF = 1945.7
 
@@ -848,7 +832,7 @@ Partial % Errors:
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.2a documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

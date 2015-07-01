@@ -39,7 +39,7 @@ given in the tutorial documentation for |CorrFitter|.
 """
 
 # Created by G. Peter Lepage, Cornell University, on 2010-11-26.
-# Copyright (c) 2010-2014 G. Peter Lepage.
+# Copyright (c) 2010-2015 G. Peter Lepage.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ import time
 import gvar as _gvar
 import lsqfit
 import numpy
-__version__ = '4.2a'
+__version__ = '5.0'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -158,7 +158,7 @@ class BaseModel(object):
         # ans = [BaseModel._paramkey(i) for i in p]
         # return tuple(ans)
 
-    _priorkey = staticmethod(lsqfit._pdict.priorkey)
+    origkey = staticmethod(lsqfit.ExtendedDict.origkey)
 
     # @staticmethod
     # def _transform_prior(prior):
@@ -319,13 +319,15 @@ class Corr2(BaseModel):
         of oscillating terms. Setting ``nterm = None`` keeps 
         all terms.
         """
+        if nterm is None:
+            nterm = (None, None)
 
         newprior = _gvar.BufferDict()
         for ai, bi, dEi, ntermi in zip(self.a, self.b, self.dE, nterm):
             for x in [ai, bi, dEi]:
                 if x is None:
                     continue
-                x = self._priorkey(prior, x)
+                x = self.origkey(prior, x)
                 newprior[x] = prior[x][None:ntermi]
         return newprior        
     
@@ -602,14 +604,14 @@ class Corr3(BaseModel):
         for x in [self.a, self.dEa, self.b, self.dEb]:
             for xi, ntermi in zip(x, nterm):
                 if xi is not None:
-                    xi = self._priorkey(prior, xi)
+                    xi = self.origkey(prior, xi)
                     ans[xi] = prior[xi][None:ntermi]
         for i in range(2):
             for j in range(2):
                 vij = self.V[i][j]
                 if vij is None:
                     continue
-                vij = self._priorkey(prior, vij)
+                vij = self.origkey(prior, vij)
                 if i == j and self.symmetric_V:
                     ans[vij] = resize_sym(prior[vij], nterm)
                 else:
@@ -859,7 +861,7 @@ class CorrFitter(object):
     def builddata(self, data, prior, nterm=None):
         """ Build fit data, corrected for marginalized terms. """
         fitdata = _gvar.BufferDict()
-        prior = lsqfit._pdict(prior) ### 
+        prior = lsqfit.ExtendedDict(prior) ### 
         for m in self.flat_models:
             fitdata[m.datatag] = m.builddata(data)
         # remove marginal fit parameters 
@@ -1587,7 +1589,7 @@ class EigenBasis:
     table listing the  amplitudes in the new eigen-basis, together with the
     energies,  is printed by::
 
-        print(basis.tabulate(fit.transformed_p, keyfmt='m.{s1}', eig_srcs=True))
+        print(basis.tabulate(fit.p, keyfmt='m.{s1}', eig_srcs=True))
     
     The prior can be adjusted, if needed, using the ``dEfac``, ``ampl``, and
     ``states`` arguments in :func:`EigenBasis.make_prior`.
@@ -1595,7 +1597,7 @@ class EigenBasis:
     :func:`EigenBasis.tabulate` is also useful for printing the amplitudes 
     for the original sources::
 
-        print(basis.tabulate(fit.transformed_p, keyfmt='m.{s1}'))
+        print(basis.tabulate(fit.p, keyfmt='m.{s1}'))
 
     |EigenBasis| requires the scipy library in Python.
 
@@ -1800,7 +1802,7 @@ class EigenBasis:
         and amplitudes for the first ``N`` states in correlators can be printed
         using ::
 
-            print basis.tabulate(fit.transformed_p)
+            print basis.tabulate(fit.p)
 
         where ``N`` is the number of sources and ``basis`` is an 
         :class:`EigenBasis` object. The amplitudes are tabulated for the 
@@ -2013,163 +2015,243 @@ class EigenBasis:
         return ans
 
 class fastfit(object):
-    """ Fast fit for the leading component of a :mod:`Corr2`.
+    """ Fast fit of a two-point correlator.
         
-    This function class estimates ``En[0]`` and ``an[0]*bn[0]`` in a two-point 
-    correlator::
+    This function class estimates ``E=En[0]`` and ``ampl=an[0]*bn[0]`` 
+    for a two-point correlator modeled by ::
         
         Gab(t) = sn * sum_i an[i]*bn[i] * fn(En[i], t)
                + so * sum_i ao[i]*bo[i] * fo(Eo[i], t)
         
-    where ``sn`` and ``so`` are typically ``-1``, ``0``, or ``1`` and ::
+    where ``(sn, so)`` is typically ``(1, -1)`` and ::
         
         fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # tp>0 -- periodic
                or   exp(-E*t) - exp(-E*(-tp-t))# tp<0 -- anti-periodic
                or   exp(-E*t)                  # if tp is None (nonperiodic)
         
         fo(E, t) = (-1)**t * fn(E, t)
-        
-    The correlator is specified by ``model``, and ``prior`` is used to 
-    remove (marginalize) all terms other than the ``En[0]`` term
-    from the data. This gives a *corrected* correlator ``Gc(t)`` that 
-    includes uncertainties due to the terms removed. Estimates of ``En[0]`` 
+
+    Prior estimates for the amplitudes and energies of excited states are
+    used to remove (that is, marginalize) their contributions to give 
+    a *corrected* correlator ``Gc(t)`` that
+    includes uncertainties due to the terms removed. Estimates of ``E`` 
     are given by::
         
-        Eeff(t) = arccosh(0.5*(Gc(t+1)+Gc(t-1))/Gc(t)),
+        Eeff(t) = arccosh(0.5 * (Gc(t+1) + Gc(t-1)) / Gc(t)),
         
     The final estimate is the weighted average ``Eeff_avg`` of the
     ``Eeff(t)``\s for different ``t``\s. Similarly, an estimate for the
-    product of amplitutes, ``an[0]*bn[0]`` is obtained from the weighted
+    amplitude ``ampl`` is obtained from the weighted
     average of ::
         
-        Aeff(t) = Gc(t)/fn(Eeff_avg, t). 
+        Aeff(t) = Gc(t) / fn(Eeff_avg, t). 
         
     If ``osc=True``, an estimate is returned for ``Eo[0]`` rather
     than ``En[0]``, and ``ao[0]*bo[0]`` rather than ``an[0]*bn[0]``. 
-    These estimates are most reliable when ``Eo[0]`` is smaller than
-    ``En[0]`` (and so dominates at large ``t``).
-        
-    The results of the fast fit are stored and returned in an object of type 
-    :class:`corrfitter.fastfit` with the following attributies:
-        
-    .. attribute:: E
-        
-        Estimate of ``En[0]`` (or ``Eo[0]`` if ``osc==True``) computed
-        from the weighted average of ``Eeff(t)`` for ``t``\s in
-        ``model.tfit``. The prior is also included in the weighted average.
-        
-    .. attribute:: ampl
-        
-        Estimate of ``an[0]*bn[0]`` (or ``ao[0]*bo[0]`` if ``osc==True``)
-        computed from the weighted average of ``Aeff(t)`` for ``t``\s in
-        ``model.tfit[1:-1]``. The prior is also included in the weighted 
-        average.
- 
-    .. attribute:: chi2
-        
-        ``chi[0]`` is the ``chi**2`` for the weighted average of
-        ``Eeff(t)``\s; ``chi[1]`` is the same for the ``Aeff(t)``\s.
-            
-    .. attribute:: dof
-        
-        ``dof[0]`` is the effective number of degrees of freedom in the
-        weighted average of ``Eeff(t)``\s; ``dof[1]`` is the same for the
-        ``Aeff(t)``\s.
-            
-    .. attribute:: Q
-        
-        ``Q[0]`` is the quality factor `Q` for the weighted average of
-        ``Eeff(t)``\s; ``Q[1]`` is the same for the ``Aeff(t)``\s.
-            
-    .. attribute:: Elist
-        
-        List of ``Eeff(t)``\s used in the weighted average to estimate
-        ``E``.
-            
-    .. attribute:: ampllist
-            
-        List of ``Aeff(t)``\s used in the weighted average to estimate
-        ``ampl``.
-        
-    :param data: Input data. The ``datatag`` from the correlator model is
-        used as a data key, with ``data[datatag]`` being a 1-d array of
-        |GVar|\s corresponding to the correlator values.
-    :type data: dictionary
-    :param prior: Bayesian prior for the fit parameters in the 
-        correlator model.
-    :type prior: dictionary
-    :param model: Correlator model for correlator of interest. The ``t``\s
-        in ``model.tfit`` must be consecutive.
-    :type model: Corr2
-    :param osc: If ``True``, extract results for the leading oscillating
-        term in the correlator (``Eo[0]``); otherwise ignore.
-    :type osc: Bool
-        
-    In addition an *svd* cut can be specified, as in |CorrFitter|, using
-    parameter ``svdcut``. Also the type of marginalization
-    use can be specified with parameter ``ratio`` (see |CorrFitter|).
-    """
-    def __init__(
-        self, data, prior, model, svdcut=None, ratio=True, osc=False
-        ):
-        assert isinstance(model, Corr2), "model must be type Corr2"
-        prior = _gvar.BufferDict(prior)
-        t = model.tfit
-        assert numpy.all(t[1:] == t[:-1]+1), "model.tfit must contain consecutive ts"
-        self.osc = osc
-        if osc:
-            # capture leading oscillating part 
-            nterm = (0, 1)
-            Gfac = (-1)**t
-            a = model.a[1]
-            b = model.b[1]
-            dE = model.dE[1]
-        else:
-            # capture leading non-oscillating part 
-            nterm = (1, 0)
-            Gfac = 1.
-            a = model.a[0]
-            b = model.b[0]
-            dE = model.dE[0]
-        # extract relevant data 
-        fitter = CorrFitter(models=[model], svdcut=svdcut,
-                            ratio=ratio, nterm=nterm)
-        G = fitter.builddata(data=data, prior=prior)[model.datatag] * Gfac
-        
-        # extend prior
-        prior = lsqfit._pdict(prior)
-        # compute priors for answers 
-        E_prior =  prior[dE][0]
-        ampl_prior =  prior[a][0]
-        ampl_prior *=  prior[b][0]
-        
-        # compute E 
-        self.Elist = _gvar.arccosh(0.5*(G[2:]+G[:-2])/G[1:-1])
-        Elist = self.Elist.tolist() + [E_prior]
-        self.E = lsqfit.wavg(Elist, svdcut=svdcut)
-        self.chi2 = lsqfit.wavg.chi2
-        self.dof = lsqfit.wavg.dof
-        self.Q = lsqfit.wavg.Q
-        
-        # compute amplitude 
-        p = {}
-        p[a] =  numpy.array([1.])
-        p[b] =  numpy.array([1.])
-        p[dE] = numpy.array([self.E])
+    These estimates are reliable when ``Eo[0]`` is smaller than
+    ``En[0]`` (and so dominates at large ``t``), but probably not 
+    otherwise.
 
-        G0 = model.fitfcn(p, nterm=nterm) * Gfac
-        self.G = G
-        self.G0 = G0
-        ii = slice(1, -1)
-        self.ampllist = G[ii]/G0[ii]
-        amplist = self.ampllist.tolist() + [ampl_prior]
-        self.ampl = lsqfit.wavg(self.ampllist, svdcut=svdcut)
-        self.chi2 = numpy.array([self.chi2, lsqfit.wavg.chi2])
-        self.dof = numpy.array([self.dof, lsqfit.wavg.dof])
-        self.Q = numpy.array([self.Q, lsqfit.wavg.Q])
-    
+    Examples:
+        The following code examines a periodic correlator (period 64) at large
+        times (``t >= tmin``), where estimates for excited states 
+        don't matter much:
+
+            >>> import corrfitter as cf
+            >>> print(G)
+            [0.305808(29) 0.079613(24) ... ]
+            >>> fit = cf.fastfit(G, tmin=24, tp=64) 
+            >>> print('E =', fit.E, ' ampl =', fit.ampl)
+            E = 0.41618(13)  ampl = 0.047686(95)  
+
+        Smaller ``tmin`` values can be used if (somewhat) realistic priors 
+        are provided for the amplitudes and energy gaps:
+
+            >>> fit = cf.fastfit(G, ampl='0(1)', dE='0.5(5)', tmin=3, tp=64) 
+            >>> print('E =', fit.E, ' ampl =', fit.ampl)
+            E = 0.41624(11)  ampl = 0.047704(71)
+
+        The result here is roughly the same as from the larger ``tmin``, but
+        this would not be true for a correlator whose signal to noise ratio
+        falls quickly with increasing time. 
+
+        :class:`corrfitter.fastfit` estimates the amplitude and energy at 
+        all times larger than ``tmin`` and then averages to get its final
+        results. The chi-squared of the average (*e.g.*, ``fit.E.chi2``) 
+        gives an indication of the consistency of the estimates from different
+        times. The chi-squared per degree of freedom is printed out for both 
+        the energy and the amplitude using ::
+
+            >>> print(fit)
+            E: 0.41624(11) ampl: 0.047704(71) chi2/dof [dof]: 0.9 0.8 [57] Q: 0.8 0.9
+
+        Large values for ``chi2/dof`` indicate an unreliable results. In 
+        such cases the priors should be adjusted, and/or ``tmin`` increased, 
+        and/or an *svd* cut introduced. The averages in the example above 
+        have good values for ``chi2/dof``.
+
+    Parameters:
+        G: An array of |GVar|\s containing the two-point correlator. ``G[j]``
+            is assumed to correspond to time ``t=j``, where ``j=0...``.
+        ampl: A |GVar| or its string representation giving an estimate for 
+            the amplitudes of the ground state and the excited states.  Use
+            ``ampl=(ampln, amplo)`` when the  correlator contains oscillating
+            states; ``ampln`` is the  estimate for non-oscillating states, and
+            ``amplo`` for  oscillating states; setting one or the other to
+            ``None``  causes the corresponding terms to be dropped.  Default
+            value is ``'0(1)'``.        
+        dE: A |GVar| or its string representation giving an estimate for the 
+            energy separation between successive states. This estimate is 
+            also used to provide an estimate for the lowest energy 
+            when parameter ``E`` is not specified. Use  ``dE=(dEn, dEo)`` 
+            when the correlator contains oscillating states: ``dEn`` is the 
+            estimate for non-oscillating states, and ``dEo`` for 
+            oscillating states; setting one or the other to ``None`` 
+            causes the corresponding terms to be dropped. 
+            Default value is ``'1(1)'``.
+        E: A |GVar| or its string representation giving an estimate for the 
+            energy of the lowest-lying state. Use  ``E=(En, Eo)`` 
+            when the correlator contains oscillating states: ``En`` is the 
+            estimate for the lowest non-oscillating state, and ``Eo`` for 
+            lowest oscillating state. Setting ``E=None`` causes 
+            ``E`` to be set equal to ``dE``. Default value is ``None``. 
+        s: A tuple containing overall factors ``(sn, so)`` multiplying 
+            contributions from the normal and oscillating states. 
+            Default is ``(1,-1)``.
+        tp (int or None): When not ``None``, the correlator is periodic 
+            with period ``tp`` when ``tp>0``, or anti-periodic with 
+            period ``-tp`` when ``tp<0``. Setting ``tp=None`` implies 
+            that the correlator is neither periodic nor anti-periodic. 
+            Default is ``None``.
+        tmin (int): Only ``G(t)`` with ``t >= tmin`` are used. Default 
+            value is ``6``.
+        svdcut (float or None): *svd* cut used in the weighted average 
+            of results from different times. (See the 
+            :class:`corrfitter.CorrFitter` documentation for a discussion 
+            of *svd* cuts.) Default is ``1e-6``.
+        osc (bool): Set ``osc=True`` if the lowest-lying state is an 
+            oscillating state. Default is ``False``.
+
+    Note that specifying a single |GVar| ``g`` (as opposed to a tuple) for any
+    of parameters  ``ampl``, ``dE``, or ``E`` is equivalent to specifying the
+    tuple  ``(g, None)`` when ``osc=False``, or the tuple ``(None, g)`` when
+    ``osc=True``. A similar rule applies to parameter ``s``.
+
+    :class:`corrfitter.fastfit` objects have the following attributes:
+
+    Attributes:
+        E: Energy of the lowest-lying state (|GVar|). 
+        ampl: Amplitude of the lowest-lying state (|GVar|).
+
+    Both ``E`` and ``ampl`` are obtained by averaging results calculated 
+    for each time larger than ``tmin``. These are averaged to produce 
+    a final result. The consistency among results from different times 
+    is measured by the chi-squared of the average. Each of ``E`` and ``ampl`` 
+    has the following extra attributes:
+
+    Attributes:
+        chi2: chi-squared for the weighted average.
+        dof: The effective number of degrees of freedom in the weighted 
+            average.
+        Q: The probability that the chi-squared could have been larger, 
+            by chance, assuming that the data are all Gaussain and consistent
+            with each other. Values smaller than 0.05 or 0.1 suggest 
+            inconsistency. (Also called the *p-factor*.) 
+
+    An easy way to inspect these attributes is to print the fit object ``fit``
+    using ``print(fit)``, which lists the values of the energy and amplitude, 
+    the ``chi2/dof`` for each of these, the number of degrees of freedom, 
+    and the ``Q`` for each.
+    """
+    def __init__(self, G, ampl='0(1)', dE='1(1)', E=None, s=(1,-1), 
+        tp=None, tmin=6, svdcut=1e-6, osc=False, nterm=10,
+        ):
+        import lsqfit
+        if not isinstance(s, tuple):
+            s = (0, s) if osc else (s, 0)
+        def build(x, x0=(None, None)):
+            if not isinstance(x, tuple):
+                x = (None, x) if osc else (x, None)
+            if not isinstance(x0, tuple):
+                x0 = (None, x0) if osc else (x0, None)
+            return (build_prior(x[0], x0[0]), build_prior(x[1], x0[1]))
+        def build_prior(x, x0):
+            if x is None:
+                return x
+            x = _gvar.gvar(x)
+            dx = 0 if abs(x.mean) > 0.1 * x.sdev else 0.2 * x.sdev
+            xmean = x.mean 
+            xsdev = x.sdev
+            first_x = x if x0 is None else _gvar.gvar(x0)
+            return (
+                [first_x + dx] + 
+                [_gvar.gvar(xmean + dx, xsdev) for i in range(nterm - 1)]
+                )
+        a, ao = build(ampl)
+        dE, dEo = build(dE, E)
+        s, so = s
+        if tp is None:
+            def g(E, t):
+                return _gvar.exp(-E * t)
+            t = numpy.arange(0, len(G))[tmin:]
+            G = G[tmin:]
+        elif tp > 0:
+            def g(E, t):
+                return _gvar.exp(-E * t) + _gvar.exp(-E * (tp - t))
+            tmax = -tmin + 1 if tmin > 1 else None
+            t = numpy.arange(0, len(G))[tmin:tmax]
+            G = G[tmin:tmax]
+        elif tp < 0:
+            def g(E, t):
+                return _gvar.exp(-E * t) - _gvar.exp(-E * (-tp - t))
+            tmid = (-tp + 1) // 2
+            G0 = G[0]
+            G = numpy.array(
+                [G[0]] + 
+                list(lsqfit.wavg([G[1:tmid], -G[-1:-tmid:-1]], svdcut=svdcut))
+                )
+            t = numpy.arange(0, len(G))[tmin:]
+            G = G[tmin:]
+        else:
+            raise ValueError('bad tp')
+        if len(t) == 0:
+            raise ValueError('tmin too large; not t values left')
+        if osc:
+            G *= (-1) ** t * so
+            a, ao = ao, a
+            dE, dEo = dEo, dE
+            s, so = so, s
+        dG = 0.
+        E = numpy.cumsum(dE)
+        for aj, Ej in zip(a, E)[1:]:
+            dG += s * aj * g(Ej, t)
+        if ao is not None and dEo is not None:
+            Eo = numpy.cumsum(dEo)
+            for aj, Ej in zip(ao, Eo):
+                dG += so * aj * g(Ej, t) * (-1) ** t 
+        G = G - dG
+        ratio = lsqfit.wavg(
+            0.5 * (G[2:] + G[:-2]) / G[1:-1], 
+            prior=_gvar.cosh(E[0]), svdcut=svdcut, 
+            )
+        if ratio >= 1:
+            self.E = type(ratio)(_gvar.arccosh(ratio), ratio.fit)
+        else:
+            raise RuntimeError(
+                "can't estimate energy: cosh(E) = {}".format(ratio)
+                )
+        self.ampl = lsqfit.wavg(G / g(self.E, t) / s, svdcut=svdcut, prior=a[0])
+
+    def __str__(self):
+        return (
+            "E: {} ampl: {} chi2/dof [dof]: {:.1f} {:.1f} [{}] "
+            "Q: {:.1f} {:.1f}"
+            ).format(
+            self.E, self.ampl, self.E.chi2 / self.E.dof, 
+            self.ampl.chi2 / self.ampl.dof, self.E.dof, self.E.Q, self.ampl.Q,
+            )
        
-def read_dataset(inputfiles, tcol=0, Gcol=1):
+def read_dataset(inputfiles, tcol=0, Gcol=1, binsize=1):
     """ Read correlator Monte Carlo data from files into a :class:`gvar.dataset.Dataset`.
 
     Two files formats are supported by :func:`read_dataset`, depending upon the 
@@ -2217,29 +2299,35 @@ def read_dataset(inputfiles, tcol=0, Gcol=1):
     The columns in these files containing ``t`` and ``G(t)`` are 
     assumed to be columns 0 and 1, respectively. These can be changed 
     by setting arguments ``tcol`` and ``Gcol``, respectively.
+
+    Setting parameter ``binsize`` larger than 1 bins the data. (See
+    :func:`gvar.dataset.bin_data`.)
     """
     if not hasattr(inputfiles, 'keys'):
         # inputfiles is a filename or list of filenames (or files)
-        return _gvar.dataset.Dataset(inputfiles)
-    # inputfiles is a dictionary 
-    # files are in t-G format
-    dset = _gvar.dataset.Dataset()
-    for k in inputfiles:
-        tlast = - float('inf')
-        G = []
-        for line in fileinput.input([inputfiles[k]]):
-            f = line.split()
-            if f[0][0] == '#':
-                # comment
-                continue
-            t = eval(f[tcol])
-            if t <= tlast:
-                dset.append(k, numpy.array(G))
-                G = [eval(f[Gcol])]
-            else:
-                G.append(eval(f[Gcol]))
-            tlast = t
-        dset.append(k, numpy.array(G))
+        dset = _gvar.dataset.Dataset(inputfiles)
+    else:
+        # inputfiles is a dictionary 
+        # files are in t-G format
+        dset = _gvar.dataset.Dataset()
+        for k in inputfiles:
+            tlast = - float('inf')
+            G = []
+            for line in fileinput.input([inputfiles[k]]):
+                f = line.split()
+                if f[0][0] == '#':
+                    # comment
+                    continue
+                t = eval(f[tcol])
+                if t <= tlast:
+                    dset.append(k, numpy.array(G))
+                    G = [eval(f[Gcol])]
+                else:
+                    G.append(eval(f[Gcol]))
+                tlast = t
+            dset.append(k, numpy.array(G))
+    if binsize > 1:
+        dset = _gvar.dataset.bin_data(dset, binsize=binsize)
     return dset
 
 

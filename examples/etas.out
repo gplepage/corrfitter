@@ -87,8 +87,9 @@ Parameters:
               4       0.50 (50)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 14/0.1)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 14/0.0)
 
 E   0.41620(12)      0.99(16)       
 a   0.21836(18)      0.15(12)       
 
+E: 0.41624(11) ampl: 0.047704(71) chi2/dof [dof]: 0.9 0.8 [57] Q: 0.8 0.9

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Annotated Example: Two-Point Correlator &mdash; corrfitter 4.2a documentation</title>
+    <title>Annotated Example: Two-Point Correlator &mdash; corrfitter 5.0 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.2a',
+        VERSION:     '5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 4.2a documentation" href="index.html" />
-    <link rel="next" title="Annotated Example: Transition Form Factor" href="example-etas-Ds.html" />
+    <link rel="top" title="corrfitter 5.0 documentation" href="index.html" />
+    <link rel="next" title="Annotated Example: Transition Form Factor and Mixing" href="example-etas-Ds.html" />
     <link rel="prev" title="corrfitter - Least-Squares Fit to Correlators" href="corrfitter.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -45,12 +45,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor"
+          <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="corrfitter.html" title="corrfitter - Least-Squares Fit to Correlators"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.2a documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -94,26 +94,28 @@ code is:</p>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">gvar</span> <span class="kn">as</span> <span class="nn">gv</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">CorrFitter</span><span class="p">,</span> <span class="n">Corr2</span><span class="p">,</span> <span class="n">read_dataset</span>
+<span class="kn">import</span> <span class="nn">corrfitter</span> <span class="kn">as</span> <span class="nn">cf</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;etas-Ds.data&#39;</span><span class="p">)</span>
-    <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
+    <span class="n">fitter</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
     <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>                                   
         <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nterm =&#39;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
         <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
         <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">)</span>  
         <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>    
-        <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span>                                  
+        <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span>
+    <span class="n">fastfit</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">fastfit</span><span class="p">(</span><span class="n">G</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;etas&#39;</span><span class="p">],</span> <span class="n">ampl</span><span class="o">=</span><span class="s">&#39;0(1)&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;0.5(5)&#39;</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">fastfit</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Read data, compute averages/covariance matrix for G(t). &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot; Create corrfitter model for G(t). &quot;&quot;&quot;</span>
-    <span class="n">corr</span> <span class="o">=</span> <span class="n">Corr2</span><span class="p">(</span>
+    <span class="n">corr</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">Corr2</span><span class="p">(</span>
         <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;etas&#39;</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span> <span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">64</span><span class="o">-</span><span class="mi">5</span><span class="p">),</span> 
         <span class="n">a</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;dE&#39;</span>
         <span class="p">)</span>
@@ -127,11 +129,11 @@ code is:</p>
     <span class="k">return</span> <span class="n">prior</span>
 
 <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">):</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">p</span>                               
-        <span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;dE&#39;</span><span class="p">])</span>                              
-        <span class="n">a</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span>                                          
-        <span class="k">print</span><span class="p">(</span><span class="s">&#39;{:2}  {:15}  {:15}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;E&#39;</span><span class="p">,</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> 
-        <span class="k">print</span><span class="p">(</span><span class="s">&#39;{:2}  {:15}  {:15}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">p</span>                               
+    <span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;dE&#39;</span><span class="p">])</span>                              
+    <span class="n">a</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span>                                          
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;{:2}  {:15}  {:15}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;E&#39;</span><span class="p">,</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> 
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;{:2}  {:15}  {:15}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
@@ -278,10 +280,12 @@ Parameters:
               4       0.50 (50)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 14/0.1)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 14/0.0)
 
 E   0.41620(12)      0.99(16)       
 a   0.21836(18)      0.15(12)       
+
+E: 0.41624(11) ampl: 0.047704(71) chi2/dof [dof]: 0.9 0.8 [57] Q: 0.8 0.9
 </pre></div>
 </div>
 <p>These fits are very fast &#8212; a small fraction of a second each on a laptop.
@@ -294,6 +298,115 @@ chi-square per degree of freedom (<code class="docutils literal"><span class="pr
 periodicity, folded the data about the midpoint in <code class="docutils literal"><span class="pre">t</span></code> and averaged,
 before fitting. The ground state energy and amplitude are determined to
 a part in 1,000 or better.</p>
+</div>
+<div class="section" id="correlated-data">
+<h2>Correlated Data?<a class="headerlink" href="#correlated-data" title="Permalink to this headline">¶</a></h2>
+<p>It is worth checking whether the initial Monte Carlo data has correlations
+from sample to sample, since such correlations lead to
+underestimated fit errors. One approach is verify that results are
+unchanged when the input data are binned. To bin the data we use</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Read data, compute averages/covariance matrix for G(t). &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">binsize</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>which averages successive samples (bins of 2). Binned data give the following
+results from the last iteration and summary:</p>
+<div class="highlight-python"><div class="highlight"><pre>============================== nterm = 5
+Least Square Fit:
+  chi2/dof [dof] = 0.94 [28]    Q = 0.55    logGBF = 477.28
+
+Parameters:
+            a 0    0.21839 (17)      [  0.0 (1.0) ]  
+              1      0.175 (80)      [  0.0 (1.0) ]  
+              2       0.36 (16)      [  0.0 (1.0) ]  
+              3     -2e-17 +- 1      [  0.0 (1.0) ]  
+              4      4e-17 +- 1      [  0.0 (1.0) ]  
+        logdE 0   -0.87651 (29)      [ -0.7 (1.0) ]  
+              1      -0.52 (17)      [ -0.7 (1.0) ]  
+              2      -0.67 (67)      [ -0.7 (1.0) ]  
+              3      -0.7 (1.0)      [ -0.7 (1.0) ]  
+              4      -0.7 (1.0)      [ -0.7 (1.0) ]  
+---------------------------------------------------
+           dE 0    0.41623 (12)      [  0.50 (50) ]  
+              1       0.59 (10)      [  0.50 (50) ]  
+              2       0.51 (34)      [  0.50 (50) ]  
+              3       0.50 (50)      [  0.50 (50) ]  
+              4       0.50 (50)      [  0.50 (50) ]  
+
+Settings:
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 11/0.0)
+
+E   0.41623(12)      1.01(10)       
+a   0.21839(17)      0.175(80)      
+</pre></div>
+</div>
+<p>These agree pretty well with the previous results, suggesting that
+correlations are not a problem.</p>
+<p>Binning should have no significant effect on results if there are
+no correlations, provided the total number of samples after binning
+is sufficiently large (<em>e.g.</em>, more than 100—200). Strong
+correlations cause error estimates to grow with increased
+bin size (like the square root of <code class="docutils literal"><span class="pre">binsize</span></code>). Binning reduces
+correlations; data should be binned
+with increasing bin sizes until fit error estimates stop growing.</p>
+</div>
+<div class="section" id="fast-fit-and-effective-mass">
+<h2>Fast Fit and Effective Mass<a class="headerlink" href="#fast-fit-and-effective-mass" title="Permalink to this headline">¶</a></h2>
+<p>The last two lines in the <code class="docutils literal"><span class="pre">main()</span></code> function of the code illustrate the  use
+of <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a> to get a very fast results for the lowest-energy
+state. As discussed in <a class="reference internal" href="corrfitter.html#very-fast-fits"><span>Very Fast (But Limited) Fits</span></a>, <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a>
+provides  an alternative to the multi-exponential fits discussed above when
+only  the lowest-energy parameters are needed. The method used is similar to a
+traditional effective mass analysis except that estimates for contributions
+from excited states are generated from priors and removed from the correlator
+before determining the effective mass. This allows the code to use much
+smaller <code class="docutils literal"><span class="pre">t</span></code> values than in the traditional approach, thereby obtaining
+results that rival the multi-exponential fits.</p>
+<p>In this example, <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a> is used to analyze the two-point
+correlator stored in array <code class="docutils literal"><span class="pre">data['etas']</span></code>. The amplitudes for different
+states are estimated to have size 0±1, while the spacings between energies
+(and  between the first state and 0) are estimated to be 0.5±0.5. The code
+averages results form all <code class="docutils literal"><span class="pre">t</span></code> values down to <code class="docutils literal"><span class="pre">tmin=3</span></code>. Setting <code class="docutils literal"><span class="pre">tp=64</span></code>
+indicates that the correlator is periodic with period 64.</p>
+<p>The last line of the output summarizes the results of the fast fit. The
+energy and amplitude are almost identical to what was obtained from the
+multi-exponential fits (note that <code class="docutils literal"><span class="pre">fastfit.ampl</span></code> is the same  as
+<code class="docutils literal"><span class="pre">fit.a[0]**2</span></code>, which has value 0.047681(79)). <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a>
+estimates the energy and amplitude for each <code class="docutils literal"><span class="pre">t</span></code> greater than <code class="docutils literal"><span class="pre">tmin</span></code>, and
+then  averages the results. The consistency of results from different <code class="docutils literal"><span class="pre">t</span></code>s
+is  measured by the chi-squared of the averages. The chi-squared per degree of
+freedom is reported here to be 0.8 for the <code class="docutils literal"><span class="pre">E</span></code> average and 0.9 for the
+<code class="docutils literal"><span class="pre">ampl</span></code> average, indicating that there is good agreement between different
+<code class="docutils literal"><span class="pre">t</span></code>s.</p>
+<p>While a fast fit is easier to set up, multi-exponential fits are  usually more
+robust, and provide more detailed information about the fit. One  use for fast
+fits is to estimate the sizes of parameters for use in designing  the priors
+for a multi-exponential fit. There are often situations where <em>a priori</em>
+knowledge about fit parameters is sketchy, especially for amplitudes. A  fast
+fit to data at large <code class="docutils literal"><span class="pre">t</span></code> can quickly generate estimates for both  amplitudes
+and energies, from which it is then easy to construct priors. In the code
+above, for example, we could replace <code class="docutils literal"><span class="pre">make_prior(N)</span></code>
+by <code class="docutils literal"><span class="pre">alt_make_prior(N,</span> <span class="pre">data['etas'])</span></code> where:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">alt_make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
+    <span class="n">fastfit</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">fastfit</span><span class="p">(</span><span class="n">G</span><span class="o">=</span><span class="n">G</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">fastfit</span><span class="o">.</span><span class="n">ampl</span><span class="o">.</span><span class="n">mean</span> <span class="o">**</span> <span class="mf">0.5</span>
+    <span class="n">dE</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">fastfit</span><span class="o">.</span><span class="n">E</span><span class="o">.</span><span class="n">mean</span>
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">([</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">da</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;logdE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">([</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">dE</span><span class="p">,</span> <span class="n">dE</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]))</span>
+    <span class="k">return</span> <span class="n">prior</span>
+</pre></div>
+</div>
+<p>This code does a fast fit using data from very large <code class="docutils literal"><span class="pre">t</span></code>, where priors for
+the excited states are unimportant. It then uses the results to create priors
+for the amplitudes and energy differences for all states, assuming that the
+ground state values are either larger, or smaller by no more than roughly a
+factor of two. This customized prior gives results that are almost identical
+to what was obtained using the original prior, above (in part because
+the original prior is pretty sensible to begin with).</p>
+<p>Designing a prior using <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a> would be even more
+useful when multiple sources and sinks are involved, as in a matrix fit.</p>
 </div>
 </div>
 
@@ -309,6 +422,8 @@ a part in 1,000 or better.</p>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
 <li><a class="reference internal" href="#code">Code</a></li>
 <li><a class="reference internal" href="#results">Results</a></li>
+<li><a class="reference internal" href="#correlated-data">Correlated Data?</a></li>
+<li><a class="reference internal" href="#fast-fit-and-effective-mass">Fast Fit and Effective Mass</a></li>
 </ul>
 </li>
 </ul>
@@ -318,7 +433,7 @@ a part in 1,000 or better.</p>
                         title="previous chapter"><code class="docutils literal"><span class="pre">corrfitter</span></code> - Least-Squares Fit to Correlators</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="example-etas-Ds.html"
-                        title="next chapter">Annotated Example: Transition Form Factor</a></p>
+                        title="next chapter">Annotated Example: Transition Form Factor and Mixing</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -346,12 +461,12 @@ a part in 1,000 or better.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor"
+          <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              >next</a> |</li>
         <li class="right" >
           <a href="corrfitter.html" title="corrfitter - Least-Squares Fit to Correlators"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 4.2a documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

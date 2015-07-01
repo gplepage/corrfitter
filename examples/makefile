@@ -8,6 +8,8 @@ run run-all run-examples:
 	-$(PYTHON) etas-Ds-marginalize.py > etas-Ds-marginalize.tmp	
 	-diff -w -I 't=' -I svdcut etas-Ds-marginalize.tmp etas-Ds-marginalize.out
 	-$(PYTHON) etas-Ds-chained.py > etas-Ds-chained.tmp	
+	-$(PYTHON) Ds-Ds.py > Ds-Ds.tmp	
+	-diff -w -I 't=' -I svdcut Ds-Ds.tmp Ds-Ds.out
 	-diff -w -I 't=' -I svdcut etas-Ds-chained.tmp etas-Ds-chained.out
 	-$(PYTHON) etab.py > etab.tmp	
 	-diff -w -I 't=' -I svdcut etab.tmp etab.out
@@ -21,6 +23,7 @@ update-all:
 	-$(PYTHON) etas-Ds.py > etas-Ds.out	
 	-$(PYTHON) etas-Ds-marginalize.py > etas-Ds-marginalize.out	
 	-$(PYTHON) etas-Ds-chained.py > etas-Ds-chained.out	
+	-$(PYTHON) Ds-Ds.py > Ds-Ds.out	
 	-$(PYTHON) etab.py > etab.out	
 	-$(PYTHON) etab-stab.py > etab-stab.out	
 	-$(PYTHON) etab-alt.py > etab-alt.out	

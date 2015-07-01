@@ -9,6 +9,9 @@ Annotated Example: Two-Point Correlator
 .. |Dataset| replace:: :class:`gvar.dataset.Dataset`
 .. |GVar| replace:: :class:`gvar.GVar`
 
+.. |~| unicode:: U+00A0 
+   :trim:
+
 Introduction
 -------------
 The simplest use of :mod:`corrfitter` is calculating the 
@@ -116,3 +119,95 @@ chi-square per degree of freedom (``chi2/dof``) of 0.68. There are only
 periodicity, folded the data about the midpoint in ``t`` and averaged, 
 before fitting. The ground state energy and amplitude are determined to 
 a part in 1,000 or better.
+
+Correlated Data?
+----------------------
+
+It is worth checking whether the initial Monte Carlo data has correlations
+from sample to sample, since such correlations lead to 
+underestimated fit errors. One approach is verify that results are 
+unchanged when the input data are binned. To bin the data we use ::
+
+    def make_data(filename):
+        """ Read data, compute averages/covariance matrix for G(t). """
+        return gv.dataset.avg_data(cf.read_dataset(filename, binsize=2))
+
+which averages successive samples (bins of 2). Binned data give the following
+results from the last iteration and summary:
+
+.. literalinclude:: examples/etas-binned.out
+    :lines: 67-93
+
+These agree pretty well with the previous results, suggesting that 
+correlations are not a problem. 
+
+Binning should have no significant effect on results if there are 
+no correlations, provided the total number of samples after binning
+is sufficiently large (*e.g.*, more than 100—200). Strong 
+correlations cause error estimates to grow with increased 
+bin size (like the square root of ``binsize``). Binning reduces
+correlations; data should be binned 
+with increasing bin sizes until fit error estimates stop growing.
+
+Fast Fit and Effective Mass 
+----------------------------
+
+The last two lines in the ``main()`` function of the code illustrate the  use
+of :class:`corrfitter.fastfit` to get a very fast results for the lowest-energy
+state. As discussed in :ref:`very-fast-fits`, :class:`corrfitter.fastfit`
+provides  an alternative to the multi-exponential fits discussed above when
+only  the lowest-energy parameters are needed. The method used is similar to a
+traditional effective mass analysis except that estimates for contributions
+from excited states are generated from priors and removed from the correlator
+before determining the effective mass. This allows the code to use much
+smaller ``t`` values than in the traditional approach, thereby obtaining
+results that rival the multi-exponential fits.
+
+In this example, :class:`corrfitter.fastfit` is used to analyze the two-point
+correlator stored in array ``data['etas']``. The amplitudes for different
+states are estimated to have size 0±1, while the spacings between energies
+(and  between the first state and 0) are estimated to be 0.5±0.5. The code
+averages results form all ``t`` values down to ``tmin=3``. Setting ``tp=64``
+indicates that the correlator is periodic with period 64.
+
+The last line of the output summarizes the results of the fast fit. The
+energy and amplitude are almost identical to what was obtained from the
+multi-exponential fits (note that ``fastfit.ampl`` is the same  as
+``fit.a[0]**2``, which has value 0.047681(79)). :class:`corrfitter.fastfit`
+estimates the energy and amplitude for each ``t`` greater than ``tmin``, and
+then  averages the results. The consistency of results from different ``t``\s
+is  measured by the chi-squared of the averages. The chi-squared per degree of
+freedom is reported here to be 0.8 for the ``E`` average and 0.9 for the
+``ampl`` average, indicating that there is good agreement between different
+``t``\s.
+
+While a fast fit is easier to set up, multi-exponential fits are  usually more
+robust, and provide more detailed information about the fit. One  use for fast
+fits is to estimate the sizes of parameters for use in designing  the priors
+for a multi-exponential fit. There are often situations where *a priori*
+knowledge about fit parameters is sketchy, especially for amplitudes. A  fast
+fit to data at large ``t`` can quickly generate estimates for both  amplitudes
+and energies, from which it is then easy to construct priors. In the code
+above, for example, we could replace ``make_prior(N)`` 
+by ``alt_make_prior(N, data['etas'])`` where:: 
+
+    def alt_make_prior(N, G):
+        fastfit = cf.fastfit(G=G, tmin=24, tp=64)
+        da = 2 * fastfit.ampl.mean ** 0.5
+        dE = 2 * fastfit.E.mean  
+        prior = collections.OrderedDict()
+        prior['a'] = gv.gvar([gv.gvar(0, da) for i in range(N)])
+        prior['logdE'] = gv.log(gv.gvar([gv.gvar(dE, dE) for i in range(N)]))  
+        return prior                     
+
+This code does a fast fit using data from very large ``t``, where priors for
+the excited states are unimportant. It then uses the results to create priors
+for the amplitudes and energy differences for all states, assuming that the
+ground state values are either larger, or smaller by no more than roughly a
+factor of two. This customized prior gives results that are almost identical
+to what was obtained using the original prior, above (in part because 
+the original prior is pretty sensible to begin with).
+
+Designing a prior using :class:`corrfitter.fastfit` would be even more 
+useful when multiple sources and sinks are involved, as in a matrix fit.
+

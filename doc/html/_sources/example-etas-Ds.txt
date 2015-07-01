@@ -1,5 +1,5 @@
-Annotated Example: Transition Form Factor
-============================================
+Annotated Example: Transition Form Factor and Mixing
+=====================================================
 
 .. |etas| replace:: :math:`\eta_s`
 .. |Ds| replace:: :math:`D_s`
@@ -8,16 +8,18 @@ Annotated Example: Transition Form Factor
 .. |Corr3| replace:: :class:`corrfitter.Corr3`
 .. |Dataset| replace:: :class:`gvar.dataset.Dataset`
 .. |GVar| replace:: :class:`gvar.GVar`
+.. |~| unicode:: U+00A0 
+   :trim:
 
 Introduction
 --------------
 Here we describe a complete Python code that uses :mod:`corrfitter` 
 to calculate the transition matrix element or form factor from 
 an |etas| meson to a |Ds| meson, together with the masses and amplitudes
-of these mesons. A very similar code could be used to calculate 
-mixing amplitudes, such as for *B* mixing.
+of these mesons. A very similar code, for (speculative) |Ds|-|Ds| mixing,
+is described at the end.
 
-This example combines data from two-point correlators, for the
+The form factor example combines data from two-point correlators, for the
 amplitudes and energies, with data from three-point correlators, 
 for the transition matrix element. We fit all of the correlators 
 together, in a single fit, in order to capture correlations between
@@ -25,20 +27,21 @@ the various output parameters. The correlations are built into
 the output parameters and consequently are reflected in any 
 arithmetic combination of parameters --- no bootstrap is needed to 
 calculate correlations or their impact on quantities derived 
-from the fit parameters. The best-fit parameters (in ``fit.p`` and
-``fit.transformed_p``) are objects of type |GVar|.
+from the fit parameters. The best-fit parameters (in ``fit.p``) 
+are objects of type |GVar|.
 
 Staggered quarks are used in 
 this simulation, so the |Ds| has oscillating components as well as 
 normal components in its correlators.
 
-The source code (``etas-Ds.py``) and data file 
-(``etas-Ds.data``) are included with the :mod:`corrfitter` distribution,
-in the ``examples/`` directory. The data are from the HPQCD collaboration.
+The source codes (``etas-Ds.py``, ``Ds-Ds.py``) and data files 
+(``etas-Ds.data``, ``Ds-Ds.data``) are included with 
+the :mod:`corrfitter` distribution, in the ``examples/`` directory. 
+The data are from the HPQCD collaboration.
 
 Code
 -----------------
-The ``main`` method for this code follows the pattern described 
+The ``main`` method for the form-factor code follows the pattern described 
 in :ref:`basic-fits`:
 
 .. literalinclude:: examples/etas-Ds.py
@@ -104,7 +107,7 @@ in this format (among others). We use it to read the data, and
 matrix of the data:
 
 .. literalinclude:: examples/etas-Ds.py
-    :lines: 49-51
+    :lines: 49-52
 
 This routine returns a dictionary whose keys are the strings used to label the
 individual lines in ``etas-Ds.data``: for example, ::
@@ -211,13 +214,13 @@ for the fit parameters from the last fit:
 .. literalinclude:: examples/etas-Ds.py
     :lines: 112-156
 
-The best-fit parameter values are stored in dictionary ``p=fit.transformed_p``,
+The best-fit parameter values are stored in dictionary ``p=fit.p``,
 as are the exponentials of the log-normal parameters.
 We also turn energy differences into energies using :mod:`numpy`'s cummulative
 sum function :func:`numpy.cumsum`. The final output is:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 157-168
+    :lines: 221-232  
 
 Finally we  create an error budget for the |etas|
 and |Ds| masses, for the mass difference between the |Ds| and its
@@ -230,7 +233,7 @@ contributes to the errors in the final results, as detailed in the
 error budget:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 170-191
+    :lines: 234-255
 
 The error budget shows, for example, that the largest sources of uncertainty
 in every quantity are the statistical errors in the input data. 
@@ -240,7 +243,7 @@ Results
 The output from running the code is as follows:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 1-191
+    :lines: 1-255
 
 Note:
 
@@ -251,7 +254,7 @@ Note:
   ``chi2/dof``\s that are significantly larger than one.
 
 - Fits with three terms work well, and adding futher terms has almost no 
-  impact. The ``chi**2`` does not improve and parameters for the
+  impact. The chi-squared does not improve and parameters for the
   added terms differ little from their prior values (since the data are 
   not sufficiently accurate to add new information).
 
@@ -272,6 +275,12 @@ Note:
   is at least as accurate as the data. It can be much more accurate, 
   for example, when the data errors grow rapidly with ``t``.
 
+- In many applications precision can be improved by factors of 2—3 |~| or more
+  by using multiple sources and sinks for the correlators. The code here 
+  is easily generalized to handle such a situation: each 
+  :class:`corrfitter.Corr2` and :class:`corrfitter.Corr3` in ``make_models()``
+  is replicated with various different combinations of sources and 
+  sinks (one entry for each combination).
 
 Variation: Marginalization
 --------------------------
@@ -297,7 +306,7 @@ results for the leading term have converged by ``N=2`` (and even ``N=1`` isn't
 so bad):
 
 .. literalinclude:: examples/etas-Ds-marginalize.out
-    :lines: 1-81
+    :lines: 1-101
 
 
 Variation: Chained Fit
@@ -307,12 +316,12 @@ is replaced by ``fitter.chained_lsqfit(...)`` in ``main()``. The results
 are about the same: for example,
 
 .. literalinclude:: examples/etas-Ds-chained.out
-    :lines: 170-175
+    :lines: 234-239
 
 We obtain more or less the same results,
 
 .. literalinclude:: examples/etas-Ds-chained.out
-    :lines: 273-278
+    :lines: 362-367
 
 
 if we polish the final results from the chained fit using 
@@ -334,7 +343,7 @@ The fit results are mostly unchanged, although the polishing fit
 is significantly faster (more than 2x) in this case:
 
 .. literalinclude:: examples/etas-Ds-chained.out
-    :lines: 441-446
+    :lines: 580-585
 
 Test the Analysis
 ---------------------
@@ -348,11 +357,11 @@ program, where:
 This code does ``n=2`` simulations of the full fit, using the means of fit 
 results from the last fit done by ``fitter`` as ``pexact``. 
 The code prints out each fit,
-and for each it computes the ``chi**2`` of the difference between the leading
+and for each it computes the chi-squared of the difference between the leading
 parameters and ``pexact``. The output is:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 196-
+    :lines: 260-
 
 This shows that the fit is working well, at least for the leading 
 parameter for each key. 
@@ -366,7 +375,7 @@ a marginalized fit::
 Running this code gives:
 
 .. literalinclude:: examples/etas-Ds-marginalize.out
-    :lines: 86-
+    :lines: 106-
 
 This is also fine and confirms that ``nterm=(2,2)`` marginalized fits 
 are a useful, faster substitute for full fits. Indeed the simulation 
@@ -375,3 +384,45 @@ than the original fit for the oscillating-state parameters (``Vno``,
 ``log(Dso:a)``, ``log(Dso:dE)`` --- compare the simulated results with
 the ``nterm=4`` results from the original fit, as these were used to 
 define ``pexact``).
+
+Mixing
+----------
+Code to analyze |Ds|-|Ds| mixing is very similar to the code above for 
+a transition form factor. The ``main()`` and ``make_data()`` functions are
+identical, except that here data is read from file ``'Ds-Ds.data'``. 
+We need models for the two-point |Ds| correlator, and for two three-point
+correlators describing the |Ds| to |Ds| transition:
+
+.. literalinclude:: examples/Ds-Ds.py
+    :lines: 31-56
+
+The initial and final states in the three-point correlators are the same 
+here so we set parameter ``symmetricV=True`` in :class:`corrfitter.Corr3`.
+
+The prior is also similar to the previous case:
+
+.. literalinclude:: examples/Ds-Ds.py
+    :lines: 58-77
+
+We use log-normal distributions for the energy differences, as usual, but
+Gaussian distributions for everything else.
+We store only the upper triangular parts of the ``Vnn`` and ``Voo`` matrices
+since they are symmetrical (because ``symmetricV=True`` is set). 
+
+A minimal ``print_results()`` function is:
+
+.. literalinclude:: examples/Ds-Ds.py 
+    :lines: 79-91
+
+Running the mixing code gives the following output:
+
+.. literalinclude:: examples/Ds-Ds.out 
+    :lines: 1-
+
+The fits for individual correlators look good:
+
+==============================  =================================== ===================================
+==============================  =================================== ===================================
+.. image:: examples/Ds-Ds.Ds.*  .. image:: examples/Ds-Ds.DsDsT15.* .. image:: examples/Ds-Ds.DsDsT18.*
+==============================  =================================== ===================================
+

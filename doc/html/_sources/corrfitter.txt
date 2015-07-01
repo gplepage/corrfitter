@@ -15,7 +15,7 @@
 .. |GVar| replace:: :class:`gvar.GVar`
 
 Introduction  
-------------------
+------------------ 
 This module contains tools that facilitate least-squares fits, as functions
 of time ``t``, of simulation (or other statistical) data for 2-point and
 3-point correlators of the form::
@@ -183,7 +183,7 @@ This routine defines the fit parameters that correspond to each fit-parameter
 label used in ``make_models()`` above. It also assigns *a priori* values to
 each parameter, expressed in terms of Gaussian random variables (|GVar|\s),
 with a mean and standard deviation. The prior is built using class
-:class:`gvar.BufferDict`::
+:class:`gvar.BufferDict`:: 
         
     import gvar as gv
         
@@ -360,31 +360,15 @@ Note that the labels are unchanged here in ``make_models()``. It is
 unnecessary to change labels in the models; |CorrFitter| will automatically
 connect the  modified terms in the prior with the appropriate terms in the
 models. This allows one to switch back and forth between log-normal and normal
-distributions without changing the models --- only the names in the prior
-need be changed. |CorrFitter| also supports "sqrt-normal" distributions,
-which are indicated by ``'sqrt'`` at the start of a parameter-name in the
-prior; the actual parameter in the fit function is the square of this fit-
-parameter, and so is again positive.
-
-Note also that only a few lines in ``print_results(fit,prior,data)``, above,
-would change had we used log-normal priors for ``a`` and ``dE``::
-
-    ...
-    a = fit.transformed_p['a'])                 # array of a[i]s
-    ...
-    dE = fit.transformed_p['dE']                # array of dE[i]s
-    ...
-    inputs = {'loga':prior['loga'], 'b':prior['b'], 'logdE':fit.prior['logdE'],
-              'data':[data[k] for k in data]}
-    ...
-
-Here ``fit.transformed_p`` contains the best-fit parameter values from the
-fitter, in addition to the exponentials of the ``'loga'`` and ``'logdE'``
-parameters.
+distributions without changing the models (or any other code) --- only the
+names in the prior need be changed. |CorrFitter| also supports "sqrt-normal"
+distributions, which are indicated by ``'sqrt'`` at the start of a parameter-
+name in the prior; the actual parameter in the fit function is the square of
+this fit- parameter, and so is again positive.
 
 Finally note that another option for stabilizings fits involving many 
 sources and sinks is to generate priors for the 
-fit amplitudes and energies using |EigenBasis|. 
+fit amplitudes and energies using |EigenBasis|.
 
 .. _marginalized-fits:
 
@@ -553,50 +537,72 @@ situations are usually improved by introducing an *svd* cut: for example, ::
 
 Introducing an *svd* cut increases the effective errors and so is a
 conservative move. For more information about *svd* cuts see the :mod:`lsqfit`
-tutorial and documentation. Parameter ``svdcut`` is used to
+tutorial and documentation. Parameter ``svdcut`` is used to 
 specify an *svd* cut. 
 
 
+.. _very-fast-fits:
+
 Very Fast (But Limited) Fits
 -----------------------------
-At large ``t``, correlators are dominated by the term with the smallest
-``E``, and often it is only the parameters in that leading term that are
-needed. In such cases there is a very fast analysis that is often almost
-as accurate as a full fit. An example is::
+
+At large ``t``, two-point correlators are dominated by the term with the
+smallest ``E``, and often it is only the parameters in that leading term that
+are needed. In such cases there is a very fast analysis that is often almost
+as accurate as a full fit. Assuming a non-periodic correlator, for example, 
+we want to calculate energy ``E[0]`` and amplitude ``A[0]`` where::
+
+    G(t) = sum_i=0,N-1 A[i] * exp(-E[i]*t)
+
+This is done using the following code ::
     
     from corrfitter import fastfit
     
-    data = make_data('mcfile')    # user-supplied routine - fit data
-    N = 10                        # number of terms in fit functions
-    prior = make_prior(N)         # user-supplied routine - fit prior
-    model = Corr2(a=..., b=..., ...) # create model describing correlator
-    fit = fastfit(data=data, prior=prior, model=model)
+    # Gdata = array containing G(t) for t=0,1,2...
+    fit = fastfit(Gdata, ampl='0(1)', dE='0.5(5)', tmin=3, nterm=N)
     print('E[0] =', fit.E)                  # E[0]
-    print('a[0]*b[0] =', fit.ampl)          # a[0]*b[0]
-    print('chi2/dof =', fit.chi2/fit.dof)   # good fit if of order 1 or less
-    print('Q =', fit.Q)             # good fit if Q bigger than about 0.1
-    
-:class:`fastfit` estimates ``E[0]`` by using the prior, in effect, to
-remove (*marginalize*) all terms from the correlator other than the
-``E[0]`` term: so the data ``Gdata(t)`` for the correlator is replaced by,
-for example, ::
+    print('A[0] =', fit.ampl)               # A[0]
+    print('chi2/dof =', fit.E.chi2/fit.dof) # good fit if of order 1 or less
+    print('Q =', fit.E.Q)                   # good fit if Q > 0.05-0.1
 
-    Gdata(t) - sum_i=1..N-1  a[i]*b[i] * exp(-E[i]*t)
+where ``G`` is an array containing a two-point correlator, ``ampl`` is 
+a prior for the amplitudes ``A[i]``, ``dE`` is a prior for energy 
+differences ``E[i]-E[i-1]``, and ``tmin`` is the minimum time used in 
+the analysis.
 
-where ``a[i]``, ``b[i]``, and ``E[i]`` for ``i>0`` are replaced by their
-values in the prior. The modified prior is then fit by a single term,
-``a[0] * b[0] * exp(-E[0]*t)``, which means that a fit is not necessary
-(since the functional form is so simple). It is important to check the
-``chi**2`` of the fit, to make sure the fit is good. If it is not, try
-restricting ``model.tfit`` to larger ``t``\s (:class:`fastfit` averages
-estimates from all ``t``\s in ``model.tfit``).
+:class:`fastfit` is fast because it does not attempt to determine any 
+parameters in ``G(t)`` other than ``E[0]`` and ``A[0]``. It does this
+by using the priors for the amplitudes and energy differences
+to remove (*marginalize*) all terms from the correlator other than the
+``E[0]`` term: so the data ``Gdata(t)`` for the correlator are replaced by ::
+
+    Gdata(t) - sum_i=1..N-1  A[i] * exp(-E[i]*t)
+
+where ``A[i]`` and ``E[i]`` for ``i>0`` are replaced by priors given by
+``ampl`` and ``(i+1) * dE``, respectively. The modified correlator is then fit
+by a single term, ``A[0] * exp(-E[0]*t)``, which means that a fit is  not
+actually necessary since the functional form is so simple.  :class:`fastfit`
+averages estimates for ``E[0]`` and ``A[0]`` from all ``t``\s larger than
+``tmin``. It is important to verify that these estimates agree  with each
+other, by checking the ``chi**2`` of the average. Try increasing ``tmin`` if
+the ``chi**2`` is too large; or introduce an *svd* cut.
     
-The marginalization of terms with larger ``E``\s allows the code to use
-information from much smaller ``t``\s than otherwise, increasing precision.
-It also quantifies the uncertainty caused by the existence of these terms.
-This simple analysis is a special case of the more general marginalization
-strategy discussed in :ref:`faster-fits`, above.
-    
+The energies from :class:`fastfit` are closely related to standard *effective
+masses*. The key difference is :class:`fastfit`’s marginalization of terms
+from excited states (``i>0`` above). This allows :class:`fastfit` to use
+information from much smaller ``t``\s than otherwise, increasing precision. It
+also quantifies the uncertainty caused by the existence of excited states,
+and gives a simple criterion for how small ``tmin`` can be (the ``chi**2``).
+Results are typically as accurate as results obtained from a full 
+multi-exponential fit that uses the same priors for ``A[i]`` and ``E[i]``,
+and the same ``tmin``. :class:`fastfit` can also be used for periodic and
+anti-periodic correlators, as well as for correlators that contain terms that
+oscillate in sign from  one ``t`` to the next.  
+
+:class:`fastfit`  is a special
+case of the more general marginalization strategy discussed in 
+:ref:`faster-fits`, above.
+
 3-Point Correlators
 -------------------
 Correlators ``Gavb(t,T) = <b(T) V(t) a(0)>`` can also be included in fits
