@@ -1,27 +1,15 @@
-# Created by G. Peter Lepage, Cornell University, on 2010-11-26.
-# Copyright (c) 2010-2015 G. Peter Lepage.
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# any later version (see <http://www.gnu.org/licenses/>).
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-Versions 5.0 ???
-=======================
-This is an update so corrfitter works with the most recent lsqfit (v7.0). It
-also replaces corrfitter.fastfit with something much more useful, but 
-incompatible with previous code (hence v5.0 according to semantic versioning).
+Versions 5.0 2015-07-01
+========================
+This is an update so corrfitter works with the most recent lsqfit (v7.0). 
+It also replaces corrfitter.fastfit with something much more useful, but 
+incompatible with previous code (hence v5.0, by the rules of 
+semantic versioning).
 
 - corrfitter.fastfit has been rewritten with a much simpler interface, 
-  making it much easier to use. It is a (significantly) souped-up effective 
-  mass calculation. It is easier to use than canonical effective masses 
-  because one needn't worry about plateaus (since fastfit includes 
-  marginalized excited states and so should work for arbitrarily small
+  making it much easier to use. It is a (significantly) souped-up effective
+  mass calculation. It is easier to use than canonical effective masses
+  because one needn't worry about plateaus (since fastfit includes
+  marginalized excited states and so should work for arbitrarily small 
   values of t). The new interface is incompatible with the old interface.
 
 - corrfitter.read_dataset() has new option binsize which causes it to 
@@ -358,3 +346,16 @@ Changes to accommodate changes introduced in lsqfit 4.2:
   if needed (for old code) using "make install-dataset" (or "python
   dataset-setup.py install --user"). Don't install it if you don't have old
   code.
+
+# Created by G. Peter Lepage, Cornell University, on 2010-11-26.
+# Copyright (c) 2010-2015 G. Peter Lepage.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version (see <http://www.gnu.org/licenses/>).
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.

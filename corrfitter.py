@@ -2204,7 +2204,7 @@ class fastfit(object):
         elif tp < 0:
             def g(E, t):
                 return _gvar.exp(-E * t) - _gvar.exp(-E * (-tp - t))
-            tmid = (-tp + 1) // 2
+            tmid = int((-tp + 1) // 2)
             G0 = G[0]
             G = numpy.array(
                 [G[0]] + 
@@ -2223,7 +2223,7 @@ class fastfit(object):
             s, so = so, s
         dG = 0.
         E = numpy.cumsum(dE)
-        for aj, Ej in zip(a, E)[1:]:
+        for aj, Ej in list(zip(a, E))[1:]:
             dG += s * aj * g(Ej, t)
         if ao is not None and dEo is not None:
             Eo = numpy.cumsum(dEo)
