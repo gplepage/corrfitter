@@ -59,7 +59,7 @@ import time
 import gvar as _gvar
 import lsqfit
 import numpy
-__version__ = '5.0'
+__version__ = '5.0.1'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python

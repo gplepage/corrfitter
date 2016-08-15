@@ -8,8 +8,8 @@ setup(name='corrfitter',
     author_email='g.p.lepage@cornell.edu',
     license='GPLv3+',
     py_modules=['corrfitter'],
-    requires=["lsqfit (>=7.0)", 'numpy (>=1.7)', 'gvar (>=7.0.3)'],
-    install_requires=['lsqfit>=7.0', 'gvar>=7.0.3', 'numpy>=1.7'],   
+    requires=["lsqfit (>=7.0)", 'numpy (>=1.7)', 'gvar (>=7.3)'],
+    install_requires=['lsqfit>=7.0', 'gvar>=7.3', 'numpy>=1.7'],
     platforms="Any",
     url="https://github.com/gplepage/corrfitter.git",
     long_description="""\
@@ -32,9 +32,9 @@ setup(name='corrfitter',
     correlators may be described and fit by a single |CorrFitter| object.
     |CorrFitter| objects can also be used to to extract the appropriate fit
     data from |Dataset| objects.
-    
+
     This module has been used extensively for analyzing results from lattice
-    QCD simulations.              
+    QCD simulations.
     """
     ,
     classifiers = [                     #
@@ -49,5 +49,5 @@ setup(name='corrfitter',
         'Programming Language :: Python :: 3.3',
         'Topic :: Scientific/Engineering :: Physics'
         ]
-    
+
 )

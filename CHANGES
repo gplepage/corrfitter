@@ -1,10 +1,18 @@
-Version 5.0.1 ?????
-=====================
+Version 5.0.1 2016-08-14
+==========================
 - Made tests, examples and documentation compatible with lsqfit 8.0. You
   can no longer use, for example, logdE as a parameter name in place
   of log(dE) when log-normal prior is desired for dE. The parentheses are
   essential. lsqfit8.0 allows you to define new distributions if you wish,
   beyond log-normal and sqrt-normal.
+
+  FIX FOR LEGACY CODE: To help convert legacy code with logdE etc,
+  there is a new utility function that adds the needed parentheses: use
+
+    prior = gvar.add_parameter_parentheses(prior)
+
+  to add parentheses to keys in dictionary prior of the form logdE or sqrta
+  (which become log(dE) or sqrt(a)) in dictionary prior.
 
 - 'make time' times the example codes. Is around 60s on my oldish MacBook Air.
   This is only somewhat reliable, especially if comparing different
