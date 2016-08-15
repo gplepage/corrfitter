@@ -1,29 +1,33 @@
 from __future__ import print_function   # makes this work for python2 and 3
 
 import collections
+import sys
 import gvar as gv
 import numpy as np
 import corrfitter as cf
 
-DISPLAYPLOTS = True         # display plots at end of fitting?
-try: 
-    import matplotlib
-except ImportError:
+if sys.argv[1:]:
+    DISPLAYPLOTS = eval(sys.argv[1]) # display plots at end of fitting?
+    try:
+        import matplotlib
+    except ImportError:
+        DISPLAYPLOTS = False
+else:
     DISPLAYPLOTS = False
 
 def main():
-    data = make_data('etas-Ds.data') 
+    data = make_data('etas-Ds.data')
     fitter = cf.CorrFitter(models=make_models())
     p0 = None
-    for N in [1, 2, 3, 4]:  
+    for N in [1, 2, 3, 4]:
         print(30 * '=', 'nterm =', N)
-        prior = make_prior(N)               
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0) 
+        prior = make_prior(N)
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0)
         p0 = fit.pmean
-    print_results(fit, prior, data) 
+    print_results(fit, prior, data)
     if DISPLAYPLOTS:
         fitter.display_plots()
-    test_fit(fitter, 'etas-Ds.data') 
+    test_fit(fitter, 'etas-Ds.data')
 
 def test_fit(fitter, datafile):
     """ Test the fit with simulated data """
@@ -41,11 +45,11 @@ def test_fit(fitter, datafile):
             diff.append(sfit.p[k].flat[0] - pexact[k].flat[0])
         chi2diff = gv.chi2(diff)
         print(
-            'Leading parameter chi2/dof [dof] = %.2f' % 
+            'Leading parameter chi2/dof [dof] = %.2f' %
             (chi2diff / chi2diff.dof),
-            '[%d]' % chi2diff.dof, 
+            '[%d]' % chi2diff.dof,
             '  Q = %.1f' % chi2diff.Q
-            ) 
+            )
 
 def make_data(datafile):
     """ Read data from datafile and average it. """
@@ -57,29 +61,29 @@ def make_models():
     tp = 64
     models = [
         cf.Corr2(
-            datatag='etas', 
-            tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),  
+            datatag='etas',
+            tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),
             a='etas:a',  b='etas:a',  dE='etas:dE'
-            ),  
-            
+            ),
+
         cf.Corr2(
             datatag='Ds',
-            tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),  
-            a=('Ds:a', 'Dso:a'), b=('Ds:a', 'Dso:a'), 
+            tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),
+            a=('Ds:a', 'Dso:a'), b=('Ds:a', 'Dso:a'),
             dE=('Ds:dE', 'Dso:dE'), s=(1., -1.)
             ),
 
         cf.Corr3(
-            datatag='3ptT15', tdata=range(16), T=15, tfit=range(tmin, 16-tmin), 
-            a='etas:a', dEa='etas:dE', tpa=tp, 
-            b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'), tpb=tp, sb=(1, -1.), 
+            datatag='3ptT15', tdata=range(16), T=15, tfit=range(tmin, 16-tmin),
+            a='etas:a', dEa='etas:dE', tpa=tp,
+            b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'), tpb=tp, sb=(1, -1.),
             Vnn='Vnn', Vno='Vno'
-            ), 
-            
+            ),
+
         cf.Corr3(
-            datatag='3ptT16', tdata=range(17), T=16, tfit=range(tmin, 17-tmin), 
-            a='etas:a', dEa='etas:dE', tpa=tp, 
-            b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'), tpb=tp, sb=(1, -1.), 
+            datatag='3ptT16', tdata=range(17), T=16, tfit=range(tmin, 17-tmin),
+            a='etas:a', dEa='etas:dE', tpa=tp,
+            b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'), tpb=tp, sb=(1, -1.),
             Vnn='Vnn', Vno='Vno'
             )
         ]
@@ -90,7 +94,7 @@ def make_prior(N):
     prior = gv.BufferDict()
     # etas
     metas = gv.gvar('0.4(2)')
-    prior['log(etas:a)'] = gv.log(gv.gvar(N * ['0.3(3)']))   
+    prior['log(etas:a)'] = gv.log(gv.gvar(N * ['0.3(3)']))
     prior['log(etas:dE)'] = gv.log(gv.gvar(N * ['0.5(5)']))
     prior['log(etas:dE)'][0] = gv.log(metas)
 

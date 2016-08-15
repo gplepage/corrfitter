@@ -334,15 +334,15 @@ which forces the corresponding parameter to be positive.  Consider, for
 example, energy parameters labeled by <code class="docutils literal"><span class="pre">'dE'</span></code> in the definition of a model
 (<em>e.g.</em>, <code class="docutils literal"><span class="pre">Corr2(dE='dE',...)</span></code>). To assign log-normal distributions to these
 parameters, include their logarithms in the prior and label the logarithms
-with <code class="docutils literal"><span class="pre">'logdE'</span></code> or <code class="docutils literal"><span class="pre">'log(dE)'</span></code>: for
+with <code class="docutils literal"><span class="pre">'log(dE)'</span></code>: for
 example, in <code class="docutils literal"><span class="pre">make_prior(N)</span></code> use</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">prior</span><span class="p">[</span><span class="s">&#39;logdE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(dE)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
 </pre></div>
 </div>
 <p>instead of <code class="docutils literal"><span class="pre">prior['dE']</span> <span class="pre">=</span> <span class="pre">[gv.gvar(0.25,</span> <span class="pre">0.25)</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(N)]</span></code>. The
 fitter then uses the logarithms as the fit parameters. The original  <code class="docutils literal"><span class="pre">'dE'</span></code>
 parameters are recovered (automatically) inside the fit function from
-exponentials of the <code class="docutils literal"><span class="pre">'logdE'</span></code> fit parameters.</p>
+exponentials of the <code class="docutils literal"><span class="pre">'log(dE)'</span></code> fit parameters.</p>
 <p>Using log-normal distributions where possible can significantly improve the
 stability of a fit. This is because otherwise the fit function typically has
 many symmetries that lead to large numbers of equivalent but different best
@@ -374,14 +374,14 @@ into the code example above by changing the corresponding labels in
 
 <span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
     <span class="n">prior</span> <span class="o">=</span> <span class="n">gvar</span><span class="o">.</span><span class="n">BufferDict</span><span class="p">()</span>               <span class="c"># prior = {}  works too</span>
-    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;loga&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(a)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
     <span class="n">prior</span><span class="p">[</span><span class="s">&#39;b&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
-    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;logdE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(dE)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
     <span class="k">return</span> <span class="n">prior</span>
 </pre></div>
 </div>
 <p>This replaces the original fit parameters, <code class="docutils literal"><span class="pre">a[i]</span></code> and <code class="docutils literal"><span class="pre">dE[i]</span></code>, by new fit
-parameters, <code class="docutils literal"><span class="pre">log(a[i])</span></code> and <code class="docutils literal"><span class="pre">log(dE[i])</span></code>. The <em>a priori</em> distributions for
+parameters, <code class="docutils literal"><span class="pre">log(a)[i]</span></code> and <code class="docutils literal"><span class="pre">log(dE)[i]</span></code>. The <em>a priori</em> distributions for
 the logarithms are Gaussian/normal, with priors of <code class="docutils literal"><span class="pre">log(0.1±0.5)</span></code> and
 <code class="docutils literal"><span class="pre">log(0.25±0.25)</span></code> for the <code class="docutils literal"><span class="pre">log(a)</span></code>s and <code class="docutils literal"><span class="pre">log(dE)</span></code>s respectively.</p>
 <p>Note that the labels are unchanged here in <code class="docutils literal"><span class="pre">make_models()</span></code>. It is
@@ -530,7 +530,7 @@ exponentials with two sums</p>
 <p>in a (nonperiodic) fit function. Then an appropriate model
 would be, for example,</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">Corr2</span><span class="p">(</span><span class="n">datatag</span><span class="o">=</span><span class="s">&#39;Gaa&#39;</span><span class="p">,</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span> <span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
-      <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dE</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;logdE&#39;</span><span class="p">,</span><span class="s">&#39;logdEo&#39;</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+      <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dE</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span><span class="s">&#39;dEo&#39;</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal"><span class="pre">ao</span></code> and <code class="docutils literal"><span class="pre">dEo</span></code> refer to additional fit parameters describing
@@ -739,36 +739,36 @@ can be made before the parameters of interest deviate too far from <code class="
 <p>A <em>bootstrap analysis</em> gives more robust error estimates for fit parameters
 and functions of fit parameters than the conventional fit when errors are
 large, or fluctuations are non-Gaussian. A typical code looks something like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">gvar</span> <span class="kn">as</span> <span class="nn">gv</span>
-<span class="kn">import</span> <span class="nn">gvar.dataset</span> <span class="kn">as</span> <span class="nn">ds</span>
-<span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">CorrFitter</span>
-<span class="c"># fit</span>
-<span class="n">dset</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s">&#39;mcfile&#39;</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span>            <span class="c"># create fit data</span>
-<span class="n">fitter</span> <span class="o">=</span> <span class="n">Corrfitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
-<span class="n">N</span> <span class="o">=</span> <span class="mi">4</span>                               <span class="c"># number of terms in fit function</span>
-<span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
-<span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>  <span class="c"># do standard fit</span>
-<span class="k">print</span> <span class="s">&#39;Fit results:&#39;</span>
-<span class="k">print</span> <span class="s">&#39;a&#39;</span><span class="p">,</span><span class="n">exp</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;loga&#39;</span><span class="p">])</span>        <span class="c"># fit results for &#39;a&#39; amplitudes</span>
-<span class="k">print</span> <span class="s">&#39;dE&#39;</span><span class="p">,</span><span class="n">exp</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;logdE&#39;</span><span class="p">])</span>      <span class="c"># fit results for &#39;dE&#39; energies</span>
-<span class="o">...</span>
-<span class="o">...</span>
-<span class="c"># bootstrap analysis</span>
-<span class="k">print</span> <span class="s">&#39;Bootstrap fit results:&#39;</span>
-<span class="n">nbootstrap</span> <span class="o">=</span> <span class="mi">10</span>                     <span class="c"># number of bootstrap iterations</span>
-<span class="n">bs_datalist</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">bootstrap_iter</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">nbootstrap</span><span class="p">))</span>
-<span class="n">bs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>                   <span class="c"># bootstrap output stored in bs</span>
-<span class="k">for</span> <span class="n">bs_fit</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">bootstrap_iter</span><span class="p">(</span><span class="n">bs_datalist</span><span class="p">):</span> <span class="c"># bs_fit = lsqfit output</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">bs_fit</span><span class="o">.</span><span class="n">pmean</span>    <span class="c"># best fit values for current bootstrap iteration</span>
-    <span class="n">bs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">exp</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;loga&#39;</span><span class="p">]))</span>  <span class="c"># collect bootstrap results for a[i]</span>
-    <span class="n">bs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span> <span class="n">exp</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;logdE&#39;</span><span class="p">]))</span><span class="c"># collect results for dE[i]</span>
-    <span class="o">...</span>                             <span class="c"># include other functions of p</span>
-    <span class="o">...</span>
-<span class="n">bs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">bstrap</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>   <span class="c"># medians + error estimate</span>
-<span class="k">print</span> <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">bs</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span>                  <span class="c"># bootstrap result for &#39;a&#39; amplitudes</span>
-<span class="k">print</span> <span class="s">&#39;dE&#39;</span><span class="p">,</span> <span class="n">bs</span><span class="p">[</span><span class="s">&#39;dE&#39;</span><span class="p">]</span>                <span class="c"># bootstrap result for &#39;dE&#39; energies</span>
-<span class="o">....</span>
+<div class="highlight-python"><div class="highlight"><pre>import gvar as gv
+import gvar.dataset as ds
+from corrfitter import CorrFitter
+# fit
+dset = ds.Dataset(&#39;mcfile&#39;)
+data = ds.avg_data(dset)            # create fit data
+fitter = Corrfitter(models=make_models())
+N = 4                               # number of terms in fit function
+prior = make_prior(N)
+fit = fitter.lsqfit(prior=prior, data=data)  # do standard fit
+print &#39;Fit results:&#39;
+print &#39;a&#39;, fit.p[&#39;a&#39;]               # fit results for &#39;a&#39; amplitudes
+print &#39;dE&#39;, fit.p[&#39;dE&#39;]             # fit results for &#39;dE&#39; energies
+...
+...
+# bootstrap analysis
+print &#39;Bootstrap fit results:&#39;
+nbootstrap = 10                     # number of bootstrap iterations
+bs_datalist = (ds.avg_data(d) for d in ds.bootstrap_iter(dset, nbootstrap))
+bs = ds.Dataset()                   # bootstrap output stored in bs
+for bs_fit in fitter.bootstrap_iter(bs_datalist): # bs_fit = lsqfit output
+    p = bs_fit.pmean    # best fit values for current bootstrap iteration
+    bs.append(&#39;a&#39;, p[&#39;a&#39;]))         # collect bootstrap results for a[i]
+    bs.append(&#39;dE&#39;, p[&#39;dE&#39;])        # collect results for dE[i]
+    ...                             # include other functions of p
+    ...
+bs = ds.avg_data(bs, bstrap=True)   # medians + error estimate
+print &#39;a&#39;, bs[&#39;a&#39;]                  # bootstrap result for &#39;a&#39; amplitudes
+print &#39;dE&#39;, bs[&#39;dE&#39;]                # bootstrap result for &#39;dE&#39; energies
+....
 </pre></div>
 </div>
 <p>This code first prints out the standard fit results for the <code class="docutils literal"><span class="pre">'a'</span></code> amplitudes

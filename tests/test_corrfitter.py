@@ -9,7 +9,7 @@ test_corrfitter.py
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # any later version (see <http://www.gnu.org/licenses/>).
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -34,10 +34,10 @@ FAST = False            # skips bootstrap tests if True
 class ArrayTests(object):
     def __init__(self):
         pass
-    
+
     def assert_gvclose(self,x,y,rtol=1e-5,atol=1e-8,prt=False):
         """ asserts that the means and sdevs of all x and y are close """
-        if hasattr(x,'keys') and hasattr(y,'keys'): 
+        if hasattr(x,'keys') and hasattr(y,'keys'):
             if sorted(x.keys())==sorted(y.keys()):
                 for k in x:
                     self.assert_gvclose(x[k],y[k],rtol=rtol,atol=atol)
@@ -53,7 +53,7 @@ class ArrayTests(object):
         for xi,yi in zip(x,y):
             self.assertGreater(atol+rtol*abs(yi.mean),abs(xi.mean-yi.mean))
             self.assertGreater(10*(atol+rtol*abs(yi.sdev)),abs(xi.sdev-yi.sdev))
-    
+
     def assert_arraysclose(self,x,y,rtol=1e-5,prt=False):
         self.assertSequenceEqual(np.shape(x),np.shape(y))
         x = np.array(x).flatten()
@@ -65,24 +65,24 @@ class ArrayTests(object):
             print(y)
             print(max_val,max_rdiff,rtol)
         self.assertAlmostEqual(max_rdiff,0.0,delta=rtol)
-    
+
     def assert_arraysequal(self,x,y):
         self.assertSequenceEqual(np.shape(x),np.shape(y))
         x = [float(xi) for xi in np.array(x).flatten()]
         y = [float(yi) for yi in np.array(y).flatten()]
         self.assertSequenceEqual(x,y)
-    
+
 
 
 class FitTests(object):
     def __init__(self):
         pass
-    
+
     def assert_fitsagree(self, fitp1, fitp2):
         """ fit outputs fitp1 and fitp2 agree with each other (approximately)"""
         chi2 = 0
         dof = 0
-        fitp1 = lsqfit.trim_redundant_keys(fitp1)
+        fitp1 = gv.trim_redundant_keys(fitp1)
         for k in fitp1:
             p1 = fitp1[k].flat
             p2 = fitp2[k].flat
@@ -92,12 +92,12 @@ class FitTests(object):
                 self.assertLess(delta_mean, NSIG * sdev)
                 delta_sdev = abs(p1i.sdev - p2i.sdev)
                 self.assertLess(delta_sdev, NSIG * sdev)
-    
+
     def assert_fitclose(self, fitp, p):
         """ GVars in fitp agree within NSIG sigma with parameters p. """
         chi2 = 0
         dof = 0
-        fitp = lsqfit.trim_redundant_keys(fitp)
+        fitp = gv.trim_redundant_keys(fitp)
         for k in fitp:
             for fpi,pi in zip(fitp[k].flat,p[k].flat):
                 delta_mean = abs(abs(fpi.mean)-abs(pi))
@@ -107,32 +107,30 @@ class FitTests(object):
                 chi2 += delta_mean**2/sdev**2
         if PRINT_FITS:
             print("param chi2/dof = %.2g [%d]\n" % (chi2/dof, dof))
-    
 
-    
+
+
 class test_corr2(unittest.TestCase, FitTests, ArrayTests):
     def setUp(self):
-        ## prior 
+        ## prior
         self.prior = gv.BufferDict()
         nt = NTERM
         self.prior['a'] = gv.gvar(nt*["0.50(1)"])
         self.prior['ao'] = gv.gvar(nt*["0.250(5)"])
-        self.prior['logb'] = gv.log(gv.gvar(nt*["0.60(1)"]))
+        self.prior['log(b)'] = gv.log(gv.gvar(nt*["0.60(1)"]))
         self.prior['bo'] = gv.gvar(nt*["0.30(1)"])
-        self.prior['logdE'] = gv.log(gv.gvar(nt*["0.50(1)"]))
-        self.prior['logdEo'] = gv.log(gv.gvar(nt*["0.60(1)"]))
-        
-        ## actual parameters, time ranges, corr counter 
-        self.p = next(gv.raniter(self.prior))
-        for x in ['b', 'dE', 'dEo']:
-            self.p[x] = gv.exp(self.p['log' + x])
+        self.prior['log(dE)'] = gv.log(gv.gvar(nt*["0.50(1)"]))
+        self.prior['log(dEo)'] = gv.log(gv.gvar(nt*["0.60(1)"]))
+
+        ## actual parameters, time ranges, corr counter
+        self.p = gv.ExtendedDict(next(gv.raniter(self.prior)))
         self.tp = 10.
         self.tdata = np.arange(self.tp)
         self.tfit = self.tdata[1:]
         self.ncorr = 0
-        
+
         self.ran = gv.gvar(0,1)
-    
+
     def tearDown(self):
         del self.prior
         del self.p
@@ -140,7 +138,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         del self.tfit
         del self.tp
         del self.ncorr
-    
+
     def getdoc(self):
         """ get __doc__ string for current function """
         frame = inspect.currentframe()
@@ -148,13 +146,13 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         caller_name = inspect.getframeinfo(caller_frame).function
         caller_func = eval("test_corr2."+caller_name)
         return caller_func.__doc__
-    
+
     def mkcorr(self,a, b, dE, tp=None, othertags=[], s=1.):
         ans = Corr2(datatag=self.ncorr, a=a, b=b, dE=dE, tdata=self.tdata,
             tfit=self.tfit, tp=tp, s=s, othertags=othertags)
         self.ncorr += 1
         return ans
-    
+
     def dofit(self, models, data_models=None, nterm=None, ratio=True):
         fitter = CorrFitter(models=models, nterm=nterm, ratio=ratio)
         if data_models is None:
@@ -174,7 +172,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         self.data = data
         self.fit = fit
         return fitter
-    
+
     def dofit_chd(
         self, models, data_models=None, nterm=None, ratio=True,
         parallel=False, flat=False, fast=True):
@@ -204,22 +202,22 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         " read_dataset "
         # format 1
         dset = read_dataset('format1-file')
-        np.testing.assert_allclose( 
-            dset['aa'], 
+        np.testing.assert_allclose(
+            dset['aa'],
             [np.array([ 1.237,  0.912,  0.471]), np.array([ 1.035,  0.851,  0.426])]
             )
-        np.testing.assert_allclose( 
-            dset['bb'], 
+        np.testing.assert_allclose(
+            dset['bb'],
             [np.array([ 3.214,  0.535,  0.125]), np.array([ 2.951,  0.625,  0.091])]
             )
         # format 2
         dset = read_dataset(dict(aa='format2-file.aa', bb='format2-file.bb'))
-        np.testing.assert_allclose( 
-            dset['aa'], 
+        np.testing.assert_allclose(
+            dset['aa'],
             [np.array([ 1.237,  0.912,  0.471]), np.array([ 1.035,  0.851,  0.426])]
             )
-        np.testing.assert_allclose( 
-            dset['bb'], 
+        np.testing.assert_allclose(
+            dset['bb'],
             [np.array([ 3.214,  0.535,  0.125]), np.array([ 2.951,  0.625,  0.091])]
             )
 
@@ -246,7 +244,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
                 data=sdata, prior=self.prior, p0=pexact, print_fit=False
                 )
             diff = dict()
-            for i in ['a', 'logdE']:
+            for i in ['a', 'log(dE)']:
                 diff[i] = sfit.p[i][0] - pexact[i][0]
             c2 = gv.chi2(diff)
             self.assertLess(c2/c2.dof, 15.)
@@ -261,17 +259,17 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         fitter = self.dofit_chd(models)
         if DISPLAY_PLOTS:
             fitter.display_plots()
-    
+
     def test_fastfit_periodic(self):
         """ corr2 -- fastfit(periodic) """
-        p = lsqfit.ExtendedDict(self.p)
+        p = gv.ExtendedDict(self.p)
         model = self.mkcorr(a="a", b="a", dE="dE", tp=self.tp)
         G = make_data(models=[model], p=p)[model.datatag]
-        prior = lsqfit.ExtendedDict(self.prior)
+        prior = gv.ExtendedDict(self.prior)
         ampl = prior['a'][0] ** 2
         dE = prior['dE'][0]
         fit = fastfit(
-            G, ampl=ampl.fmt(), dE=dE.fmt(), tp=self.tp, tmin=1, 
+            G, ampl=ampl.fmt(), dE=dE.fmt(), tp=self.tp, tmin=1,
             svdcut=1e-3, nterm=3
             )
         Etrue = p['dE'][0]
@@ -286,26 +284,26 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         models = [ self.mkcorr(a="b", b="b", dE="dE", tp=self.tp) ]
         self.dofit(models)
         self.dofit_chd(models)
-    
+
     def test_nonperiodic(self):
         """ corr2 -- non-periodic correlator"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="a", b="a", dE="dE", tp=None) ]
         self.dofit(models)
-        self.dofit_chd(models) 
-    
+        self.dofit_chd(models)
+
 
     def test_fastfit_nonperiodic(self):
         """ corr2 -- fastfit(nonperiodic) """
-        p = lsqfit.ExtendedDict(self.p)
+        p = gv.ExtendedDict(self.p)
         model = self.mkcorr(a="a", b="a", dE="dE", tp=None)
         G = make_data(models=[model], p=p)[model.datatag]
-        prior = lsqfit.ExtendedDict(self.prior)
+        prior = gv.ExtendedDict(self.prior)
         ampl = prior['a'][0] ** 2
         dE = prior['dE'][0]
         fit = fastfit(
-            G, ampl=ampl.fmt(), dE=dE.fmt(), tp=None, tmin=1, 
+            G, ampl=ampl.fmt(), dE=dE.fmt(), tp=None, tmin=1,
             svdcut=1e-3, nterm=3
             )
         Etrue = p['dE'][0]
@@ -326,7 +324,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         bsfit = ds.avg_data(bsdata,bstrap=True)
         self.assert_fitclose(bsfit, self.p)
         self.assert_fitsagree(fitter.fit.p, bsfit)
-    
+
     def test_antiperiodic(self):
         """ corr2 -- anti-periodic correlator """
         if PRINT_FITS:
@@ -337,21 +335,21 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
 
     def test_fastfit_antiperiodic(self):
         """ corr2 -- fastfit(nonperiodic) """
-        p = lsqfit.ExtendedDict(self.p)
+        p = gv.ExtendedDict(self.p)
         model = self.mkcorr(a="a", b="a", dE="dE", tp=-self.tp)
         G = make_data(models=[model], p=p)[model.datatag]
-        prior = lsqfit.ExtendedDict(self.prior)
+        prior = gv.ExtendedDict(self.prior)
         ampl = prior['a'][0] ** 2
         dE = prior['dE'][0]
         fit = fastfit(
-            G, ampl=ampl.fmt(), dE=dE.fmt(), tp=-self.tp, tmin=1, 
+            G, ampl=ampl.fmt(), dE=dE.fmt(), tp=-self.tp, tmin=1,
             svdcut=1e-3, nterm=3
             )
         Etrue = p['dE'][0]
         ampltrue = p['a'][0] ** 2
         assert abs(fit.E.mean - Etrue) < NSIG * fit.E.sdev
         assert abs(fit.ampl.mean - ampltrue) < NSIG * fit.ampl.sdev
-        
+
     def test_matrix1(self):
         """ corr2 -- 2x2 matrix fit (use othertags) """
         global NSIG
@@ -367,7 +365,7 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         NSIG /= 1.5
         self.assertEqual(models[2].all_datatags, [2, 3])
         self.assertEqual(models[3].all_datatags, [3, 2])
-    
+
     def test_matrix2(self):
         """ corr2 -- 2x2 matrix fit (without othertags) """
         global NSIG
@@ -381,18 +379,18 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         NSIG *= 2.
         self.dofit_chd(models)
         NSIG /= 2.
-    
+
     def test_chained(self):
         """ test chained fit variations """
         global NSIG, PRINT_FITS
-        models =[ 
+        models =[
                 self.mkcorr(a='a', b='a', dE='dE'),
                 [
                 self.mkcorr(a='a', b='b', dE='dE'),
                 self.mkcorr(a='b', b='a', dE='dE')
                 ],
                 self.mkcorr(a='b', b='b', dE='dE')
-                ] 
+                ]
         # PRINT_FITS = True
         NSIG *= 2.   # do this because so many fits
         self.dofit_chd(models, parallel=True, flat=False, fast=True)
@@ -428,59 +426,59 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         NSIG *= 1.5
         self.dofit_chd(models)
         NSIG /= 1.5
-    
+
     def test_oscillating1(self):
         """ corr2 -- oscillating part """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
+        models = [ self.mkcorr(a=("a","ao"), b=("a","ao"),
                    dE=("dE", "dEo")) ]
         self.dofit(models)
         self.dofit_chd(models)
-    
+
     def test_oscillating2(self):
         """ corr2 -- oscillating part (1x2 matrix)"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
+        models = [ self.mkcorr(a=("a","ao"), b=("a","ao"),
                                dE=("dE", "dEo")),
-                   self.mkcorr(a=("a","ao"), b=("b","bo"), 
+                   self.mkcorr(a=("a","ao"), b=("b","bo"),
                               dE=("dE", "dEo")) ]
         self.dofit(models)
         self.dofit_chd(models)
-    
+
     def test_marginalization2(self):
         """ corr2 -- marginalization (1x2 matrix fit w. osc.)"""
         if  PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
+        models = [ self.mkcorr(a=("a","ao"), b=("a","ao"),
                                dE=("dE", "dEo"), s=(1,-1)),
-                   self.mkcorr(a=("a","ao"), b=("b","bo"), 
+                   self.mkcorr(a=("a","ao"), b=("b","bo"),
                               dE=("dE", "dEo"), s=(1.,-1.)) ]
         self.dofit(models, nterm=(2,2), ratio=False)
         self.dofit_chd(models, nterm=(2,2), ratio=False)
         # N.B. setting ratio=True causes failures every 150 runs or so
-    
+
     def test_oscillating3(self):
         """ corr2 -- oscillating part (only) """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a=(None,"a"), b=(None,"a"), 
+        models = [ self.mkcorr(a=(None,"a"), b=(None,"a"),
                    dE=(None,"dE"), s=(0,-1.)) ]
         self.dofit(models)
         self.dofit_chd(models)
-    
+
     def test_fastfit_oscillating(self):
         """ corr2 -- fastfit(oscillating) """
-        p = lsqfit.ExtendedDict(self.p)
+        p = gv.ExtendedDict(self.p)
         model = self.mkcorr(a="a", b="a", dE="dE", tp=self.tp)
         G = make_data(models=[model], p=p)[model.datatag]
-        G *= (-1) ** np.arange(len(G)) 
-        prior = lsqfit.ExtendedDict(self.prior)
+        G *= (-1) ** np.arange(len(G))
+        prior = gv.ExtendedDict(self.prior)
         ampl = prior['a'][0] ** 2
         dE = prior['dE'][0]
         fit = fastfit(
-            G, ampl=(None, ampl.fmt()), dE=(None, dE.fmt()), tp=self.tp, 
+            G, ampl=(None, ampl.fmt()), dE=(None, dE.fmt()), tp=self.tp,
             tmin=1, svdcut=1e-3, nterm=3, osc=True, s=(0, 1)
             )
         Etrue = p['dE'][0]
@@ -492,35 +490,35 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         """ corr2 -- s parameter #1"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
+        models = [ self.mkcorr(a=("a","ao"), b=("a","ao"),
                    dE=("dE", "dEo"), s=(-1,1)) ]
         self.dofit(models)
         self.dofit_chd(models)
-    
+
     def test_s2(self):
         """ corr2 -- s parameter #2"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ self.mkcorr(a=("a","ao"), b=("a","ao"), 
+        models = [ self.mkcorr(a=("a","ao"), b=("a","ao"),
                    dE=("dE", "dEo"), s=(1,1)) ]
         self.dofit(models)
         self.dofit_chd(models)
-   
 
-        
+
+
 class test_corr3(unittest.TestCase, FitTests, ArrayTests):
     def setUp(self):
-        ## prior 
+        ## prior
         self.prior = gv.BufferDict()
         nt = NTERM
         self.prior['a'] = gv.gvar(nt*["0.50(1)"])
         self.prior['ao'] = gv.gvar(nt*["0.250(5)"])
-        self.prior['logb'] = gv.log(gv.gvar(nt*["0.60(1)"]))
+        self.prior['log(b)'] = gv.log(gv.gvar(nt*["0.60(1)"]))
         self.prior['bo'] = gv.gvar(nt*["0.30(1)"])
-        self.prior['logdEa'] = gv.log(gv.gvar(nt*["0.50(1)"]))
-        self.prior['logdEao'] = gv.log(gv.gvar(nt*["0.60(1)"]))
-        self.prior['logdEb'] = gv.log(gv.gvar(nt*["0.45(1)"]))
-        self.prior['logdEbo'] = gv.log(gv.gvar(nt*["0.65(1)"]))
+        self.prior['log(dEa)'] = gv.log(gv.gvar(nt*["0.50(1)"]))
+        self.prior['log(dEao)'] = gv.log(gv.gvar(nt*["0.60(1)"]))
+        self.prior['log(dEb)'] = gv.log(gv.gvar(nt*["0.45(1)"]))
+        self.prior['log(dEbo)'] = gv.log(gv.gvar(nt*["0.65(1)"]))
         self.prior['Vnn'] = gv.gvar(nt*[nt*["2.00(1)"]])
         self.prior['Vno'] = gv.gvar(nt*[nt*["1.00(1)"]])
         self.prior['Von'] = gv.gvar(nt*[nt*["1.00(1)"]])
@@ -528,18 +526,18 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         nsym = int(nt*(nt+1)/2)
         self.prior['Vnn_sym'] = gv.gvar(nsym*["2.00(1)"])
         self.prior['Voo_sym'] = gv.gvar(nsym*["2.00(1)"])
-        
-        ## actual parameters, time ranges, corr counter 
+
+        ## actual parameters, time ranges, corr counter
         self.p = next(gv.raniter(self.prior))
         for x in ['b', 'dEa', 'dEao', 'dEb', 'dEbo']:
-            self.p[x] = gv.exp(self.p['log' + x])
+            self.p[x] = gv.exp(self.p['log(' + x + ')'])
         self.T = 18.
         self.tdata = np.arange(self.T)
         self.tfit = self.tdata[1:]
         self.ncorr = 0
-        
+
         self.ran = gv.gvar(0,1)
-    
+
     def tearDown(self):
         del self.prior
         del self.p
@@ -547,7 +545,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         del self.tdata
         del self.tfit
         del self.ncorr
-    
+
     def getdoc(self):
         """ get __doc__ string for current function """
         frame = inspect.currentframe()
@@ -555,7 +553,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         caller_name = inspect.getframeinfo(caller_frame).function
         caller_func = eval("test_corr3."+caller_name)
         return caller_func.__doc__
-    
+
     def dofit(self, models, data_models=None, nterm=None, ratio=True):
         fitter = CorrFitter(models=models, nterm=nterm, ratio=ratio)
         if data_models is None:
@@ -573,7 +571,7 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             print()
         self.assert_fitclose(fit.p,self.p)
         return fitter
-    
+
     def dofit_chd(self, models, data_models=None, nterm=None, ratio=True):
         fitter = CorrFitter(models=models, nterm=nterm, ratio=ratio)
         if data_models is None:
@@ -591,13 +589,13 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             print()
         self.assert_fitclose(fit.p,self.p)
         return fitter
-    
+
     def mkcorr2(self,a, b, dE, tp=None, othertags=[], s=1.):
         ans = Corr2(datatag=self.ncorr, a=a, b=b, dE=dE, tdata=self.tdata,
             tfit=self.tfit, tp=tp, s=s, othertags=othertags)
         self.ncorr += 1
         return ans
-    
+
     def mkcorr3(self, a, b, dEa, dEb, Vnn, Vno=None, Von=None, Voo=None, #):
                 symmetric_V=False, transpose_V=False, tpa=None, tpb=None):
         ans = Corr3(datatag=self.ncorr, a=a, b=b, dEa=dEa, dEb=dEb, Vnn=Vnn,
@@ -606,122 +604,122 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
                     tdata=self.tdata, tfit=self.tfit)
         self.ncorr += 1
         return ans
-    
+
     def test_symmetric(self):
         """ corr3 -- symmetric V"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ 
+        models = [
             self.mkcorr2(a="a", b="a", dE="dEa", tp=None),
-            self.mkcorr3(a="a", b="a", dEa="dEa", dEb="dEa", 
+            self.mkcorr3(a="a", b="a", dEa="dEa", dEb="dEa",
                          symmetric_V=True, Vnn="Vnn_sym")
         ]
         self.dofit(models)
         self.dofit_chd(models)
-    
+
     def test_nonsymmetric(self):
         """ corr3 -- non-symmetric V"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ 
+        models = [
             self.mkcorr2(a="a", b="a", dE="dEa"),
             self.mkcorr2(a="b", b="b", dE="dEb"),
-            self.mkcorr3(a="a", b="b", dEa="dEa", dEb="dEb", 
+            self.mkcorr3(a="a", b="b", dEa="dEa", dEb="dEb",
                          Vnn="Vnn")
         ]
         self.dofit(models)
         self.dofit_chd(models)
-    
+
     def test_transpose(self):
         """ corr3 -- transpose V"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ 
+        models = [
             self.mkcorr2(a="a", b="a", dE="dEa"),
             self.mkcorr2(a="b", b="b", dE="dEb"),
-            self.mkcorr3(a="a", b="b", dEa="dEa", dEb="dEb", 
+            self.mkcorr3(a="a", b="b", dEa="dEa", dEb="dEb",
                          Vnn="Vnn"),
-            self.mkcorr3(b="a", a="b", dEb="dEa", dEa="dEb", 
+            self.mkcorr3(b="a", a="b", dEb="dEa", dEa="dEb",
                          Vnn="Vnn", transpose_V=True)
-            
+
         ]
         self.dofit(models)
         self.dofit_chd(models)
-    
+
     def test_symmetric_osc(self):
         """ corr3 -- symmetric V with osc"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ 
-            self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
+        models = [
+            self.mkcorr2(a=("a", "ao"), b=("a", "ao"),
                          dE=("dEa", "dEao")),
-            self.mkcorr3(a=("a", "ao"), b=("a", "ao"), 
-                         dEa=("dEa", "dEao"), 
-                         dEb=("dEa", "dEao"), 
+            self.mkcorr3(a=("a", "ao"), b=("a", "ao"),
+                         dEa=("dEa", "dEao"),
+                         dEb=("dEa", "dEao"),
                          symmetric_V=True, Vnn="Vnn_sym",
                          Von="Von", Voo="Voo_sym")
         ]
         self.dofit(models)
         self.dofit_chd(models)
-    
+
     def test_nonsymmetric_osc(self):
         """ corr3 -- non-symmetric V with osc"""
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ 
-            self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
+        models = [
+            self.mkcorr2(a=("a", "ao"), b=("a", "ao"),
                          dE=("dEa", "dEao")),
-            self.mkcorr2(a=("b", "bo"), b=("b", "bo"), 
+            self.mkcorr2(a=("b", "bo"), b=("b", "bo"),
                          dE=("dEb", "dEbo")),
-            self.mkcorr3(a=("a", "ao"), b=("b", "bo"), 
-                         dEa=("dEa", "dEao"), 
-                         dEb=("dEb", "dEbo"), 
+            self.mkcorr3(a=("a", "ao"), b=("b", "bo"),
+                         dEa=("dEa", "dEao"),
+                         dEb=("dEb", "dEbo"),
                          Vnn="Vnn", Von="Von", Vno="Vno", Voo="Voo")
         ]
         fitter = self.dofit(models)
         if DISPLAY_PLOTS:
             fitter.display_plots()
-    
+
     def test_transpose_osc(self):
         """ corr3 -- transpose V with osc"""
         global NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ 
-            self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
+        models = [
+            self.mkcorr2(a=("a", "ao"), b=("a", "ao"),
                          dE=("dEa", "dEao")),
-            self.mkcorr2(a=("b", "bo"), b=("b", "bo"), 
+            self.mkcorr2(a=("b", "bo"), b=("b", "bo"),
                          dE=("dEb", "dEbo")),
-            self.mkcorr3(a=("a", "ao"), b=("b", "bo"), 
-                         dEa=("dEa", "dEao"), 
-                         dEb=("dEb", "dEbo"), 
+            self.mkcorr3(a=("a", "ao"), b=("b", "bo"),
+                         dEa=("dEa", "dEao"),
+                         dEb=("dEb", "dEbo"),
                          Vnn="Vnn"),
-            self.mkcorr3(b=("a", "ao"), a=("b", "bo"), 
-                         dEb=("dEa", "dEao"), 
-                         dEa=("dEb", "dEbo"), 
+            self.mkcorr3(b=("a", "ao"), a=("b", "bo"),
+                         dEb=("dEa", "dEao"),
+                         dEa=("dEb", "dEbo"),
                          Vnn="Vnn", Vno="Vno", Von="Von", Voo="Voo",
                          transpose_V=True)
-            
+
         ]
         self.dofit(models)
         NSIG *= 2.
         self.dofit_chd(models)
         NSIG /= 2.
-    
+
     def test_periodic(self):
         """ corr3 -- periodic correlators """
         global NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
         tp = 3*self.T
-        models = [ 
-            self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
+        models = [
+            self.mkcorr2(a=("a", "ao"), b=("a", "ao"),
                          dE=("dEa", "dEao"), tp=tp),
-            self.mkcorr2(a=("b", "bo"), b=("b", "bo"), 
+            self.mkcorr2(a=("b", "bo"), b=("b", "bo"),
                          dE=("dEb", "dEbo"), tp=tp),
-            self.mkcorr3(a=("a", "ao"), b=("b", "bo"), 
-                         dEa=("dEa", "dEao"), 
-                         dEb=("dEb", "dEbo"), 
+            self.mkcorr3(a=("a", "ao"), b=("b", "bo"),
+                         dEa=("dEa", "dEao"),
+                         dEb=("dEb", "dEbo"),
                          Vnn="Vnn", Von="Von", Vno="Vno", Voo="Voo",
                          tpa=tp, tpb=tp)
         ]
@@ -729,40 +727,40 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         self.dofit(models)
         self.dofit_chd(models)
         NSIG /= 2.
-    
+
     def test_antiperiodic(self):
         """ corr3 -- anti-periodic correlators """
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        tp = -3*self.T 
-        models = [ 
-            self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
+        tp = -3*self.T
+        models = [
+            self.mkcorr2(a=("a", "ao"), b=("a", "ao"),
                          dE=("dEa", "dEao"), tp=tp),
-            self.mkcorr2(a=("b", "bo"), b=("b", "bo"), 
+            self.mkcorr2(a=("b", "bo"), b=("b", "bo"),
                          dE=("dEb", "dEbo"), tp=tp),
-            self.mkcorr3(a=("a", "ao"), b=("b", "bo"), 
-                         dEa=("dEa", "dEao"), 
-                         dEb=("dEb", "dEbo"), 
+            self.mkcorr3(a=("a", "ao"), b=("b", "bo"),
+                         dEa=("dEa", "dEao"),
+                         dEb=("dEb", "dEbo"),
                          Vnn="Vnn", Von="Von", Vno="Vno", Voo="Voo",
                          tpa=tp, tpb=tp)
         ]
         self.dofit(models)
         self.dofit_chd(models)
-    
+
     @unittest.skipIf(FAST,"skipping test_bootstrap for speed")
     def test_bootstrap(self):
         """ corr3 -- bootstrap """
         if PRINT_FITS:
             print("======== " + self.getdoc())
         tp = 2*self.T
-        models = [ 
-            self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
+        models = [
+            self.mkcorr2(a=("a", "ao"), b=("a", "ao"),
                          dE=("dEa", "dEao"), tp=tp),
-            self.mkcorr2(a=("b", "bo"), b=("b", "bo"), 
+            self.mkcorr2(a=("b", "bo"), b=("b", "bo"),
                          dE=("dEb", "dEbo"), tp=tp),
-            self.mkcorr3(a=("a", "ao"), b=("b", "bo"), 
-                         dEa=("dEa", "dEao"), 
-                         dEb=("dEb", "dEbo"), 
+            self.mkcorr3(a=("a", "ao"), b=("b", "bo"),
+                         dEa=("dEa", "dEao"),
+                         dEb=("dEb", "dEbo"),
                          Vnn="Vnn", Von="Von", Vno="Vno", Voo="Voo",
                          tpa=tp, tpb=tp)
         ]
@@ -774,18 +772,18 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         bsfit = ds.avg_data(bsdata,bstrap=True)
         self.assert_fitclose(bsfit, self.p)
         self.assert_fitsagree(fitter.fit.p, bsfit)
-    
+
     def test_marginalization(self):
         """ corr3 -- marginalization """
         global PRINT_FITS, NSIG
         if PRINT_FITS:
             print("======== " + self.getdoc())
-        models = [ 
-            self.mkcorr2(a=("a", "ao"), b=("a", "ao"), 
+        models = [
+            self.mkcorr2(a=("a", "ao"), b=("a", "ao"),
                          dE=("dEa", "dEao")),
-            self.mkcorr3(a=("a", "ao"), b=("a", "ao"), 
-                         dEa=("dEa", "dEao"), 
-                         dEb=("dEa", "dEao"), 
+            self.mkcorr3(a=("a", "ao"), b=("a", "ao"),
+                         dEa=("dEa", "dEao"),
+                         dEb=("dEa", "dEao"),
                          Vnn="Vnn_sym" ,symmetric_V=True)
         ]
         NSIG *= 2.
@@ -807,7 +805,7 @@ class test_corrbasis(unittest.TestCase, FitTests, ArrayTests):
                 G[key] = 0
                 for n in range(2):
                     G[key] += (
-                        self.u[n, i] * self.u[n, j] * gv.exp(-self.E[n] * tdata) 
+                        self.u[n, i] * self.u[n, j] * gv.exp(-self.E[n] * tdata)
                         * gv.gvar('1.00(1)')
                         )
         return G
@@ -852,7 +850,7 @@ class test_corrbasis(unittest.TestCase, FitTests, ArrayTests):
             np.testing.assert_allclose(gv.mean(G[k]), gv.mean(Gsvd[k]))
             self.assertTrue(np.all(gv.sdev(Gsvd[k]) > gv.sdev(G[k])))
 
-    def test_make_prior(self): 
+    def test_make_prior(self):
         " EigenBasis.make_prior "
         tdata = np.arange(4.)
         datafmt = 'G.{s1}.{s2}'
@@ -926,15 +924,15 @@ def make_f(tp):
     if tp is None:
         def f(E, t):
             return gv.exp(-E*t)
-        
+
     elif tp >= 0:
         def f(E, t, tp=tp):
             return gv.exp(-E*t) + gv.exp(-E*(tp-t))
-        
+
     else:
         def f(E, t, tp=tp):
             return gv.exp(-E*t) - gv.exp(-E*(-tp-t))
-        
+
     return f
 
 
@@ -957,7 +955,7 @@ def corr3(p, m):
                 ans.append(si * aij * f(sumdE, t))
             prop.append(ans)
         return prop
-    
+
     t = np.array(m.tdata)
     aprop = make_prop(p=p, t=t, a=m.a, dE=m.dEa, s=m.sa, tp=m.tpa)
     bprop = make_prop(p=p, t=m.T-t, a=m.b, dE=m.dEb, s=m.sb, tp=m.tpb)
@@ -988,7 +986,7 @@ def corr3(p, m):
                     V_b += Vkl*bl
                 ans += ak * V_b
     return ans
-    
+
 def corr2(p, m):
     """ build a corr2 -- p=param, m=model"""
     f = make_f(m.tp)
@@ -1012,14 +1010,14 @@ def add_noise(data,frac):
     global_noise = gv.gvar(1,frac)
     ans = gv.BufferDict()
     for k in data:
-        ## add: a) uncorr. noise (smear for zeros); b) corr. noise 
+        ## add: a) uncorr. noise (smear for zeros); b) corr. noise
         corr = data[k]
         dcorr = np.abs(corr*frac)
         dcorr[1:-1] = (dcorr[1:-1] + dcorr[2:] + dcorr[:-2])/3.
         dcorr = gv.gvar(np.zeros(dcorr.shape),dcorr)
         dcorr = next(gv.bootstrap_iter(dcorr))
         ans[k] = (corr + dcorr)*global_noise
-        
+
     return ans
 
 
@@ -1043,7 +1041,7 @@ Design Notes:
   can fail now and then (1 in 200 runs?). The bootstrap tests also fails
   occasionally, as can some of the corr3 tests. Other tests run many 1000s
   of times without failure.
-  
+
 * Corr2 tests fail completely if one tries to fit with fewer than the
   correct number of exponentials, in either the normal or oscillating
   parts. This is because statistical errors added to the correlators are
@@ -1052,7 +1050,7 @@ Design Notes:
   the fit (having generated data with 3 terms): chi**2/dof is around 50 and
   fit results deviate from the correct results by as much as 30 sigma or
   more. This is not realistic but it is quite useful for testing.
-  
+
 * The last bullet also means that the marginalization tests, which use only
   a single term in the fit (to fit data that uses 3 terms), are quite
   non-trivial --- as one would hope.

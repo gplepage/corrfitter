@@ -20,7 +20,7 @@ Parameters:
        Dso:dE 0     1.4533 (46)      [  1.50 (36) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 9/0.1)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 9/0.1)
 
 ============================== nterm = 2
 Least Square Fit:
@@ -62,7 +62,7 @@ Parameters:
               1      0.234 (55)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 20/0.2)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 17/0.2)
 
 Fit results:
   Eetas: [0.41619(12) 1.00(10)]
@@ -145,7 +145,7 @@ Parameters:
               1      0.238 (20)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 8/0.1)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 6/0.1)
 
 Leading parameter chi2/dof [dof] = 0.96 [8]   Q = 0.5
 
@@ -189,6 +189,6 @@ Parameters:
               1      0.232 (20)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 8/0.1)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 5/0.1)
 
 Leading parameter chi2/dof [dof] = 0.69 [8]   Q = 0.7

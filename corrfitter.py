@@ -1,18 +1,18 @@
-""" 
+"""
 This module contains tools that facilitate least-squares fits, as functions
 of time ``t``, of simulation (or other statistical) data for 2-point and
 3-point correlators of the form::
-        
+
     Gab(t)    =  <b(t) a(0)>
     Gavb(t,T) =  <b(T) V(t) a(0)>
-        
+
 where ``T > t > 0``. Each correlator is modeled using |Corr2| for 2-point
 correlators, or |Corr3| for 3-point correlators in terms of amplitudes for
 each source ``a``, sink ``b``, and vertex ``V``, and the energies
 associated with each intermediate state. The amplitudes and energies are
 adjusted in the least-squares fit to reproduce the data; they are defined
 in a shared prior (typically a dictionary).
-        
+
 An object of type |CorrFitter| describes a collection of correlators and is
 used to fit multiple models to data simultaneously. Fitting multiple
 correlators simultaneously is important if there are statistical
@@ -22,7 +22,7 @@ described and fit by a single |CorrFitter| object.
 Typical code has the structure ::
 
     from corrfitter import CorrFitter
-        
+
     data = make_data('mcfile')          # user-supplied routine
     models = make_models()              # user-supplied routine
     N = 4                               # number of terms in fit functions
@@ -31,9 +31,9 @@ Typical code has the structure ::
     fit = fitter.lsqfit(data=data, prior=prior)  # do the fit
     print_results(fit, prior, data)     # user-supplied routine
 
-where ``make_data`` assembles the correlator data to be fit, 
-``make_prior`` defines Bayesian priors for the fit parameters, 
-``fitter.lsqfit(...)`` does the fit, and ``print_results`` 
+where ``make_data`` assembles the correlator data to be fit,
+``make_prior`` defines Bayesian priors for the fit parameters,
+``fitter.lsqfit(...)`` does the fit, and ``print_results``
 writes out the rsults. Sample code for each of these routines is
 given in the tutorial documentation for |CorrFitter|.
 """
@@ -45,7 +45,7 @@ given in the tutorial documentation for |CorrFitter|.
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # any later version (see <http://www.gnu.org/licenses/>).
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -72,28 +72,28 @@ except ImportError:
     scipy = None
 
 class BaseModel(object):
-    """ Base class for correlator models. 
-    
-   Derived classes must define methods ``fitfcn``, ``buildprior``, and 
+    """ Base class for correlator models.
+
+   Derived classes must define methods ``fitfcn``, ``buildprior``, and
    ``builddata``, all of which are described below. In addition they
    can have attributes:
-   
+
     .. attribute:: datatag
-       
+
        |CorrFitter| builds fit data for the correlator by extracting the
        data in an input |Dataset| labelled by string ``datatag``. This
        label is stored in the ``BaseModel`` and must be passed to its
        constructor.
-    
+
     .. attribute:: all_datatags
 
        Models can specify more than one set of fit data to use in fitting.
-       The list of all the datatags used is ``self.all_datatags``. The 
+       The list of all the datatags used is ``self.all_datatags``. The
        first entry is always ``self.datatag``; the other entries are
        from ``othertags``.
 
     .. attribute:: _abscissa
-        
+
         (Optional) Array of abscissa values used in plots of the data and
         fit corresponding to the model. Plots are not made for a model that
         doesn't specify this attribute.
@@ -105,10 +105,10 @@ class BaseModel(object):
         self.datatag = datatag  # label
         self.all_datatags = [self.datatag] + list(othertags)
         self._abscissa = None   # for plots
-    
+
     def fitfcn(self, p, nterm=None):
         """ Compute fit function fit parameters ``p`` using ``nterm`` terms. "
-            
+
         :param p: Dictionary of parameter values.
         :type p: dictionary
         :param nterm: Restricts the number of non-oscillating terms in the
@@ -118,36 +118,36 @@ class BaseModel(object):
         :type nterm: tuple of ``None`` or integers
         """
         raise NotImplementedError("fitfcn not defined")
-    
+
     def builddata(self, data):
-        """ Construct fit data. 
-            
+        """ Construct fit data.
+
         Format of output must be same as format for fitfcn output.
-        
-        :param data: Dataset containing correlator data 
+
+        :param data: Dataset containing correlator data
             (see ``gvar.dataset``).
         :type data: dictionary
         """
         raise NotImplementedError("builddata not defined")
-    
+
     def buildprior(self, prior, nterm=None):
-        """ Extract fit prior from ``prior``; resizing as needed. 
-            
+        """ Extract fit prior from ``prior``; resizing as needed.
+
         If ``nterm`` is not ``None``, the sizes of the priors may need
-        adjusting so that they correspond to the values specified in 
+        adjusting so that they correspond to the values specified in
         ``nterm`` (for normal and oscillating pieces).
-        
-        :param prior: Dictionary containing *a priori* estimates of the 
+
+        :param prior: Dictionary containing *a priori* estimates of the
             fit parameters.
         :type prior: dictionary
         :param nterm: Restricts the number of non-oscillating terms in the
             fit function to ``nterm[0]`` and oscillating terms to
             ``nterm[1]``. Setting either (or both) to ``None`` implies that
             all terms in the prior are used.
-        :type nterm: tuple of ``None`` or integers        
+        :type nterm: tuple of ``None`` or integers
         """
         raise NotImplementedError("buildprior not defined")
-    
+
     @staticmethod
     def _param(p, default=None):
         """ Parse fit-parameter label --- utility function. """
@@ -158,7 +158,7 @@ class BaseModel(object):
         # ans = [BaseModel._paramkey(i) for i in p]
         # return tuple(ans)
 
-    origkey = staticmethod(lsqfit.ExtendedDict.origkey)
+    basekey = staticmethod(_gvar.ExtendedDict.basekey)
 
     # @staticmethod
     # def _transform_prior(prior):
@@ -172,35 +172,35 @@ class BaseModel(object):
     #         return BaseModel._param(logdE, None)
     #     else:
     #         return BaseModel._param(dE, None)
-                  
+
 
 class Corr2(BaseModel):
     """ Two-point correlators ``Gab(t) = <b(t) a(0)>``.
-        
+
     |Corr2| models the ``t`` dependence of a 2-point correlator ``Gab(t)``
     using ::
-        
+
         Gab(t) = sn * sum_i an[i]*bn[i] * fn(En[i], t)
                + so * sum_i ao[i]*bo[i] * fo(Eo[i], t)
-        
+
     where ``sn`` and ``so`` are typically ``-1``, ``0``, or ``1`` and ::
-        
+
         fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # tp>0 -- periodic
                or   exp(-E*t) - exp(-E*(-tp-t))# tp<0 -- anti-periodic
                or   exp(-E*t)                  # if tp is None (nonperiodic)
-        
+
         fo(E, t) = (-1)**t * fn(E, t)
-        
+
     The fit parameters for the non-oscillating piece of ``Gab`` (first term)
     are ``an[i]``, ``bn[i]``, and ``dEn[i]`` where::
-        
+
         dEn[0] = En[0] > 0
         dEn[i] = En[i]-En[i-1] > 0     (for i>0)
-        
+
     and therefore ``En[i] = sum_j=0..i dEn[j]``. The fit parameters for
     the oscillating pied are defined analogously: ``ao[i]``, ``bo[i]``,
     and ``dEo[i]``.
-        
+
     The fit parameters are specified by the keys corresponding to these
     parameters in a dictionary of priors supplied by |CorrFitter|. The keys
     are strings and are also used to access fit results. Any key that
@@ -208,16 +208,16 @@ class Corr2(BaseModel):
     in question (that is, the exponential of the fit-parameter is used in
     the formula for ``Gab(t)``.) This is useful for forcing ``an``, ``bn``
     and/or ``dE`` to be positive.
-        
+
     When ``tp is not None`` and positive, the correlator is assumed to be
     symmetrical about ``tp/2``, with ``Gab(t)=Gab(tp-t)``. Data from
     ``t>tp/2`` is averaged with the corresponding data from ``t<tp/2``
     before fitting. When ``tp`` is negative, the correlator is assumed to
     be anti-symetrical about ``-tp/2``.
-        
-    :param datatag: Key used to access correlator data in the input data 
-        dictionary (see |CorrFitter|). ``data[self.datatag]`` is (1-d) 
-        array containing the correlator values (|GVar|\s) if ``data`` is the 
+
+    :param datatag: Key used to access correlator data in the input data
+        dictionary (see |CorrFitter|). ``data[self.datatag]`` is (1-d)
+        array containing the correlator values (|GVar|\s) if ``data`` is the
         input data.
     :type datatag: string
     :param a: Key identifying the fit parameters for the source amplitudes
@@ -228,12 +228,12 @@ class Corr2(BaseModel):
         Replacing either key by ``None`` causes the corresponding term to
         be dropped from the fit function. These keys are used to label the
         corresponding parameter arrays in the fit results as well as in the
-        prior. 
+        prior.
     :type a: string, or two-tuple of strings and/or ``None``
     :param b: Same as ``self.a`` but for the sinks ``(bn, bo)`` instead of
         the sources ``(an, ao)``.
     :type b: string, or two-tuple of strings and/or ``None``
-    :param dE: Key identifying the fit parameters for the energy 
+    :param dE: Key identifying the fit parameters for the energy
         differences ``dEn`` in the dictionary of priors provided by
         |CorrFitter|; or a two-tuple of keys for the energy differences
         ``(dEn, dEo)``. The corresponding values in the dictionary of priors
@@ -241,10 +241,10 @@ class Corr2(BaseModel):
         or ``dEo[i]``. Replacing either key by ``None`` causes the
         corresponding term to be dropped from the fit function. These keys
         are used to label the corresponding parameter arrays in the fit
-        results as well as in the prior. 
+        results as well as in the prior.
     :type dE: string, or two-tuple of strings and/or ``None``
-    :param s: Overall factor ``sn``, or two-tuple of overall factors 
-        ``(sn, so)``. 
+    :param s: Overall factor ``sn``, or two-tuple of overall factors
+        ``(sn, so)``.
     :type s: number or two-tuple of numbers
     :param tdata: The ``t``\s corresponding to data entries in the input
         data. Note that ``len(self.tdata) == len(data[self.datatag])`` is
@@ -253,7 +253,7 @@ class Corr2(BaseModel):
     :param tfit: List of ``t``\s to use in the fit. Only data with these
         ``t``\s (all of which should be in ``tdata``) is used in the fit.
     :type tfit: list of integers
-    :param tp: If not ``None`` and positive, the correlator is assumed to 
+    :param tp: If not ``None`` and positive, the correlator is assumed to
         be periodic with ``Gab(t)=Gab(tp-t)``. If negative, the correlator
         is assumed to be anti-periodic with ``Gab(t)=-Gab(-tp-t)``. Setting
         ``tp=None`` implies that the correlator is not periodic, but rather
@@ -264,7 +264,7 @@ class Corr2(BaseModel):
     :type othertags: sequence of strings
     """
     def __init__(
-        self, datatag, tdata, tfit, a, b, dE=None, 
+        self, datatag, tdata, tfit, a, b, dE=None,
         s=1.0, tp=None, othertags=[]
         ):
         super(Corr2, self).__init__(datatag, othertags)
@@ -274,7 +274,7 @@ class Corr2(BaseModel):
         self.tdata = list(tdata)
         self.tp = tp
         self.s = self._param(s, -1.)
-        # verify and compress tfit 
+        # verify and compress tfit
         ntfit = []
         for t in tfit:
             if tp is None:
@@ -293,10 +293,10 @@ class Corr2(BaseModel):
                 else:
                     raise ValueError("tfit incompatible with tdata: "
                                       +str(tfit)+" "+str(tdata))
-        
+
         self.tfit = numpy.array(ntfit)
         self._abscissa = self.tfit
-    
+
     def __str__(self):
         ans = "{c.datatag}[a={c.a}"
         for f in ['b', 'dE', 's', 'tp']:
@@ -305,18 +305,18 @@ class Corr2(BaseModel):
         return ans.format(c=self, t1=self.tfit[0], t2=self.tfit[-1])
 
     def buildprior(self, prior, nterm):
-        """ Create fit prior by extracting relevant pieces of ``prior``. 
+        """ Create fit prior by extracting relevant pieces of ``prior``.
 
-        This routine does two things: 1) discard parts of ``prior`` 
-        that are not needed in the fit; and 2) determine whether 
-        any of the parameters has a log-normal/sqrt-normal prior, 
-        in which case the logarithm/sqrt of the parameter appears in 
+        This routine does two things: 1) discard parts of ``prior``
+        that are not needed in the fit; and 2) determine whether
+        any of the parameters has a log-normal/sqrt-normal prior,
+        in which case the logarithm/sqrt of the parameter appears in
         prior, rather than the parameter itself.
 
-        The number of terms kept in each part of the fit is 
-        specified using ``nterm = (n, no)`` where ``n`` is the 
-        number of non-oscillating terms and ``no`` is the number 
-        of oscillating terms. Setting ``nterm = None`` keeps 
+        The number of terms kept in each part of the fit is
+        specified using ``nterm = (n, no)`` where ``n`` is the
+        number of non-oscillating terms and ``no`` is the number
+        of oscillating terms. Setting ``nterm = None`` keeps
         all terms.
         """
         if nterm is None:
@@ -327,13 +327,13 @@ class Corr2(BaseModel):
             for x in [ai, bi, dEi]:
                 if x is None:
                     continue
-                x = self.origkey(prior, x)
+                x = self.basekey(prior, x)
                 newprior[x] = prior[x][None:ntermi]
-        return newprior        
-    
+        return newprior
+
     def builddata(self, data):
-        """ Assemble fit data from dictionary ``data``. 
-            
+        """ Assemble fit data from dictionary ``data``.
+
         Extracts parts of array ``data[self.datatag]`` that are needed for
         the fit, as specified by ``self.tp`` and ``self.tfit``. The entries
         in the (1-D) array ``data[self.datatag]`` are assumed to be
@@ -350,7 +350,7 @@ class Corr2(BaseModel):
         ans = []
         for tag in self.all_datatags:
             odata = data[tag]
-            ndata = [] 
+            ndata = []
             for t in self.tfit:
                 idt = tdata.index(t)
                 if tp is None or tp-t not in tdata or t == tp-t:
@@ -360,8 +360,8 @@ class Corr2(BaseModel):
                     ndata.append(lsqfit.wavg([odata[idt], pfac*odata[idt_r]]))
             ans.append(ndata)
         fdata = numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
-        return fdata 
-    
+        return fdata
+
     def fitfcn(self, p, nterm=None, t=None):
         """ Return fit function for parameters ``p``. """
         if t is None:
@@ -403,39 +403,39 @@ class Corr2(BaseModel):
                 exp_tp_t = _gvar.exp(-tp_t)
                 for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
                     ans += ofaci * aij * bij * (exp_t ** sumdE + pfac * exp_tp_t ** sumdE)
-        return ans    
+        return ans
 
 
 class Corr3(BaseModel):
     """ Three-point correlators ``Gavb(t, T) = <b(T) V(t) a(0)>``.
-        
+
     |Corr3| models the ``t`` dependence of a 3-point correlator
     ``Gavb(t, T)`` using ::
-        
-        Gavb(t, T) = 
+
+        Gavb(t, T) =
          sum_i,j san*an[i]*fn(Ean[i],t)*Vnn[i,j]*sbn*bn[j]*fn(Ebn[j],T-t)
         +sum_i,j san*an[i]*fn(Ean[i],t)*Vno[i,j]*sbo*bo[j]*fo(Ebo[j],T-t)
         +sum_i,j sao*ao[i]*fo(Eao[i],t)*Von[i,j]*sbn*bn[j]*fn(Ebn[j],T-t)
         +sum_i,j sao*ao[i]*fo(Eao[i],t)*Voo[i,j]*sbo*bo[j]*fo(Ebo[j],T-t)
-       
+
     where ::
-        
+
         fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # tp>0 -- periodic
                or   exp(-E*t) - exp(-E*(-tp-t))# tp<0 -- anti-periodic
                or   exp(-E*t)                  # if tp is None (nonperiodic)
-        
+
         fo(E, t) = (-1)**t * fn(E, t)
-        
+
     The fit parameters for the non-oscillating piece of ``Gavb`` (first term)
     are ``Vnn[i,j]``, ``an[i]``, ``bn[j]``, ``dEan[i]`` and ``dEbn[j]`` where,
     for example::
-        
+
         dEan[0] = Ean[0] > 0
         dEan[i] = Ean[i]-Ean[i-1] > 0     (for i>0)
-        
+
     and therefore ``Ean[i] = sum_j=0..i dEan[j]``. The parameters for the
     other terms are similarly defined.
-        
+
     :param datatag: Tag used to label correlator in the input |Dataset|.
     :type datatag: string
     :param a: Key identifying the fit parameters for the source amplitudes
@@ -446,75 +446,75 @@ class Corr3(BaseModel):
         or ``ao[i]``. Replacing either key by ``None`` causes the
         corresponding term to be dropped from the fit function. These keys
         are used to label the corresponding parameter arrays in the fit
-        results as well as in the prior. 
+        results as well as in the prior.
     :type a: string, or two-tuple of strings or ``None``
-    :param b: Same as ``self.a`` except for sink amplitudes ``(bn, bo)`` 
+    :param b: Same as ``self.a`` except for sink amplitudes ``(bn, bo)``
         for ``V->b`` rather than for ``(an, ao)``.
     :type b: string, or two-tuple of strings or ``None``
-    :param dEa: Fit-parameter label for ``a->V`` intermediate-state energy 
+    :param dEa: Fit-parameter label for ``a->V`` intermediate-state energy
         differences ``dEan``, or two-tuple of labels for the differences
         ``(dEan,dEao)``. Each label represents an array of energy differences.
         Replacing either label by ``None`` causes the corresponding term in
         the correlator function to be dropped. These keys
         are used to label the corresponding parameter arrays in the fit
-        results as well as in the prior. 
+        results as well as in the prior.
     :type dEa: string, or two-tuple of strings or ``None``
-    :param dEb: Fit-parameter label for ``V->b`` intermediate-state energy 
+    :param dEb: Fit-parameter label for ``V->b`` intermediate-state energy
         differences ``dEbn``, or two-tuple of labels for the differences
         ``(dEbn,dEbo)``. Each label represents an array of energy differences.
         Replacing either label by ``None`` causes the corresponding term in
         the correlator function to be dropped. These keys
         are used to label the corresponding parameter arrays in the fit
-        results as well as in the prior. 
+        results as well as in the prior.
     :type dEb: string, or two-tuple of strings or ``None``
-    :param sa: Overall factor ``san`` for the non-oscillating ``a->V`` terms 
+    :param sa: Overall factor ``san`` for the non-oscillating ``a->V`` terms
         in the correlator, or two-tuple containing the overall factors
         ``(san,sao)`` for the non-oscillating and oscillating terms.
     :type sa: number, or two-tuple of numbers
-    :param sb: Overall factor ``sbn`` for the non-oscillating ``V->b`` terms 
+    :param sb: Overall factor ``sbn`` for the non-oscillating ``V->b`` terms
         in the correlator, or two-tuple containing the overall factors
         ``(sbn,sbo)`` for the non-oscillating and oscillating terms.
     :type sb: number, or two-tuple of numbers
-    :param Vnn: Fit-parameter label for the matrix of current matrix 
+    :param Vnn: Fit-parameter label for the matrix of current matrix
         elements ``Vnn[i,j]`` connecting non-oscillating states. Labels that
         begin with "log" indicate that the corresponding matrix elements are
         replaced by their exponentials; these parameters are logarithms of the
         corresponding matrix elements, which must then be positive.
     :type Vnn: string or ``None``
-    :param Vno: Fit-parameter label for the matrix of current matrix 
+    :param Vno: Fit-parameter label for the matrix of current matrix
         elements ``Vno[i,j]`` connecting non-oscillating to oscillating
         states. Labels that begin with "log" indicate that the corresponding
         matrix elements are replaced by their exponentials; these parameters
         are logarithms of the corresponding matrix elements, which must then
         be positive.
     :type Vno: string or ``None``
-    :param Von: Fit-parameter label for the matrix of current matrix 
-        elements ``Von[i,j]`` connecting oscillating to non-oscillating 
+    :param Von: Fit-parameter label for the matrix of current matrix
+        elements ``Von[i,j]`` connecting oscillating to non-oscillating
         states. Labels that begin with "log" indicate that the corresponding
         matrix elements are replaced by their exponentials; these parameters
         are logarithms of the corresponding matrix elements, which must then
         be positive.
     :type Von: string or ``None``
-    :param Voo: Fit-parameter label for the matrix of current matrix 
+    :param Voo: Fit-parameter label for the matrix of current matrix
         elements ``Voo[i,j]`` connecting oscillating states. Labels that begin
         with "log" indicate that the corresponding matrix elements are
         replaced by their exponentials; these parameters are logarithms of the
         corresponding matrix elements, which must then be positive.
     :type Voo: string or ``None``
     :param transpose_V: If ``True``, the transpose ``V[j,i]`` is used in
-        place of ``V[i,j]`` for each current matrix element in the fit 
-        function. This is useful for doing simultaneous fits to 
+        place of ``V[i,j]`` for each current matrix element in the fit
+        function. This is useful for doing simultaneous fits to
         ``a->V->b`` and ``b->V->a``, where the current matrix elements
-        for one are the transposes of those for the other. Default value 
+        for one are the transposes of those for the other. Default value
         is ``False``.
     :type transpose_V: boolean
-    :param symmetric_V: If ``True``, the fit function for ``a->V->b`` is 
+    :param symmetric_V: If ``True``, the fit function for ``a->V->b`` is
         unchanged (symmetrical) under the the interchange of ``a`` and
         ``b``. Then ``Vnn`` and ``Voo`` are square, symmetric matrices
         with ``V[i,j]=V[j,i]`` and their priors are one-dimensional arrays
         containing only elements ``V[i,j]`` with ``j>=i`` in the following
         layout::
-        
+
             [V[0,0],V[0,1],V[0,2]...V[0,N],
                     V[1,1],V[1,2]...V[1,N],
                            V[2,2]...V[2,N],
@@ -522,7 +522,7 @@ class Corr3(BaseModel):
                                   .
                                    .
                                     V[N,N]]
-                                    
+
         Furthermore the matrix specified for ``Von`` is transposed before
         being used by the fitter; normally the matrix specified for ``Von``
         is the same as the matrix specified for ``Vno`` when the amplitude
@@ -534,21 +534,21 @@ class Corr3(BaseModel):
     :param tfit: List of ``t``\s to use in the fit. Only data with these
         ``t``\s (all of which should be in ``tdata``) is used in the fit.
     :type tfit: list of integers
-    :param tpa: If not ``None`` and positive, the ``a->V`` correlator is 
+    :param tpa: If not ``None`` and positive, the ``a->V`` correlator is
         assumed to be periodic with period ``tpa``. If negative, the
         correlator is anti-periodic with period ``-tpa``. Setting
         ``tpa=None`` implies that the correlators are not periodic.
     :type tpa: integer or ``None``
-    :param tpb: If not ``None`` and positive, the ``V->b`` correlator is 
+    :param tpb: If not ``None`` and positive, the ``V->b`` correlator is
         assumed to be periodic with period ``tpb``. If negative, the
         correlator is periodic with period ``-tpb``. Setting ``tpb=None``
         implies that the correlators are not periodic.
     :type tpb: integer or ``None``
     """
     def __init__(
-        self, datatag, T, tdata, tfit,          
+        self, datatag, T, tdata, tfit,
         Vnn, a, b, dEa=None, dEb=None, sa=1., sb=1.,
-        Vno=None, Von=None, Voo=None, transpose_V=False, symmetric_V=False, 
+        Vno=None, Von=None, Voo=None, transpose_V=False, symmetric_V=False,
         tpa=None, tpb=None,
         othertags=[]
         ):
@@ -566,27 +566,27 @@ class Corr3(BaseModel):
         self.tdata = list(tdata)
         self.tpa = tpa
         self.tpb = tpb
-        # validate tfit 
+        # validate tfit
         ntfit = []
         for t in tfit:
             if t >= 0 and t <= T:
                 ntfit.append(t)
         self.tfit = numpy.array(ntfit)
         self._abscissa = self.tfit
-    
-    def buildprior(self, prior, nterm):
-        """ Create fit prior by extracting relevant pieces of ``prior``. 
 
-        This routine does two things: 1) discard parts of ``prior`` 
-        that are not needed in the fit; and 2) determine whether 
-        any of the parameters has a log-normal/sqrt-normal prior, 
-        in which case the logarithm/sqrt of the parameter appears in 
+    def buildprior(self, prior, nterm):
+        """ Create fit prior by extracting relevant pieces of ``prior``.
+
+        This routine does two things: 1) discard parts of ``prior``
+        that are not needed in the fit; and 2) determine whether
+        any of the parameters has a log-normal/sqrt-normal prior,
+        in which case the logarithm/sqrt of the parameter appears in
         prior, rather than the parameter itself.
 
-        The number of terms kept in each part of the fit is 
-        specified using ``nterm = (n, no)`` where ``n`` is the 
-        number of non-oscillating terms and ``no`` is the number 
-        of oscillating terms. Setting ``nterm = None`` keeps 
+        The number of terms kept in each part of the fit is
+        specified using ``nterm = (n, no)`` where ``n`` is the
+        number of non-oscillating terms and ``no`` is the number
+        of oscillating terms. Setting ``nterm = None`` keeps
         all terms.
         """
         def resize_sym(Vii, nterm):
@@ -604,24 +604,24 @@ class Corr3(BaseModel):
         for x in [self.a, self.dEa, self.b, self.dEb]:
             for xi, ntermi in zip(x, nterm):
                 if xi is not None:
-                    xi = self.origkey(prior, xi)
+                    xi = self.basekey(prior, xi)
                     ans[xi] = prior[xi][None:ntermi]
         for i in range(2):
             for j in range(2):
                 vij = self.V[i][j]
                 if vij is None:
                     continue
-                vij = self.origkey(prior, vij)
+                vij = self.basekey(prior, vij)
                 if i == j and self.symmetric_V:
                     ans[vij] = resize_sym(prior[vij], nterm)
                 else:
-                    ans[vij] = prior[vij][slice(None, nterm[i]), 
+                    ans[vij] = prior[vij][slice(None, nterm[i]),
                                           slice(None, nterm[j])]
-        return ans         
-    
+        return ans
+
     def builddata(self, data):
-        """ Assemble fit data from dictionary ``data``. 
-            
+        """ Assemble fit data from dictionary ``data``.
+
         Extracts parts of array ``data[self.datatag]`` that are needed for
         the fit, as specified by ``self.tfit``. The entries in the (1-D)
         array ``data[self.datatag]`` are assumed to be |GVar|\s and
@@ -640,7 +640,7 @@ class Corr3(BaseModel):
                 ndata.append(odata[idt])
             ans.append(ndata)
         return numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
-    
+
     def fitfcn(self, p, nterm=None, t=None):
         """ Return fit function for parameters ``p``. """
         # setup
@@ -668,7 +668,7 @@ class Corr3(BaseModel):
         if nterm is None:
             nterm = (None, None)
 
-        # initial and final propagators  
+        # initial and final propagators
         aprop = []  # aprop[i][j] i= n or o; j=excitation level
         ofac = (self.sa[0], (0.0 if self.sa[1] == 0.0 else self.sa[1]*(-1)**ta))
         for _ai, _dEai, ofaci, ntermai in zip(self.a, self.dEa, ofac, nterm):
@@ -677,25 +677,25 @@ class Corr3(BaseModel):
                 continue
             ans = []
             if ntermai is None:
-                ai =  p[_ai] 
-                dEai = p[_dEai] 
+                ai =  p[_ai]
+                dEai = p[_dEai]
             else:
                 if ntermai <= 0:
                     aprop.append(None)
                     continue
                 ai =  p[_ai][:ntermai]
-                dEai = p[_dEai][:ntermai] 
+                dEai = p[_dEai][:ntermai]
             if tp_ta is None:
                 exp_ta = _gvar.exp(-ta)
                 ans = [
-                    ofaci * aij * exp_ta ** sumdE 
+                    ofaci * aij * exp_ta ** sumdE
                     for aij, sumdE in zip(ai, numpy.cumsum(dEai))
                     ]
             else:
                 exp_ta = _gvar.exp(-ta)
                 exp_tp_ta = _gvar.exp(-tp_ta)
                 ans = [
-                    ofaci * aij * (exp_ta ** sumdE + pafac * exp_tp_ta ** sumdE) 
+                    ofaci * aij * (exp_ta ** sumdE + pafac * exp_tp_ta ** sumdE)
                     for aij, sumdE in zip(ai, numpy.cumsum(dEai))
                     ]
             aprop.append(ans)
@@ -707,30 +707,30 @@ class Corr3(BaseModel):
                 continue
             ans = []
             if ntermbi is None:
-                bi = p[_bi] 
+                bi = p[_bi]
                 dEbi = p[_dEbi]
             else:
                 if ntermbi <= 0:
                     bprop.append(None)
                     continue
-                bi = p[_bi][:ntermbi] 
-                dEbi = p[_dEbi][:ntermbi] 
+                bi = p[_bi][:ntermbi]
+                dEbi = p[_dEbi][:ntermbi]
             if tp_tb is None:
                 exp_tb = _gvar.exp(-tb)
                 ans = [
-                    ofaci * bij * exp_tb ** sumdE 
+                    ofaci * bij * exp_tb ** sumdE
                     for bij, sumdE in zip(bi, numpy.cumsum(dEbi))
                     ]
             else:
                 exp_tb = _gvar.exp(-tb)
                 exp_tp_tb = _gvar.exp(-tp_tb)
                 ans = [
-                    ofaci * bij * (exp_tb ** sumdE + pbfac * exp_tp_tb ** sumdE) 
+                    ofaci * bij * (exp_tb ** sumdE + pbfac * exp_tp_tb ** sumdE)
                     for bij, sumdE in zip(bi, numpy.cumsum(dEbi))
                     ]
             bprop.append(ans)
-        
-        # combine propagators with vertices 
+
+        # combine propagators with vertices
         ans = 0.0
         for i, (apropi, Vi) in enumerate(zip(aprop, self.V)):
             if apropi is None:
@@ -740,7 +740,7 @@ class Corr3(BaseModel):
                     continue
                 V = p[Vij]
                 if i == j and self.symmetric_V:
-                    # unpack symmetric matrix V 
+                    # unpack symmetric matrix V
                     na = len(apropi)
                     nb = len(bpropj)
                     assert na == nb, \
@@ -752,7 +752,7 @@ class Corr3(BaseModel):
                             V[k, l] = next(iterV)
                             if k != l:
                                 V[l, k] = V[k, l]
-                    
+
                 if self.transpose_V or (i>j and self.symmetric_V):
                     V = V.T
                 for ak, Vk in zip(apropi, V):
@@ -760,44 +760,44 @@ class Corr3(BaseModel):
                     for bl, Vkl in zip(bpropj, Vk):
                         acc += Vkl*bl
                     ans += ak*acc
-        return ans                
-            
+        return ans
+
 class CorrFitter(object):
-    """ Nonlinear least-squares fitter for a collection of correlators. 
-        
-    :param models: Sequence of correlator models, such as 
-        :class:`corrfitter.Corr2` or :class:`corrfitter.Corr3`, 
+    """ Nonlinear least-squares fitter for a collection of correlators.
+
+    :param models: Sequence of correlator models, such as
+        :class:`corrfitter.Corr2` or :class:`corrfitter.Corr3`,
         to use in fits of fit data. Individual
         models in the sequence can be replaced by sequences of models
         (and/or further sequences, recursively) for use by
         :func:`corrfitter.CorrFitter.chained_lsqfit`; such nesting
-        is ignored by the other methods.   
+        is ignored by the other methods.
     :type models: list or other sequence
-    :param svdcut: If ``svdcut`` is positive, eigenvalues ``ev[i]`` of the 
+    :param svdcut: If ``svdcut`` is positive, eigenvalues ``ev[i]`` of the
         correlation matrix that are smaller than
-        ``svdcut*max(ev)`` are replaced by ``svdcut*max(ev)``. 
+        ``svdcut*max(ev)`` are replaced by ``svdcut*max(ev)``.
         If ``svdcut`` is negative, eigenvalues less than
         ``|svdcut|*max(ev)`` are set to zero in the correlation matrix. The
         correlation matrix is left unchanged if ``svdcut`` is set equal to
-        ``None`` (default). 
+        ``None`` (default).
     :type svdcut: number or ``None``
-    :param tol: Tolerance used in :func:`lsqfit.nonlinear_fit` for the 
+    :param tol: Tolerance used in :func:`lsqfit.nonlinear_fit` for the
         least-squares fits. Use a tuple to specify separate values for
         the relative and absolute tolerances: ``tol=(reltol, abstol)``;
         otherwise they are both set equal to ``tol`` (default=1e-10).
     :type tol: number or tuple
-    :param maxit: Maximum number of iterations to use in least-squares fit 
+    :param maxit: Maximum number of iterations to use in least-squares fit
         (default=500).
     :type maxit: integer
-    :param nterm: Number of terms fit in the non-oscillating parts of fit 
+    :param nterm: Number of terms fit in the non-oscillating parts of fit
         functions; or two-tuple of numbers indicating how many terms to fit
         for each of the non-oscillating and oscillating pieces in fits. If set
         to ``None``, the number is specified by the number of parameters in
         the prior.
     :type nterm: number or ``None``; or two-tuple of numbers or ``None``
-    :param ratio: If ``True``, use ratio corrections for fit 
+    :param ratio: If ``True``, use ratio corrections for fit
         data when the prior specifies more terms than are used in the fit. If
-        ``False`` (the default), use difference corrections 
+        ``False`` (the default), use difference corrections
         (see implementation notes, above).
     :type ratio: boolean
     """
@@ -805,7 +805,7 @@ class CorrFitter(object):
         self, models, svdcut=1e-15, tol=1e-10,
         maxit=500, nterm=None, ratio=False, fast=False,
         processed_data=None
-        ): 
+        ):
         super(CorrFitter, self).__init__()
         models = [models] if isinstance(models, BaseModel) else models
         self.flat_models = CorrFitter._flatten_models(models)
@@ -818,7 +818,7 @@ class CorrFitter(object):
         self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
         self.processed_data = processed_data
         self.fast = fast
-    
+
     @staticmethod
     def _flatten_models(models):
         """ Create flat version of model list ``models``. """
@@ -827,26 +827,26 @@ class CorrFitter(object):
             if isinstance(m, BaseModel):
                 ans.append(m)
             else:
-                ans += CorrFitter._flatten_models(m) 
+                ans += CorrFitter._flatten_models(m)
         return ans
-   
+
     def buildfitfcn(self, priorkeys):
         " Create fit function. "
         def _fitfcn(
             p, nterm=None, default_nterm=self.nterm, models=self.flat_models
             ):
-            """ Composite fit function. 
-                
+            """ Composite fit function.
+
             :param p: Fit parameters.
             :type p: dict-like
-            :param nterm: Number of terms fit in the non-oscillating parts of fit 
+            :param nterm: Number of terms fit in the non-oscillating parts of fit
                 functions; or two-tuple of numbers indicating how many terms to
                 fit for each of the non-oscillating and oscillating pieces in
                 fits. If set to ``None``, the number is specified by the number of
                 parameters in the prior.
             :type nterm: number or ``None``; or two-tuple of numbers or ``None``
-            :returns: A dictionary containing the fit function results for 
-                parameters ``p`` from each model, indexed using the models' 
+            :returns: A dictionary containing the fit function results for
+                parameters ``p`` from each model, indexed using the models'
                 ``datatag``\s.
             """
             ans = _gvar.BufferDict()
@@ -861,13 +861,13 @@ class CorrFitter(object):
     def builddata(self, data, prior, nterm=None):
         """ Build fit data, corrected for marginalized terms. """
         fitdata = _gvar.BufferDict()
-        prior = lsqfit.ExtendedDict(prior) ### 
+        prior = _gvar.ExtendedDict(prior) ###
         for m in self.flat_models:
             fitdata[m.datatag] = m.builddata(data)
-        # remove marginal fit parameters 
+        # remove marginal fit parameters
         if nterm is None:
             nterm = self.nterm
-        # use priors to remove marginal parameters 
+        # use priors to remove marginal parameters
         if nterm == (None, None):
             return fitdata
         else:
@@ -877,15 +877,15 @@ class CorrFitter(object):
             for m in self.flat_models:
                 if not self.ratio:
                     diff = ftrunc[m.datatag] - fall[m.datatag]
-                    fitdata[m.datatag] += diff 
+                    fitdata[m.datatag] += diff
                 else:
                     ii = (_gvar.mean(fall[m.datatag]) != 0.0)
                     ratio = ftrunc[m.datatag][ii]/fall[m.datatag][ii]
-                    fitdata[m.datatag][ii] *= ratio 
+                    fitdata[m.datatag][ii] *= ratio
         return fitdata
-    
+
     def buildprior(self, prior, nterm=None, fast=False):
-        """ Build correctly sized prior for fit from ``prior``. 
+        """ Build correctly sized prior for fit from ``prior``.
 
         Adjust the sizes of the arrays of  amplitudes and energies in
         a copy of ``prior`` according to  parameter ``nterm``; return
@@ -898,7 +898,7 @@ class CorrFitter(object):
             nterm = self.nterm
         for m in self.flat_models:
             tmp.update(m.buildprior(prior=prior, nterm=nterm))
-        # restore order of keys --- same as prior 
+        # restore order of keys --- same as prior
         ans = _gvar.BufferDict()
         if fast:
             # keep only parameters used by fit
@@ -910,39 +910,39 @@ class CorrFitter(object):
             for k in prior:
                 ans[k] = tmp[k] if k in tmp else prior[k]
         return ans
-    
+
     def lsqfit(
         self, data, prior, p0=None, print_fit=True, nterm=None,
         svdcut=None, tol=None, maxit=None, fast=None,
         **args
         ):
         """ Compute least-squares fit of the correlator models to data.
-            
-        :param data: Input data. The ``datatag``\s from the 
-            correlator models are used as data labels, with 
-            ``data[datatag]`` being a 1-d array of |GVar|\s 
+
+        :param data: Input data. The ``datatag``\s from the
+            correlator models are used as data labels, with
+            ``data[datatag]`` being a 1-d array of |GVar|\s
             corresponding to correlator values.
         :type data: dictionary
-        :param prior: Bayesian prior for the fit parameters used in the 
+        :param prior: Bayesian prior for the fit parameters used in the
             correlator models.
         :type prior: dictionary
-        :param p0: A dictionary, indexed by parameter labels, containing 
+        :param p0: A dictionary, indexed by parameter labels, containing
             initial values for the parameters in the fit. Setting
             ``p0=None`` implies that initial values are extracted from the
             prior. Setting ``p0="filename"`` causes the fitter to look in
             the file with name ``"filename"`` for initial values and to
             write out best-fit parameter values after the fit (for the next
             call to ``self.lsqfit()``).
-        :param print_fit: Print fit information to standard output if 
-            ``True``; print nothing if ``False``. Alternatively, 
-            ``print_fit`` can be a dictionary containing arguments for 
+        :param print_fit: Print fit information to standard output if
+            ``True``; print nothing if ``False``. Alternatively,
+            ``print_fit`` can be a dictionary containing arguments for
             :func:`lsqfit.nonlinear_fit.format`.
-        :param fast: If ``True``, remove parameters from ``prior`` that are 
-            not needed by the correlator models; otherwise keep all 
-            parameters in ``prior`` as fit parameters (default). 
+        :param fast: If ``True``, remove parameters from ``prior`` that are
+            not needed by the correlator models; otherwise keep all
+            parameters in ``prior`` as fit parameters (default).
             Ignoring extra parameters usually makes fits go faster.
-            This has no other effect unless there are correlations between the 
-            fit parameters needed by the models and the other parameters in 
+            This has no other effect unless there are correlations between the
+            fit parameters needed by the models and the other parameters in
             ``prior`` that are ignored.
 
         The following parameters overwrite the values specified in the
@@ -960,10 +960,10 @@ class CorrFitter(object):
             tol = self.tol
         if numpy.size(tol) == 1:
             tol = (tol, tol)
-        elif numpy.size(tol) > 2:
-            raise ValueError('bad tolerance: ' + str(tol))
-        reltol = tol[0] if 'reltol' not in args else args['reltol']
-        abstol = tol[1] if 'abstol' not in args else args['abstol']
+        # elif numpy.size(tol) > 2:
+        #     raise ValueError('bad tolerance: ' + str(tol))
+        # reltol = tol[0] if 'reltol' not in args else args['reltol']
+        # abstol = tol[1] if 'abstol' not in args else args['abstol']
         argscopy = dict(args)
         for k in ['reltol', 'abstol']:
             if k in argscopy:
@@ -987,9 +987,10 @@ class CorrFitter(object):
         prior = self.buildprior(prior, nterm=self.nterm, fast=fast)
         fitfcn = self.buildfitfcn(prior.keys())
         self.fit = lsqfit.nonlinear_fit( #
-            data=data, p0=p0, fcn=fitfcn, prior=prior, 
-            svdcut=svdcut, reltol=reltol, 
-            abstol=abstol, maxit=maxit, 
+            data=data, p0=p0, fcn=fitfcn, prior=prior,
+            svdcut=svdcut,
+            tol=tol, # reltol=reltol, abstol=abstol,
+            maxit=maxit,
             extend=True, **argscopy
             )
         if print_fit is not False:
@@ -1006,7 +1007,7 @@ class CorrFitter(object):
         **args
         ):
         """ Compute chained least-squares fit.
-            
+
         A *chained* fit fits data for each model in ``self.models``
         sequentially, using the best-fit parameters (means and
         covariance matrix) of one fit to construct the prior for the
@@ -1022,8 +1023,8 @@ class CorrFitter(object):
         Setting parameter ``parallel=True`` causes parallel fits, where
         each model is fit separately, using the original ``prior``. Parallel
         fits make sense when models share few or no parameters; the results
-        from the individual fits are combined using weighted averages of 
-        the best-fit values for each parameter from every fit. Parallel 
+        from the individual fits are combined using weighted averages of
+        the best-fit values for each parameter from every fit. Parallel
         fits can require larger *svd* cuts.
 
         Entries ``self.models[i]`` in the list of models can themselves  be
@@ -1035,19 +1036,19 @@ class CorrFitter(object):
 
             models = [ m1, m2, [m3a,m3b], m4]
 
-        with ``parallel=False`` causes the following chain of 
+        with ``parallel=False`` causes the following chain of
         fits ::
 
              m1 -> m2 -> [m3a,m3b] -> m4
 
-        where: 1) the output from ``m1`` is used as the prior for 
-        ``m2``; 2) the output from ``m2`` is used as the prior for 
+        where: 1) the output from ``m1`` is used as the prior for
+        ``m2``; 2) the output from ``m2`` is used as the prior for
         for a parallel fit of ``m3a`` and ``m3b`` together;
         3) the output from the parallel fit of ``[m3a,m3b]`` is used
-        as the prior for ``m4``; and, finally, 4) the output from 
-        ``m4`` is the final result of the entire chained fit. 
-        
-        A slightly more complicated example is :: 
+        as the prior for ``m4``; and, finally, 4) the output from
+        ``m4`` is the final result of the entire chained fit.
+
+        A slightly more complicated example is ::
 
             models = [ m1, m2, [m3a,[m3bx,m3by]], m4]
 
@@ -1059,15 +1060,15 @@ class CorrFitter(object):
         the fit to ``m3a``. The fitter alternates between chained and
         parallel fits at each new level of grouping of models.
 
-        :param data: Input data. The ``datatag``\s from the 
-            correlator models are used as data labels, with 
-            ``data[datatag]`` being a 1-d array of |GVar|\s 
+        :param data: Input data. The ``datatag``\s from the
+            correlator models are used as data labels, with
+            ``data[datatag]`` being a 1-d array of |GVar|\s
             corresponding to correlator values.
         :type data: dictionary
-        :param prior: Bayesian prior for the fit parameters used in the 
+        :param prior: Bayesian prior for the fit parameters used in the
             correlator models.
         :type prior: dictionary
-        :param p0: A dictionary, indexed by parameter labels, containing 
+        :param p0: A dictionary, indexed by parameter labels, containing
             initial values for the parameters in the fit. Setting
             ``p0=None`` implies that initial values are extracted from the
             prior. Setting ``p0="filename"`` causes the fitter to look in
@@ -1079,17 +1080,17 @@ class CorrFitter(object):
         :type parallel: bool
         :param flat: If ``True``, flatten the list of models thereby chaining
             all fits (``parallel==False``) or doing them all in parallel
-            (``parallel==True``); otherwise use ``self.models`` 
+            (``parallel==True``); otherwise use ``self.models``
             as is (default).
         :type flat: bool
         :param fast: If ``True``, use the smallest number of parameters needed
-            in each fit; otherwise use all the parameters specified in 
-            ``prior`` in every fit. Omitting extra parameters can make 
-            fits go faster, sometimes much faster. Final results are 
-            unaffected unless ``prior`` contains strong correlations between 
-            different parameters, where only some of the correlated parameters 
+            in each fit; otherwise use all the parameters specified in
+            ``prior`` in every fit. Omitting extra parameters can make
+            fits go faster, sometimes much faster. Final results are
+            unaffected unless ``prior`` contains strong correlations between
+            different parameters, where only some of the correlated parameters
             are kept in individual fits. Default is ``False``.
-        :param print_fit: Print fit information to standard output if 
+        :param print_fit: Print fit information to standard output if
             ``True``; otherwise print nothing.
 
         The following parameters overwrite the values specified in the
@@ -1166,9 +1167,9 @@ class CorrFitter(object):
                         nterm = default_nterm
                     return fitfcn(p, nterm=nterm)
                 lastfit = lsqfit.nonlinear_fit(
-                    data=processed_data[m.datatag], fcn=m_fitfcn, prior=m_prior, 
-                    p0=p0, svdcut=svdcut, reltol=reltol, 
-                    abstol=abstol, maxit=maxit, 
+                    data=processed_data[m.datatag], fcn=m_fitfcn, prior=m_prior,
+                    p0=p0, svdcut=svdcut, reltol=reltol,
+                    abstol=abstol, maxit=maxit,
                     extend=True, **argscopy
                     )
                 fits[m.datatag] = lastfit
@@ -1187,7 +1188,7 @@ class CorrFitter(object):
                     )
                 lastfit = fitter.chained_lsqfit(
                     data=data, prior=m_prior, p0=p0,
-                    print_fit=False, parallel=(not parallel), 
+                    print_fit=False, parallel=(not parallel),
                     abstol=abstol, reltol=reltol,
                     fast=fast
                     )
@@ -1229,7 +1230,7 @@ class CorrFitter(object):
         self.fit.chi2 = chi2
         self.fit.dof = dof
         self.fit.logGBF = logGBF
-        self.fit.Q = lsqfit.gammaQ(self.fit.dof/2., self.fit.chi2/2.) 
+        self.fit.Q = lsqfit.gammaQ(self.fit.dof/2., self.fit.chi2/2.)
         self.fit.nit = int(nit / len(self.fit.fits) + 0.5)
         self.fit.y = all_y
         self.fit.data = processed_data
@@ -1246,9 +1247,9 @@ class CorrFitter(object):
         return self.fit
 
     def bootstrap_iter(self, datalist=None, n=None):
-        """ Iterator that creates bootstrap copies of a |CorrFitter| fit using 
+        """ Iterator that creates bootstrap copies of a |CorrFitter| fit using
         bootstrap data from list ``data_list``.
-            
+
         A bootstrap analysis is a robust technique for estimating means and
         standard deviations of arbitrary functions of the fit parameters.
         This method creates an interator that implements such an analysis
@@ -1259,60 +1260,60 @@ class CorrFitter(object):
         ``data_list``, fitting the next data set on each iteration and
         returning the resulting :class:`lsqfit.LSQFit` fit object. Typical
         usage, for an |CorrFitter| object named ``fitter``, would be::
-            
+
             for fit in fitter.bootstrap_iter(datalist):
                 ... analyze fit parameters in fit.p ...
-                    
+
         :param data_list: Collection of bootstrap ``data`` sets for fitter. If
-                ``None``, the data_list is generated internally using the 
+                ``None``, the data_list is generated internally using the
                 means and standard deviations of the fit data (assuming
                 gaussian statistics).
         :type data_list: sequence or iterator or ``None``
         :param n: Maximum number of iterations if ``n`` is not ``None``;
                 otherwise there is no maximum.
         :type n: integer
-        :returns: Iterator that returns a :class:`lsqfit.LSQFit` object 
+        :returns: Iterator that returns a :class:`lsqfit.LSQFit` object
                 containing results from the fit to the next data set in
                 ``data_list``.
         """
         if datalist is not None:
-            datalist = (self.builddata(d, self.prior) 
+            datalist = (self.builddata(d, self.prior)
                         for d in datalist)
         for bs_fit in self.fit.bootstrap_iter(n, datalist=datalist):
             yield bs_fit
 
     bootstrap_fit_iter = bootstrap_iter
-    
+
 
     def simulated_data_iter(self, n, dataset, pexact=None, rescale=1.):
         """ Create iterator that returns simulated fit data from ``dataset``.
 
-        Simulated fit data has the same covariance matrix as 
-        ``data=gvar.dataset.avg_data(dataset)``, but mean values that 
+        Simulated fit data has the same covariance matrix as
+        ``data=gvar.dataset.avg_data(dataset)``, but mean values that
         fluctuate randomly, from copy to copy, around
-        the value of the fitter's fit function evaluated at ``p=pexact``. 
+        the value of the fitter's fit function evaluated at ``p=pexact``.
         The fluctuations are generated from averages of bootstrap copies
         of ``dataset``.
 
-        The best-fit results from a fit to such simulated copies of ``data``  
+        The best-fit results from a fit to such simulated copies of ``data``
         should agree with the numbers in ``pexact`` to within the errors specified
-        by the fits (to the simulated data) --- ``pexact`` gives the "correct" 
-        values for the parameters. Knowing the correct value for each 
+        by the fits (to the simulated data) --- ``pexact`` gives the "correct"
+        values for the parameters. Knowing the correct value for each
         fit parameter ahead of a fit allows us to test the reliability of
-        the fit's error estimates and to explore the impact of various fit 
-        options (*e.g.*, ``fitter.chained_fit`` versus ``fitter.lsqfit``, 
+        the fit's error estimates and to explore the impact of various fit
+        options (*e.g.*, ``fitter.chained_fit`` versus ``fitter.lsqfit``,
         choice of *svd* cuts, omission of select models, etc.)
 
-        Typically one need examine only a few simulated fits in order 
+        Typically one need examine only a few simulated fits in order
         to evaluate fit reliability, since we know the correct values
         for the parameters ahead of time. Consequently this method is
-        much faster than traditional bootstrap analyses. More 
+        much faster than traditional bootstrap analyses. More
         thorough testing would involve running many simulations and
-        examining the distribution of fit parameters or functions 
-        of fit parameters around their exact values (from ``pexact``). 
+        examining the distribution of fit parameters or functions
+        of fit parameters around their exact values (from ``pexact``).
         This is overkill for most problems, however.
 
-        ``pexact`` is usually taken from the last fit done by the fitter 
+        ``pexact`` is usually taken from the last fit done by the fitter
         (``self.fit.pmean``) unless overridden in the function call.
         Typical usage is as follows::
 
@@ -1332,7 +1333,7 @@ class CorrFitter(object):
         :type n: integer
         :param dataset: Dataset containing Monte Carlo copies of the correlators.
         :type dataset: gvar.dataset.Dataset
-        :param pexact: Correct parameter values for fits to the simulated 
+        :param pexact: Correct parameter values for fits to the simulated
             data --- fit results should agree with ``pexact`` to within
             errors. If ``None``, uses ``self.fit.pmean`` from the last fit.
         :type pexact: dictionary of numbers
@@ -1361,9 +1362,9 @@ class CorrFitter(object):
         keys = pexact.keys()
         fcn_mean = _gvar.BufferDict()
         for m in self.flat_models:
-            m_fcn = m.fitfcn 
+            m_fcn = m.fitfcn
             m_fcn_mean = (
-                m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None)) 
+                m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None))
                 )
             for tag in m.all_datatags:
                 fcn_mean[tag] = m_fcn_mean
@@ -1393,10 +1394,10 @@ class CorrFitter(object):
 
     def collect_fitresults(self):
         """ Collect results from last fit for plots, tables etc.
-            
+
         :returns: A dictionary with one entry per correlator model,
             containing ``(t,G,dG,Gth,dGth)`` --- arrays containing::
-                
+
                 t       = times
                 G(t)    = data averages for correlator at times t
                 dG(t)   = uncertainties in G(t)
@@ -1419,10 +1420,10 @@ class CorrFitter(object):
                         _gvar.mean(cth), _gvar.sdev(cth))
         self.keys = keys
         return ans
-    
+
     def display_plots(self, save=False):
         """ Show plots of data/fit-function for each correlator.
-            
+
         Assumes :mod:`matplotlib` is installed (to make the plots). Plots
         are shown for one correlator at a time. Press key ``n`` to see the
         next correlator; press key ``p`` to see the previous one; press key
@@ -1431,9 +1432,9 @@ class CorrFitter(object):
         pan and save using the window controls.
 
         Copies of all the plots can be saved by setting parameter
-        ``save=prefix`` where ``prefix`` is a string used to create 
+        ``save=prefix`` where ``prefix`` is a string used to create
         file names: the file name for the plot corresponding to datatag
-        ``k`` is ``prefix.format(corr=k)``. It is important that the 
+        ``k`` is ``prefix.format(corr=k)``. It is important that the
         filename end with a suffix indicating the type of plot file
         desired: e.g., ``'.pdf'``.
         """
@@ -1463,13 +1464,13 @@ class CorrFitter(object):
             ax.errorbar(t[ii], g[ii]/gth[ii], dg[ii]/gth[ii], fmt='o')
             ax.plot(t, numpy.ones(len(t), float), 'r-')
             ax.plot(t[ii], 1+dgth[ii]/gth[ii], 'r--')
-            ax.plot(t[ii], 1-dgth[ii]/gth[ii], 'r--') 
+            ax.plot(t[ii], 1-dgth[ii]/gth[ii], 'r--')
             if save:
                 plt.savefig(save.format(corr=k), bbox_inches='tight')
             else:
                 plt.draw()
             # fig.draw()
-        
+
         def onpress(event, idx=idx):
             try:    # digit?
                 idx[0] = int(event.key)
@@ -1487,7 +1488,7 @@ class CorrFitter(object):
                 else:
                     return
             plotdata(idx)
-        
+
         fig.canvas.mpl_connect('key_press_event', onpress)
         plotdata(idx)
         plt.show()
@@ -1496,47 +1497,47 @@ class CorrFitter(object):
 class EigenBasis:
     """ Eigen-basis of correlator sources/sinks.
 
-    Given :math:`N` sources/sinks and the :math:`N \\times N` 
-    matrix :math:`G_{ij}(t)` of 2-point correlators created from every 
+    Given :math:`N` sources/sinks and the :math:`N \\times N`
+    matrix :math:`G_{ij}(t)` of 2-point correlators created from every
     combination of source and sink, we can define a new basis
-    of sources that makes the matrix correlator approximately 
-    diagonal. Each source in the new basis is associated with 
+    of sources that makes the matrix correlator approximately
+    diagonal. Each source in the new basis is associated with
     an eigenvector :math:`v^{(a)}` defined by the matrix equation
 
-    .. math:: 
+    .. math::
 
         G(t_1) v^{(a)} = \lambda^{(a)}(t_1-t_0) G(t_0) v^{(a)},
 
 
     for some :math:`t_0, t_1`. As :math:`t_0, t_1` increase, fewer
-    and fewer states couple to :math:`G(t)`. In the limit where 
-    only :math:`N` states couple, the correlator 
+    and fewer states couple to :math:`G(t)`. In the limit where
+    only :math:`N` states couple, the correlator
 
     .. math::
 
         \overline{G}_{ab}(t) \equiv v^{(a)T} G(t) v^{(b)}
 
-    becomes diagonal, and each diagonal element couples to 
+    becomes diagonal, and each diagonal element couples to
     only a single state.
 
     In practice, this condition is only approximate: that is,
-    :math:`\overline G(t)`  is approximately diagonal, with diagonal elements 
-    that overlap strongly with the lowest lying states, but 
-    somewhat with other states. These new sources are nevertheless useful 
-    for fits because there is an obvious prior for their amplitudes: ``prior[a][b]`` 
-    approximately equal to one when ``b==a``, approximately zero 
-    when ``b!=a`` and ``b<N``, and order one otherwise. 
+    :math:`\overline G(t)`  is approximately diagonal, with diagonal elements
+    that overlap strongly with the lowest lying states, but
+    somewhat with other states. These new sources are nevertheless useful
+    for fits because there is an obvious prior for their amplitudes: ``prior[a][b]``
+    approximately equal to one when ``b==a``, approximately zero
+    when ``b!=a`` and ``b<N``, and order one otherwise.
 
     Such a prior can significantly enhance the stability of a multi-source fit,
-    making it easier to extract reliable results for excited states. 
+    making it easier to extract reliable results for excited states.
     It encodes the fact that only a small number of states couple strongly
-    to :math:`G(t)` by time :math:`t_0`, without being overly 
+    to :math:`G(t)` by time :math:`t_0`, without being overly
     prescriptive about what their energies are. We can easilty project our
-    correlator onto the new eigen-basis (using :func:`EigenBasis.apply`) 
-    in order to use this prior, but this is unnecessary. 
-    :func:`EigenBasis.make_prior` creates a prior of this type in the 
+    correlator onto the new eigen-basis (using :func:`EigenBasis.apply`)
+    in order to use this prior, but this is unnecessary.
+    :func:`EigenBasis.make_prior` creates a prior of this type in the
     eigen-basis and then transforms it back to the original basis, thereby
-    creating an equivalent prior for the amplitudes corresponding 
+    creating an equivalent prior for the amplitudes corresponding
     to the original sources.
 
     Typical usage is straightforward. For example, ::
@@ -1547,24 +1548,24 @@ class EigenBasis:
             srcs=['local', 'smeared'],      # names of sources/sinks
             t=(5, 7),                       # t0, t1 used for diagonalization
             )
-        prior = basis.make_prior(nterm=4, keyfmt='m.{s1}') 
+        prior = basis.make_prior(nterm=4, keyfmt='m.{s1}')
 
-    creates an *eigen-prior* that is optimized for fitting the 
+    creates an *eigen-prior* that is optimized for fitting the
     2-by-2 matrix correlator given by ::
 
         [[data['G.local.local'],     data['G.local.smeared']]
          [data['G.smeared.local'],   data['G.smeared.smeared']]]
 
     where ``data`` is a dictionary containing all the correlators. Parameter
-    ``t`` specifies the times used for the diagonalization: :math:`t_0=5` 
-    and :math:`t_1=7`. Parameter ``nterm`` specifies the number of terms 
+    ``t`` specifies the times used for the diagonalization: :math:`t_0=5`
+    and :math:`t_1=7`. Parameter ``nterm`` specifies the number of terms
     in the fit. ``basis.make_prior(...)`` creates priors
-    ``prior['m.local']`` and ``prior['m.smeared']`` 
+    ``prior['m.local']`` and ``prior['m.smeared']``
     for the amplitudes corresponding to the local and smeared source,
-    and a prior ``prior[log(m.dE)]`` for the logarithm of the 
-    energy differences between successive levels. 
+    and a prior ``prior[log(m.dE)]`` for the logarithm of the
+    energy differences between successive levels.
 
-    The amplitudes ``prior['m.local']`` and ``prior['m.smeared']`` are 
+    The amplitudes ``prior['m.local']`` and ``prior['m.smeared']`` are
     complicated, with strong correlations between local and smeared entries
     for the same state. Projecting the prior unto the eigen-basis,
     however, reveals its underlying structure::
@@ -1579,8 +1580,8 @@ class EigenBasis:
     where the different entries are now uncorrelated.  This structure
     registers our  expectation that the ``'m.0'`` source in the eigen-basis
     overlaps strongly with the  ground state, but almost not at all with the
-    first excited state; and vice versa for the ``'m.1'`` source. 
-    Amplitude ``p_eig`` is noncommittal about  higher states. This structure 
+    first excited state; and vice versa for the ``'m.1'`` source.
+    Amplitude ``p_eig`` is noncommittal about  higher states. This structure
     is built into ``prior['m.local']`` and ``prior['smeared']``.
 
     It is easy to check that fit results are  consistent with the underlying
@@ -1590,11 +1591,11 @@ class EigenBasis:
     energies,  is printed by::
 
         print(basis.tabulate(fit.p, keyfmt='m.{s1}', eig_srcs=True))
-    
+
     The prior can be adjusted, if needed, using the ``dEfac``, ``ampl``, and
     ``states`` arguments in :func:`EigenBasis.make_prior`.
 
-    :func:`EigenBasis.tabulate` is also useful for printing the amplitudes 
+    :func:`EigenBasis.tabulate` is also useful for printing the amplitudes
     for the original sources::
 
         print(basis.tabulate(fit.p, keyfmt='m.{s1}'))
@@ -1603,38 +1604,38 @@ class EigenBasis:
 
     The parameters for creating an eigen-basis are:
 
-    :param data: Dictionary containing the matrix correlator 
+    :param data: Dictionary containing the matrix correlator
         using the original basis of sources and sinks.
 
-    :param keyfmt: Format string used to generate the keys 
-        in dictionary ``data`` corresponding to different 
-        components of the matrix of correlators. The 
-        key for :math:`G_{ij}` is assumed to be 
-        ``keyfmt.format(s1=i, s2=j)`` where ``i`` and ``j`` 
+    :param keyfmt: Format string used to generate the keys
+        in dictionary ``data`` corresponding to different
+        components of the matrix of correlators. The
+        key for :math:`G_{ij}` is assumed to be
+        ``keyfmt.format(s1=i, s2=j)`` where ``i`` and ``j``
         are drawn from the list of sources, ``srcs``.
 
-    :param srcs: List of source names used with ``keyfmt`` 
-        to create the keys for finding correlator 
+    :param srcs: List of source names used with ``keyfmt``
+        to create the keys for finding correlator
         components :math:`G_{ij}` in the data dictionary.
 
-    :param t: ``t=(t0, t1)`` specifies the ``t`` values 
+    :param t: ``t=(t0, t1)`` specifies the ``t`` values
         used to diagonalize the correlation function.
         Larger ``t`` values are better than smaller ones,
         but only if the statistics are adequate.
         When fitting staggered-quark correlators, with oscillating
-        components, choose ``t`` values where 
+        components, choose ``t`` values where
         the oscillating pieces are positive (typically odd ``t``).
-        If only one ``t`` is given, ``t=t0``, then ``t1=t0+2`` 
-        is used with it. Fits that use |EigenBasis| typically 
+        If only one ``t`` is given, ``t=t0``, then ``t1=t0+2``
+        is used with it. Fits that use |EigenBasis| typically
         depend only weakly on the choice of ``t``.
 
-    :param tdata: Array containing the times for which there is 
-        correlator data. ``tdata`` is set equal to 
-        ``numpy.arange(len(G_ij))`` if it is not specified 
+    :param tdata: Array containing the times for which there is
+        correlator data. ``tdata`` is set equal to
+        ``numpy.arange(len(G_ij))`` if it is not specified
         (or equals ``None``).
 
-    The interface for :class:`EigenBasis` is experimental. 
-    It may change in the near future, as experience 
+    The interface for :class:`EigenBasis` is experimental.
+    It may change in the near future, as experience
     accumulates from its use.
     """
     def __init__(self, data, srcs, t, keyfmt='{s1}.{s2}', tdata=None):
@@ -1648,7 +1649,7 @@ class EigenBasis:
         self.svdcorrection = _gvar.gvar('0(0)')
         self.svdn = 0
         G = EigenBasis.assemble_data(
-            data=data, 
+            data=data,
             keys=EigenBasis.generate_keys(keyfmt, self.srcs),
             )
         # diagonalize
@@ -1693,12 +1694,12 @@ class EigenBasis:
         for i, Ei in enumerate(E):
             v[i] *= _gvar.exp(-E[i] * t0 / 2.)
         E, v = zip(*sorted(zip(E,v)))
-        self.v = numpy.array(v) 
-        self.E = numpy.array(E) 
+        self.v = numpy.array(v)
+        self.E = numpy.array(E)
         self.v_inv = numpy.linalg.inv(self.v)
 
     def make_prior(
-        self, nterm, 
+        self, nterm,
         keyfmt='{s1}',
         dEfac='1(1)',
         ampl=('1.0(3)', '0.03(10)', '0.2(1.0)'),
@@ -1707,55 +1708,55 @@ class EigenBasis:
         ):
         """ Create prior from eigen-basis.
 
-        :param keyfmt: Format string usded to generate keys for 
+        :param keyfmt: Format string usded to generate keys for
             amplitudes and energies in the prior (a dictionary):
             keys are obtained from ``keyfmt.format(s1=a)`` where
-            ``a`` is one of the original sources, ``self.srcs``, 
-            if ``eig_srcs=False`` (default), or one of the 
-            eigen-sources, ``self.eig_srcs``, if ``eig_srcs=True``. 
-            The key for the energy differences is generated by 
-            ``'log({})'.format(keyfmt.format(s1='dE'))``. The default 
+            ``a`` is one of the original sources, ``self.srcs``,
+            if ``eig_srcs=False`` (default), or one of the
+            eigen-sources, ``self.eig_srcs``, if ``eig_srcs=True``.
+            The key for the energy differences is generated by
+            ``'log({})'.format(keyfmt.format(s1='dE'))``. The default
             is ``keyfmt={s1}``.
-        :param dEfac: A string or :class:`gvar.GVar` from which 
-            the priors for energy differences ``dE[i]`` are constructed. 
+        :param dEfac: A string or :class:`gvar.GVar` from which
+            the priors for energy differences ``dE[i]`` are constructed.
             The mean value for ``dE[0]`` is set equal to the lowest
-            energy obtained from the diagonalization. The mean values 
+            energy obtained from the diagonalization. The mean values
             for the other ``dE[i]``\s are set equal to the difference
             between the lowest two energies from the diagonalization
-            (or to the lowest energy if there is only one). These 
+            (or to the lowest energy if there is only one). These
             central values are then multiplied by ``gvar.gvar(dEfac)``.
             The default value, `1(1)`, sets the width equal to the
             mean value. The prior is the logarithm of the resulting
             values.
-        :type dEfac: string or :class:`gvar.GVar` 
-        :param ampl: A 3-tuple of strings or :class:`gvar.GVar`\s from 
-            which priors are contructed for amplitudes corresponding to 
-            the eigen-sources. ``gvar.gvar(ampl[0])`` is used for 
-            for source components where the overlap with a particular 
+        :type dEfac: string or :class:`gvar.GVar`
+        :param ampl: A 3-tuple of strings or :class:`gvar.GVar`\s from
+            which priors are contructed for amplitudes corresponding to
+            the eigen-sources. ``gvar.gvar(ampl[0])`` is used for
+            for source components where the overlap with a particular
             state is expected to be large; ``1.0(3)`` is the default value.
             ``gvar.gvar(ampl[1])`` is used for states that are expected
-            to have little overlap with the source; ``0.03(10)`` is 
+            to have little overlap with the source; ``0.03(10)`` is
             the default value. ``gvar.gvar(ampl[2])`` is used where
-            there is nothing known about the overlap of a state with 
+            there is nothing known about the overlap of a state with
             the source; ``0(1)`` is the default value.
-        :param states: A list of the states in the correlator corresponding to 
-            successive eigen-sources, where ``states[i]`` is the state 
-            corresponding to ``i``-th source. The correspondence between 
-            sources and states is strong for the first sources, but 
+        :param states: A list of the states in the correlator corresponding to
+            successive eigen-sources, where ``states[i]`` is the state
+            corresponding to ``i``-th source. The correspondence between
+            sources and states is strong for the first sources, but
             can decay for subsequent sources, depending upon the quality
-            of the data being used and the ``t`` values used in the 
+            of the data being used and the ``t`` values used in the
             diagonalization. In such situations one might specify
             fewer states than there are sources by making the length
             of ``states`` smaller than the number of sources. Setting
-            ``states=[]`` assigns broad priors to the every component 
-            of every source. Parameter ``states`` can also be 
-            used to deal with situations where the order 
+            ``states=[]`` assigns broad priors to the every component
+            of every source. Parameter ``states`` can also be
+            used to deal with situations where the order
             of later sources is not aligned with that of the
             actual states: for example, ``states=[0,1,3]`` connects the
-            eigen-sources with the first, second and fourth states in the 
-            correlator. The default value, ``states=[0, 1 ... N-1]`` where 
+            eigen-sources with the first, second and fourth states in the
+            correlator. The default value, ``states=[0, 1 ... N-1]`` where
             ``N`` is the number of sources, assumes that sources
-            and states are aligned. 
+            and states are aligned.
         """
         if keyfmt is None:
             keyfmt = '{s1}'
@@ -1788,44 +1789,44 @@ class EigenBasis:
             e0 = self.E[0]
         else:
             de = self.E[0]
-            e0 = de                
-        dE = _gvar.gvar(nterm * [str(dEfac)]) * de 
+            e0 = de
+        dE = _gvar.gvar(nterm * [str(dEfac)]) * de
         dE[0] = dE[0] + e0 - dE[0].mean
         prior['log({})'.format(keyfmt.format(s1='dE'))] = _gvar.log(dE)
         return prior
 
     def tabulate(self, p, keyfmt='{s1}', nterm=None, nsrcs=None, eig_srcs=False, indent=4 * ' '):
         """ Create table containing energies and amplitudes for ``nterm`` states.
-        
-        Given a correlator-fit result ``fit`` and a corresponding 
-        :class:`EigenBasis` object ``basis``, a table listing the energies 
+
+        Given a correlator-fit result ``fit`` and a corresponding
+        :class:`EigenBasis` object ``basis``, a table listing the energies
         and amplitudes for the first ``N`` states in correlators can be printed
         using ::
 
             print basis.tabulate(fit.p)
 
-        where ``N`` is the number of sources and ``basis`` is an 
-        :class:`EigenBasis` object. The amplitudes are tabulated for the 
-        original sources unless parameter ``eig_srcs=True``, in which 
-        case the amplitudes are projected onto the the eigen-basis 
-        defined by ``basis``.        
+        where ``N`` is the number of sources and ``basis`` is an
+        :class:`EigenBasis` object. The amplitudes are tabulated for the
+        original sources unless parameter ``eig_srcs=True``, in which
+        case the amplitudes are projected onto the the eigen-basis
+        defined by ``basis``.
 
         :param p: Dictionary containing parameters values.
-        :param keyfmt: Parameters are ``p[k]`` where keys ``k`` are 
+        :param keyfmt: Parameters are ``p[k]`` where keys ``k`` are
             obtained from ``keyfmt.format(s1=s)`` where ``s`` is one
-            of the original sources (``basis.srcs``) or one of the 
-            eigen-sources (``basis.eig_srcs``). The 
+            of the original sources (``basis.srcs``) or one of the
+            eigen-sources (``basis.eig_srcs``). The
             default definition is ``'{s1}'``.
-        :param nterm: The number of states from the fit  tabulated. 
-            The default sets ``nterm`` equal to the number of 
+        :param nterm: The number of states from the fit  tabulated.
+            The default sets ``nterm`` equal to the number of
             sources in the basis.
-        :param nsrcs: The number of sources tabulated. The default 
+        :param nsrcs: The number of sources tabulated. The default
             causes all sources to be tabulated.
-        :param eig_srcs: Amplitudes for the eigen-sources are 
-            tabulated if ``eigen_srcs=True``; otherwise amplitudes 
+        :param eig_srcs: Amplitudes for the eigen-sources are
+            tabulated if ``eigen_srcs=True``; otherwise amplitudes
             for the original basis of sources are tabulated (default).
         :param indent: A string prepended to each line of the table.
-            Default is ``4 * ' '``. 
+            Default is ``4 * ' '``.
         """
 
         if keyfmt is None:
@@ -1884,18 +1885,18 @@ class EigenBasis:
     def svd(self, data, keyfmt=None, svdcut=1e-15):
         """ Apply SVD cut to data in the eigen-basis.
 
-        The SVD cut is applied to ``data[k]`` where key ``k`` 
+        The SVD cut is applied to ``data[k]`` where key ``k``
         equals ``keyfmt.format(s1=s1)`` for vector data,
         or ``keyfmt.format(s1=s1, s2=s2)`` for matrix data with sources
-        ``s1`` and ``s2`` drawn from ``self.srcs``. The data 
-        are transformed to the eigen-basis of sources/sinks before 
-        the cut is applied and then transformed back to the 
-        original basis of sources. Results are returned in 
+        ``s1`` and ``s2`` drawn from ``self.srcs``. The data
+        are transformed to the eigen-basis of sources/sinks before
+        the cut is applied and then transformed back to the
+        original basis of sources. Results are returned in
         a dictionary containing the modified correlators.
 
-        If ``keyfmt`` is a list of formats, the SVD cut is 
-        applied to the collection of data formed from each 
-        format. The defaul value for ``keyfmt`` is 
+        If ``keyfmt`` is a list of formats, the SVD cut is
+        applied to the collection of data formed from each
+        format. The defaul value for ``keyfmt`` is
         ``self.keyfmt``.
         """
         if keyfmt is None:
@@ -1915,17 +1916,17 @@ class EigenBasis:
     def apply(self, data, keyfmt='{s1}'):
         """ Transform ``data`` to the eigen-basis.
 
-        The data to be transformed is ``data[k]`` where key ``k`` 
+        The data to be transformed is ``data[k]`` where key ``k``
         equals ``keyfmt.format(s1=s1)`` for vector data,
         or ``keyfmt.format(s1=s1, s2=s2)`` for matrix data with sources
-        ``s1`` and ``s2`` drawn from ``self.srcs``. 
-        A dictionary containing the transformed data is returned 
-        using the same keys but with the sources replaced by ``'0', 
+        ``s1`` and ``s2`` drawn from ``self.srcs``.
+        A dictionary containing the transformed data is returned
+        using the same keys but with the sources replaced by ``'0',
         '1' ...`` (from ``basis.eig_srcs``).
 
-        If ``keyfmt`` is an array of formats, the transformation is 
+        If ``keyfmt`` is an array of formats, the transformation is
         applied for each format and a dictionary containing all of the
-        results is returned. This is useful when the same sources 
+        results is returned. This is useful when the same sources
         and sinks are used for different types of correlators (e.g.,
         in both two-point and three-point correlators).
         """
@@ -1936,7 +1937,7 @@ class EigenBasis:
         newsrcs = self.eig_srcs
         for fmt in keyfmt:
             newdata.update(EigenBasis._apply(
-                data=data, keyfmt=fmt, oldsrcs=oldsrcs, newsrcs=newsrcs, 
+                data=data, keyfmt=fmt, oldsrcs=oldsrcs, newsrcs=newsrcs,
                 v=self.v
                 ))
         return newdata
@@ -1944,16 +1945,16 @@ class EigenBasis:
     def unapply(self, data, keyfmt='{s1}'):
         """ Transform ``data`` from the eigen-basis to the original basis.
 
-        The data to be transformed is ``data[k]`` where key ``k`` 
-        equals ``keyfmt.format(s1=s1)`` for vector data, 
+        The data to be transformed is ``data[k]`` where key ``k``
+        equals ``keyfmt.format(s1=s1)`` for vector data,
         or ``keyfmt.format(s1=s1, s2=s2)`` for matrix data with sources
-        ``s1`` and ``s2`` drawn from ``self.eig_srcs``. A dictionary 
-        containing the transformed data is returned using the same keys but 
+        ``s1`` and ``s2`` drawn from ``self.eig_srcs``. A dictionary
+        containing the transformed data is returned using the same keys but
         with the original sources (from ``self.srcs``).
 
-        If ``keyfmt`` is an array of formats, the transformation is 
+        If ``keyfmt`` is an array of formats, the transformation is
         applied for each format and a dictionary containing all of the
-        results is returned. This is useful when the same sources 
+        results is returned. This is useful when the same sources
         and sinks are used for different types of correlators (e.g.,
         in both two-point and three-point correlators).
         """
@@ -1964,7 +1965,7 @@ class EigenBasis:
         newsrcs = self.srcs
         for fmt in keyfmt:
             newdata.update(EigenBasis._apply(
-                data=data, keyfmt=fmt, oldsrcs=oldsrcs, newsrcs=newsrcs, 
+                data=data, keyfmt=fmt, oldsrcs=oldsrcs, newsrcs=newsrcs,
                 v=self.v_inv
                 ))
         return newdata
@@ -1977,7 +1978,7 @@ class EigenBasis:
                 'wrong number of sources: {o} vs {n}'.format(o=len(oldsrcs), n=len(newsrcs))
                 )
         G = EigenBasis.assemble_data(
-            data=data, 
+            data=data,
             keys=EigenBasis.generate_keys(keyfmt, oldsrcs),
             )
         newkeys = EigenBasis.generate_keys(keyfmt, newsrcs)
@@ -2016,120 +2017,120 @@ class EigenBasis:
 
 class fastfit(object):
     """ Fast fit of a two-point correlator.
-        
-    This function class estimates ``E=En[0]`` and ``ampl=an[0]*bn[0]`` 
+
+    This function class estimates ``E=En[0]`` and ``ampl=an[0]*bn[0]``
     for a two-point correlator modeled by ::
-        
+
         Gab(t) = sn * sum_i an[i]*bn[i] * fn(En[i], t)
                + so * sum_i ao[i]*bo[i] * fo(Eo[i], t)
-        
+
     where ``(sn, so)`` is typically ``(1, -1)`` and ::
-        
+
         fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # tp>0 -- periodic
                or   exp(-E*t) - exp(-E*(-tp-t))# tp<0 -- anti-periodic
                or   exp(-E*t)                  # if tp is None (nonperiodic)
-        
+
         fo(E, t) = (-1)**t * fn(E, t)
 
     Prior estimates for the amplitudes and energies of excited states are
-    used to remove (that is, marginalize) their contributions to give 
+    used to remove (that is, marginalize) their contributions to give
     a *corrected* correlator ``Gc(t)`` that
-    includes uncertainties due to the terms removed. Estimates of ``E`` 
+    includes uncertainties due to the terms removed. Estimates of ``E``
     are given by::
-        
+
         Eeff(t) = arccosh(0.5 * (Gc(t+1) + Gc(t-1)) / Gc(t)),
-        
+
     The final estimate is the weighted average ``Eeff_avg`` of the
     ``Eeff(t)``\s for different ``t``\s. Similarly, an estimate for the
     amplitude ``ampl`` is obtained from the weighted
     average of ::
-        
-        Aeff(t) = Gc(t) / fn(Eeff_avg, t). 
-        
+
+        Aeff(t) = Gc(t) / fn(Eeff_avg, t).
+
     If ``osc=True``, an estimate is returned for ``Eo[0]`` rather
-    than ``En[0]``, and ``ao[0]*bo[0]`` rather than ``an[0]*bn[0]``. 
+    than ``En[0]``, and ``ao[0]*bo[0]`` rather than ``an[0]*bn[0]``.
     These estimates are reliable when ``Eo[0]`` is smaller than
-    ``En[0]`` (and so dominates at large ``t``), but probably not 
+    ``En[0]`` (and so dominates at large ``t``), but probably not
     otherwise.
 
     Examples:
         The following code examines a periodic correlator (period 64) at large
-        times (``t >= tmin``), where estimates for excited states 
+        times (``t >= tmin``), where estimates for excited states
         don't matter much:
 
             >>> import corrfitter as cf
             >>> print(G)
             [0.305808(29) 0.079613(24) ... ]
-            >>> fit = cf.fastfit(G, tmin=24, tp=64) 
+            >>> fit = cf.fastfit(G, tmin=24, tp=64)
             >>> print('E =', fit.E, ' ampl =', fit.ampl)
-            E = 0.41618(13)  ampl = 0.047686(95)  
+            E = 0.41618(13)  ampl = 0.047686(95)
 
-        Smaller ``tmin`` values can be used if (somewhat) realistic priors 
+        Smaller ``tmin`` values can be used if (somewhat) realistic priors
         are provided for the amplitudes and energy gaps:
 
-            >>> fit = cf.fastfit(G, ampl='0(1)', dE='0.5(5)', tmin=3, tp=64) 
+            >>> fit = cf.fastfit(G, ampl='0(1)', dE='0.5(5)', tmin=3, tp=64)
             >>> print('E =', fit.E, ' ampl =', fit.ampl)
             E = 0.41624(11)  ampl = 0.047704(71)
 
         The result here is roughly the same as from the larger ``tmin``, but
         this would not be true for a correlator whose signal to noise ratio
-        falls quickly with increasing time. 
+        falls quickly with increasing time.
 
-        :class:`corrfitter.fastfit` estimates the amplitude and energy at 
+        :class:`corrfitter.fastfit` estimates the amplitude and energy at
         all times larger than ``tmin`` and then averages to get its final
-        results. The chi-squared of the average (*e.g.*, ``fit.E.chi2``) 
+        results. The chi-squared of the average (*e.g.*, ``fit.E.chi2``)
         gives an indication of the consistency of the estimates from different
-        times. The chi-squared per degree of freedom is printed out for both 
+        times. The chi-squared per degree of freedom is printed out for both
         the energy and the amplitude using ::
 
             >>> print(fit)
             E: 0.41624(11) ampl: 0.047704(71) chi2/dof [dof]: 0.9 0.8 [57] Q: 0.8 0.9
 
-        Large values for ``chi2/dof`` indicate an unreliable results. In 
-        such cases the priors should be adjusted, and/or ``tmin`` increased, 
-        and/or an *svd* cut introduced. The averages in the example above 
+        Large values for ``chi2/dof`` indicate an unreliable results. In
+        such cases the priors should be adjusted, and/or ``tmin`` increased,
+        and/or an *svd* cut introduced. The averages in the example above
         have good values for ``chi2/dof``.
 
     Parameters:
         G: An array of |GVar|\s containing the two-point correlator. ``G[j]``
             is assumed to correspond to time ``t=j``, where ``j=0...``.
-        ampl: A |GVar| or its string representation giving an estimate for 
+        ampl: A |GVar| or its string representation giving an estimate for
             the amplitudes of the ground state and the excited states.  Use
             ``ampl=(ampln, amplo)`` when the  correlator contains oscillating
             states; ``ampln`` is the  estimate for non-oscillating states, and
             ``amplo`` for  oscillating states; setting one or the other to
             ``None``  causes the corresponding terms to be dropped.  Default
-            value is ``'0(1)'``.        
-        dE: A |GVar| or its string representation giving an estimate for the 
-            energy separation between successive states. This estimate is 
-            also used to provide an estimate for the lowest energy 
-            when parameter ``E`` is not specified. Use  ``dE=(dEn, dEo)`` 
-            when the correlator contains oscillating states: ``dEn`` is the 
-            estimate for non-oscillating states, and ``dEo`` for 
-            oscillating states; setting one or the other to ``None`` 
-            causes the corresponding terms to be dropped. 
+            value is ``'0(1)'``.
+        dE: A |GVar| or its string representation giving an estimate for the
+            energy separation between successive states. This estimate is
+            also used to provide an estimate for the lowest energy
+            when parameter ``E`` is not specified. Use  ``dE=(dEn, dEo)``
+            when the correlator contains oscillating states: ``dEn`` is the
+            estimate for non-oscillating states, and ``dEo`` for
+            oscillating states; setting one or the other to ``None``
+            causes the corresponding terms to be dropped.
             Default value is ``'1(1)'``.
-        E: A |GVar| or its string representation giving an estimate for the 
-            energy of the lowest-lying state. Use  ``E=(En, Eo)`` 
-            when the correlator contains oscillating states: ``En`` is the 
-            estimate for the lowest non-oscillating state, and ``Eo`` for 
-            lowest oscillating state. Setting ``E=None`` causes 
-            ``E`` to be set equal to ``dE``. Default value is ``None``. 
-        s: A tuple containing overall factors ``(sn, so)`` multiplying 
-            contributions from the normal and oscillating states. 
+        E: A |GVar| or its string representation giving an estimate for the
+            energy of the lowest-lying state. Use  ``E=(En, Eo)``
+            when the correlator contains oscillating states: ``En`` is the
+            estimate for the lowest non-oscillating state, and ``Eo`` for
+            lowest oscillating state. Setting ``E=None`` causes
+            ``E`` to be set equal to ``dE``. Default value is ``None``.
+        s: A tuple containing overall factors ``(sn, so)`` multiplying
+            contributions from the normal and oscillating states.
             Default is ``(1,-1)``.
-        tp (int or None): When not ``None``, the correlator is periodic 
-            with period ``tp`` when ``tp>0``, or anti-periodic with 
-            period ``-tp`` when ``tp<0``. Setting ``tp=None`` implies 
-            that the correlator is neither periodic nor anti-periodic. 
+        tp (int or None): When not ``None``, the correlator is periodic
+            with period ``tp`` when ``tp>0``, or anti-periodic with
+            period ``-tp`` when ``tp<0``. Setting ``tp=None`` implies
+            that the correlator is neither periodic nor anti-periodic.
             Default is ``None``.
-        tmin (int): Only ``G(t)`` with ``t >= tmin`` are used. Default 
+        tmin (int): Only ``G(t)`` with ``t >= tmin`` are used. Default
             value is ``6``.
-        svdcut (float or None): *svd* cut used in the weighted average 
-            of results from different times. (See the 
-            :class:`corrfitter.CorrFitter` documentation for a discussion 
+        svdcut (float or None): *svd* cut used in the weighted average
+            of results from different times. (See the
+            :class:`corrfitter.CorrFitter` documentation for a discussion
             of *svd* cuts.) Default is ``1e-6``.
-        osc (bool): Set ``osc=True`` if the lowest-lying state is an 
+        osc (bool): Set ``osc=True`` if the lowest-lying state is an
             oscillating state. Default is ``False``.
 
     Note that specifying a single |GVar| ``g`` (as opposed to a tuple) for any
@@ -2140,30 +2141,30 @@ class fastfit(object):
     :class:`corrfitter.fastfit` objects have the following attributes:
 
     Attributes:
-        E: Energy of the lowest-lying state (|GVar|). 
+        E: Energy of the lowest-lying state (|GVar|).
         ampl: Amplitude of the lowest-lying state (|GVar|).
 
-    Both ``E`` and ``ampl`` are obtained by averaging results calculated 
-    for each time larger than ``tmin``. These are averaged to produce 
-    a final result. The consistency among results from different times 
-    is measured by the chi-squared of the average. Each of ``E`` and ``ampl`` 
+    Both ``E`` and ``ampl`` are obtained by averaging results calculated
+    for each time larger than ``tmin``. These are averaged to produce
+    a final result. The consistency among results from different times
+    is measured by the chi-squared of the average. Each of ``E`` and ``ampl``
     has the following extra attributes:
 
     Attributes:
         chi2: chi-squared for the weighted average.
-        dof: The effective number of degrees of freedom in the weighted 
+        dof: The effective number of degrees of freedom in the weighted
             average.
-        Q: The probability that the chi-squared could have been larger, 
+        Q: The probability that the chi-squared could have been larger,
             by chance, assuming that the data are all Gaussain and consistent
-            with each other. Values smaller than 0.05 or 0.1 suggest 
-            inconsistency. (Also called the *p-factor*.) 
+            with each other. Values smaller than 0.05 or 0.1 suggest
+            inconsistency. (Also called the *p-factor*.)
 
     An easy way to inspect these attributes is to print the fit object ``fit``
-    using ``print(fit)``, which lists the values of the energy and amplitude, 
-    the ``chi2/dof`` for each of these, the number of degrees of freedom, 
+    using ``print(fit)``, which lists the values of the energy and amplitude,
+    the ``chi2/dof`` for each of these, the number of degrees of freedom,
     and the ``Q`` for each.
     """
-    def __init__(self, G, ampl='0(1)', dE='1(1)', E=None, s=(1,-1), 
+    def __init__(self, G, ampl='0(1)', dE='1(1)', E=None, s=(1,-1),
         tp=None, tmin=6, svdcut=1e-6, osc=False, nterm=10,
         ):
         import lsqfit
@@ -2180,11 +2181,11 @@ class fastfit(object):
                 return x
             x = _gvar.gvar(x)
             dx = 0 if abs(x.mean) > 0.1 * x.sdev else 0.2 * x.sdev
-            xmean = x.mean 
+            xmean = x.mean
             xsdev = x.sdev
             first_x = x if x0 is None else _gvar.gvar(x0)
             return (
-                [first_x + dx] + 
+                [first_x + dx] +
                 [_gvar.gvar(xmean + dx, xsdev) for i in range(nterm - 1)]
                 )
         a, ao = build(ampl)
@@ -2207,7 +2208,7 @@ class fastfit(object):
             tmid = int((-tp + 1) // 2)
             G0 = G[0]
             G = numpy.array(
-                [G[0]] + 
+                [G[0]] +
                 list(lsqfit.wavg([G[1:tmid], -G[-1:-tmid:-1]], svdcut=svdcut))
                 )
             t = numpy.arange(0, len(G))[tmin:]
@@ -2228,11 +2229,11 @@ class fastfit(object):
         if ao is not None and dEo is not None:
             Eo = numpy.cumsum(dEo)
             for aj, Ej in zip(ao, Eo):
-                dG += so * aj * g(Ej, t) * (-1) ** t 
+                dG += so * aj * g(Ej, t) * (-1) ** t
         G = G - dG
         ratio = lsqfit.wavg(
-            0.5 * (G[2:] + G[:-2]) / G[1:-1], 
-            prior=_gvar.cosh(E[0]), svdcut=svdcut, 
+            0.5 * (G[2:] + G[:-2]) / G[1:-1],
+            prior=_gvar.cosh(E[0]), svdcut=svdcut,
             )
         if ratio >= 1:
             self.E = type(ratio)(_gvar.arccosh(ratio), ratio.fit)
@@ -2247,15 +2248,15 @@ class fastfit(object):
             "E: {} ampl: {} chi2/dof [dof]: {:.1f} {:.1f} [{}] "
             "Q: {:.1f} {:.1f}"
             ).format(
-            self.E, self.ampl, self.E.chi2 / self.E.dof, 
+            self.E, self.ampl, self.E.chi2 / self.E.dof,
             self.ampl.chi2 / self.ampl.dof, self.E.dof, self.E.Q, self.ampl.Q,
             )
-       
+
 def read_dataset(inputfiles, tcol=0, Gcol=1, binsize=1):
     """ Read correlator Monte Carlo data from files into a :class:`gvar.dataset.Dataset`.
 
-    Two files formats are supported by :func:`read_dataset`, depending upon the 
-    data type of ``inputfiles``. 
+    Two files formats are supported by :func:`read_dataset`, depending upon the
+    data type of ``inputfiles``.
 
     The first file format is that normally used by :class:`gvar.dataset.Dataset`:
     each line consists of a  tag or key identifying a correlator
@@ -2266,13 +2267,13 @@ def read_dataset(inputfiles, tcol=0, Gcol=1, binsize=1):
     can also be spread over multiple files. A typical file might look like ::
 
         # this is a comment; it is ignored
-        aa 1.237 0.912 0.471            
-        bb 3.214 0.535 0.125 
-        aa 1.035 0.851 0.426            
+        aa 1.237 0.912 0.471
+        bb 3.214 0.535 0.125
+        aa 1.035 0.851 0.426
         bb 2.951 0.625 0.091
         ...
 
-    which describes two correlators, ``aa`` and ``bb``, each having 
+    which describes two correlators, ``aa`` and ``bb``, each having
     three different ``t`` values.
 
     The second file format is assumed when ``inputfiles`` is a dictionary. The
@@ -2288,16 +2289,16 @@ def read_dataset(inputfiles, tcol=0, Gcol=1, binsize=1):
     The ``aafile`` file for correlator ``aa`` above  would look like::
 
         # this is a comment; it is ignored
-        1 1.237                
+        1 1.237
         2 0.912
         3 0.471
-        1 1.035                 
+        1 1.035
         2 0.851
         3 0.426
         ...
 
-    The columns in these files containing ``t`` and ``G(t)`` are 
-    assumed to be columns 0 and 1, respectively. These can be changed 
+    The columns in these files containing ``t`` and ``G(t)`` are
+    assumed to be columns 0 and 1, respectively. These can be changed
     by setting arguments ``tcol`` and ``Gcol``, respectively.
 
     Setting parameter ``binsize`` larger than 1 bins the data. (See
@@ -2307,7 +2308,7 @@ def read_dataset(inputfiles, tcol=0, Gcol=1, binsize=1):
         # inputfiles is a filename or list of filenames (or files)
         dset = _gvar.dataset.Dataset(inputfiles)
     else:
-        # inputfiles is a dictionary 
+        # inputfiles is a dictionary
         # files are in t-G format
         dset = _gvar.dataset.Dataset()
         for k in inputfiles:

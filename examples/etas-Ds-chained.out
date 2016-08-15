@@ -20,7 +20,7 @@ Parameters:
        Dso:dE 0    2.00136 (82)      [  1.50 (36) ]  *
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 19/0.3)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 19/0.3)
 
 ============================== nterm = 2
 Chained Least Square Fit:
@@ -62,7 +62,7 @@ Parameters:
               1      0.790 (31)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 27/0.5)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 33/0.5)
 
 ============================== nterm = 3
 Chained Least Square Fit:
@@ -126,7 +126,7 @@ Parameters:
               2          0.77 (55)        [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 30/0.7)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 31/0.6)
 
 ============================== nterm = 4
 Chained Least Square Fit:
@@ -216,7 +216,7 @@ Parameters:
               3          0.50 (50)        [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 31/1.0)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 31/0.9)
 
 Fit results:
   Eetas: [0.41619(12) 1.003(29) 1.443(67)]
@@ -344,7 +344,7 @@ Parameters:
               3          0.28 (25)        [        0.50 (50) ]  
 
 Settings:
-  svdcut/n = 0.0001/43    reltol/abstol = 1e-10/1e-10    (itns/time = 328/2.9)
+  svdcut/n = 0.0001/43    reltol/abstol = 1e-10/1e-10*    (itns/time = 288/2.6)
 
 Fit results:
   Eetas: [0.41619(11) 1.012(18) 1.444(40)]
@@ -472,7 +472,7 @@ Parameters:
               3          0.50 (50)        [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 14/0.7)
+  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 15/0.5)
 
 --- polish fit
 Least Square Fit:
@@ -562,7 +562,7 @@ Parameters:
               3          0.28 (25)        [        0.50 (50) ]  
 
 Settings:
-  svdcut/n = 0.0001/43    reltol/abstol = 1e-10/1e-10    (itns/time = 314/2.9)
+  svdcut/n = 0.0001/43    reltol/abstol = 1e-10/1e-10    (itns/time = 301/2.7)
 
 Fit results:
   Eetas: [0.41619(11) 1.012(18) 1.444(40)]

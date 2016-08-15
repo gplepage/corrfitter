@@ -23,12 +23,12 @@ uninstall:
 #	- cat files-dataset.$(PYTHON) | xargs rm -rf
 
 install-dataset:
-	$(PIP) install dataset 
-	
+	$(PIP) install dataset
+
 #	$(PYTHON) dataset-setup.py install --user --record files-dataset.$(PYTHON)
 
 uninstall-dataset:
-	$(PIP) uninstall dataset 
+	$(PIP) uninstall dataset
 
 .PHONY : tests
 
@@ -42,6 +42,9 @@ tests test-all:
 run-examples:
 	$(MAKE) -C examples run-all
 
+time:
+	$(MAKE) -C examples time
+
 sdist:			# source distribution
 	$(PYTHON) setup.py sdist
 
@@ -53,7 +56,7 @@ doc-html:		# html version of documentation (in doc/html)
 	sphinx-build -b html doc/source doc/html
 
 doc-zip doc.zip:
-	cd doc/html; zip -r doc *; mv doc.zip ../.. 
+	cd doc/html; zip -r doc *; mv doc.zip ../..
 
 doc-pdf:		# pdf version of documentation (in doc/)
 	sphinx-build -b latex doc/source doc/latex
