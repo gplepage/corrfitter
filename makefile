@@ -39,7 +39,7 @@ tests test-all:
 	@echo ''
 	cd tests; $(PYTHON) -m unittest discover; cd ..
 
-run-examples:
+run run-examples:
 	$(MAKE) -C examples run-all
 
 time:
@@ -74,6 +74,10 @@ upload-git:
 	make doc-all
 	git commit -a -m "prep for upload"
 	git push origin master
+
+test-download:
+	-$(PIP) uninstall corrfitter
+	$(PIP) install corrfitter --no-cache-dir
 
 clean:
 	cd tests; make clean; cd ..

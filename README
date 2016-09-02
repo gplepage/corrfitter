@@ -4,16 +4,16 @@ corrfitter
 This directory contains code for manipulating correlators and other Monte
 Carlo 'data' (eg, as in lattice QCD). The main module is:
 
-corrfitter.py - Defines class CorrFitter for fitting the t dependence of 
+corrfitter.py - Defines class CorrFitter for fitting the t dependence of
 		2 and 3 point correlators, described by Corr2 and Corr3 respectively.
-	
+
 Information on how to install the library is in the file INSTALLATION.
 
 Documentation on how to use this module is in doc/html/index.html (html
-version, which is the better one) and doc/corrfitter.pdf (pdf version, for 
+version, which is the better one) and doc/corrfitter.pdf (pdf version, for
 printing).
 
-To test the module try 'make tests'. 
+To test the module try 'make tests'.
 
 The .py files in directory examples/ illustrate how to use corrfitter. See
 the file examples/README for more information.
@@ -22,10 +22,11 @@ This module requires the lsqfit and gvar python packages.
 
 Background information on the some of the fitting strategies used by
 corrfitter can be found by doing a web searches for "hep-lat/0110175",
-"arXiv:1111.1363", and :arXiv:1406.2279" (appendix). These are papers by 
-G.P. Lepage and collaborators whose published versions are: G.P. Lepage et al, 
-Nucl.Phys.Proc.Suppl. 106 (2002) 12-20; K. Hornbostel et al, 
-Phys.Rev. D85 (2012) 031504; and ...
+"arXiv:1111.1363", and :arXiv:1406.2279" (appendix). These are papers by
+G.P. Lepage and collaborators whose published versions are:
+    G.P. Lepage et al, Nucl.Phys.Proc.Suppl. 106 (2002) 12-20;
+    K. Hornbostel et al, Phys.Rev. D85 (2012) 031504; and
+    C.M. Bouchard et al, Phys.Rev. D90 (2014) 054506.
 
 Versioning: Version numbers for corrfitter are now (v4.0 and later) based upon
 *semantic  versioning* (http://semver.org). Incompatible changes will be
@@ -34,4 +35,4 @@ the form major.minor.patch. The minor number signals new features, and  the
 patch number bug fixes.
 
 Created by G. Peter Lepage (Cornell University) on 2008-02-12.
-Copyright (c) 2008-14 G. Peter Lepage. 
+Copyright (c) 2008-16 G. Peter Lepage.
