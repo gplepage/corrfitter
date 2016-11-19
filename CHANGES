@@ -1,3 +1,17 @@
+Version 5.1 ????
+================
+- Corr2 and Corr3 have a new parameter ncg (default is ncg=1). When fitting
+  with ncg>1, correlators are coarse-grained by breaking them up into bins
+  of ncg values and replacing each bin by its average. The bin averages are
+  then fit by a coarse-grained version of the fit function. So, for example,
+  a correlator array [G[0], G[1], ...] is replaced by a new array
+  [ (G[0] + G[1])/2, (G[2] + G[3])/ 2 ... ] when ncg=2. The same
+  transformation is applied to the fit function as to the data, so the
+  meaning of the fit parameters is unchanged. In some cases coarse graining
+  does not reduce the accuracy of the fit results, and then it is highly
+  desirable: it can greatly reduce the amount of data to be fit, making the
+  fit a lot faster and minimizing the need for svd cuts.
+
 Version 5.0.1 2016-08-14
 ==========================
 - Made tests, examples and documentation compatible with lsqfit 8.0. You

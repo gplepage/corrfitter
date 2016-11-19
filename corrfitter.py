@@ -39,7 +39,7 @@ given in the tutorial documentation for |CorrFitter|.
 """
 
 # Created by G. Peter Lepage, Cornell University, on 2010-11-26.
-# Copyright (c) 2010-2015 G. Peter Lepage.
+# Copyright (c) 2010-2016 G. Peter Lepage.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ import time
 import gvar as _gvar
 import lsqfit
 import numpy
-__version__ = '5.0.1'
+__version__ = '5.1'
 
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
@@ -98,15 +98,16 @@ class BaseModel(object):
         fit corresponding to the model. Plots are not made for a model that
         doesn't specify this attribute.
     """
-    def __init__(self, datatag, othertags=[]):
+    def __init__(self, datatag, othertags=[], ncg=1):
         super(BaseModel, self).__init__()
         if othertags is None:
             othertags = []
         self.datatag = datatag  # label
         self.all_datatags = [self.datatag] + list(othertags)
         self._abscissa = None   # for plots
+        self.ncg = int(ncg)
 
-    def fitfcn(self, p, nterm=None):
+    def fitfcn(self, p, nterm=None, ncg=None):
         """ Compute fit function fit parameters ``p`` using ``nterm`` terms. "
 
         :param p: Dictionary of parameter values.
@@ -116,6 +117,7 @@ class BaseModel(object):
             ``nterm[1]``. Setting either (or both) to ``None`` implies that
             all terms in the prior are used.
         :type nterm: tuple of ``None`` or integers
+        :param ncg: overrides ``self.ncg``
         """
         raise NotImplementedError("fitfcn not defined")
 
@@ -147,6 +149,23 @@ class BaseModel(object):
         :type nterm: tuple of ``None`` or integers
         """
         raise NotImplementedError("buildprior not defined")
+
+    @staticmethod
+    def coarse_grain(G, ncg):
+        """ Coarse-grain array ``G``.
+
+        Bin array ``G``, in bins of width ``ncg``, and replace
+        each bin by its average. Returns the binned+averaged array.
+
+        Args:
+            G: 1-dimensional array to be coarse-grained.
+            ncg: Bin width for coarse graining.
+        """
+        n = (len(G) // ncg) * ncg
+        if n <= 0:
+            return numpy.average([G], axis=1)
+        else:
+            return numpy.average([G[i:i+n:ncg] for i in range(ncg)], axis=0)
 
     @staticmethod
     def _param(p, default=None):
@@ -259,15 +278,19 @@ class Corr2(BaseModel):
         ``tp=None`` implies that the correlator is not periodic, but rather
         continues to fall exponentially as ``t`` is increased indefinitely.
     :type tp: integer or ``None``
+    :param ncg: Width of bins used to coarse-grain the correlator before
+        fitting. Each bin of ``ncg`` correlator values is replaced by
+        its average. Default is ``ncg=1`` (ie, no coarse-graining).
+    :type ncg: positive integer
     :param othertags: List of additional data tags for data to be
         averaged with the ``self.datatag`` data before fitting.
     :type othertags: sequence of strings
     """
     def __init__(
         self, datatag, tdata, tfit, a, b, dE=None,
-        s=1.0, tp=None, othertags=[]
+        s=1.0, tp=None, ncg=1, othertags=[],
         ):
-        super(Corr2, self).__init__(datatag, othertags)
+        super(Corr2, self).__init__(datatag, othertags, ncg)
         self.a = self._param(a)
         self.b = self._param(b)
         self.dE = self._param(dE)
@@ -295,7 +318,7 @@ class Corr2(BaseModel):
                                       +str(tfit)+" "+str(tdata))
 
         self.tfit = numpy.array(ntfit)
-        self._abscissa = self.tfit
+        self._abscissa = self.coarse_grain(self.tfit, self.ncg)
 
     def __str__(self):
         ans = "{c.datatag}[a={c.a}"
@@ -360,10 +383,12 @@ class Corr2(BaseModel):
                     ndata.append(lsqfit.wavg([odata[idt], pfac*odata[idt_r]]))
             ans.append(ndata)
         fdata = numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
-        return fdata
+        return fdata if self.ncg == 1 else self.coarse_grain(fdata, self.ncg)
 
-    def fitfcn(self, p, nterm=None, t=None):
+    def fitfcn(self, p, nterm=None, t=None, ncg=None):
         """ Return fit function for parameters ``p``. """
+        if ncg is None:
+            ncg = self.ncg
         if t is None:
             t = self.tfit
         if self.tp is None:
@@ -403,7 +428,7 @@ class Corr2(BaseModel):
                 exp_tp_t = _gvar.exp(-tp_t)
                 for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
                     ans += ofaci * aij * bij * (exp_t ** sumdE + pfac * exp_tp_t ** sumdE)
-        return ans
+        return ans if ncg == 1 else self.coarse_grain(ans, ncg)
 
 
 class Corr3(BaseModel):
@@ -544,15 +569,19 @@ class Corr3(BaseModel):
         correlator is periodic with period ``-tpb``. Setting ``tpb=None``
         implies that the correlators are not periodic.
     :type tpb: integer or ``None``
+    :param ncg: Width of bins used to coarse-grain the correlator before
+        fitting. Each bin of ``ncg`` correlator values is replaced by
+        its average. Default is ``ncg=1`` (ie, no coarse-graining).
+    :type ncg: positive integer
     """
     def __init__(
         self, datatag, T, tdata, tfit,
         Vnn, a, b, dEa=None, dEb=None, sa=1., sb=1.,
         Vno=None, Von=None, Voo=None, transpose_V=False, symmetric_V=False,
-        tpa=None, tpb=None,
+        tpa=None, tpb=None, ncg=1,
         othertags=[]
         ):
-        super(Corr3, self).__init__(datatag, othertags)
+        super(Corr3, self).__init__(datatag, othertags, ncg)
         self.a = self._param(a)
         self.dEa = self._param(dEa)
         self.sa = self._param(sa, -1.)
@@ -572,7 +601,7 @@ class Corr3(BaseModel):
             if t >= 0 and t <= T:
                 ntfit.append(t)
         self.tfit = numpy.array(ntfit)
-        self._abscissa = self.tfit
+        self._abscissa = self.coarse_grain(self.tfit, self.ncg)
 
     def buildprior(self, prior, nterm):
         """ Create fit prior by extracting relevant pieces of ``prior``.
@@ -639,11 +668,14 @@ class Corr3(BaseModel):
                 idt = tdata.index(t)
                 ndata.append(odata[idt])
             ans.append(ndata)
-        return numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
+        ans = numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
+        return ans if self.ncg == 1 else self.coarse_grain(ans, self.ncg)
 
-    def fitfcn(self, p, nterm=None, t=None):
+    def fitfcn(self, p, nterm=None, t=None, ncg=None):
         """ Return fit function for parameters ``p``. """
         # setup
+        if ncg is None:
+            ncg = self.ncg
         if t is None:
             t = self.tfit
         ta = t
@@ -760,7 +792,7 @@ class Corr3(BaseModel):
                     for bl, Vkl in zip(bpropj, Vk):
                         acc += Vkl*bl
                     ans += ak*acc
-        return ans
+        return ans if ncg == 1 else self.coarse_grain(ans, ncg)
 
 class CorrFitter(object):
     """ Nonlinear least-squares fitter for a collection of correlators.
@@ -1364,7 +1396,7 @@ class CorrFitter(object):
         for m in self.flat_models:
             m_fcn = m.fitfcn
             m_fcn_mean = (
-                m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None))
+                m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None), ncg=1)
                 )
             for tag in m.all_datatags:
                 fcn_mean[tag] = m_fcn_mean
@@ -1494,7 +1526,7 @@ class CorrFitter(object):
         plt.show()
 
 
-class EigenBasis:
+class EigenBasis(object):
     """ Eigen-basis of correlator sources/sinks.
 
     Given :math:`N` sources/sinks and the :math:`N \\times N`

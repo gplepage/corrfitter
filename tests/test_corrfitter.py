@@ -3,7 +3,7 @@
 """
 test_corrfitter.py
 """
-# Copyright (c) 2012-2015 G. Peter Lepage.
+# Copyright (c) 2012-2016 G. Peter Lepage.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -147,9 +147,9 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         caller_func = eval("test_corr2."+caller_name)
         return caller_func.__doc__
 
-    def mkcorr(self,a, b, dE, tp=None, othertags=[], s=1.):
+    def mkcorr(self,a, b, dE, tp=None, othertags=[], s=1., ncg=1):
         ans = Corr2(datatag=self.ncorr, a=a, b=b, dE=dE, tdata=self.tdata,
-            tfit=self.tfit, tp=tp, s=s, othertags=othertags)
+            tfit=self.tfit, tp=tp, s=s, othertags=othertags, ncg=ncg)
         self.ncorr += 1
         return ans
 
@@ -255,6 +255,16 @@ class test_corr2(unittest.TestCase, FitTests, ArrayTests):
         if PRINT_FITS:
             print("======== " + self.getdoc())
         models = [ self.mkcorr(a="a", b="a", dE="dE", tp=self.tp) ]
+        fitter = self.dofit(models)
+        fitter = self.dofit_chd(models)
+        if DISPLAY_PLOTS:
+            fitter.display_plots()
+
+    def test_ncg(self):
+        """ corr2 -- periodic correlator with ncg=2 """
+        if PRINT_FITS:
+            print("======== " + self.getdoc())
+        models = [ self.mkcorr(a="a", b="a", dE="dE", ncg=2) ]
         fitter = self.dofit(models)
         fitter = self.dofit_chd(models)
         if DISPLAY_PLOTS:
@@ -590,18 +600,18 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
         self.assert_fitclose(fit.p,self.p)
         return fitter
 
-    def mkcorr2(self,a, b, dE, tp=None, othertags=[], s=1.):
+    def mkcorr2(self,a, b, dE, tp=None, othertags=[], s=1., ncg=1):
         ans = Corr2(datatag=self.ncorr, a=a, b=b, dE=dE, tdata=self.tdata,
-            tfit=self.tfit, tp=tp, s=s, othertags=othertags)
+            tfit=self.tfit, tp=tp, s=s, othertags=othertags, ncg=ncg)
         self.ncorr += 1
         return ans
 
     def mkcorr3(self, a, b, dEa, dEb, Vnn, Vno=None, Von=None, Voo=None, #):
-                symmetric_V=False, transpose_V=False, tpa=None, tpb=None):
+                symmetric_V=False, transpose_V=False, tpa=None, tpb=None, ncg=1):
         ans = Corr3(datatag=self.ncorr, a=a, b=b, dEa=dEa, dEb=dEb, Vnn=Vnn,
                     Vno=Vno, Von=Von, Voo=Voo, symmetric_V=symmetric_V,
                     transpose_V=transpose_V, tpa=tpa, tpb=tpb, T=self.T,
-                    tdata=self.tdata, tfit=self.tfit)
+                    tdata=self.tdata, tfit=self.tfit, ncg=ncg)
         self.ncorr += 1
         return ans
 
@@ -626,6 +636,19 @@ class test_corr3(unittest.TestCase, FitTests, ArrayTests):
             self.mkcorr2(a="b", b="b", dE="dEb"),
             self.mkcorr3(a="a", b="b", dEa="dEa", dEb="dEb",
                          Vnn="Vnn")
+        ]
+        self.dofit(models)
+        self.dofit_chd(models)
+
+    def test_ncg(self):
+        """ corr3 -- non-symmetric V with ncg=2 """
+        if PRINT_FITS:
+            print("======== " + self.getdoc())
+        models = [
+            self.mkcorr2(a="a", b="a", dE="dEa", ncg=2),
+            self.mkcorr2(a="b", b="b", dE="dEb", ncg=2),
+            self.mkcorr3(a="a", b="b", dEa="dEa", dEb="dEb",
+                         Vnn="Vnn", ncg=2)
         ]
         self.dofit(models)
         self.dofit_chd(models)

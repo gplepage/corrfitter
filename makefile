@@ -30,6 +30,12 @@ install-dataset:
 uninstall-dataset:
 	$(PIP) uninstall dataset
 
+try:
+	$(PYTHON) setup.py install --user --record files-corrfitter.$(PYTHONVERSION)
+
+untry:
+	- cat files-corrfitter.$(PYTHONVERSION) | xargs rm -rf
+
 .PHONY : tests
 
 tests test-all:

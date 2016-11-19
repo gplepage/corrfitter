@@ -6,30 +6,30 @@ import numpy as np
 import corrfitter as cf
 
 DISPLAYPLOTS = False         # display plots at end of fits?
-try: 
+try:
     import matplotlib
 except ImportError:
     DISPLAYPLOTS = False
 
 def main():
-    data, basis = make_data('etab.data') 
+    data, basis = make_data('etab.data')
     fitter = cf.CorrFitter(models=make_models(basis))
     p0 = None
-    for N in range(1, 10):  
+    for N in range(1, 10):
         print(30 * '=', 'nterm =', N)
-        prior = make_prior(N, basis)          
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=0.0004) 
+        prior = make_prior(N, basis)
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=0.0004)
         p0 = fit.pmean
-    print_results(fit, basis, prior, data) 
+    print_results(fit, basis, prior, data)
     if DISPLAYPLOTS:
         fitter.display_plots()
 
 def make_data(filename):
     data = gv.dataset.avg_data(cf.read_dataset(filename))
     basis = cf.EigenBasis(
-        data, keyfmt='1s0.{s1}{s2}', srcs=['l', 'g', 'd', 'e'], 
-        t=(1,2), tdata=range(1,24), 
-        ) 
+        data, keyfmt='1s0.{s1}{s2}', srcs=['l', 'g', 'd', 'e'],
+        t=(1,2), tdata=range(1,24),
+        )
     return data, basis
 
 def make_models(basis):
@@ -53,7 +53,7 @@ def print_results(fit, basis, prior, data):
     print(30 * '=', 'Results\n')
     print(basis.tabulate(fit.p, keyfmt='etab.{s1}'))
     print(basis.tabulate(fit.p, keyfmt='etab.{s1}', eig_srcs=True))
-    E = np.cumsum(fit.p['etab.dE']) 
+    E = np.cumsum(fit.p['etab.dE'])
     outputs = collections.OrderedDict()
     outputs['a*E(2s-1s)'] = E[1] - E[0]
     outputs['a*E(3s-1s)'] = E[2] - E[0]
