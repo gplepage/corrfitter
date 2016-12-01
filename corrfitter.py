@@ -61,6 +61,9 @@ import lsqfit
 import numpy
 __version__ = '5.1'
 
+_NA = numpy.newaxis
+NEWCODE = True
+
 if not hasattr(collections,'OrderedDict'):
     # for older versions of python
     collections.OrderedDict = dict
@@ -385,7 +388,7 @@ class Corr2(BaseModel):
         fdata = numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
         return fdata if self.ncg == 1 else self.coarse_grain(fdata, self.ncg)
 
-    def fitfcn(self, p, nterm=None, t=None, ncg=None):
+    def old_fitfcn(self, p, nterm=None, t=None, ncg=None):
         """ Return fit function for parameters ``p``. """
         if ncg is None:
             ncg = self.ncg
@@ -428,6 +431,68 @@ class Corr2(BaseModel):
                 exp_tp_t = _gvar.exp(-tp_t)
                 for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
                     ans += ofaci * aij * bij * (exp_t ** sumdE + pfac * exp_tp_t ** sumdE)
+        return ans if ncg == 1 else self.coarse_grain(ans, ncg)
+
+    def fitfcn(self, p, nterm=None, t=None, ncg=None):
+        """ Return fit function for parameters ``p``. """
+        if ncg is None:
+            ncg = self.ncg
+        if t is None:
+            t = self.tfit
+        if self.tp is None:
+            tp_t = None
+        elif self.tp >= 0:
+            tp_t = self.tp - t
+            pfac = 1
+        else:
+            tp_t = -self.tp - t
+            pfac = -1
+        if nterm is None:
+            nterm = (None, None)
+        ofac = (None if self.s[0] == 0.0 else self.s[0],
+                (None if self.s[1] == 0.0 else self.s[1]*(-1)**t))
+        ans = 0.0
+        for _ai, _bi, _dEi, ofaci, ntermi in zip(
+            self.a, self.b, self.dE, ofac, nterm
+            ):
+            if _ai is None or _bi is None or _dEi is None or ofaci is None:
+                continue
+            if ntermi is not None:
+                if ntermi == 0:
+                    continue
+                ai = p[_ai][:ntermi]
+                bi = p[_bi][:ntermi]
+                dEi = p[_dEi][:ntermi]
+            else:
+                ai = p[_ai]
+                bi = p[_bi]
+                dEi = p[_dEi]
+            if tp_t is None:
+                if NEWCODE:
+                    ans += ofaci * numpy.sum(
+                        ai[_NA, :] * bi[_NA, :]
+                        * _gvar.exp(-t[:, _NA] * numpy.cumsum(dEi)[_NA, :]),
+                        axis=1,
+                        )
+                else:
+                    exp_t = _gvar.exp(-t)
+                    for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
+                        ans += ofaci * aij * bij * exp_t ** sumdE
+            else:
+                if NEWCODE:
+                    sumdE = numpy.cumsum(dEi)
+                    ans += ofaci * numpy.sum(
+                        ai[_NA, :] * bi[_NA, :] * (
+                            _gvar.exp(-t[:, _NA] * sumdE[_NA, :])
+                            + pfac * _gvar.exp(-tp_t[:, _NA] * sumdE[_NA, :])
+                            ),
+                        axis=1,
+                        )
+                else:
+                    exp_t = _gvar.exp(-t)
+                    exp_tp_t = _gvar.exp(-tp_t)
+                    for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
+                        ans += ofaci * aij * bij * (exp_t ** sumdE + pfac * exp_tp_t ** sumdE)
         return ans if ncg == 1 else self.coarse_grain(ans, ncg)
 
 
@@ -718,18 +783,30 @@ class Corr3(BaseModel):
                 ai =  p[_ai][:ntermai]
                 dEai = p[_dEai][:ntermai]
             if tp_ta is None:
-                exp_ta = _gvar.exp(-ta)
-                ans = [
-                    ofaci * aij * exp_ta ** sumdE
-                    for aij, sumdE in zip(ai, numpy.cumsum(dEai))
-                    ]
+                if NEWCODE:
+                    ans = ofaci * ai[:, _NA] * _gvar.exp(
+                        -ta[_NA, :] * numpy.cumsum(dEai)[:, _NA]
+                        )
+                else:
+                    exp_ta = _gvar.exp(-ta)
+                    ans = [
+                        ofaci * aij * exp_ta ** sumdE
+                        for aij, sumdE in zip(ai, numpy.cumsum(dEai))
+                        ]
             else:
-                exp_ta = _gvar.exp(-ta)
-                exp_tp_ta = _gvar.exp(-tp_ta)
-                ans = [
-                    ofaci * aij * (exp_ta ** sumdE + pafac * exp_tp_ta ** sumdE)
-                    for aij, sumdE in zip(ai, numpy.cumsum(dEai))
-                    ]
+                if NEWCODE:
+                    sumdE = numpy.cumsum(dEai)
+                    ans = ofaci * ai[:, _NA] * (
+                        _gvar.exp(-ta[_NA, :] * sumdE[:, _NA])
+                        + pafac * _gvar.exp(-tp_ta[_NA, :] * sumdE[:, _NA])
+                        )
+                else:
+                    exp_ta = _gvar.exp(-ta)
+                    exp_tp_ta = _gvar.exp(-tp_ta)
+                    ans = [
+                        ofaci * aij * (exp_ta ** sumdE + pafac * exp_tp_ta ** sumdE)
+                        for aij, sumdE in zip(ai, numpy.cumsum(dEai))
+                        ]
             aprop.append(ans)
         bprop = []
         ofac = (self.sb[0], (0.0 if self.sb[1] == 0.0 else self.sb[1]*(-1)**tb))
@@ -748,18 +825,30 @@ class Corr3(BaseModel):
                 bi = p[_bi][:ntermbi]
                 dEbi = p[_dEbi][:ntermbi]
             if tp_tb is None:
-                exp_tb = _gvar.exp(-tb)
-                ans = [
-                    ofaci * bij * exp_tb ** sumdE
-                    for bij, sumdE in zip(bi, numpy.cumsum(dEbi))
-                    ]
+                if NEWCODE:
+                    ans = ofaci * bi[:, _NA] * _gvar.exp(
+                        -tb[_NA, :] * numpy.cumsum(dEbi)[:, _NA]
+                        )
+                else:
+                    exp_tb = _gvar.exp(-tb)
+                    ans = [
+                        ofaci * bij * exp_tb ** sumdE
+                        for bij, sumdE in zip(bi, numpy.cumsum(dEbi))
+                        ]
             else:
-                exp_tb = _gvar.exp(-tb)
-                exp_tp_tb = _gvar.exp(-tp_tb)
-                ans = [
-                    ofaci * bij * (exp_tb ** sumdE + pbfac * exp_tp_tb ** sumdE)
-                    for bij, sumdE in zip(bi, numpy.cumsum(dEbi))
-                    ]
+                if NEWCODE:
+                    sumdE = numpy.cumsum(dEbi)
+                    ans = ofaci * bi[:, _NA] * (
+                        _gvar.exp(-tb[_NA, :] * sumdE[:, _NA])
+                        + pbfac * _gvar.exp(-tp_tb[_NA, :] * sumdE[:, _NA])
+                        )
+                else:
+                    exp_tb = _gvar.exp(-tb)
+                    exp_tp_tb = _gvar.exp(-tp_tb)
+                    ans = [
+                        ofaci * bij * (exp_tb ** sumdE + pbfac * exp_tp_tb ** sumdE)
+                        for bij, sumdE in zip(bi, numpy.cumsum(dEbi))
+                        ]
             bprop.append(ans)
 
         # combine propagators with vertices
