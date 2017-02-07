@@ -5,6 +5,7 @@
 
 PYTHON = python
 PIP = $(PYTHON) -m pip
+VERSION = `python -c 'import corrfitter; print corrfitter.__version__'`
 
 install:
 	$(PIP) install . --user
@@ -84,6 +85,11 @@ upload-git:
 test-download:
 	-$(PIP) uninstall corrfitter
 	$(PIP) install corrfitter --no-cache-dir
+
+tag-git:
+	echo  "version $(VERSION)"
+	git tag -a v$(VERSION) -m "version $(VERSION)"
+	git push origin v$(VERSION)
 
 clean:
 	cd tests; make clean; cd ..
