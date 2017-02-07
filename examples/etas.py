@@ -6,13 +6,14 @@ import numpy as np
 import corrfitter as cf
 
 def main():
-    data = make_data(filename='etas-Ds.data')
+    data = make_data(filename='etas.data')
     fitter = cf.CorrFitter(models=make_models())
     p0 = None
-    for N in range(2, 6):
+    for N in [2, 3, 4]:
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N)
         fit = fitter.lsqfit(data=data, prior=prior, p0=p0)
+        print(fit)
         p0 = fit.pmean
         print_results(fit)
     fastfit = cf.fastfit(G=data['etas'], ampl='0(1)', dE='0.5(5)', tmin=3, tp=64)
@@ -24,11 +25,7 @@ def make_data(filename):
 
 def make_models():
     """ Create corrfitter model for G(t). """
-    corr = cf.Corr2(
-        datatag='etas', tp=64, tdata=range(64), tfit=range(5, 64-5),
-        a='a', b='a', dE='dE'
-        )
-    return [corr]
+    return [cf.Corr2(datatag='etas', tp=64, tmin=5, a='a', b='a', dE='dE')]
 
 def make_prior(N):
     """ Create prior for N-state fit. """

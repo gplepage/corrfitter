@@ -6,40 +6,32 @@ import collections
 from corrfitter import CorrFitter, Corr2, Corr3
 
 DISPLAYPLOTS = False         # display plots at end of fitting
-try: 
+try:
     import matplotlib
 except ImportError:
     DISPLAYPLOTS = False
 
 def main():
-    data = make_data('etas-Ds.data') 
-    models = make_models() 
+    data = make_data('etas-Ds.h5')
+    models = make_models()
     prior = make_prior(8)
-    fitter = CorrFitter(models=make_models())
+    fitter = CorrFitter(models=make_models(), svdcut=1e-5)
     p0 = None
-    for N in [1, 2, 3, 4]:  
+    for N in [1, 2, 3, 4]:
         print(30 * '=', 'nterm =', N)
-        prior = make_prior(N)               
-        fit = fitter.chained_lsqfit(data=data, prior=prior, p0=p0) 
+        prior = make_prior(N)
+        fit = fitter.chained_lsqfit(data=data, prior=prior, p0=p0)
+        print(fit.formatall(pstyle=None if N < 4 else 'm'))
         p0 = fit.pmean
-    print_results(fit, prior, data)  
-    if DISPLAYPLOTS:
-            fitter.display_plots()
-    # polish fit
-    print('--- polish fit')
-    fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-4)
-    print_results(fit, prior, data)  
+    print_results(fit, prior, data)
     if DISPLAYPLOTS:
             fitter.display_plots()
     # fit with structured models
-    print('--- refit with structured models')
-    models = [models[:2]] + models[2:]  
-    fitter = CorrFitter(models=make_models())
-    fit = fitter.chained_lsqfit(data=data, prior=prior, p0=p0)
-    # polish
-    print('--- polish fit')
-    fit = fitter.lsqfit(data=data, prior=fit.p, svdcut=1e-4)
-    print_results(fit, prior, data)
+    # print('--- refit with structured models')
+    # models = [models[:2]] + models[2:]
+    # fitter = CorrFitter(models=models)
+    # fit = fitter.chained_lsqfit(data=data, prior=prior, p0=p0)
+    # print_results(fit, prior, data)
 
 
 

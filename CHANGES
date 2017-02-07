@@ -1,3 +1,84 @@
+Version 6.0
+============================
+Although this version involves a substantial rewrite of the code (and
+some of the documentation), the functionality is mostly the same. The
+new code is mostly backwards compatible, but it has new features
+and is generally more robust and better tested than before. Class CorrFitter
+is a slightly specialized version of lsqfit.MultiFitter, which is a new
+feature of lsqfit inspired by the original corrfitter.
+
+- This corrfitter version requires up-to-date versions of
+  gvar (v8.2 or greater) and lsqfit (v9.1.1 or later).
+
+- Corr3 keyword transposed_V is no longer supported. The same functionality
+  is provided using new keyword reverse, which time-reverses the data;
+  code is simpler with the new keyword. reverse is also available for Corr2.
+  transposed_V still works but its days are numbered.
+
+- CorrFitter.simulated_data_iter is replaced by
+  CorrFitter.simulated_pdata_iter, which returns processed data (for use
+  with keyword pdata in CorrFitter.lsqfit and CorrFitter.chained_lsqfit).
+
+- chained_lsqfit keyword parallel no longer exists. To fit models m1, m2 ...
+  in parallel set models=[[m1, m2, m3]].
+
+- Corrfitter.lsqfit option print_fit no longer exists. It isn't clear
+  what to print for chained fits, and, in any case, it is rude of software to
+  print stuff out without permission. Chained fits have an option:
+  print(fit.formatall()) prints out fit information for all the fits in the
+  chain. This also works for non-chain fits, but is the same as
+  print(fit) in that case.
+
+- Chained fits now return the last fit in the chain. They used to return
+  a hybrid object that didn't make a whole lot of sense. The parameter
+  values from the last fit represent the cummulative result of all the
+  fits.
+
+- Corr3 keywords tpa and tpb no longer do anything. They never made sense
+  and so have been disabled. They can still be set, for backwards
+  compatibility, but they are ignored.
+
+- Keyword otherdata is preferred to the older othertags, though the latter
+  still works for now.
+
+- Corr3 has a new keyword reverseddata that allows you to combine data for
+  b->V->a with data for a->V->b in a single Corr3. reverseddata is also
+  available for Corr2.
+
+- Instead of specifying tdata and tfit in Corr2, one can now specify just
+  tmin, and tp and/or tmax. This is simpler but only works if the associated
+  data includes results for all t values in order, starting with t=0
+  (which is very often the case). In Corr3, only T and tmin need be
+  specified; tdata and tfit are generated automatically in that case.
+
+- Given a dataset dset, pdata = process_dataset(dset, model_list) creates
+  *processed data* customized to the models in list model_list. This is
+  fed into CorrFitter.lsqfit using argument pdata=pdata rather than data=data.
+  Doing things this way makes a difference if the models are discarding large
+  amounts of input data since those data are discarded before averaging
+  is done (and in particular before the covariance matrix is calculated).
+  Fits can run substantially faster when the total amount of data is
+  reduced by a large factor.
+
+- In a chained fit of [m1, m2, m3 ...], any of the models m1, m2 ... can
+  be replaced by a tuple of models (s1, s2, ...), which indicates that
+  s1, s2, ... are to be fit together simultaneously, in a single fit. This is
+  a new feature. In the past any of m1, m2 ... could be replaced by
+  a list [p1, p2, ...] of models to be fit separately but in parallel. This
+  is still supported.
+
+- Corr2 and Corr3 have a new parameter ncg (default is ncg=1). When fitting
+  with ncg>1, correlators are coarse-grained by breaking them up into bins
+  of ncg values and replacing each bin by its average. The bin averages are
+  then fit by a coarse-grained version of the fit function. So, for example,
+  a correlator array [G[0], G[1], ...] is replaced by a new array
+  [ (G[0] + G[1])/2, (G[2] + G[3])/ 2 ... ] when ncg=2. The same
+  transformation is applied to the fit function as to the data, so the
+  meaning of the fit parameters is unchanged. In some cases coarse graining
+  does not much affect the accuracy of the fit results, and then is
+  desirable because it reduces the amount of data being fit.
+
+
 Version 5.0.1 2016-08-14
 ==========================
 - Made tests, examples and documentation compatible with lsqfit 8.0. You

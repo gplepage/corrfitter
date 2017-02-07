@@ -41,6 +41,14 @@ illustrated for real applications in a series of annotated
 examples following this section. Impatient readers may wish to jump
 directly to these examples.
 
+*About Printing:* The examples in this tutorial use the ``print`` function
+as it is used in Python 3. Drop the outermost parenthesis in each ``print``
+statement if using Python 2; or add ::
+
+  from __future__ import print_function
+
+at the start of your file.
+
 .. _basic-fits:
 
 Basic Fits
@@ -54,13 +62,13 @@ containing values for ``Gaa(t)`` and ``Gab(t)``, respectively, with
 is a Gaussian random variable of type |GVar|, and specifies the mean and
 standard deviation for the corresponding data point::
 
-    >>> print data['Gaa']
+    >>> print(data['Gaa'])
     [0.1597910(41) 0.0542088(31) ... ]
-    >>> print data['Gab']
+    >>> print(data['Gab'])
     [0.156145(18) 0.102335(15) ... ]
 
-|GVar|\s can also capture any statistical correlations between different
-pieces of data.
+|GVar|\s also capture statistical correlations between different
+pieces of data, if they exist.
 
 We want to fit this data to the following formulas::
 
@@ -80,22 +88,32 @@ formulas. The fit parameters used by the fitter are the ``a[i]``\s and
 
 A typical code has the following structure::
 
-    from corrfitter import CorrFitter
+    import corrfitter as cf
 
-    data = make_data('mcfile')          # user-supplied routine
-    models = make_models()              # user-supplied routine
-    N = 4                               # number of terms in fit functions
-    prior = make_prior(N)               # user-supplied routine
-    fitter = CorrFitter(models=models)
-    fit = fitter.lsqfit(data=data, prior=prior)  # do the fit
-    print_results(fit, prior, data)     # user-supplied routine
+    def main():
+        data = make_data('mcfile')          # user-supplied routine
+        models = make_models()              # user-supplied routine
+        N = 4                               # number of terms in fit functions
+        prior = make_prior(N)               # user-supplied routine
+        fitter = cf.CorrFitter(models=models)
+        fit = fitter.lsqfit(data=data, prior=prior)  # do the fit
+        print(fit)
+        print_results(fit, prior, data)     # user-supplied routine
+
+    ...
+
+    if __name__ == '__main__':
+        main()
 
 We discuss each user-supplied routine in turn.
 
 a) make_data
 ____________________________
 ``make_data('mcfile')`` creates the dictionary containing the data that is to
-be fit. Typically such data comes from a Monte Carlo simulation. Imagine that
+be fit. Typically such data comes from a Monte Carlo simulation. Exactly
+how the data are assembled depends upon how Monte Carlo results are stored.
+
+Imagine, for example, that
 the simulation creates a file called ``'mcfile'`` with layout ::
 
      # first correlator: each line has Gaa(t) for t=0,1,2...63
@@ -114,23 +132,65 @@ the simulation creates a file called ``'mcfile'`` with layout ::
      .
 
 where each line is one Monte Carlo measurement for one or the other
-correlator, as indicated by the tags at the start of each line. (Lines for
+correlator, as indicated by the tags at the start of the line. (Lines for
 ``Gab`` may be interspersed with lines for ``Gaa`` since every line has a
-tag.) The data can be analyzed using the :mod:`gvar.dataset` module::
+tag.) A data file in this format can be analyzed using::
 
+    import gvar as gv
+    import corrfitter as cf
+
+    def make_data(filename):
+        dset = cf.read_dataset(filename)
+        return gv.dataset.avg_data(dset)
+
+This reads the data from the file into a dataset,
+which is a dictionary whose values
+are two-dimenional arrays where the first index labels the Monte Carlo
+sample, and the second index labels time: for example, ::
+
+    >>> print(dset['Gaa'])
+    [ [0.159774739530e+00 0.541793561501e-01 ... ],
+      [0.159751906801e+00 0.542054488624e-01 ... ],
+      ...]
+
+Function :func:`gvar.dataset.avg_data` then
+averages over the Monte Carlo samples. Thus
+``data = make_data('mcfile')`` creates a dictionary where
+``data['Gaa']`` is a one-dimensional array of |GVar|\s, indexed by time,
+obtained by averaging over the
+``Gaa`` data in the ``'mcfile'``, and ``data['Gab']`` is a similar array
+for the ``Gab`` correlator. The correlator values for different
+``t``\s are typically correlated with each other.
+
+Other data formats are readily adapted to this purpose.
+For example, the same Monte Carlo data might
+be stored in an hdf5 file::
+
+    import h5py
     import gvar as gv
 
     def make_data(filename):
-        dset = gv.dataset.Dataset(filename)
+        h5file = h5py.File(filename, 'r')
+        dset = dict(
+            Gaa=h5file['/run5/Gaa'], Gab=hfile['/run5/Gab']
+            )
         return gv.dataset.avg_data(dset)
 
-This reads the data from file into a dataset object (type
-:class:`gvar.dataset.Dataset`) and then computes averages for each
-correlator and ``t``, together with a covariance matrix for the set of
-averages. Thus ``data = make_data('mcfile')`` creates a dictionary where
-``data['Gaa']`` is a 1-d array of |GVar|\s obtained by averaging over the
-``Gaa`` data in the ``'mcfile'``, and ``data['Gab']`` is a similar array
-for the ``Gab`` correlator.
+Here we assume ``h5file['/run5/Gaa']`` and ``hfile['/run5/Gab']``
+are hdf5 datasets that
+have been configured, again, as two-dimensional numpy arrays, where the
+first index is the Monte Carlo sample (configuration) index, and the second
+index is time.
+
+Function :func:`corrfitter.read_dataset` can read hdf5 files, so this
+last example could also be handled by ::
+
+    def make_data(filename):
+        dset = cf.read_dataset(filename, h5group='/run5')
+        return gv.dataset.avg_data(dset)
+
+provided ``filename`` ends in ``'.h5'``. This
+reads in all hdf5 datasets in group ``/run5``.
 
 b) make_models
 ____________________
@@ -138,22 +198,23 @@ ____________________
 and specifies theoretical models (that is, fit functions) for these
 correlators::
 
-    from corrfitter import Corr2
+    import corrfitter as cf
 
     def make_models():
-        models = [ Corr2(datatag='Gaa', tdata=range(64), tfit=range(64),
-                        a='a', b='a', dE='dE'),
-
-                   Corr2(datatag='Gab', tdata=range(64), tfit=range(64),
-                        a='a', b='b', dE='dE')
-                 ]
+        tdata = range(64)
+        tfit = tdata[2:]
+        models = [
+            cf.Corr2(datatag='Gaa', tdata=tdata, tfit=tfit, a='a', b='a', dE='dE'),
+            cf.Corr2(datatag='Gab', tdata=tdata, tfit=tfit, a='a', b='b', dE='dE'),
+            ]
         return models
 
 For each correlator, we specify: the key used in the input data dictionary
-``data`` for that correlator (``datatag``); the values of ``t`` for which
-results are given in the input data (``tdata``); the values of ``t`` to
-keep for fits (``tfit``, here the same as the range in the input data, but
-could be any subset); and fit-parameter labels for the source (``a``) and
+``data`` for that correlator (``datatag``); the ``t`` values,
+``tdata=[0,1,2...63]``, associated with each element of the fit data
+for the correlator; the subset
+of ``tdata`` values, ``tfit=[2,3,4...63]``, to be used in the fit;
+and fit-parameter labels for the source (``a``) and
 sink (``b``) amplitudes, and for the intermediate energy-differences
 (``dE``). Fit-parameter labels identify the parts of the prior,
 discussed below, corresponding to the actual fit parameters (the labels are
@@ -166,36 +227,43 @@ Note that if there is data for ``Gba(t,N)`` in addition to ``Gab(t,N)``, and
 ``Gba = Gab``, then the (weighted) average of the two data sets will be
 fit if ``models[1]`` is replace by::
 
-    Corr2(datatag='Gab', tdata=range(64), tfit=range(64),
-         a=('a', None), b=('b', None), dE=('dE', None),
-         othertags=['Gba'])
+    cf.Corr2(
+        datatag='Gab', tmin=1, tmax=63, a='a', b='b', dE='dE',
+        otherdata='Gba',
+        )
 
-The additional argument ``othertags`` lists other data tags that correspond
-to the same physical quantity; the data for all equivalent data tags is
-averaged before fitting (using :func:`lsqfit.wavg`). Alternatively (and
-equivalently) one could add a third ``Corr2`` to ``models`` for ``Gba``,
-but it is more efficient to combine it with ``Gab`` in this way if they are
+Alternatively one could add a third ``Corr2`` to ``models`` for ``Gba``,
+but it is more efficient to combine it with ``Gab``, before the fit,
+if they are
 equivalent.
+
+The arrays ``tdata`` and ``tfit`` provide more flexibility than is often
+needed. Here, because there is data for all ``t`` values starting with 0,
+we could have defined the correlator objects more simply, in terms
+of the minimum and maximum ``t`` values used in the fit: for example, ::
+
+    cf.Corr2(datatag='Gaa', tmin=2, tmax=63, a='a', b='a', dE='dE')
+
+:class:`corrfitter.Corr2` creates the obvious choices for
+``tdata`` and ``tfit`` from the information given.
 
 c) make_prior
 _______________________
 This routine defines the fit parameters that correspond to each fit-parameter
 label used in ``make_models()`` above. It also assigns *a priori* values to
 each parameter, expressed in terms of Gaussian random variables (|GVar|\s),
-with a mean and standard deviation. The prior is built using class
-:class:`gvar.BufferDict`::
+with a mean and standard deviation. The prior is built using a Python
+dictionary (we use :class:`gvar.BufferDict` but others would work)::
 
     import gvar as gv
 
     def make_prior(N):
-        prior = gvar.BufferDict()       # prior = {}  works too
-        prior['a'] = [gv.gvar(0.1, 0.5) for i in range(N)]
-        prior['b'] = [gv.gvar(1., 5.) for i in range(N)]
-        prior['dE'] = [gv.gvar(0.25, 0.25) for i in range(N)]
+        prior = gvar.BufferDict()
+        prior['a'] = gv.gvar(N * ['0.1(5)'])
+        prior['b'] = gv.gvar(N * ['1(5)'])
+        prior['dE'] = gv.gvar(N * ['0.25(25)'])
         return prior
 
-(:class:`gvar.BufferDict` can be replaced by an ordinary Python dictionary;
-it is used here because it remembers the order in which the keys are added.)
 ``make_prior(N)`` associates arrays of ``N`` Gaussian random variables
 (|GVar|\s) with each fit-parameter label, enough for ``N`` terms in the fit
 function. These are the *a priori* values for the fit parameters, and they
@@ -206,9 +274,9 @@ example, implies that ``prior['a'][i]``, ``prior['b'][i]`` and
 ``a[i]`` here is set to ``0.1±0.5``, while that for each ``b[i]`` is
 ``1±5``::
 
-    >>> print prior['a']
+    >>> print(prior['a'])
     [0.10(50) 0.10(50) 0.10(50) 0.10(50)]
-    >>> print prior['b']
+    >>> print(prior['b'])
     [1.0(5.0) 1.0(5.0) 1.0(5.0) 1.0(5.0)]
 
 Similarly the *a priori* value for each energy difference is ``0.25±0.25``.
@@ -217,25 +285,26 @@ Similarly the *a priori* value for each energy difference is ``0.25±0.25``.
 
 d) print_results
 _________________________________
-The actual fit is done by ``fit=fitter.lsqfit(...)``, which also prints out
-a summary of the fit results (this output can be suppressed if desired).
+The actual fit is done by ``fit=fitter.lsqfit(...)``, and ``print(fit)``
+right afterwards prints a summary of the fit results.
 Further results are reported by ``print_results(fit, prior, data)``: for
 example, ::
 
     def print_results(fit, prior, data):
+        print(fit)
         a = fit.p['a']                              # array of a[i]s
         b = fit.p['b']                              # array of b[i]s
         dE = fit.p['dE']                            # array of dE[i]s
-        E = [sum(dE[:i+1]) for i in range(len(dE))] # array of E[i]s
-        print 'Best fit values:
-        print '     a[0] =',a[0]
-        print '     b[0] =',b[0]
-        print '     E[0] =',E[0]
-        print 'b[0]/a[0] =',b[0]/a[0]
+        E = np.cumsum(dE)                           # array of E[i]s
+        print('Best fit values:)
+        print('     a[0] =',a[0])
+        print('     b[0] =',b[0])
+        print('     E[0] =',E[0])
+        print('b[0]/a[0] =',b[0]/a[0])
         outputs = {'E0':E[0], 'a0':a[0], 'b0':b[0], 'b0/a0':b[0]/a[0]}
         inputs = {'a'=prior['a'], 'b'=prior['b'], 'dE'=prior['dE'],
                   'data'=[data[k] for k in data])
-        print fit.fmt_errorbudget(outputs, inputs)
+        print(fit.fmt_errorbudget(outputs, inputs))
 
 The best-fit values from the fit are contained in ``fit.p`` and are accessed
 using the labels defined in the prior and the |Corr2| models. Variables like
@@ -259,7 +328,7 @@ the fit data ``data``. These sources are labeled in the print output by
 deviations and :func:`gvar.fmt_errorbudget`.)
 
 Plots of the fit data divided by the fit function, for each correlator, are
-displayed by calling ``fitter.display_plots()`` provided the :mod:`matplotlib`
+displayed by calling ``fit.show_plots()`` provided the :mod:`matplotlib`
 module is present.
 
 .. _faster-fits:
@@ -277,7 +346,7 @@ the smaller fit, for the most important parameters. Continuing with the
 example from the previous section, the code ::
 
     data = make_data('mcfile')
-    fitter = CorrFitter(models=make_models())
+    fitter = cf.CorrFitter(models=make_models())
     p0 = None
     for N in [1,2,3,4,5,6,7,8]:
         prior = make_prior(N)
@@ -305,9 +374,9 @@ parameters, include their logarithms in the prior and label the logarithms
 with ``'log(dE)'``: for
 example, in ``make_prior(N)`` use ::
 
-    prior['log(dE)'] = [gv.log(gv.gvar(0.25, 0.25)) for i in range(N)]
+    prior['log(dE)'] = gv.log(gv.gvar(N * ['0.25(25)']))
 
-instead of ``prior['dE'] = [gv.gvar(0.25, 0.25) for i in range(N)]``. The
+instead of ``prior['dE'] = gv.gvar(N * ['0.25(25)'])``. The
 fitter then uses the logarithms as the fit parameters. The original  ``'dE'``
 parameters are recovered (automatically) inside the fit function from
 exponentials of the ``'log(dE)'`` fit parameters.
@@ -334,21 +403,20 @@ into the code example above by changing the corresponding labels in
 ``make_prior(N)``,  and taking logarithms of the corresponding prior values::
 
     import gvar as gv
+    import corrfitter as cf
 
     def make_models():                          # same as before
-        models = [ Corr2(datatag='Gaa', tdata=range(64), tfit=range(64),
-                         a='a', b='a', dE='dE'),
-
-                   Corr2(datatag='Gab', tdata=range(64), tfit=range(64),
-                         a='a', b='b', dE='dE')
-                 ]
+        models = [
+            cf.Corr2(datatag='Gaa', tmin=2, tmax=63, a='a', b='a', dE='dE'),
+            cf.Corr2(datatag='Gab', tmin=2, tmax=63, a='a', b='b', dE='dE'),
+            ]
         return models
 
     def make_prior(N):
-        prior = gvar.BufferDict()               # prior = {}  works too
-        prior['log(a)'] = [gv.log(gv.gvar(0.1, 0.5)) for i in range(N)]
-        prior['b'] = [gv.gvar(1., 5.) for i in range(N)]
-        prior['log(dE)'] = [gv.log(gv.gvar(0.25, 0.25)) for i in range(N)]
+        prior = gv.BufferDict()
+        prior['log(a)'] = gv.log(gv.gvar(N * ['0.1(5)']))
+        prior['b'] = gv.gvar(N * ['1(5)'])
+        prior['log(dE)'] = gv.log(gv.gvar(N * ['0.25(25)']))
         return prior
 
 This replaces the original fit parameters, ``a[i]`` and ``dE[i]``, by new fit
@@ -362,9 +430,8 @@ connect the  modified terms in the prior with the appropriate terms in the
 models. This allows one to switch back and forth between log-normal and normal
 distributions without changing the models (or any other code) --- only the
 names in the prior need be changed. |CorrFitter| also supports "sqrt-normal"
-distributions, which are indicated by ``'sqrt'`` at the start of a parameter-
-name in the prior; the actual parameter in the fit function is the square of
-this fit- parameter, and so is again positive.
+distributions, and other distributions, as discussed in the :mod:`lsqfit`
+documentation.
 
 Finally note that another option for stabilizings fits involving many
 sources and sinks is to generate priors for the
@@ -393,11 +460,11 @@ fit only the leading ``N`` terms where ``N<Nmax``, while incorporating
     Nmax = 8
     data = make_data('mcfile')
     models = make_models()
-    fitter = CorrFitter(models=make_models())
+    fitter = cf.CorrFitter(models=make_models())
     prior = make_prior(Nmax)        # build priors for Nmax terms
     p0 = None
-    for N in [1,2,3]:
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, nterm=N) # fit N terms
+    for N in [1,2,3]:               # fit N terms
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, nterm=N)
         print_results(fit, prior, data)
         p0 = fit.pmean
 
@@ -412,8 +479,8 @@ Remarkably this method is usually as accurate with ``N=1`` or ``2`` as a full
 is not the case, check for singular priors, where the mean is much smaller
 than the standard deviation. These can lead to singularities in the covariance
 matrix for the corrected fit data. Such priors are easily fixed: for example,
-use ``gvar.gvar(0.1,1.)`` rather than ``gvar.gvar(0.0,1.)``.
-In some situations an *svd* cut (see below) can also
+use ``gvar.gvar('0.1(1.0)')`` rather than ``gvar.gvar('0(1)')``.
+In some situations an SVD cut (see below) can also
 help.
 
 .. _chained-fits:
@@ -424,7 +491,7 @@ Large complicated fits, where lots of models and data are fit simultaneously,
 can  take a very long time. This is especially true if there are strong
 correlations in the data. Such correlations can also cause  problems from
 numerical roundoff errors when the inverse of the data's covariance matrix is
-computed for the ``chi**2`` function, requiring large *svd* cuts which can
+computed for the ``chi**2`` function, requiring large SVD cuts which can
 degrade precision (see below). An alternative approach is to use *chained*
 fits.  In a chained fit, each model is fit by itself in sequence, but with the
 best-fit parameters from each fit serving as priors for fit parameters in  the
@@ -436,66 +503,122 @@ are preserved  throughout (approximately).
 
 The results from a chained fit are identical to a standard simultaneous fit in
 the limit of large statistics (that is, in the Gaussian limit), but a  chained
-fit never involves fitting more than a single correlator at a time.
-Single-correlator fits are usually much faster than simultaneous multi-correlator
-fits, and roundoff errors (and therefore *svd* cuts) are much less of a
-problem. Consequently chained fits can be more accurate in practice than
-conventional simultaneous fits, especially for high-statistics data.
+fit usually involves fitting only a single correlator at a time.
+Single-correlator fits are typically much faster than simultaneous
+multi-correlator
+fits, and roundoff errors (and therefore SVD cuts) are much less of a
+problem.
 
-Converting to chained fits is trivial: simply replace ``fitter.lsqfit(...)``
-by ``fitter.chained_lsqfit(...)``. The output from this function represents
-the results for the entire chain of fits, and so can be used in exactly the
-same way as the  output from :func:`fitter.lsqfit` (and is usually quite
-similar, to within statistical errors). Results from the different links in
-the chain --- that is, from the fits for individual models --- can be accessed
-after the fit using ``fitter.fit.fits[datatag]`` where ``datatag`` is the
-data tag for the model of interest.
+Converting to chained fits is trivial: simply replace ``fit = fitter.lsqfit(...)``
+by ``fit = fitter.chained_lsqfit(...)``. The output from this function
+comes from the last fit in the chain, whose fit results represent the
+cummulative results of the entire chain of fits.
+Results from the different links in
+the chain --- that is, from the fits for individual models --- are
+displayed using ``print(fit.formatall())``.
 
-Setting parameter ``parallel=True`` in ``fitter.chained_lsqfit(...)`` makes the
-fits for each model independent of each other. Each correlator is
-fit separately, but nothing is passed from one fit to the next. In particular,
-each fit uses the input prior. Parallel fits can be better than chained
-fits in situations where different models share few or no parameters.
+There are various ways of chaining fits. For example, setting ::
 
-It is sometimes useful to combine chained and parallel fits. This is done
-by using a nested list of models. For example, setting ::
+    models = [m1, m2, (m3a, m3b), m4]
+
+causes models ``m1``, ``m2`` and ``m4`` to be fit separately, but fits models
+``m3a`` and ``m3b`` together in a single simultaneous fit: ::
+
+    m1 -> m2 -> (simultaneous fit of m3a, m3b) -> m4
+
+Simultaneous fits make sense when there is lots of overlap between the
+parameters for the different models.
+
+Another option is ::
 
     models = [m1, m2, [m3a,m3b], m4]
 
-with ``parallel=False`` (the default) in ``fitter.chained_lsqfit`` causes
+in ``fitter.chained_lsqfit`` which causes
 the following chain of fits::
 
-    m1 -> m2 -> (parallel fit of [m3a,m3b]) -> m4
+    m1 -> m2 -> (parallel fit of m3a, m3b) -> m4
 
 Here the output from ``m1`` is used in the prior for fit ``m2``, and the
 output from ``m2`` is used as the prior for a parallel fit of ``m3a``
 and ``m3b`` together --- that is, ``m3a`` and ``m3b`` are not chained,
 but rather are fit in parallel with each using a prior from fit ``m2``. The
 result of the parallel fit of ``[m3a,m3b]`` is used as the prior for ``m4``.
-Different levels of nesting in the list of
-models alternate between chained and parallel fits.
+Parallel fits make sense when there is little overlap between the parameters
+used by the different fits.
 
-It is sometimes useful to follow a chained fit with an ordinary fit,
-but using the best-fit parameters from the chained fit as the prior for
-the ordinary fit: for example, ::
+Faster Fits --- Faster Fitters
+------------------------------
+When fits take many iterations to converge (or converge to an obviously wrong
+result), it is worthwhile trying a
+different fitter. The :mod:`lsqfit` module, which is used by
+:mod:`corrfitter` for fitting, offers a variety of alternative
+fitting algorithms that can sometimes be much faster (2 or 3 times
+faster). These are deployed by adding extra directives for :mod:`lsqfit`
+when constructing the fitter or when doing the fit: for example, ::
 
-        fit = fitter.chained_lsqfit(data=data, prior=prior)
-        fit = fitter.lsqfit(data=data, prior=fit.p)
+    import corrfitter as cf
 
-The second fit should,
-in principle, have no effect on the results since it adds no new
-information. In some cases, however, it polishes the results by making small
-(compared to the errors) corrections that tighten up the overall fit. It is
-generally fairly fast since the prior (``fit.p``) is relatively narrow.
-It is also possible to polish fits using ``fitter.chained_lsqfit``, with
-parameters ``parallel=True`` and ``flat=True``, rather than using
-``fitter.lsqfit``. This can be faster for very large fits.
+    fitter = cf.CorrFitter(
+        models=make_models(),
+        fitter='gsl_multifit', alg='subspace2D', solver='cholesky'
+        )
 
+uses the ``subspace2D`` algorithm for subsequent fits with ``fitter``. It
+is also possible to reset the default algorithms for all fits::
 
+    import lsqfit
+
+    lsqfit.nonlinear_fit.set(
+        fitter='gsl_multifit', alg='subspace2D', solver='cholesky'
+        )
+
+The documentation for :mod:`lsqfit` describes many more options.
+
+Faster Fits --- Processed Datasets
+-----------------------------------
+When fitting very large data sets, it is usually worthwhile to pare the data
+down to the smallest subset that is needed for the fit. Ideally this is done
+before the Monte Carlo data are averaged, to keep the size of the covariance
+matrix down. One way to do this is to process the Monte Carlo data with the
+models, just before averaging it, by using ::
+
+    import gvar as gv
+    import corrfitter as cf
+
+    def make_pdata(filename, models):
+        dset = cf.read_dataset(filename)
+        pdset = cf.process_dataset(dset, models)
+        return gv.dataset.avg_data(pdset)
+
+in place of ``make_data(filename)``. Here ``models`` is the list
+of models used by the fitter (``fitter.models``). Function ``make_pdata``
+returns processed data which is passed to ``fitter.lsqfit`` using
+the ``pdata`` keyword::
+
+    import corrfitter as cf
+
+    def main():
+        models = make_models()
+        pdata = make_pdata('mcfile', models)
+        N = 4
+        prior = make_prior(N)
+        fitter = cf.CorrFitter(models=models)
+        fit = fitter.lsqfit(pdata=pdata, prior=prior)
+        print(fit)
+        print_results(fit, prior, pdata)
+
+    ...
+
+    if __name__ == '__main__':
+        main()
+
+Processed data can only be used with the models that created it, so
+parameters in those models should not be changed after the data is
+processed.
 
 Variations
 ----------
-Any 2-point correlator can be turned into a periodic function of ``t`` by
+A 2-point correlator is turned into a periodic function of ``t`` by
 specifying the period through parameter ``tp``. Doing so causes the
 replacement (for ``tp>0``) ::
 
@@ -516,8 +639,10 @@ exponentials with two sums ::
 in a (nonperiodic) fit function. Then an appropriate model
 would be, for example, ::
 
-    Corr2(datatag='Gaa', tdata=range(64), tfit=range(64),
-          a=('a','ao'), b=('a','ao'), dE=('dE','dEo'), s=(1,-1))
+    Corr2(
+        datatag='Gaa', tmin=2, tmax=63,
+        a=('a','ao'), b=('a','ao'), dE=('dE','dEo'), s=(1,-1)
+        )
 
 where ``ao`` and ``dEo`` refer to additional fit parameters describing
 the oscillating component. In general parameters for amplitudes and
@@ -531,14 +656,14 @@ Highly correlated data can lead to problems from numerical roundoff errors,
 particularly where the fit code inverts the covariance matrix when
 constructing the ``chi**2`` function. Such problems show up as unexpectedly
 large ``chi**2`` or fits that stall and appear never to converge. Such
-situations are usually improved by introducing an *svd* cut: for example, ::
+situations are usually improved by introducing an SVD cut: for example, ::
 
     fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=1e-4)
 
-Introducing an *svd* cut increases the effective errors and so is a
-conservative move. For more information about *svd* cuts see the :mod:`lsqfit`
+Introducing an SVD cut increases the effective errors and so is a
+conservative move. For more information about SVD cuts see the :mod:`lsqfit`
 tutorial and documentation. Parameter ``svdcut`` is used to
-specify an *svd* cut.
+specify an SVD cut.
 
 
 .. _very-fast-fits:
@@ -559,7 +684,7 @@ This is done using the following code ::
     from corrfitter import fastfit
 
     # Gdata = array containing G(t) for t=0,1,2...
-    fit = fastfit(Gdata, ampl='0(1)', dE='0.5(5)', tmin=3, nterm=N)
+    fit = fastfit(Gdata, ampl='0(1)', dE='0.5(5)', tmin=3)
     print('E[0] =', fit.E)                  # E[0]
     print('A[0] =', fit.ampl)               # A[0]
     print('chi2/dof =', fit.E.chi2/fit.dof) # good fit if of order 1 or less
@@ -585,7 +710,7 @@ actually necessary since the functional form is so simple.  :class:`fastfit`
 averages estimates for ``E[0]`` and ``A[0]`` from all ``t``\s larger than
 ``tmin``. It is important to verify that these estimates agree  with each
 other, by checking the ``chi**2`` of the average. Try increasing ``tmin`` if
-the ``chi**2`` is too large; or introduce an *svd* cut.
+the ``chi**2`` is too large; or introduce an SVD cut.
 
 The energies from :class:`fastfit` are closely related to standard *effective
 masses*. The key difference is :class:`fastfit`’s marginalization of terms
@@ -612,7 +737,7 @@ same intermediate states before and after ``V(t)``. Assuming the data is
 tagged by ``aVbT15`` and describes ``T=15``, the corresponding entry in the
 collection of models might then be::
 
-    Corr3(datatag='aVbT15', T=15, tdata=range(16), tfit=range(16),
+    Corr3(datatag='aVbT15', T=15, tdata=range(16), tfit=range(1, 16),
         Vnn='Vnn',                # parameters for V
         a='a', dEa='dE',          # parameters for a->V
         b='b', dEb='dE',          # parameters for V->b
@@ -627,11 +752,21 @@ where the ``Vnn[i,j]``\s are new fit parameters related to ``a->V->b`` form
 factors. Obviously multiple values of ``T`` can be studied by including
 multiple |Corr3| models, one for each value of ``T``. Either or both of the
 initial and final states can have oscillating components (include ``sa``
-and/or ``sb``), or can be periodic (include ``tpa`` and/or ``tpb``). If
+and/or ``sb``). If
 there are oscillating states then additional ``V``\s must be specified:
 ``Vno`` connecting a normal state to an oscillating state, ``Von``
 connecting oscillating to normal states, and ``Voo`` connecting oscillating
 to oscillating states.
+
+Keywords ``tdata`` and ``tfit`` need not be specified when
+there is data for every ``t=0,1...T``: for example, ::
+
+    Corr3(
+        datatag='aVbT15', T=15, tmin=1,
+        Vnn='Vnn', a='a', dEa='dE', b='b', dEb='dE',
+        )
+
+is equivalent to the definition above.
 
 There are two cases that require special treatment. One is when
 simultaneous fits are made to ``a->V->b`` and ``b->V->a``. Then the
@@ -641,37 +776,59 @@ would look something like::
 
     models = [
         ...
-        Corr3(datatag='aVbT15', T=15, tdata=range(16), tfit=range(16),
+        Corr3(
+            datatag='aVbT15', T=15, tmin=1,
             Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
             a=('a','ao'), dEa=('dE','dEo'), sa=(1,-1), # a->V
             b=('b','bo'), dEb=('dE','dEo'), sb=(1,-1)  # V->b
             ),
-        Corr3(datatag='bVaT15', T=15, tdata=range(16), tfit=range(16),
-            Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo', transpose_V=True,
-            a=('b','bo'), dEa=('dE','dEo'), sa=(1,-1), # b->V
-            b=('a','ao'), dEb=('dE','dEo'), sb=(1,-1)  # V->a
+        Corr3(
+            datatag='bVaT15', T=15, tmin=1, reverse=True,
+            Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
+            a=('a','ao'), dEa=('dE','dEo'), sa=(1,-1), # a->V
+            b=('b','bo'), dEb=('dE','dEo'), sb=(1,-1)  # V->b
             ),
         ...
-    ]
+        ]
 
-The same ``V``\s are specified for the second correlator, but setting
-``transpose_V=True`` means that the transpose of each matrix is used
-in the fit for that correlator.
+The second ``Corr3`` is identical to the first except for the
+datatag (``'bVaT15'``), and the keyword ``reverse=True``, which
+instructs the model to time-reverse its data, interchanging
+``t=0`` with ``t=T``, before fitting. Time-reversing in
+effect turns ``b->V->a`` into ``a->V->b``.
+
+Another way to handle this last situation is to average the data
+from ``b->V->a`` with that from ``a->V->b`` for a single fit. This
+is done using one ``Corr3`` but with the keyword ``reverseddata``
+to indicate the data to be time-reversed and then averaged with the
+``a->V->b`` data::
+
+    models = [
+        ...
+        Corr3(
+            datatag='aVbT15', T=15, tmin=1, reverseddata='bVaT15',
+            Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
+            a=('a','ao'), dEa=('dE','dEo'), sa=(1,-1), # a->V
+            b=('b','bo'), dEb=('dE','dEo'), sb=(1,-1)  # V->b
+            ),
+        ...
+        ]
+
 
 The second special case is for fits to ``a->V->a`` where source and sink
 are the same. In that case, ``Vnn`` and ``Voo`` are symmetric matrices, and
 ``Von`` is the transpose of ``Vno``. The model for such a case would look
 like::
 
-    Corr3(datatag='aVbT15', T=15, tdata=range(16), tfit=range(16),
-        Vnn='Vnn', Vno='Vno', Von='Vno', Voo='Voo', symmetric_V=True,
+    Corr3(
+        datatag='aVbT15', T=15, tmin=1,
+        Vnn='Vnn', Vno='Vno', Voo='Voo', symmetric_V=True,
         a=('a','ao'), dEa=('dE', 'dEo'), sa=(1, -1), # a->V
         b=('a','ao'), dEb=('dE', 'dEo'), sb=(1, -1)  # V->a
         )
 
-Here ``Vno`` and ``Von`` are set equal to the same matrix, but specifying
-``symmetric_V=True`` implies that the transpose will be used for ``Von``.
-Furthermore ``Vnn`` and ``Voo`` are symmetric matrices when
+Here only ``Vno`` is specified, since ``Von`` is its transpose.
+Furthermore ``Vnn`` and ``Voo`` are (square) symmetric matrices when
 ``symmetric_V==True`` and so only the upper part of each matrix is needed.
 In this case ``Vnn`` and ``Voo`` are treated as one-dimensional arrays with
 ``N(N+1)/2`` elements corresponding to the upper parts of each matrix,
@@ -682,13 +839,13 @@ Testing Fits with Simulated Data
 --------------------------------
 Large fits are complicated and often involve nontrivial choices about
 algorithms (*e.g.*, chained fits versus regular fits), priors, and
-*svd* cuts --- choices that affect the values and errors for the fit
+SVD cuts --- choices that affect the values and errors for the fit
 parameters. In such situations it is often a good idea to test the
 fit protocol that has been selected. This can be done by fitting simulated
 data. Simulated data looks almost identical to the original fit
 data but has means that have been adjusted to correspond to fluctuations
 around a correlator with known (before the fit) parameter values: ``p=pexact``.
-The |CorrFitter| iterator ``simulated_data_iter`` creates any number of
+The |CorrFitter| iterator ``simulated_pdata_iter`` creates any number of
 different simulated data sets of this kind. Fitting any of these with
 a particular fit protocol tests the reliability of that protocol since
 the fit results should agree with ``pexact``
@@ -709,27 +866,18 @@ might look something like::
 
     def main():
         dataset = gv.dataset.Dataset(...)       # from original fit code
-        fitter = corrfitter.CorrFitter(         # from original fit code
-            models = make_models(...),
-            prior = make_prior(...),
-            ...
-            )
+        prior = make_prior(...)
+        fitter = corrfitter.CorrFitter(models = make_models(...))
         n = 2                                   # number of simulations
         pexact = lsqfit.nonlinear_fit.load_parameters("pexact_file")
-        for sdata in fitter.simulated_data_iter(n, dataset, pexact=pexact):
+        for spdata in fitter.simulated_pdata_iter(n, dataset, pexact=pexact):
             # sfit = fit to the simulated data sdata
-            sfit = fitter.lsqfit(data=sdata, p0=pexact, prior=prior, svdcut=..., ...)
+            sfit = fitter.lsqfit(pdata=spdata, p0=pexact, prior=prior...)
             ... check that sfit.p values agree with pexact to within sfit.psdev ...
 
-Simulated fits provide an alternative to a *bootstrap analysis* (see next
-section). By collecting results from many simulated fits, one can test whether
-or not fit results are distributed in Gaussian distributions around ``pexact``,
-with widths that equal the standard deviations from the fit (``fit.psdev``
-or ``sfit.psdev``).
-
-Fit simulations are particularly useful for setting *svd* cuts. Given
+Fit simulations are particularly useful for setting SVD cuts. Given
 a set of approximate parameter values to use for ``pexact``, it is easy
-to run fits with a range of *svd* cuts to see how small ``svdcut``
+to run fits with a range of SVD cuts to see how small ``svdcut``
 can be made before the parameters of interest deviate too far from ``pexact``.
 
 
@@ -791,28 +939,13 @@ means and covariance matrix of the input data (assuming Gaussian statistics).
 
 Implementation
 --------------
-|CorrFitter| allows models to specify how many exponentials to include in the
-fit function (using parameters ``nterm``, ``nterma`` and ``ntermb``). If that
-number is less than the number of exponentials specified by the prior, the
-extra terms are incorporated into the fit data before fitting. The default
-procedure is to multiply the data by ``G(t,p,N)/G(t,p,max(N,Nmax))`` where:
-``G(p,t,N)`` is the fit function with ``N`` terms for parameters ``p`` and
-time ``t``; ``N`` is the number of exponentials specified in the models;
-``Nmax`` is the number of exponentials specified in the prior; and here
-parameters ``p`` are set equal to their values in the prior (correlated
-|GVar|\s).
-
-An alternative implementation for the data correction is to add
-``G(t,p,N)-G(t,p,max(N,Nmax))`` to the data. This implementation is selected
-when parameter ``ratio`` in |CorrFitter| is set to ``False``. Results are
-similar to the other implementation.
-
 Background information on the some of the fitting strategies used by
 |corrfitter| can be found by doing a web searches for "hep-lat/0110175",
 "arXiv:1111.1363", and ":arXiv:1406.2279" (appendix). These are papers by
 G.P. Lepage and collaborators whose published versions are: G.P. Lepage et al,
 Nucl.Phys.Proc.Suppl. 106 (2002) 12-20; K. Hornbostel et al,
-Phys.Rev. D85 (2012) 031504; and C. Bouchard et al, ...
+Phys.Rev. D85 (2012) 031504; and
+C. Bouchard et al, Phys.Rev. D90 (2014) 054506.
 
 
 Correlator Model Objects
@@ -829,13 +962,10 @@ object.
 A model object also specifies the data that it is to model. The data is
 identified by the data tag that labels it in the input file or |Dataset|.
 
-.. autoclass:: corrfitter.Corr2(datatag, tdata, tfit, a, b, dE, s=1.0, tp=None, othertags=None)
+.. autoclass:: corrfitter.Corr2(datatag, a, b, dE, s=1.0, tp=None, tmin=None, tmax=None, tdata=None, tfit=None, reverse=False, reverseddata=[], otherdata=[])
    :members:
 
-.. autoclass:: corrfitter.Corr3(datatag, T, tdata, tfit, Vnn, a, b, dEa, dEb, sa=1.0, sb=1.0, Vno=None, Von=None, Voo=None, transpose_V=False, symmetric_V=False, tpa=None, tpb=None, othertags=None)
-   :members:
-
-.. autoclass:: corrfitter.BaseModel
+.. autoclass:: corrfitter.Corr3(datatag, T, Vnn, a, b, dEa, dEb, sa=1.0, sb=1.0, Vno=None, Von=None, Voo=None, tdata=None, tfit=None, tmin=None. reverse=False, symmetric_V=False, reverseddata=[], otherdata=[])
    :members:
 
 

@@ -3,8 +3,8 @@
 # Created by G. Peter Lepage (Cornell University) on 2011-09-22.
 # Copyright (c) 2011-2013 G. Peter Lepage.
 
-PIP = pip
 PYTHON = python
+PIP = $(PYTHON) -m pip
 
 install:
 	$(PIP) install . --user
