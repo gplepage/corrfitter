@@ -587,8 +587,7 @@ models, just before averaging it, by using ::
 
     def make_pdata(filename, models):
         dset = cf.read_dataset(filename)
-        pdset = cf.process_dataset(dset, models)
-        return gv.dataset.avg_data(pdset)
+        return cf.process_dataset(dset, models)
 
 in place of ``make_data(filename)``. Here ``models`` is the list
 of models used by the fitter (``fitter.models``). Function ``make_pdata``
@@ -815,10 +814,10 @@ to indicate the data to be time-reversed and then averaged with the
         ]
 
 
-The second special case is for fits to ``a->V->a`` where source and sink
-are the same. In that case, ``Vnn`` and ``Voo`` are symmetric matrices, and
-``Von`` is the transpose of ``Vno``. The model for such a case would look
-like::
+The second special case is for fits to ``a->V->a`` where the initial and final
+particles are the same (with the same momentum). In that case, ``Vnn`` and
+``Voo`` are symmetric matrices, and ``Von`` is the transpose of ``Vno``. The
+model for such a case would look like, for example::
 
     Corr3(
         datatag='aVbT15', T=15, tmin=1,

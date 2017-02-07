@@ -598,8 +598,7 @@ models, just before averaging it, by using</p>
 
 <span class="k">def</span> <span class="nf">make_pdata</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">models</span><span class="p">):</span>
     <span class="n">dset</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-    <span class="n">pdset</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">process_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">models</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">pdset</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cf</span><span class="o">.</span><span class="n">process_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">models</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>in place of <code class="docutils literal"><span class="pre">make_data(filename)</span></code>. Here <code class="docutils literal"><span class="pre">models</span></code> is the list
@@ -609,9 +608,9 @@ the <code class="docutils literal"><span class="pre">pdata</span></code> keyword
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">corrfitter</span> <span class="kn">as</span> <span class="nn">cf</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">()</span>
     <span class="n">pdata</span> <span class="o">=</span> <span class="n">make_pdata</span><span class="p">(</span><span class="s">&#39;mcfile&#39;</span><span class="p">,</span> <span class="n">models</span><span class="p">)</span>
-    <span class="n">N</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
     <span class="n">fitter</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">models</span><span class="p">)</span>
     <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">pdata</span><span class="o">=</span><span class="n">pdata</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>
@@ -815,10 +814,10 @@ to indicate the data to be time-reversed and then averaged with the
     ]
 </pre></div>
 </div>
-<p>The second special case is for fits to <code class="docutils literal"><span class="pre">a-&gt;V-&gt;a</span></code> where source and sink
-are the same. In that case, <code class="docutils literal"><span class="pre">Vnn</span></code> and <code class="docutils literal"><span class="pre">Voo</span></code> are symmetric matrices, and
-<code class="docutils literal"><span class="pre">Von</span></code> is the transpose of <code class="docutils literal"><span class="pre">Vno</span></code>. The model for such a case would look
-like:</p>
+<p>The second special case is for fits to <code class="docutils literal"><span class="pre">a-&gt;V-&gt;a</span></code> where the initial and final
+particles are the same (with the same momentum). In that case, <code class="docutils literal"><span class="pre">Vnn</span></code> and
+<code class="docutils literal"><span class="pre">Voo</span></code> are symmetric matrices, and <code class="docutils literal"><span class="pre">Von</span></code> is the transpose of <code class="docutils literal"><span class="pre">Vno</span></code>. The
+model for such a case would look like, for example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">Corr3</span><span class="p">(</span>
     <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;aVbT15&#39;</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span> <span class="n">Vno</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span> <span class="n">Voo</span><span class="o">=</span><span class="s">&#39;Voo&#39;</span><span class="p">,</span> <span class="n">symmetric_V</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
