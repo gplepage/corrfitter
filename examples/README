@@ -1,9 +1,9 @@
 The code in this directory is for fitting real Monte Carlo data from the HPQCD
-collaboration (data is in the various .data files). The examples are 
+collaboration (data is in the various .data and .h5 files). The examples are
 discussed in the Annotated Examples section of the corrfitter documentation
 (see doc/html/index.html).
 
 Using  'make run' runs each script and compares its output with
-output from earlier runs (in .out files). There may well be slight differences
+output from earlier runs (in .out files). There may be slight differences
 between runs on different hardware or with different software; these are
-likely unimportant. 
+likely unimportant.

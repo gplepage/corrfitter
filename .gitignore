@@ -1,6 +1,8 @@
 *.pyc
 tests/*.pyc
 *.p
+old-examples
+examples/extra-fits.*
 examples/*.p
 doc/source/_build/
 MANIFEST
@@ -13,3 +15,12 @@ corrfitter.tmproj
 files-*.python*
 todo
 *.sublime-*
+xxx*
+yyy*
+zzz*
+xyz*
+zyx*
+tmp/
+old/
+doc/latex
+

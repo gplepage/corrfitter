@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Annotated Example: Two-Point Correlator &mdash; corrfitter 5.0.1 documentation</title>
+    <title>Annotated Example: Two-Point Correlator &mdash; corrfitter 6.0 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.0.1',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 5.0.1 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 6.0 documentation" href="index.html" />
     <link rel="next" title="Annotated Example: Transition Form Factor and Mixing" href="example-etas-Ds.html" />
     <link rel="prev" title="corrfitter - Least-Squares Fit to Correlators" href="corrfitter.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="corrfitter.html" title="corrfitter - Least-Squares Fit to Correlators"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 5.0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -97,13 +97,14 @@ code is:</p>
 <span class="kn">import</span> <span class="nn">corrfitter</span> <span class="kn">as</span> <span class="nn">cf</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;etas-Ds.data&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;etas.data&#39;</span><span class="p">)</span>
     <span class="n">fitter</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
     <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>
         <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nterm =&#39;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
         <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
         <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span>
         <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
         <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span>
     <span class="n">fastfit</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">fastfit</span><span class="p">(</span><span class="n">G</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;etas&#39;</span><span class="p">],</span> <span class="n">ampl</span><span class="o">=</span><span class="s">&#39;0(1)&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;0.5(5)&#39;</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
@@ -115,11 +116,7 @@ code is:</p>
 
 <span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot; Create corrfitter model for G(t). &quot;&quot;&quot;</span>
-    <span class="n">corr</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">Corr2</span><span class="p">(</span>
-        <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;etas&#39;</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span> <span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">64</span><span class="o">-</span><span class="mi">5</span><span class="p">),</span>
-        <span class="n">a</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;dE&#39;</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">corr</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">cf</span><span class="o">.</span><span class="n">Corr2</span><span class="p">(</span><span class="n">datatag</span><span class="o">=</span><span class="s">&#39;etas&#39;</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s">&#39;dE&#39;</span><span class="p">)]</span>
 
 <span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Create prior for N-state fit. &quot;&quot;&quot;</span>
@@ -139,8 +136,8 @@ code is:</p>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Here the Monte Carlo data are read by <code class="docutils literal"><span class="pre">make_data('etas-Ds.data')</span></code>  from file
-<code class="docutils literal"><span class="pre">'etas-Ds.data'</span></code>. This file contains (among other things)  225 lines,  each
+<p>Here the Monte Carlo data are read by <code class="docutils literal"><span class="pre">make_data('etas.data')</span></code>  from file
+<code class="docutils literal"><span class="pre">etas.data</span></code>. This file contains 225 lines,  each
 with 64 numbers, of the form:</p>
 <div class="highlight-python"><div class="highlight"><pre>etas    0.305044    0.0789607   0.0331313 ...
 etas    0.306573    0.0802435   0.0340765 ...
@@ -205,7 +202,7 @@ Parameters:
               1     0.7191 (83)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 15/0.0)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 21/0.0)
 
 E   0.41629(11)      1.1354(83)     
 a   0.21854(15)      0.2721(46)     
@@ -227,7 +224,7 @@ Parameters:
               2       0.40 (21)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 23/0.1)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 18/0.0)
 
 E   0.41620(12)      0.99(16)       
 a   0.21836(18)      0.15(12)       
@@ -240,7 +237,7 @@ Parameters:
             a 0    0.21836 (18)      [  0.0 (1.0) ]  
               1       0.15 (12)      [  0.0 (1.0) ]  
               2      0.308 (51)      [  0.0 (1.0) ]  
-              3     -6e-08 +- 1      [  0.0 (1.0) ]  
+              3      2e-06 +- 1      [  0.0 (1.0) ]  
       log(dE) 0   -0.87660 (30)      [ -0.7 (1.0) ]  
               1      -0.56 (28)      [ -0.7 (1.0) ]  
               2      -0.92 (53)      [ -0.7 (1.0) ]  
@@ -252,35 +249,7 @@ Parameters:
               3       0.50 (50)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 15/0.0)
-
-E   0.41620(12)      0.99(16)       
-a   0.21836(18)      0.15(12)       
-
-============================== nterm = 5
-Least Square Fit:
-  chi2/dof [dof] = 0.68 [28]    Q = 0.89    logGBF = 483.08
-
-Parameters:
-            a 0    0.21836 (18)      [  0.0 (1.0) ]  
-              1       0.15 (12)      [  0.0 (1.0) ]  
-              2      0.308 (51)      [  0.0 (1.0) ]  
-              3     -2e-07 +- 1      [  0.0 (1.0) ]  
-              4      2e-07 +- 1      [  0.0 (1.0) ]  
-      log(dE) 0   -0.87660 (30)      [ -0.7 (1.0) ]  
-              1      -0.56 (28)      [ -0.7 (1.0) ]  
-              2      -0.92 (53)      [ -0.7 (1.0) ]  
-              3      -0.7 (1.0)      [ -0.7 (1.0) ]  
-              4      -0.7 (1.0)      [ -0.7 (1.0) ]  
----------------------------------------------------
-           dE 0    0.41620 (12)      [  0.50 (50) ]  
-              1       0.57 (16)      [  0.50 (50) ]  
-              2       0.40 (21)      [  0.50 (50) ]  
-              3       0.50 (50)      [  0.50 (50) ]  
-              4       0.50 (50)      [  0.50 (50) ]  
-
-Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 13/0.0)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 36/0.1)
 
 E   0.41620(12)      0.99(16)       
 a   0.21836(18)      0.15(12)       
@@ -312,33 +281,30 @@ unchanged when the input data are binned. To bin the data we use</p>
 </div>
 <p>which averages successive samples (bins of 2). Binned data give the following
 results from the last iteration and summary:</p>
-<div class="highlight-python"><div class="highlight"><pre>============================== nterm = 5
+<div class="highlight-python"><div class="highlight"><pre>============================== nterm = 4
 Least Square Fit:
   chi2/dof [dof] = 0.94 [28]    Q = 0.55    logGBF = 477.28
 
 Parameters:
-            a 0    0.21839 (17)      [  0.0 (1.0) ]
-              1      0.175 (80)      [  0.0 (1.0) ]
-              2       0.36 (16)      [  0.0 (1.0) ]
-              3     -2e-17 +- 1      [  0.0 (1.0) ]
-              4      4e-17 +- 1      [  0.0 (1.0) ]
-      log(dE) 0   -0.87651 (29)      [ -0.7 (1.0) ]
-              1      -0.52 (17)      [ -0.7 (1.0) ]
-              2      -0.67 (67)      [ -0.7 (1.0) ]
-              3      -0.7 (1.0)      [ -0.7 (1.0) ]
-              4      -0.7 (1.0)      [ -0.7 (1.0) ]
+            a 0    0.21839 (17)      [  0.0 (1.0) ]  
+              1      0.175 (80)      [  0.0 (1.0) ]  
+              2       0.36 (16)      [  0.0 (1.0) ]  
+              3      2e-07 +- 1      [  0.0 (1.0) ]  
+      log(dE) 0   -0.87651 (29)      [ -0.7 (1.0) ]  
+              1      -0.52 (17)      [ -0.7 (1.0) ]  
+              2      -0.67 (67)      [ -0.7 (1.0) ]  
+              3      -0.7 (1.0)      [ -0.7 (1.0) ]  
 ---------------------------------------------------
-           dE 0    0.41623 (12)      [  0.50 (50) ]
-              1       0.59 (10)      [  0.50 (50) ]
-              2       0.51 (34)      [  0.50 (50) ]
-              3       0.50 (50)      [  0.50 (50) ]
-              4       0.50 (50)      [  0.50 (50) ]
+           dE 0    0.41623 (12)      [  0.50 (50) ]  
+              1       0.59 (10)      [  0.50 (50) ]  
+              2       0.51 (34)      [  0.50 (50) ]  
+              3       0.50 (50)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 11/0.0)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 9/0.0)
 
-E   0.41623(12)      1.01(10)
-a   0.21839(17)      0.175(80)
+E   0.41623(12)      1.01(10)       
+a   0.21839(17)      0.175(80)      
 </pre></div>
 </div>
 <p>These agree pretty well with the previous results, suggesting that
@@ -466,7 +432,7 @@ useful when multiple sources and sinks are involved, as in a matrix fit.</p>
         <li class="right" >
           <a href="corrfitter.html" title="corrfitter - Least-Squares Fit to Correlators"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 5.0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

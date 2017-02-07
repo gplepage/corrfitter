@@ -2,58 +2,56 @@ from __future__ import print_function   # makes this work for python2 and 3
 
 import collections
 import sys
+import h5py
 import gvar as gv
 import numpy as np
 import corrfitter as cf
 
-if sys.argv[1:]:
-    DISPLAYPLOTS = eval(sys.argv[1]) # display plots at end of fitting?
-    try:
-        import matplotlib
-    except ImportError:
-        DISPLAYPLOTS = False
-else:
-    DISPLAYPLOTS = False
+SHOWPLOTS = True
 
 def main():
-    data = make_data('etas-Ds.data')
-    fitter = cf.CorrFitter(models=make_models())
+    data = make_data('etas-Ds.h5')
+    fitter = cf.CorrFitter(models=make_models(), svdcut=1e-5)
     p0 = None
     for N in [1, 2, 3, 4]:
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N)
         fit = fitter.lsqfit(data=data, prior=prior, p0=p0)
+        print(fit.format(pstyle=None if N < 4 else 'm'))
         p0 = fit.pmean
     print_results(fit, prior, data)
-    if DISPLAYPLOTS:
-        fitter.display_plots()
-    test_fit(fitter, 'etas-Ds.data')
+    if SHOWPLOTS:
+        fit.show_plots()
+    test_fit(fitter, 'etas-Ds.h5')
 
 def test_fit(fitter, datafile):
     """ Test the fit with simulated data """
-    gv.ranseed((1487942813, 775399747, 906327435))
+    gv.ranseed(98)
     print('\nRandom seed:', gv.ranseed.seed)
-    dataset = cf.read_dataset(datafile)
+    dataset = h5py.File(datafile)
     pexact = fitter.fit.pmean
     prior = fitter.fit.prior
-    for sdata in fitter.simulated_data_iter(n=2, dataset=dataset, pexact=pexact):
+    for spdata in fitter.simulated_pdata_iter(n=2, dataset=dataset, pexact=pexact):
         print('\n============================== simulation')
-        sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact)
-        diff = []
-        # check chi**2 for leading parameters
-        for k in prior:
-            diff.append(sfit.p[k].flat[0] - pexact[k].flat[0])
-        chi2diff = gv.chi2(diff)
-        print(
-            'Leading parameter chi2/dof [dof] = %.2f' %
-            (chi2diff / chi2diff.dof),
-            '[%d]' % chi2diff.dof,
-            '  Q = %.1f' % chi2diff.Q
-            )
+        sfit = fitter.lsqfit(pdata=spdata, prior=prior, p0=pexact)
+        print(sfit.format(pstyle=None))
+        # check chi**2 for key parameters
+        diff = {}
+        for k in ['etas:a', 'etas:dE', 'Ds:a', 'Ds:dE', 'Vnn']:
+            p_k = sfit.p[k].flat[0]
+            pex_k = pexact[k].flat[0]
+            print(
+                '{:>10}:  fit = {}    exact = {:<9.5}    diff = {}'
+                    .format(k, p_k, pex_k, p_k - pex_k)
+                )
+
+            diff[k] = p_k - pex_k
+        print('\nAccuracy of key parameters: ' + gv.fmt_chi2(gv.chi2(diff)))
 
 def make_data(datafile):
     """ Read data from datafile and average it. """
-    return gv.dataset.avg_data(cf.read_dataset(datafile))
+    dset = cf.read_dataset(datafile)
+    return gv.dataset.avg_data(dset)
 
 def make_models():
     """ Create models to fit data. """
@@ -61,30 +59,25 @@ def make_models():
     tp = 64
     models = [
         cf.Corr2(
-            datatag='etas',
-            tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),
-            a='etas:a',  b='etas:a',  dE='etas:dE'
+            datatag='etas', tp=tp,  tmin=tmin,
+            a='etas:a',  b='etas:a',  dE='etas:dE',
             ),
 
         cf.Corr2(
-            datatag='Ds',
-            tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),
-            a=('Ds:a', 'Dso:a'), b=('Ds:a', 'Dso:a'),
-            dE=('Ds:dE', 'Dso:dE'), s=(1., -1.)
+            datatag='Ds', tp=tp,  tmin=tmin,
+            a=('Ds:a', 'Dso:a'), b=('Ds:a', 'Dso:a'), dE=('Ds:dE', 'Dso:dE'),
             ),
 
         cf.Corr3(
-            datatag='3ptT15', tdata=range(16), T=15, tfit=range(tmin, 16-tmin),
-            a='etas:a', dEa='etas:dE', tpa=tp,
-            b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'), tpb=tp, sb=(1, -1.),
-            Vnn='Vnn', Vno='Vno'
+            datatag='3ptT15', T=15, tmin=tmin, a='etas:a', dEa='etas:dE',
+            b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'),
+            Vnn='Vnn', Vno='Vno',
             ),
 
         cf.Corr3(
-            datatag='3ptT16', tdata=range(17), T=16, tfit=range(tmin, 17-tmin),
-            a='etas:a', dEa='etas:dE', tpa=tp,
-            b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'), tpb=tp, sb=(1, -1.),
-            Vnn='Vnn', Vno='Vno'
+            datatag='3ptT16', T=16, tmin=tmin, a='etas:a', dEa='etas:dE',
+            b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'), tpb=tp,
+            Vnn='Vnn', Vno='Vno',
             )
         ]
     return models
@@ -160,6 +153,27 @@ def print_results(fit, prior, data):
     print(gv.fmt_errorbudget(outputs, inputs))
     print('\n')
 
+if sys.argv[1:]:
+    SHOWPLOTS = eval(sys.argv[1]) # show plots at end of fitting?
+
+if SHOWPLOTS:
+    try:
+        import matplotlib
+    except ImportError:
+        SHOWPLOTS = False
 
 if __name__ == '__main__':
     main()
+    # if True:
+    #     main()
+    # else:
+    #     import cProfile, pstats, StringIO
+    #     pr = cProfile.Profile()
+    #     pr.enable()
+    #     main()
+    #     pr.disable()
+    #     s = StringIO.StringIO()
+    #     sortby = 'tottime'
+    #     ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    #     ps.print_stats()
+    #     print (s.getvalue())

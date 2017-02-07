@@ -49,8 +49,8 @@ code is:
     :lines: 1-
 
 
-Here the Monte Carlo data are read by ``make_data('etas-Ds.data')``  from file
-``'etas-Ds.data'``. This file contains (among other things)  225 lines,  each
+Here the Monte Carlo data are read by ``make_data('etas.data')``  from file
+``etas.data``. This file contains 225 lines,  each
 with 64 numbers, of the form::
 
     etas    0.305044    0.0789607   0.0331313 ...
@@ -136,7 +136,7 @@ which averages successive samples (bins of 2). Binned data give the following
 results from the last iteration and summary:
 
 .. literalinclude:: examples/etas-binned.out
-    :lines: 67-93
+    :lines: 42-65
 
 These agree pretty well with the previous results, suggesting that
 correlations are not a problem.

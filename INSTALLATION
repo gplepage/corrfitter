@@ -15,7 +15,7 @@ To install:
 	This requires superuser permission usually.
 
 	Note: Distutils commands like 'python setup.py install --user' can be
-	used instead of 'make install'. This is useful for non-unix systems
+	used instead of 'make install'. This may be useful for non-unix systems
 	where 'make' is  unavailable.
 
 	Note: To install corrfitter for an alternative version of python, say
@@ -37,7 +37,7 @@ To install:
 5. (Optional) Use 'make clean' to erase work files and directories.
 
 6. (Optional) Install matplotlib (http://matplotlib.sourceforge.net/) in
-	order to use CorrFitter.display_plots() for plots of the fits.
+	order to use CorrFitter.show_plots() for plots of the fits.
 
 
 To uninstall:

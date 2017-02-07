@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Annotated Example: Transition Form Factor and Mixing &mdash; corrfitter 5.0.1 documentation</title>
+    <title>Annotated Example: Transition Form Factor and Mixing &mdash; corrfitter 6.0 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.0.1',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 5.0.1 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 6.0 documentation" href="index.html" />
     <link rel="next" title="Annotated Example: Matrix Correlator" href="example-etab.html" />
     <link rel="prev" title="Annotated Example: Two-Point Correlator" href="example-etas.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="example-etas.html" title="Annotated Example: Two-Point Correlator"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 5.0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -82,7 +82,7 @@ are objects of type <code class="xref py py-class docutils literal"><span class=
 this simulation, so the <img class="math" src="_images/math/4ab16ad780f2c6d0fe11c3e3882e932b0b6b87c4.png" alt="D_s" style="vertical-align: -3px"/> has oscillating components as well as
 normal components in its correlators.</p>
 <p>The source codes (<code class="docutils literal"><span class="pre">etas-Ds.py</span></code>, <code class="docutils literal"><span class="pre">Ds-Ds.py</span></code>) and data files
-(<code class="docutils literal"><span class="pre">etas-Ds.data</span></code>, <code class="docutils literal"><span class="pre">Ds-Ds.data</span></code>) are included with
+(<code class="docutils literal"><span class="pre">etas-Ds.h5</span></code>, <code class="docutils literal"><span class="pre">Ds-Ds.h5</span></code>) are included with
 the <a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><code class="xref py py-mod docutils literal"><span class="pre">corrfitter</span></code></a> distribution, in the <code class="docutils literal"><span class="pre">examples/</span></code> directory.
 The data are from the HPQCD collaboration.</p>
 </div>
@@ -94,45 +94,38 @@ in <a class="reference internal" href="corrfitter.html#basic-fits"><span>Basic F
 
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
 <span class="kn">import</span> <span class="nn">gvar</span> <span class="kn">as</span> <span class="nn">gv</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">corrfitter</span> <span class="kn">as</span> <span class="nn">cf</span>
 
-<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-    <span class="n">DISPLAYPLOTS</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c"># display plots at end of fitting?</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">matplotlib</span>
-    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="n">DISPLAYPLOTS</span> <span class="o">=</span> <span class="bp">False</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">DISPLAYPLOTS</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">SHOWPLOTS</span> <span class="o">=</span> <span class="bp">True</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;etas-Ds.data&#39;</span><span class="p">)</span>
-    <span class="n">fitter</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;etas-Ds.h5&#39;</span><span class="p">)</span>
+    <span class="n">fitter</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">(),</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
     <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>
         <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nterm =&#39;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
         <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
         <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">)</span>
-
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">gv</span><span class="o">.</span><span class="n">fmt_values</span><span class="p">(</span><span class="n">outputs</span><span class="p">))</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_errorbudget</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">))</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">main</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pstyle</span><span class="o">=</span><span class="bp">None</span> <span class="k">if</span> <span class="n">N</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="k">else</span> <span class="s">&#39;m&#39;</span><span class="p">))</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
+    <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">SHOWPLOTS</span><span class="p">:</span>
+        <span class="n">fit</span><span class="o">.</span><span class="n">show_plots</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The raw Monte Carlo data is in a file named <code class="docutils literal"><span class="pre">'etas-Ds.data'</span></code>. We are doing
+<p>We include an SVD cut (<code class="docutils literal"><span class="pre">svdcut=1e-5</span></code>) to ameliorate
+roundoff errors in the highly correlated data.
+The Monte Carlo data are in a file named <code class="docutils literal"><span class="pre">'etas-Ds.h5'</span></code>. We are doing
 four fits, with 1, 2, 3, and 4 terms in the fit function. Each fit starts its
 minimization at point <code class="docutils literal"><span class="pre">p0</span></code>, which is set equal to the mean values of the
 best-fit parameters from the previous fit (<code class="docutils literal"><span class="pre">p0</span> <span class="pre">=</span> <span class="pre">fit.pmean</span></code>). This reduces
 the  number of iterations needed for convergence in the <code class="docutils literal"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">4</span></code> fit, for
-example, from 217 to 24. It also makes multi-term fits more stable.</p>
-<p>The last line of <code class="docutils literal"><span class="pre">main()</span></code>
-displays plots of the fit data divided by the fit, provided
+example, from 162 to 45. It also makes multi-term fits more stable.</p>
+<p>After the fit, plots of the fit data divided by the fit
+are displayed by <code class="docutils literal"><span class="pre">fit.show_plots()</span></code>, provided
 <code class="xref py py-mod docutils literal"><span class="pre">matplotlib</span></code> is installed. A plot is made for each correlator, and the
 ratios should equal one to within errors. To
 move from one plot to the next press &#8220;n&#8221; on the keyboard; to move to a
@@ -140,100 +133,98 @@ previous plot press &#8220;p&#8221;; to quit the plots press &#8220;q&#8221;.</p
 <p>We now look at each other major routine in turn.</p>
 <div class="section" id="a-make-data">
 <h3>a) make_data<a class="headerlink" href="#a-make-data" title="Permalink to this headline">¶</a></h3>
-<p>Method <code class="docutils literal"><span class="pre">make_data('etas-Ds.data')</span></code> reads in the Monte Carlo data, averages
-it, and formats it for use by <a class="reference internal" href="corrfitter.html#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></code></a>. The data file (<code class="docutils literal"><span class="pre">'eta-Ds.data'</span></code>)
-contains 225 lines,  each with 64 numbers on it, of the form:</p>
-<div class="highlight-python"><div class="highlight"><pre>etas    0.305044    0.0789607   0.0331313 ...
-etas    0.306573    0.0802435   0.0340765 ...
-...
+<p>Method <code class="docutils literal"><span class="pre">make_data('etas-Ds.h5')</span></code> reads in the Monte Carlo data, averages
+it, and formats it for use by <a class="reference internal" href="corrfitter.html#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></code></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">datafile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Read data from datafile and average it. &quot;&quot;&quot;</span>
+    <span class="n">dset</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">datafile</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Each of these lines is a single Monte Carlo estimate for the <img class="math" src="_images/math/fc10e978f762ea5b244f6011ea326b9325eb4396.png" alt="\eta_s" style="vertical-align: -3px"/>
-correlator on a lattice with 64 lattice points in the <code class="docutils literal"><span class="pre">t</span></code> direction;
-there are 225 Monte Carlo estimates in all. The same file also contains
-225 lines describing the <img class="math" src="_images/math/4ab16ad780f2c6d0fe11c3e3882e932b0b6b87c4.png" alt="D_s" style="vertical-align: -3px"/> meson correlator:</p>
-<div class="highlight-python"><div class="highlight"><pre>Ds      0.230503    0.0445531   0.00895383 ...
-Ds      0.230947    0.0447479   0.00904294 ...
-...
+<p>The data file <code class="docutils literal"><span class="pre">etas-Ds.h5</span></code> is in hdf5 format. It contains four datasets:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dset</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+<span class="go">&lt;HDF5 dataset &quot;3ptT15&quot;: shape (225, 16), type &quot;&lt;f8&quot;&gt;</span>
+<span class="go">&lt;HDF5 dataset &quot;3ptT16&quot;: shape (225, 17), type &quot;&lt;f8&quot;&gt;</span>
+<span class="go">&lt;HDF5 dataset &quot;Ds&quot;: shape (225, 64), type &quot;&lt;f8&quot;&gt;</span>
+<span class="go">&lt;HDF5 dataset &quot;etas&quot;: shape (225, 64), type &quot;&lt;f8&quot;&gt;</span>
 </pre></div>
 </div>
-<p>And it contains 225 lines each giving the 3-point amplitude for
-<img class="math" src="_images/math/b8a60cde51cb6648fae8f83b4f44d2212d3a45f1.png" alt="\eta_s \to D_s" style="vertical-align: -3px"/>
-where the source and sink are separated by 15 and 16 time steps on the
-lattice:</p>
-<div class="highlight-python"><div class="highlight"><pre>3ptT15  4.63494e-10     1.11333e-09     2.46993e-09 ...
-3ptT15  4.85637e-10     1.15445e-09     2.59419e-09 ...
-...
-
-3ptT16  1.42457e-10     3.27314e-10     7.61508e-10 ...
-3ptT16  1.47582e-10     3.4255e-10      7.95205e-10 ...
-...
+<p>Each corresponds to Monte Carlo data for a single correlator, which
+is packaged as a two-dimensional <code class="xref py py-mod docutils literal"><span class="pre">numpy</span></code> array whose
+first index labels the Monte Carlo sample, and whose second index labels
+time. For example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dset</span><span class="p">[</span><span class="s">&#39;etas&#39;</span><span class="p">][:,</span> <span class="p">:])</span>
+<span class="go">[[ 0.305044   0.0789607  0.0331313 ...,  0.0164646  0.0332153  0.0791385]</span>
+<span class="go"> [ 0.306573   0.0802435  0.0340765 ...,  0.0170088  0.034013   0.0801528]</span>
+<span class="go"> [ 0.306194   0.0800234  0.0338007 ...,  0.0168862  0.0337728  0.0799462]</span>
+<span class="go"> ...,</span>
+<span class="go"> [ 0.305955   0.0797565  0.0335741 ...,  0.0167847  0.0336077  0.0796961]</span>
+<span class="go"> [ 0.305661   0.0793606  0.0333133 ...,  0.0165365  0.0333934  0.0792943]</span>
+<span class="go"> [ 0.305365   0.079379   0.033445  ...,  0.0164506  0.0332284  0.0792884]]</span>
 </pre></div>
 </div>
-<p>The first, second, third, <em>etc.</em> lines for each label come from the first,
-second, third, <em>etc.</em> Monte Carlo iterations, respectively; this
-synchronization allows
-the code to compute correlations between different
-types of data.</p>
-<p>Function <code class="xref py py-func docutils literal"><span class="pre">corrfitter.read_dataset()</span></code> is designed to read files
-in this format (among others). We use it to read the data, and
-<code class="xref py py-func docutils literal"><span class="pre">gvar.dataset.avg_data()</span></code> to compute the means and covariance
-matrix of the data:</p>
-<div class="highlight-python"><div class="highlight"><pre>            (chi2diff / chi2diff.dof),
-            &#39;[%d]&#39; % chi2diff.dof,
-            &#39;  Q = %.1f&#39; % chi2diff.Q
-            )
-</pre></div>
-</div>
-<p>This routine returns a dictionary whose keys are the strings used to label the
-individual lines in <code class="docutils literal"><span class="pre">etas-Ds.data</span></code>: for example,</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;etas-Ds.data&#39;</span><span class="p">)</span>
+<p>is data for a two-point correlator describing the <img class="math" src="_images/math/fc10e978f762ea5b244f6011ea326b9325eb4396.png" alt="\eta_s" style="vertical-align: -3px"/>  meson. Each
+of the 225 lines is a different Monte Carlo sample for the correlator, and
+has 64 entries corresponding to <code class="docutils literal"><span class="pre">t=0,1...63</span></code>. Note the periodicity
+in this data.</p>
+<p>Function <code class="docutils literal"><span class="pre">gv.dataset.avg_data(dset)</span></code> averages over the Monte Carlo samples
+for all the correlators to compute their means and covariance matrix.
+The end result is a dictionary whose keys are the keys used to
+label the hdf5 datasets: for example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;etas-Ds.h5&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;etas&#39;</span><span class="p">])</span>
+<span class="go">[0.305808(29) 0.079613(24) 0.033539(17) ... 0.079621(24)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;Ds&#39;</span><span class="p">])</span>
 <span class="go">[0.2307150(73) 0.0446523(32) 0.0089923(15) ... 0.0446527(32)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;3ptT16&#39;</span><span class="p">])</span>
 <span class="go">[1.4583(21)e-10 3.3639(44)e-10 ... 0.000023155(30)]</span>
 </pre></div>
 </div>
-<p>Here each entry in <code class="docutils literal"><span class="pre">data</span></code> is an array of <code class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></code>s representing the Monte
-Carlo estimates (mean and covariance) for the corresponding correlator. This
-is the format needed by <a class="reference internal" href="corrfitter.html#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></code></a>.</p>
+<p>Here each entry in <code class="docutils literal"><span class="pre">data</span></code> is an array of <code class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></code>s representing Monte
+Carlo averages for the corresponding correlator at different times. This
+is the format needed by <a class="reference internal" href="corrfitter.html#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></code></a>. Note that the different correlators
+are correlated with each other: for example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">evalcorr</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;etas&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;Ds&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]]))</span>
+<span class="go">[[ 1.          0.96432174]</span>
+<span class="go"> [ 0.96432174  1.        ]]</span>
+</pre></div>
+</div>
+<p>shows a 96% correlation between the <code class="docutils literal"><span class="pre">t=0</span></code> values in the <img class="math" src="_images/math/fc10e978f762ea5b244f6011ea326b9325eb4396.png" alt="\eta_s" style="vertical-align: -3px"/> and
+<img class="math" src="_images/math/4ab16ad780f2c6d0fe11c3e3882e932b0b6b87c4.png" alt="D_s" style="vertical-align: -3px"/> correlators.</p>
 </div>
 <div class="section" id="b-make-models">
 <h3>b) make_models<a class="headerlink" href="#b-make-models" title="Permalink to this headline">¶</a></h3>
 <p>Method <code class="docutils literal"><span class="pre">make_models()</span></code> specifies the theoretical models that will be used
 to fit the data:</p>
-<div class="highlight-python"><div class="highlight"><pre>def make_data(datafile):
-    &quot;&quot;&quot; Read data from datafile and average it. &quot;&quot;&quot;
-    return gv.dataset.avg_data(cf.read_dataset(datafile))
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Create models to fit data. &quot;&quot;&quot;</span>
+    <span class="n">tmin</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">tp</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">cf</span><span class="o">.</span><span class="n">Corr2</span><span class="p">(</span>
+            <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;etas&#39;</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="n">tp</span><span class="p">,</span>  <span class="n">tmin</span><span class="o">=</span><span class="n">tmin</span><span class="p">,</span>
+            <span class="n">a</span><span class="o">=</span><span class="s">&#39;etas:a&#39;</span><span class="p">,</span>  <span class="n">b</span><span class="o">=</span><span class="s">&#39;etas:a&#39;</span><span class="p">,</span>  <span class="n">dE</span><span class="o">=</span><span class="s">&#39;etas:dE&#39;</span><span class="p">,</span>
+            <span class="p">),</span>
 
-def make_models():
-    &quot;&quot;&quot; Create models to fit data. &quot;&quot;&quot;
-    tmin = 5
-    tp = 64
-    models = [
-        cf.Corr2(
-            datatag=&#39;etas&#39;,
-            tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),
-            a=&#39;etas:a&#39;,  b=&#39;etas:a&#39;,  dE=&#39;etas:dE&#39;
-            ),
+        <span class="n">cf</span><span class="o">.</span><span class="n">Corr2</span><span class="p">(</span>
+            <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;Ds&#39;</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="n">tp</span><span class="p">,</span>  <span class="n">tmin</span><span class="o">=</span><span class="n">tmin</span><span class="p">,</span>
+            <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;Ds:a&#39;</span><span class="p">,</span> <span class="s">&#39;Dso:a&#39;</span><span class="p">),</span> <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;Ds:a&#39;</span><span class="p">,</span> <span class="s">&#39;Dso:a&#39;</span><span class="p">),</span> <span class="n">dE</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;Ds:dE&#39;</span><span class="p">,</span> <span class="s">&#39;Dso:dE&#39;</span><span class="p">),</span>
+            <span class="p">),</span>
 
-        cf.Corr2(
-            datatag=&#39;Ds&#39;,
-            tp=tp,  tdata=range(tp),  tfit=range(tmin, tp-tmin),
-            a=(&#39;Ds:a&#39;, &#39;Dso:a&#39;), b=(&#39;Ds:a&#39;, &#39;Dso:a&#39;),
-            dE=(&#39;Ds:dE&#39;, &#39;Dso:dE&#39;), s=(1., -1.)
-            ),
+        <span class="n">cf</span><span class="o">.</span><span class="n">Corr3</span><span class="p">(</span>
+            <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;3ptT15&#39;</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="n">tmin</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="s">&#39;etas:a&#39;</span><span class="p">,</span> <span class="n">dEa</span><span class="o">=</span><span class="s">&#39;etas:dE&#39;</span><span class="p">,</span>
+            <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;Ds:a&#39;</span><span class="p">,</span> <span class="s">&#39;Dso:a&#39;</span><span class="p">),</span> <span class="n">dEb</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;Ds:dE&#39;</span><span class="p">,</span> <span class="s">&#39;Dso:dE&#39;</span><span class="p">),</span>
+            <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span> <span class="n">Vno</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span>
+            <span class="p">),</span>
 
-        cf.Corr3(
-            datatag=&#39;3ptT15&#39;, tdata=range(16), T=15, tfit=range(tmin, 16-tmin),
-            a=&#39;etas:a&#39;, dEa=&#39;etas:dE&#39;, tpa=tp,
-            b=(&#39;Ds:a&#39;, &#39;Dso:a&#39;), dEb=(&#39;Ds:dE&#39;, &#39;Dso:dE&#39;), tpb=tp, sb=(1, -1.),
-            Vnn=&#39;Vnn&#39;, Vno=&#39;Vno&#39;
-            ),
-
-        cf.Corr3(
-            datatag=&#39;3ptT16&#39;, tdata=range(17), T=16, tfit=range(tmin, 17-tmin),
-            a=&#39;etas:a&#39;, dEa=&#39;etas:dE&#39;, tpa=tp,
+        <span class="n">cf</span><span class="o">.</span><span class="n">Corr3</span><span class="p">(</span>
+            <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;3ptT16&#39;</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="n">tmin</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="s">&#39;etas:a&#39;</span><span class="p">,</span> <span class="n">dEa</span><span class="o">=</span><span class="s">&#39;etas:dE&#39;</span><span class="p">,</span>
+            <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;Ds:a&#39;</span><span class="p">,</span> <span class="s">&#39;Dso:a&#39;</span><span class="p">),</span> <span class="n">dEb</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;Ds:dE&#39;</span><span class="p">,</span> <span class="s">&#39;Dso:dE&#39;</span><span class="p">),</span> <span class="n">tpb</span><span class="o">=</span><span class="n">tp</span><span class="p">,</span>
+            <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span> <span class="n">Vno</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">return</span> <span class="n">models</span>
 </pre></div>
 </div>
 <p>Four models are specified, one for each correlator to be fit. The first two
@@ -259,36 +250,37 @@ for the transition matrix elements: <code class="docutils literal"><span class="
 <h3>c) make_prior<a class="headerlink" href="#c-make-prior" title="Permalink to this headline">¶</a></h3>
 <p>Method <code class="docutils literal"><span class="pre">make_prior(N)</span></code> creates <em>a priori</em> estimates for each fit
 parameter, to be used as priors in the fitter:</p>
-<div class="highlight-python"><div class="highlight"><pre>            Vnn=&#39;Vnn&#39;, Vno=&#39;Vno&#39;
-            )
-        ]
-    return models
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Create priors for fit parameters. &quot;&quot;&quot;</span>
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">BufferDict</span><span class="p">()</span>
+    <span class="c"># etas</span>
+    <span class="n">metas</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="s">&#39;0.4(2)&#39;</span><span class="p">)</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(etas:a)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.3(3)&#39;</span><span class="p">]))</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(etas:dE)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.5(5)&#39;</span><span class="p">]))</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(etas:dE)&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">metas</span><span class="p">)</span>
 
-def make_prior(N):
-    &quot;&quot;&quot; Create priors for fit parameters. &quot;&quot;&quot;
-    prior = gv.BufferDict()
-    # etas
-    metas = gv.gvar(&#39;0.4(2)&#39;)
-    prior[&#39;log(etas:a)&#39;] = gv.log(gv.gvar(N * [&#39;0.3(3)&#39;]))
-    prior[&#39;log(etas:dE)&#39;] = gv.log(gv.gvar(N * [&#39;0.5(5)&#39;]))
-    prior[&#39;log(etas:dE)&#39;][0] = gv.log(metas)
+    <span class="c"># Ds</span>
+    <span class="n">mDs</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="s">&#39;1.2(2)&#39;</span><span class="p">)</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(Ds:a)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.3(3)&#39;</span><span class="p">]))</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(Ds:dE)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.5(5)&#39;</span><span class="p">]))</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(Ds:dE)&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">mDs</span><span class="p">)</span>
 
-    # Ds
-    mDs = gv.gvar(&#39;1.2(2)&#39;)
-    prior[&#39;log(Ds:a)&#39;] = gv.log(gv.gvar(N * [&#39;0.3(3)&#39;]))
-    prior[&#39;log(Ds:dE)&#39;] = gv.log(gv.gvar(N * [&#39;0.5(5)&#39;]))
-    prior[&#39;log(Ds:dE)&#39;][0] = gv.log(mDs)
+    <span class="c"># Ds -- oscillating part</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(Dso:a)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.1(1)&#39;</span><span class="p">]))</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(Dso:dE)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.5(5)&#39;</span><span class="p">]))</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;log(Dso:dE)&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">mDs</span> <span class="o">+</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="s">&#39;0.3(3)&#39;</span><span class="p">))</span>
 
-    # Ds -- oscillating part
-    prior[&#39;log(Dso:a)&#39;] = gv.log(gv.gvar(N * [&#39;0.1(1)&#39;]))
-    prior[&#39;log(Dso:dE)&#39;] = gv.log(gv.gvar(N * [&#39;0.5(5)&#39;]))
-    prior[&#39;log(Dso:dE)&#39;][0] = gv.log(mDs + gv.gvar(&#39;0.3(3)&#39;))
+    <span class="c"># V</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;Vnn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0(1)&#39;</span><span class="p">]])</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;Vno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0(1)&#39;</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">prior</span>
 </pre></div>
 </div>
 <p>Parameter <code class="docutils literal"><span class="pre">N</span></code> specifies how many terms are kept in the fit functions. The
-priors are specified in a dictionary <code class="docutils literal"><span class="pre">prior</span></code>. Each entry is an array, of
-length <code class="docutils literal"><span class="pre">N</span></code>, with one entry for each term. Each entry is a Gaussian random
-variable, specified by an object of type  <code class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></code>. Here we use the fact that
+priors are stored in a dictionary <code class="docutils literal"><span class="pre">prior</span></code>. Each entry is an array, of
+length <code class="docutils literal"><span class="pre">N</span></code>, with one entry for each term in the fit function.
+Each entry is a Gaussian random
+variable, an object of type  <code class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></code>. Here we use the fact that
 <code class="docutils literal"><span class="pre">gvar.gvar()</span></code> can make a list of <code class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></code>s from a list of strings of the form
 <code class="docutils literal"><span class="pre">'0.1(1)'</span></code>: for example,</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">([</span><span class="s">&#39;1(2)&#39;</span><span class="p">,</span> <span class="s">&#39;3(2)&#39;</span><span class="p">]))</span>
@@ -335,51 +327,51 @@ Usually one wants to create the array of strings first, and then convert it to
 <h3>d) print_results<a class="headerlink" href="#d-print-results" title="Permalink to this headline">¶</a></h3>
 <p>Method <code class="docutils literal"><span class="pre">print_results(fit,</span> <span class="pre">prior,</span> <span class="pre">data)</span></code> reports on the best-fit values
 for the fit parameters from the last fit:</p>
-<div class="highlight-python"><div class="highlight"><pre>    # V
-    prior[&#39;Vnn&#39;] = gv.gvar(N * [N * [&#39;0(1)&#39;]])
-    prior[&#39;Vno&#39;] = gv.gvar(N * [N * [&#39;0(1)&#39;]])
-    return prior
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Report best-fit results. &quot;&quot;&quot;</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Fit results:&#39;</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">p</span>                       <span class="c"># best-fit parameters</span>
 
-def print_results(fit, prior, data):
-    &quot;&quot;&quot; Report best-fit results. &quot;&quot;&quot;
-    print(&#39;Fit results:&#39;)
-    p = fit.p                       # best-fit parameters
+    <span class="c"># etas</span>
+    <span class="n">E_etas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;etas:dE&#39;</span><span class="p">])</span>
+    <span class="n">a_etas</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s">&#39;etas:a&#39;</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;  Eetas:&#39;</span><span class="p">,</span> <span class="n">E_etas</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;  aetas:&#39;</span><span class="p">,</span> <span class="n">a_etas</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
 
-    # etas
-    E_etas = np.cumsum(p[&#39;etas:dE&#39;])
-    a_etas = p[&#39;etas:a&#39;]
-    print(&#39;  Eetas:&#39;, E_etas[:3])
-    print(&#39;  aetas:&#39;, a_etas[:3])
+    <span class="c"># Ds</span>
+    <span class="n">E_Ds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;Ds:dE&#39;</span><span class="p">])</span>
+    <span class="n">a_Ds</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s">&#39;Ds:a&#39;</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">  EDs:&#39;</span><span class="p">,</span> <span class="n">E_Ds</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span>  <span class="s">&#39;  aDs:&#39;</span><span class="p">,</span> <span class="n">a_Ds</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
 
-    # Ds
-    E_Ds = np.cumsum(p[&#39;Ds:dE&#39;])
-    a_Ds = p[&#39;Ds:a&#39;]
-    print(&#39;\n  EDs:&#39;, E_Ds[:3])
-    print(  &#39;  aDs:&#39;, a_Ds[:3])
+    <span class="c"># Dso -- oscillating piece</span>
+    <span class="n">E_Dso</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s">&#39;Dso:dE&#39;</span><span class="p">])</span>
+    <span class="n">a_Dso</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s">&#39;Dso:a&#39;</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">  EDso:&#39;</span><span class="p">,</span> <span class="n">E_Dso</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span>  <span class="s">&#39;  aDso:&#39;</span><span class="p">,</span> <span class="n">a_Dso</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
 
-    # Dso -- oscillating piece
-    E_Dso = np.cumsum(p[&#39;Dso:dE&#39;])
-    a_Dso = p[&#39;Dso:a&#39;]
-    print(&#39;\n  EDso:&#39;, E_Dso[:3])
-    print(  &#39;  aDso:&#39;, a_Dso[:3])
+    <span class="c"># V</span>
+    <span class="n">Vnn</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s">&#39;Vnn&#39;</span><span class="p">]</span>
+    <span class="n">Vno</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s">&#39;Vno&#39;</span><span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">  etas-&gt;V-&gt;Ds  =&#39;</span><span class="p">,</span> <span class="n">Vnn</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;  etas-&gt;V-&gt;Dso =&#39;</span><span class="p">,</span> <span class="n">Vno</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
-    # V
-    Vnn = p[&#39;Vnn&#39;]
-    Vno = p[&#39;Vno&#39;]
-    print(&#39;\n  etas-&gt;V-&gt;Ds  =&#39;, Vnn[0, 0])
-    print(&#39;  etas-&gt;V-&gt;Dso =&#39;, Vno[0, 0])
+    <span class="c"># error budget</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;metas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_etas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;mDs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_Ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;mDso-mDs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_Dso</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">E_Ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;Vnn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vnn</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s">&#39;Vno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vno</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
-    # error budget
-    outputs = collections.OrderedDict()
-    outputs[&#39;metas&#39;] = E_etas[0]
-    outputs[&#39;mDs&#39;] = E_Ds[0]
-    outputs[&#39;mDso-mDs&#39;] = E_Dso[0] - E_Ds[0]
-    outputs[&#39;Vnn&#39;] = Vnn[0, 0]
-    outputs[&#39;Vno&#39;] = Vno[0, 0]
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;statistics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>                 <span class="c"># statistical errors in data</span>
+    <span class="n">inputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">prior</span><span class="p">)</span>                        <span class="c"># all entries in prior</span>
+    <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;svd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">svdcorrection</span>           <span class="c"># svd cut (if present)</span>
 
-    inputs = collections.OrderedDict()
-    inputs[&#39;statistics&#39;] = data                 # statistical errors in data
-    inputs.update(prior)                        # all entries in prior
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">gv</span><span class="o">.</span><span class="n">fmt_values</span><span class="p">(</span><span class="n">outputs</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_errorbudget</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The best-fit parameter values are stored in dictionary <code class="docutils literal"><span class="pre">p=fit.p</span></code>,
@@ -387,17 +379,17 @@ as are the exponentials of the log-normal parameters.
 We also turn energy differences into energies using <code class="xref py py-mod docutils literal"><span class="pre">numpy</span></code>&#8216;s cummulative
 sum function <code class="xref py py-func docutils literal"><span class="pre">numpy.cumsum()</span></code>. The final output is:</p>
 <div class="highlight-python"><div class="highlight"><pre>Fit results:
-  Eetas: [0.41619(12) 1.007(89) 1.43(34)]
-  aetas: [0.21834(16) 0.170(74) 0.30(12)]
+  Eetas: [0.41620(12) 1.011(87) 1.44(35)]
+  aetas: [0.21835(16) 0.174(72) 0.30(13)]
 
-  EDs: [1.20166(16) 1.704(17) 2.29(20)]
-  aDs: [0.21466(20) 0.275(20) 0.52(20)]
+  EDs: [1.20163(16) 1.692(17) 2.17(17)]
+  aDs: [0.21461(19) 0.261(21) 0.42(16)]
 
-  EDso: [1.442(16) 1.65(11) 2.17(44)]
-  aDso: [0.0634(90) 0.080(26) 0.116(93)]
+  EDso: [1.440(18) 1.64(14) 2.18(43)]
+  aDso: [0.063(12) 0.079(25) 0.13(10)]
 
-  etas-&gt;V-&gt;Ds  = 0.76725(76)
-  etas-&gt;V-&gt;Dso = -0.793(92)
+  etas-&gt;V-&gt;Ds  = 0.76736(79)
+  etas-&gt;V-&gt;Dso = -0.767(68)
 </pre></div>
 </div>
 <p>Finally we  create an error budget for the <img class="math" src="_images/math/fc10e978f762ea5b244f6011ea326b9325eb4396.png" alt="\eta_s" style="vertical-align: -3px"/>
@@ -410,27 +402,27 @@ priors, and the results from any <em>svd</em> cuts (none here). Each of these in
 contributes to the errors in the final results, as detailed in the
 error budget:</p>
 <div class="highlight-python"><div class="highlight"><pre>Values:
-              metas: 0.41619(12)         
-                mDs: 1.20166(16)         
-           mDso-mDs: 0.240(16)           
-                Vnn: 0.76725(76)         
-                Vno: -0.793(92)          
+              metas: 0.41620(12)         
+                mDs: 1.20163(16)         
+           mDso-mDs: 0.239(18)           
+                Vnn: 0.76736(79)         
+                Vno: -0.767(68)          
 
 Partial % Errors:
                   metas       mDs  mDso-mDs       Vnn       Vno
 ---------------------------------------------------------------
-  statistics:      0.03      0.01      4.51      0.09      8.60
- log(etas:a):      0.00      0.00      0.11      0.01      0.39
-log(etas:dE):      0.00      0.00      0.06      0.01      0.38
-   log(Ds:a):      0.00      0.00      0.53      0.02      0.96
-  log(Ds:dE):      0.00      0.00      0.44      0.02      0.59
-  log(Dso:a):      0.00      0.00      1.10      0.01      3.85
- log(Dso:dE):      0.00      0.00      1.14      0.01      5.66
-         Vnn:      0.00      0.00      0.58      0.03      1.03
-         Vno:      0.00      0.00      4.25      0.01      3.39
-         svd:      0.00      0.00      0.00      0.00      0.00
+  statistics:      0.03      0.01      5.21      0.09      6.69
+ log(etas:a):      0.00      0.00      0.13      0.01      0.36
+log(etas:dE):      0.00      0.00      0.11      0.01      0.34
+   log(Ds:a):      0.00      0.00      0.41      0.01      1.03
+  log(Ds:dE):      0.00      0.00      0.48      0.02      1.07
+  log(Dso:a):      0.00      0.00      1.63      0.00      3.18
+ log(Dso:dE):      0.00      0.00      2.75      0.00      3.00
+         Vnn:      0.00      0.00      0.97      0.03      0.79
+         Vno:      0.00      0.00      4.26      0.02      3.48
+         svd:      0.00      0.00      0.40      0.01      0.48
 ---------------------------------------------------------------
-       total:      0.03      0.01      6.46      0.10     11.61
+       total:      0.03      0.01      7.55      0.10      8.91
 </pre></div>
 </div>
 <p>The error budget shows, for example, that the largest sources of uncertainty
@@ -442,259 +434,147 @@ in every quantity are the statistical errors in the input data.</p>
 <p>The output from running the code is as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre>============================== nterm = 1
 Least Square Fit:
-  chi2/dof [dof] = 7.4e+03 [69]    Q = 0    logGBF = -2.5405e+05
-
-Parameters:
-  log(etas:a) 0   -1.38766 (30)      [ -1.2 (1.0) ]  
- log(etas:dE) 0   -0.80364 (14)      [ -0.92 (50) ]  
-    log(Ds:a) 0   -1.35559 (20)      [ -1.2 (1.0) ]  
-   log(Ds:dE) 0   0.220836 (54)      [  0.18 (17) ]  
-   log(Dso:a) 0    -1.7014 (16)      [ -2.3 (1.0) ]  
-  log(Dso:dE) 0    0.54320 (39)      [  0.41 (24) ]  
-        Vnn 0,0    0.74220 (23)      [  0.0 (1.0) ]  
-        Vno 0,0    -1.0474 (21)      [  0.0 (1.0) ]  *
----------------------------------------------------
-       etas:a 0   0.249660 (75)      [  0.30 (30) ]  
-      etas:dE 0   0.447695 (64)      [  0.40 (20) ]  
-         Ds:a 0   0.257795 (52)      [  0.30 (30) ]  
-        Ds:dE 0   1.247119 (67)      [  1.20 (20) ]  
-        Dso:a 0    0.18242 (30)      [  0.10 (10) ]  
-       Dso:dE 0    1.72150 (68)      [  1.50 (36) ]  
+  chi2/dof [dof] = 1.4e+04 [71]    Q = 0    logGBF = -4.9122e+05
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 23/0.1)
+  svdcut/n = 1e-05/7    tol = (1e-08*,1e-10,1e-10)    (itns/time = 30/0.2)
 
 ============================== nterm = 2
 Least Square Fit:
-  chi2/dof [dof] = 3 [69]    Q = 6e-16    logGBF = 1531.1
-
-Parameters:
-  log(etas:a) 0   -1.52065 (64)      [ -1.2 (1.0) ]  
-              1     -1.300 (15)      [ -1.2 (1.0) ]  
- log(etas:dE) 0   -0.87643 (26)      [ -0.92 (50) ]  
-              1     -0.331 (10)      [ -0.7 (1.0) ]  
-    log(Ds:a) 0   -1.53878 (66)      [ -1.2 (1.0) ]  
-              1    -1.0798 (68)      [ -1.2 (1.0) ]  
-   log(Ds:dE) 0    0.18357 (11)      [  0.18 (17) ]  
-              1    -0.5880 (55)      [ -0.7 (1.0) ]  
-   log(Dso:a) 0    -2.6014 (75)      [ -2.3 (1.0) ]  
-              1     -1.266 (76)      [ -2.3 (1.0) ]  *
-  log(Dso:dE) 0     0.3735 (14)      [  0.41 (24) ]  
-              1     -0.323 (41)      [ -0.7 (1.0) ]  
-        Vnn 0,0    0.76314 (30)      [  0.0 (1.0) ]  
-            0,1    -0.4536 (52)      [  0.0 (1.0) ]  
-            1,0     0.0799 (73)      [  0.0 (1.0) ]  
-            1,1      -0.25 (76)      [  0.0 (1.0) ]  
-        Vno 0,0    -0.6796 (76)      [  0.0 (1.0) ]  
-            0,1      0.946 (66)      [  0.0 (1.0) ]  
-            1,0      -1.00 (13)      [  0.0 (1.0) ]  
-            1,1     0.06 (1.00)      [  0.0 (1.0) ]  
----------------------------------------------------
-       etas:a 0    0.21857 (14)      [  0.30 (30) ]  
-              1     0.2724 (42)      [  0.30 (30) ]  
-      etas:dE 0    0.41627 (11)      [  0.40 (20) ]  
-              1     0.7178 (74)      [  0.50 (50) ]  
-         Ds:a 0    0.21464 (14)      [  0.30 (30) ]  
-              1     0.3397 (23)      [  0.30 (30) ]  
-        Ds:dE 0    1.20149 (14)      [  1.20 (20) ]  
-              1     0.5555 (31)      [  0.50 (50) ]  
-        Dso:a 0    0.07417 (56)      [  0.10 (10) ]  
-              1      0.282 (21)      [  0.10 (10) ]  *
-       Dso:dE 0     1.4528 (20)      [  1.50 (36) ]  
-              1      0.724 (30)      [  0.50 (50) ]  
+  chi2/dof [dof] = 8.6 [71]    Q = 3.6e-87    logGBF = 1365.7
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 48/0.4)
+  svdcut/n = 1e-05/7    tol = (1e-08*,1e-10,1e-10)    (itns/time = 14/0.1)
 
 ============================== nterm = 3
 Least Square Fit:
-  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1601.6
-
-Parameters:
-  log(etas:a) 0     -1.52172 (73)       [ -1.2 (1.0) ]  
-              1        -1.81 (47)       [ -1.2 (1.0) ]  
-              2        -1.13 (20)       [ -1.2 (1.0) ]  
- log(etas:dE) 0     -0.87662 (28)       [ -0.92 (50) ]  
-              1        -0.54 (17)       [ -0.7 (1.0) ]  
-              2        -0.82 (44)       [ -0.7 (1.0) ]  
-    log(Ds:a) 0     -1.53871 (91)       [ -1.2 (1.0) ]  
-              1       -1.290 (73)       [ -1.2 (1.0) ]  
-              2        -0.58 (33)       [ -1.2 (1.0) ]  
-   log(Ds:dE) 0      0.18370 (13)       [  0.18 (17) ]  
-              1       -0.690 (34)       [ -0.7 (1.0) ]  
-              2        -0.49 (29)       [ -0.7 (1.0) ]  
-   log(Dso:a) 0        -2.76 (14)       [ -2.3 (1.0) ]  
-              1        -2.53 (34)       [ -2.3 (1.0) ]  
-              2        -2.11 (77)       [ -2.3 (1.0) ]  
-  log(Dso:dE) 0        0.366 (11)       [  0.41 (24) ]  
-              1        -1.59 (54)       [ -0.7 (1.0) ]  
-              2        -0.64 (76)       [ -0.7 (1.0) ]  
-        Vnn 0,0      0.76725 (76)       [  0.0 (1.0) ]  
-            0,1       -0.490 (32)       [  0.0 (1.0) ]  
-            0,2         0.51 (51)       [  0.0 (1.0) ]  
-            1,0        0.049 (37)       [  0.0 (1.0) ]  
-            1,1         0.24 (68)       [  0.0 (1.0) ]  
-            1,2    -0.005 (0.995)       [  0.0 (1.0) ]  
-            2,0        -0.06 (14)       [  0.0 (1.0) ]  
-            2,1       0.05 (1.00)       [  0.0 (1.0) ]  
-            2,2   0.0004 (1.0000)       [  0.0 (1.0) ]  
-        Vno 0,0       -0.793 (93)       [  0.0 (1.0) ]  
-            0,1         0.26 (33)       [  0.0 (1.0) ]  
-            0,2      -0.006 (841)       [  0.0 (1.0) ]  
-            1,0         0.39 (45)       [  0.0 (1.0) ]  
-            1,1         0.20 (95)       [  0.0 (1.0) ]  
-            1,2    -0.006 (0.999)       [  0.0 (1.0) ]  
-            2,0        -0.17 (92)       [  0.0 (1.0) ]  
-            2,1     0.006 (0.999)       [  0.0 (1.0) ]  
-            2,2   0.0007 (1.0000)       [  0.0 (1.0) ]  
-------------------------------------------------------
-       etas:a 0      0.21834 (16)       [  0.30 (30) ]  
-              1        0.163 (76)       [  0.30 (30) ]  
-              2        0.324 (64)       [  0.30 (30) ]  
-      etas:dE 0      0.41619 (12)       [  0.40 (20) ]  
-              1        0.581 (97)       [  0.50 (50) ]  
-              2         0.44 (20)       [  0.50 (50) ]  
-         Ds:a 0      0.21466 (19)       [  0.30 (30) ]  
-              1        0.275 (20)       [  0.30 (30) ]  
-              2         0.56 (19)       [  0.30 (30) ]  
-        Ds:dE 0      1.20165 (16)       [  1.20 (20) ]  
-              1        0.502 (17)       [  0.50 (50) ]  
-              2         0.61 (18)       [  0.50 (50) ]  
-        Dso:a 0       0.0633 (90)       [  0.10 (10) ]  
-              1        0.080 (27)       [  0.10 (10) ]  
-              2        0.121 (94)       [  0.10 (10) ]  
-       Dso:dE 0        1.442 (16)       [  1.50 (36) ]  
-              1         0.20 (11)       [  0.50 (50) ]  
-              2         0.53 (40)       [  0.50 (50) ]  
+  chi2/dof [dof] = 0.68 [71]    Q = 0.98    logGBF = 1636.9
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 72/0.8)
+  svdcut/n = 1e-05/7    tol = (1e-08*,1e-10,1e-10)    (itns/time = 77/0.9)
 
 ============================== nterm = 4
 Least Square Fit:
-  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1602.1
+  chi2/dof [dof] = 0.68 [71]    Q = 0.98    logGBF = 1637.6
 
 Parameters:
-  log(etas:a) 0      -1.52170 (73)        [ -1.2 (1.0) ]  
-              1         -1.77 (43)        [ -1.2 (1.0) ]  
-              2         -1.22 (42)        [ -1.2 (1.0) ]  
-              3         -1.31 (95)        [ -1.2 (1.0) ]  
- log(etas:dE) 0      -0.87661 (28)        [ -0.92 (50) ]  
-              1         -0.53 (15)        [ -0.7 (1.0) ]  
-              2         -0.85 (62)        [ -0.7 (1.0) ]  
-              3         -0.62 (97)        [ -0.7 (1.0) ]  
-    log(Ds:a) 0      -1.53869 (91)        [ -1.2 (1.0) ]  
-              1        -1.290 (74)        [ -1.2 (1.0) ]  
-              2         -0.65 (39)        [ -1.2 (1.0) ]  
-              3         -1.11 (99)        [ -1.2 (1.0) ]  
-   log(Ds:dE) 0       0.18370 (13)        [  0.18 (17) ]  
-              1        -0.689 (35)        [ -0.7 (1.0) ]  
-              2         -0.53 (32)        [ -0.7 (1.0) ]  
-              3         -0.77 (99)        [ -0.7 (1.0) ]  
-   log(Dso:a) 0         -2.76 (14)        [ -2.3 (1.0) ]  
-              1         -2.53 (33)        [ -2.3 (1.0) ]  
-              2         -2.15 (80)        [ -2.3 (1.0) ]  
-              3         -2.3 (1.0)        [ -2.3 (1.0) ]  
-  log(Dso:dE) 0         0.366 (11)        [  0.41 (24) ]  
-              1         -1.59 (53)        [ -0.7 (1.0) ]  
-              2         -0.65 (74)        [ -0.7 (1.0) ]  
-              3         -0.7 (1.0)        [ -0.7 (1.0) ]  
-        Vnn 0,0       0.76725 (76)        [  0.0 (1.0) ]  
-            0,1        -0.492 (33)        [  0.0 (1.0) ]  
-            0,2          0.50 (51)        [  0.0 (1.0) ]  
-            0,3        0.06 (1.00)        [  0.0 (1.0) ]  
-            1,0         0.050 (42)        [  0.0 (1.0) ]  
-            1,1          0.25 (70)        [  0.0 (1.0) ]  
-            1,2     -0.005 (0.995)        [  0.0 (1.0) ]  
-            1,3   -0.0007 (1.0000)        [  0.0 (1.0) ]  
-            2,0         -0.07 (19)        [  0.0 (1.0) ]  
-            2,1        0.05 (1.00)        [  0.0 (1.0) ]  
-            2,2    0.0004 (1.0000)        [  0.0 (1.0) ]  
-            2,3        -1e-05 +- 1        [  0.0 (1.0) ]  
-            3,0        0.002 (977)        [  0.0 (1.0) ]  
+  log(etas:a) 0      -1.52164 (73)        [ -1.2 (1.0) ]  
+              1         -1.75 (42)        [ -1.2 (1.0) ]  
+              2         -1.21 (44)        [ -1.2 (1.0) ]  
+              3         -1.30 (95)        [ -1.2 (1.0) ]  
+ log(etas:dE) 0      -0.87659 (28)        [ -0.92 (50) ]  
+              1         -0.52 (15)        [ -0.7 (1.0) ]  
+              2         -0.83 (64)        [ -0.7 (1.0) ]  
+              3         -0.63 (97)        [ -0.7 (1.0) ]  
+    log(Ds:a) 0      -1.53891 (90)        [ -1.2 (1.0) ]  
+              1        -1.343 (81)        [ -1.2 (1.0) ]  
+              2         -0.86 (38)        [ -1.2 (1.0) ]  
+              3         -1.03 (96)        [ -1.2 (1.0) ]  
+   log(Ds:dE) 0       0.18368 (13)        [  0.18 (17) ]  
+              1        -0.712 (35)        [ -0.7 (1.0) ]  
+              2         -0.74 (33)        [ -0.7 (1.0) ]  
+              3         -0.80 (98)        [ -0.7 (1.0) ]  
+   log(Dso:a) 0         -2.77 (19)        [ -2.3 (1.0) ]  
+              1         -2.54 (31)        [ -2.3 (1.0) ]  
+              2         -2.02 (76)        [ -2.3 (1.0) ]  
+  log(Dso:dE) 0         0.365 (13)        [  0.41 (24) ]  
+              1         -1.62 (66)        [ -0.7 (1.0) ]  
+              2         -0.61 (65)        [ -0.7 (1.0) ]  
+        Vnn 0,0       0.76736 (79)        [  0.0 (1.0) ]  
+            0,1        -0.478 (32)        [  0.0 (1.0) ]  
+            0,2          0.22 (27)        [  0.0 (1.0) ]  
+            0,3         -0.12 (95)        [  0.0 (1.0) ]  
+            1,0         0.048 (39)        [  0.0 (1.0) ]  
+            1,1          0.50 (69)        [  0.0 (1.0) ]  
+            1,2          0.15 (98)        [  0.0 (1.0) ]  
+            1,3        0.02 (1.00)        [  0.0 (1.0) ]  
+            2,0         -0.07 (20)        [  0.0 (1.0) ]  
+            2,1        0.04 (1.00)        [  0.0 (1.0) ]  
+            2,2      0.002 (1.000)        [  0.0 (1.0) ]  
+            2,3    0.0004 (1.0000)        [  0.0 (1.0) ]  
+            3,0         -0.04 (98)        [  0.0 (1.0) ]  
             3,1      0.003 (1.000)        [  0.0 (1.0) ]  
-            3,2         3e-05 +- 1        [  0.0 (1.0) ]  
-            3,3         2e-07 +- 1        [  0.0 (1.0) ]  
-        Vno 0,0        -0.793 (92)        [  0.0 (1.0) ]  
-            0,1          0.25 (33)        [  0.0 (1.0) ]  
-            0,2        0.005 (845)        [  0.0 (1.0) ]  
-            0,3        0.01 (1.00)        [  0.0 (1.0) ]  
-            1,0          0.38 (45)        [  0.0 (1.0) ]  
-            1,1          0.22 (95)        [  0.0 (1.0) ]  
-            1,2     -0.004 (0.999)        [  0.0 (1.0) ]  
-            1,3   -0.0009 (1.0000)        [  0.0 (1.0) ]  
-            2,0         -0.17 (93)        [  0.0 (1.0) ]  
-            2,1      0.005 (0.999)        [  0.0 (1.0) ]  
-            2,2    0.0007 (1.0000)        [  0.0 (1.0) ]  
-            2,3        -1e-05 +- 1        [  0.0 (1.0) ]  
+            3,2         6e-05 +- 1        [  0.0 (1.0) ]  
+            3,3         1e-06 +- 1        [  0.0 (1.0) ]  
+        Vno 0,0        -0.767 (68)        [  0.0 (1.0) ]  
+            0,1          0.15 (34)        [  0.0 (1.0) ]  
+            0,2          0.50 (51)        [  0.0 (1.0) ]  
+            0,3          0.12 (99)        [  0.0 (1.0) ]  
+            1,0          0.24 (43)        [  0.0 (1.0) ]  
+            1,1          0.07 (93)        [  0.0 (1.0) ]  
+            1,2       -0.06 (1.00)        [  0.0 (1.0) ]  
+            1,3     -0.007 (1.000)        [  0.0 (1.0) ]  
+            2,0         -0.15 (93)        [  0.0 (1.0) ]  
+            2,1      0.009 (0.999)        [  0.0 (1.0) ]  
+            2,2        -9e-05 +- 1        [  0.0 (1.0) ]  
+            2,3   -0.0001 (1.0000)        [  0.0 (1.0) ]  
             3,0       -0.03 (1.00)        [  0.0 (1.0) ]  
             3,1     -0.003 (1.000)        [  0.0 (1.0) ]  
-            3,2         1e-05 +- 1        [  0.0 (1.0) ]  
-            3,3         4e-07 +- 1        [  0.0 (1.0) ]  
+            3,2         2e-05 +- 1        [  0.0 (1.0) ]  
+            3,3         1e-07 +- 1        [  0.0 (1.0) ]  
 --------------------------------------------------------
-       etas:a 0       0.21834 (16)        [  0.30 (30) ]  
-              1         0.170 (74)        [  0.30 (30) ]  
-              2          0.30 (12)        [  0.30 (30) ]  
+       etas:a 0       0.21835 (16)        [  0.30 (30) ]  
+              1         0.174 (72)        [  0.30 (30) ]  
+              2          0.30 (13)        [  0.30 (30) ]  
               3          0.27 (26)        [  0.30 (30) ]  
-      etas:dE 0       0.41619 (12)        [  0.40 (20) ]  
-              1         0.591 (89)        [  0.50 (50) ]  
-              2          0.43 (26)        [  0.50 (50) ]  
-              3          0.54 (52)        [  0.50 (50) ]  
-         Ds:a 0       0.21466 (20)        [  0.30 (30) ]  
-              1         0.275 (20)        [  0.30 (30) ]  
-              2          0.52 (20)        [  0.30 (30) ]  
-              3          0.33 (33)        [  0.30 (30) ]  
-        Ds:dE 0       1.20166 (16)        [  1.20 (20) ]  
-              1         0.502 (17)        [  0.50 (50) ]  
-              2          0.59 (19)        [  0.50 (50) ]  
-              3          0.46 (46)        [  0.50 (50) ]  
-        Dso:a 0        0.0634 (90)        [  0.10 (10) ]  
-              1         0.080 (26)        [  0.10 (10) ]  
-              2         0.116 (93)        [  0.10 (10) ]  
-              3          0.10 (10)        [  0.10 (10) ]  
-       Dso:dE 0         1.442 (16)        [  1.50 (36) ]  
-              1          0.20 (11)        [  0.50 (50) ]  
-              2          0.52 (39)        [  0.50 (50) ]  
+      etas:dE 0       0.41620 (12)        [  0.40 (20) ]  
+              1         0.595 (87)        [  0.50 (50) ]  
+              2          0.43 (28)        [  0.50 (50) ]  
+              3          0.53 (51)        [  0.50 (50) ]  
+         Ds:a 0       0.21461 (19)        [  0.30 (30) ]  
+              1         0.261 (21)        [  0.30 (30) ]  
+              2          0.42 (16)        [  0.30 (30) ]  
+              3          0.36 (34)        [  0.30 (30) ]  
+        Ds:dE 0       1.20163 (16)        [  1.20 (20) ]  
+              1         0.491 (17)        [  0.50 (50) ]  
+              2          0.48 (16)        [  0.50 (50) ]  
+              3          0.45 (44)        [  0.50 (50) ]  
+        Dso:a 0         0.063 (12)        [  0.10 (10) ]  
+              1         0.079 (25)        [  0.10 (10) ]  
+              2          0.13 (10)        [  0.10 (10) ]  
+       Dso:dE 0         1.440 (18)        [  1.50 (36) ]  
+              1          0.20 (13)        [  0.50 (50) ]  
+              2          0.54 (35)        [  0.50 (50) ]  
               3          0.48 (48)        [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 23/0.4)
+  svdcut/n = 1e-05/7    tol = (1e-08*,1e-10,1e-10)    (itns/time = 40/0.8)
 
 Fit results:
-  Eetas: [0.41619(12) 1.007(89) 1.43(34)]
-  aetas: [0.21834(16) 0.170(74) 0.30(12)]
+  Eetas: [0.41620(12) 1.011(87) 1.44(35)]
+  aetas: [0.21835(16) 0.174(72) 0.30(13)]
 
-  EDs: [1.20166(16) 1.704(17) 2.29(20)]
-  aDs: [0.21466(20) 0.275(20) 0.52(20)]
+  EDs: [1.20163(16) 1.692(17) 2.17(17)]
+  aDs: [0.21461(19) 0.261(21) 0.42(16)]
 
-  EDso: [1.442(16) 1.65(11) 2.17(44)]
-  aDso: [0.0634(90) 0.080(26) 0.116(93)]
+  EDso: [1.440(18) 1.64(14) 2.18(43)]
+  aDso: [0.063(12) 0.079(25) 0.13(10)]
 
-  etas-&gt;V-&gt;Ds  = 0.76725(76)
-  etas-&gt;V-&gt;Dso = -0.793(92)
+  etas-&gt;V-&gt;Ds  = 0.76736(79)
+  etas-&gt;V-&gt;Dso = -0.767(68)
 
 Values:
-              metas: 0.41619(12)         
-                mDs: 1.20166(16)         
-           mDso-mDs: 0.240(16)           
-                Vnn: 0.76725(76)         
-                Vno: -0.793(92)          
+              metas: 0.41620(12)         
+                mDs: 1.20163(16)         
+           mDso-mDs: 0.239(18)           
+                Vnn: 0.76736(79)         
+                Vno: -0.767(68)          
 
 Partial % Errors:
                   metas       mDs  mDso-mDs       Vnn       Vno
 ---------------------------------------------------------------
-  statistics:      0.03      0.01      4.51      0.09      8.60
- log(etas:a):      0.00      0.00      0.11      0.01      0.39
-log(etas:dE):      0.00      0.00      0.06      0.01      0.38
-   log(Ds:a):      0.00      0.00      0.53      0.02      0.96
-  log(Ds:dE):      0.00      0.00      0.44      0.02      0.59
-  log(Dso:a):      0.00      0.00      1.10      0.01      3.85
- log(Dso:dE):      0.00      0.00      1.14      0.01      5.66
-         Vnn:      0.00      0.00      0.58      0.03      1.03
-         Vno:      0.00      0.00      4.25      0.01      3.39
-         svd:      0.00      0.00      0.00      0.00      0.00
+  statistics:      0.03      0.01      5.21      0.09      6.69
+ log(etas:a):      0.00      0.00      0.13      0.01      0.36
+log(etas:dE):      0.00      0.00      0.11      0.01      0.34
+   log(Ds:a):      0.00      0.00      0.41      0.01      1.03
+  log(Ds:dE):      0.00      0.00      0.48      0.02      1.07
+  log(Dso:a):      0.00      0.00      1.63      0.00      3.18
+ log(Dso:dE):      0.00      0.00      2.75      0.00      3.00
+         Vnn:      0.00      0.00      0.97      0.03      0.79
+         Vno:      0.00      0.00      4.26      0.02      3.48
+         svd:      0.00      0.00      0.40      0.01      0.48
 ---------------------------------------------------------------
-       total:      0.03      0.01      6.46      0.10     11.61
+       total:      0.03      0.01      7.55      0.10      8.91
 </pre></div>
 </div>
 <p>Note:</p>
@@ -739,135 +619,136 @@ sinks (one entry for each combination).</p>
 this one. To use an 8-term fit function, while tuning parameters for only
 <code class="docutils literal"><span class="pre">N</span></code> terms, we change only four lines in the main program:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;etas-Ds.data&#39;</span><span class="p">)</span> 
-    <span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">()</span>   
+    <span class="n">data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="s">&#39;etas-Ds.h5&#39;</span><span class="p">)</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">()</span>
     <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-    <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">(),</span> <span class="n">ratio</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>                  <span class="c"># 1</span>
+    <span class="n">fitter</span> <span class="o">=</span> <span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">(),</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
     <span class="n">p0</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>                                                        <span class="c"># 2</span>
+    <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>                                                        <span class="c"># 1</span>
         <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nterm =&#39;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
-        <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>                                               <span class="c"># 3          </span>
-        <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>    <span class="c"># 4 </span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>                                               <span class="c"># 2</span>
+        <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>    <span class="c"># 3</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span>                                                          <span class="c"># 4</span>
         <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
-    <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>  
+    <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">DISPLAYPLOTS</span><span class="p">:</span>
         <span class="n">fitter</span><span class="o">.</span><span class="n">display_plots</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The first modification (<code class="docutils literal"><span class="pre">#1</span></code>) is in the definition of <code class="docutils literal"><span class="pre">fitter</span></code>, where we add
-an extra argument to tell <a class="reference internal" href="corrfitter.html#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></code></a> what kind of marginalization
-to use (that is, not the ratio method). The second modification (<code class="docutils literal"><span class="pre">#2</span></code>)
+<p>The first modification (<code class="docutils literal"><span class="pre">#1</span></code>)
 limits the
 fits to <code class="docutils literal"><span class="pre">N=1,2</span></code>, because that is all that will be needed to get good
 values for the leading term.
-The third modification (<code class="docutils literal"><span class="pre">#3</span></code>) sets the prior to eight terms, no matter what value
-<code class="docutils literal"><span class="pre">N</span></code> has. The last (<code class="docutils literal"><span class="pre">#4</span></code>) tells <code class="docutils literal"><span class="pre">fitter.lsqfit</span></code> to fit parameters from
+The second modification (<code class="docutils literal"><span class="pre">#2</span></code>) sets the prior to eight terms, no matter what value
+<code class="docutils literal"><span class="pre">N</span></code> has. The third (<code class="docutils literal"><span class="pre">#3</span></code>) tells <code class="docutils literal"><span class="pre">fitter.lsqfit</span></code> to fit parameters from
 only the first <code class="docutils literal"><span class="pre">N</span></code> terms in the fit function; parts of the prior that are
-not being fit are incorporated (<em>marginalized</em>) into the fit data. The output
+not being fit are incorporated (<em>marginalized</em>) into the fit data.
+The last modification (<code class="docutils literal"><span class="pre">#4</span></code>) changes what is printed out.
+The output
 shows that
-results for the leading term have converged by <code class="docutils literal"><span class="pre">N=2</span></code> (and even <code class="docutils literal"><span class="pre">N=1</span></code> isn&#8217;t
-so bad):</p>
+results for the leading term have converged by <code class="docutils literal"><span class="pre">N=2</span></code> (and even <code class="docutils literal"><span class="pre">N=1</span></code> is
+pretty good):</p>
 <div class="highlight-python"><div class="highlight"><pre>============================== nterm = 1
 Least Square Fit:
-  chi2/dof [dof] = 0.98 [69]    Q = 0.53    logGBF = 1586.4
+  chi2/dof [dof] = 0.59 [71]    Q = 1    logGBF = 1586.7
 
 Parameters:
-  log(etas:a) 0   -1.52151 (78)      [ -1.2 (1.0) ]  
- log(etas:dE) 0   -0.87662 (29)      [ -0.92 (50) ]  
-    log(Ds:a) 0    -1.5387 (10)      [ -1.2 (1.0) ]  
-   log(Ds:dE) 0    0.18372 (14)      [  0.18 (17) ]  
-   log(Dso:a) 0     -2.628 (25)      [ -2.3 (1.0) ]  
-  log(Dso:dE) 0     0.3738 (32)      [  0.41 (24) ]  
-        Vnn 0,0    0.76533 (60)      [  0.0 (1.0) ]  
-        Vno 0,0     -0.710 (11)      [  0.0 (1.0) ]  
+  log(etas:a) 0   -1.52164 (85)      [ -1.2 (1.0) ]  
+ log(etas:dE) 0   -0.87662 (30)      [ -0.92 (50) ]  
+    log(Ds:a) 0    -1.5386 (13)      [ -1.2 (1.0) ]  
+   log(Ds:dE) 0    0.18370 (16)      [  0.18 (17) ]  
+   log(Dso:a) 0     -2.622 (94)      [ -2.3 (1.0) ]  
+  log(Dso:dE) 0     0.3753 (98)      [  0.41 (24) ]  
+        Vnn 0,0     0.7674 (35)      [  0.0 (1.0) ]  
+        Vno 0,0     -0.708 (30)      [  0.0 (1.0) ]  
 ---------------------------------------------------
-       etas:a 0    0.21838 (17)      [  0.30 (30) ]  
+       etas:a 0    0.21835 (18)      [  0.30 (30) ]  
       etas:dE 0    0.41619 (12)      [  0.40 (20) ]  
-         Ds:a 0    0.21467 (23)      [  0.30 (30) ]  
-        Ds:dE 0    1.20168 (17)      [  1.20 (20) ]  
-        Dso:a 0     0.0722 (18)      [  0.10 (10) ]  
-       Dso:dE 0     1.4533 (46)      [  1.50 (36) ]  
+         Ds:a 0    0.21469 (28)      [  0.30 (30) ]  
+        Ds:dE 0    1.20165 (19)      [  1.20 (20) ]  
+        Dso:a 0     0.0726 (68)      [  0.10 (10) ]  
+       Dso:dE 0      1.455 (14)      [  1.50 (36) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 9/0.1)
+  svdcut/n = 1e-05/27    tol = (1e-08*,1e-10,1e-10)    (itns/time = 8/0.1)
 
 ============================== nterm = 2
 Least Square Fit:
-  chi2/dof [dof] = 0.71 [69]    Q = 0.97    logGBF = 1602.3
+  chi2/dof [dof] = 0.66 [71]    Q = 0.99    logGBF = 1633.3
 
 Parameters:
-  log(etas:a) 0   -1.52169 (72)      [ -1.2 (1.0) ]  
-              1      -1.81 (52)      [ -1.2 (1.0) ]  
- log(etas:dE) 0   -0.87660 (28)      [ -0.92 (50) ]  
-              1      -0.54 (17)      [ -0.7 (1.0) ]  
-    log(Ds:a) 0   -1.53882 (88)      [ -1.2 (1.0) ]  
-              1     -1.339 (75)      [ -1.2 (1.0) ]  
-   log(Ds:dE) 0    0.18370 (13)      [  0.18 (17) ]  
-              1     -0.711 (34)      [ -0.7 (1.0) ]  
-   log(Dso:a) 0     -2.746 (92)      [ -2.3 (1.0) ]  
-              1      -2.44 (10)      [ -2.3 (1.0) ]  
-  log(Dso:dE) 0     0.3661 (74)      [  0.41 (24) ]  
-              1      -1.45 (24)      [ -0.7 (1.0) ]  
-        Vnn 0,0    0.76759 (74)      [  0.0 (1.0) ]  
-            0,1     -0.488 (35)      [  0.0 (1.0) ]  
-            1,0      0.039 (51)      [  0.0 (1.0) ]  
-            1,1       0.63 (74)      [  0.0 (1.0) ]  
-        Vno 0,0     -0.774 (42)      [  0.0 (1.0) ]  
-            0,1       0.25 (16)      [  0.0 (1.0) ]  
-            1,0       0.34 (43)      [  0.0 (1.0) ]  
-            1,1       0.29 (95)      [  0.0 (1.0) ]  
+  log(etas:a) 0   -1.52170 (74)      [ -1.2 (1.0) ]  
+              1      -1.74 (53)      [ -1.2 (1.0) ]  
+ log(etas:dE) 0   -0.87662 (28)      [ -0.92 (50) ]  
+              1      -0.53 (17)      [ -0.7 (1.0) ]  
+    log(Ds:a) 0   -1.53905 (94)      [ -1.2 (1.0) ]  
+              1     -1.367 (84)      [ -1.2 (1.0) ]  
+   log(Ds:dE) 0    0.18367 (13)      [  0.18 (17) ]  
+              1     -0.724 (40)      [ -0.7 (1.0) ]  
+   log(Dso:a) 0     -2.714 (73)      [ -2.3 (1.0) ]  
+              1      -2.43 (12)      [ -2.3 (1.0) ]  
+  log(Dso:dE) 0     0.3688 (63)      [  0.41 (24) ]  
+              1      -1.40 (23)      [ -0.7 (1.0) ]  
+        Vnn 0,0    0.76716 (82)      [  0.0 (1.0) ]  
+            0,1     -0.461 (30)      [  0.0 (1.0) ]  
+            1,0      0.072 (55)      [  0.0 (1.0) ]  
+            1,1       0.17 (85)      [  0.0 (1.0) ]  
+        Vno 0,0     -0.776 (41)      [  0.0 (1.0) ]  
+            0,1       0.31 (16)      [  0.0 (1.0) ]  
+            1,0       0.27 (41)      [  0.0 (1.0) ]  
+            1,1       0.20 (97)      [  0.0 (1.0) ]  
 ---------------------------------------------------
        etas:a 0    0.21834 (16)      [  0.30 (30) ]  
-              1      0.164 (85)      [  0.30 (30) ]  
+              1      0.175 (92)      [  0.30 (30) ]  
       etas:dE 0    0.41619 (12)      [  0.40 (20) ]  
-              1       0.58 (10)      [  0.50 (50) ]  
-         Ds:a 0    0.21463 (19)      [  0.30 (30) ]  
-              1      0.262 (20)      [  0.30 (30) ]  
-        Ds:dE 0    1.20165 (15)      [  1.20 (20) ]  
-              1      0.491 (17)      [  0.50 (50) ]  
-        Dso:a 0     0.0642 (59)      [  0.10 (10) ]  
-              1     0.0872 (90)      [  0.10 (10) ]  
-       Dso:dE 0      1.442 (11)      [  1.50 (36) ]  
-              1      0.234 (55)      [  0.50 (50) ]  
+              1       0.59 (10)      [  0.50 (50) ]  
+         Ds:a 0    0.21458 (20)      [  0.30 (30) ]  
+              1      0.255 (21)      [  0.30 (30) ]  
+        Ds:dE 0    1.20161 (16)      [  1.20 (20) ]  
+              1      0.485 (19)      [  0.50 (50) ]  
+        Dso:a 0     0.0663 (48)      [  0.10 (10) ]  
+              1      0.088 (10)      [  0.10 (10) ]  
+       Dso:dE 0     1.4459 (91)      [  1.50 (36) ]  
+              1      0.248 (57)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 17/0.2)
+  svdcut/n = 1e-05/12    tol = (1e-08*,1e-10,1e-10)    (itns/time = 25/0.2)
 
 Fit results:
-  Eetas: [0.41619(12) 1.00(10)]
-  aetas: [0.21834(16) 0.164(85)]
+  Eetas: [0.41619(12) 1.01(10)]
+  aetas: [0.21834(16) 0.175(92)]
 
-  EDs: [1.20165(15) 1.693(17)]
-  aDs: [0.21463(19) 0.262(20)]
+  EDs: [1.20161(16) 1.687(19)]
+  aDs: [0.21458(20) 0.255(21)]
 
-  EDso: [1.442(11) 1.676(61)]
-  aDso: [0.0642(59) 0.0872(90)]
+  EDso: [1.4459(91) 1.693(60)]
+  aDso: [0.0663(48) 0.088(10)]
 
-  etas-&gt;V-&gt;Ds  = 0.76759(74)
-  etas-&gt;V-&gt;Dso = -0.774(42)
+  etas-&gt;V-&gt;Ds  = 0.76716(82)
+  etas-&gt;V-&gt;Dso = -0.776(41)
 
 Values:
               metas: 0.41619(12)         
-                mDs: 1.20165(15)         
-           mDso-mDs: 0.241(11)           
-                Vnn: 0.76759(74)         
-                Vno: -0.774(42)          
+                mDs: 1.20161(16)         
+           mDso-mDs: 0.2443(91)          
+                Vnn: 0.76716(82)         
+                Vno: -0.776(41)          
 
 Partial % Errors:
                   metas       mDs  mDso-mDs       Vnn       Vno
 ---------------------------------------------------------------
-  statistics:      0.03      0.01      3.69      0.09      4.53
- log(etas:a):      0.00      0.00      0.10      0.01      0.54
-log(etas:dE):      0.00      0.00      0.06      0.00      0.42
-   log(Ds:a):      0.00      0.00      0.34      0.01      0.47
-  log(Ds:dE):      0.00      0.00      0.52      0.02      0.47
-  log(Dso:a):      0.00      0.00      0.40      0.00      1.37
- log(Dso:dE):      0.00      0.00      0.54      0.00      1.94
-         Vnn:      0.00      0.00      1.03      0.03      0.25
-         Vno:      0.00      0.00      2.10      0.02      1.28
-         svd:      0.00      0.00      0.00      0.00      0.00
+  statistics:      0.03      0.01      2.66      0.09      4.57
+ log(etas:a):      0.00      0.00      0.04      0.01      0.43
+log(etas:dE):      0.00      0.00      0.02      0.01      0.16
+   log(Ds:a):      0.00      0.00      0.07      0.02      0.23
+  log(Ds:dE):      0.00      0.00      0.10      0.03      0.16
+  log(Dso:a):      0.00      0.00      0.36      0.00      1.19
+ log(Dso:dE):      0.00      0.00      0.47      0.00      1.69
+         Vnn:      0.00      0.00      0.53      0.05      0.52
+         Vno:      0.00      0.00      2.44      0.01      0.81
+         svd:      0.00      0.00      0.44      0.02      1.39
 ---------------------------------------------------------------
-       total:      0.03      0.01      4.47      0.10      5.37
+       total:      0.03      0.01      3.72      0.11      5.32
 </pre></div>
 </div>
 </div>
@@ -876,380 +757,163 @@ log(etas:dE):      0.00      0.00      0.06      0.00      0.42
 <p>Chained fits (see <a class="reference internal" href="corrfitter.html#chained-fits"><span>Faster Fits &#8212; Chained Fits</span></a>) are used if <code class="docutils literal"><span class="pre">fitter.lsqfit(...)</span></code>
 is replaced by <code class="docutils literal"><span class="pre">fitter.chained_lsqfit(...)</span></code> in <code class="docutils literal"><span class="pre">main()</span></code>. The results
 are about the same: for example,</p>
-<div class="highlight-python"><div class="highlight"><pre>Values:
-              metas: 0.41619(12)         
-                mDs: 1.20156(17)         
-           mDso-mDs: 0.2554(41)          
-                Vnn: 0.7676(12)          
-                Vno: -0.754(26)          
-</pre></div>
-</div>
-<p>We obtain more or less the same results,</p>
-<div class="highlight-python"><div class="highlight"><pre>Values:
+<div class="highlight-python"><div class="highlight"><pre>Fit results:
+  Eetas: [0.41619(11) 1.012(29) 1.439(58)]
+  aetas: [0.21835(15) 0.174(17) 0.295(99)]
+
+  EDs: [1.20162(17) 1.688(15) 2.205(71)]
+  aDs: [0.21460(22) 0.258(14) 0.481(99)]
+
+  EDso: [1.4531(39) 1.728(50) 2.02(15)]
+  aDso: [0.0717(14) 0.070(17) 0.090(77)]
+
+  etas-&gt;V-&gt;Ds  = 0.76772(98)
+  etas-&gt;V-&gt;Dso = -0.759(26)
+
+Values:
               metas: 0.41619(11)         
-                mDs: 1.20156(15)         
-           mDso-mDs: 0.2576(27)          
-                Vnn: 0.76666(67)         
-                Vno: -0.747(15)          
+                mDs: 1.20162(17)         
+           mDso-mDs: 0.2515(39)          
+                Vnn: 0.76772(98)         
+                Vno: -0.759(26)          
+
+Partial % Errors:
+                  metas       mDs  mDso-mDs       Vnn       Vno
+---------------------------------------------------------------
+  statistics:      0.03      0.01      1.40      0.11      2.95
+ log(etas:a):      0.00      0.00      0.06      0.02      0.25
+log(etas:dE):      0.00      0.00      0.03      0.01      0.21
+   log(Ds:a):      0.00      0.00      0.11      0.01      0.23
+  log(Ds:dE):      0.00      0.00      0.07      0.02      0.37
+  log(Dso:a):      0.00      0.00      0.32      0.00      0.83
+ log(Dso:dE):      0.00      0.00      0.24      0.00      0.49
+         Vnn:      0.00      0.00      0.25      0.05      0.87
+         Vno:      0.00      0.00      0.42      0.01      0.78
+         svd:      0.00      0.00      0.14      0.00      0.11
+---------------------------------------------------------------
+       total:      0.03      0.01      1.55      0.13      3.36
 </pre></div>
 </div>
-<p>if we polish the final results from the chained fit using
-a final call to <code class="docutils literal"><span class="pre">fitter.lsqfit</span></code> (see <a class="reference internal" href="corrfitter.html#chained-fits"><span>Faster Fits &#8212; Chained Fits</span></a>):</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Another variation is to replace the last line (<code class="docutils literal"><span class="pre">return</span> <span class="pre">models</span></code>)
-in <code class="docutils literal"><span class="pre">make_models()</span></code> by:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">return</span> <span class="p">[</span><span class="n">models</span><span class="p">[:</span><span class="mi">2</span><span class="p">]]</span> <span class="o">+</span> <span class="n">models</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
-</pre></div>
-</div>
-<p>This causes the two 2-point correlators (<code class="docutils literal"><span class="pre">models[:2]</span></code>) to be fit
-in parallel, which makes sense since they share no parameters.
-The result of the (parallel) fit of the 2-point correlators is used
-as a prior for the chained fits of the 3-point correlators (<code class="docutils literal"><span class="pre">models[2:]</span></code>).
-The fit results are mostly unchanged, although the polishing fit
-is significantly faster (more than 2x) in this case:</p>
-<div class="highlight-python"><div class="highlight"><pre>Values:
-              metas: 0.41619(11)         
-                mDs: 1.20156(15)         
-           mDso-mDs: 0.2576(27)          
-                Vnn: 0.76666(67)         
-                Vno: -0.747(15)          
-</pre></div>
-</div>
+<p>Chained fits are particularly useful for very large data sets
+(much larger than this one).</p>
 </div>
 <div class="section" id="test-the-analysis">
 <h2>Test the Analysis<a class="headerlink" href="#test-the-analysis" title="Permalink to this headline">¶</a></h2>
 <p>We can test our analysis by adding
-<code class="docutils literal"><span class="pre">test_fit(fitter,</span> <span class="pre">'etas-Ds.data')</span></code> to the <code class="docutils literal"><span class="pre">main</span></code>
+<code class="docutils literal"><span class="pre">test_fit(fitter,</span> <span class="pre">'etas-Ds.h5')</span></code> to the <code class="docutils literal"><span class="pre">main</span></code>
 program, where:</p>
-<div class="highlight-python"><div class="highlight"><pre>    if DISPLAYPLOTS:
-        fitter.display_plots()
-    test_fit(fitter, &#39;etas-Ds.data&#39;)
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">test_fit</span><span class="p">(</span><span class="n">fitter</span><span class="p">,</span> <span class="n">datafile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Test the fit with simulated data &quot;&quot;&quot;</span>
+    <span class="n">gv</span><span class="o">.</span><span class="n">ranseed</span><span class="p">(</span><span class="mi">98</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">Random seed:&#39;</span><span class="p">,</span> <span class="n">gv</span><span class="o">.</span><span class="n">ranseed</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">datafile</span><span class="p">)</span>
+    <span class="n">pexact</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">fit</span><span class="o">.</span><span class="n">prior</span>
+    <span class="k">for</span> <span class="n">spdata</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">simulated_pdata_iter</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">pexact</span><span class="o">=</span><span class="n">pexact</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">============================== simulation&#39;</span><span class="p">)</span>
+        <span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">pdata</span><span class="o">=</span><span class="n">spdata</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">pexact</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">sfit</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pstyle</span><span class="o">=</span><span class="bp">None</span><span class="p">))</span>
+        <span class="c"># check chi**2 for key parameters</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;etas:a&#39;</span><span class="p">,</span> <span class="s">&#39;etas:dE&#39;</span><span class="p">,</span> <span class="s">&#39;Ds:a&#39;</span><span class="p">,</span> <span class="s">&#39;Ds:dE&#39;</span><span class="p">,</span> <span class="s">&#39;Vnn&#39;</span><span class="p">]:</span>
+            <span class="n">p_k</span> <span class="o">=</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pex_k</span> <span class="o">=</span> <span class="n">pexact</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">print</span><span class="p">(</span>
+                <span class="s">&#39;{:&gt;10}:  fit = {}    exact = {:&lt;9.5}    diff = {}&#39;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">p_k</span><span class="p">,</span> <span class="n">pex_k</span><span class="p">,</span> <span class="n">p_k</span> <span class="o">-</span> <span class="n">pex_k</span><span class="p">)</span>
+                <span class="p">)</span>
 
-def test_fit(fitter, datafile):
-    &quot;&quot;&quot; Test the fit with simulated data &quot;&quot;&quot;
-    gv.ranseed((1487942813, 775399747, 906327435))
-    print(&#39;\nRandom seed:&#39;, gv.ranseed.seed)
-    dataset = cf.read_dataset(datafile)
-    pexact = fitter.fit.pmean
-    prior = fitter.fit.prior
-    for sdata in fitter.simulated_data_iter(n=2, dataset=dataset, pexact=pexact):
-        print(&#39;\n============================== simulation&#39;)
-        sfit = fitter.lsqfit(data=sdata, prior=prior, p0=pexact)
-        diff = []
-        # check chi**2 for leading parameters
-        for k in prior:
-            diff.append(sfit.p[k].flat[0] - pexact[k].flat[0])
-        chi2diff = gv.chi2(diff)
-        print(
+            <span class="n">diff</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_k</span> <span class="o">-</span> <span class="n">pex_k</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">Accuracy of key parameters: &#39;</span> <span class="o">+</span> <span class="n">gv</span><span class="o">.</span><span class="n">fmt_chi2</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">chi2</span><span class="p">(</span><span class="n">diff</span><span class="p">)))</span>
 </pre></div>
 </div>
 <p>This code does <code class="docutils literal"><span class="pre">n=2</span></code> simulations of the full fit, using the means of fit
 results from the last fit done by <code class="docutils literal"><span class="pre">fitter</span></code> as <code class="docutils literal"><span class="pre">pexact</span></code>.
-The code prints out each fit,
-and for each it computes the chi-squared of the difference between the leading
+The code compares fit results woth <code class="docutils literal"><span class="pre">pexact</span></code> in each case,
+and computes the chi-squared of the difference between the leading
 parameters and <code class="docutils literal"><span class="pre">pexact</span></code>. The output is:</p>
-<div class="highlight-python"><div class="highlight"><pre>Random seed: (1487942813, 775399747, 906327435)
+<div class="highlight-python"><div class="highlight"><pre>Random seed: 98
 
 ============================== simulation
 Least Square Fit:
-  chi2/dof [dof] = 0.54 [69]    Q = 1    logGBF = 1606.7
-
-Parameters:
-  log(etas:a) 0      -1.52148 (74)        [ -1.2 (1.0) ]  
-              1         -2.01 (56)        [ -1.2 (1.0) ]  
-              2         -1.33 (57)        [ -1.2 (1.0) ]  
-              3         -1.10 (67)        [ -1.2 (1.0) ]  
- log(etas:dE) 0      -0.87641 (28)        [ -0.92 (50) ]  
-              1         -0.61 (20)        [ -0.7 (1.0) ]  
-              2         -1.00 (57)        [ -0.7 (1.0) ]  
-              3         -0.84 (90)        [ -0.7 (1.0) ]  
-    log(Ds:a) 0      -1.53757 (91)        [ -1.2 (1.0) ]  
-              1         -1.32 (10)        [ -1.2 (1.0) ]  
-              2         -0.81 (34)        [ -1.2 (1.0) ]  
-              3         -1.13 (98)        [ -1.2 (1.0) ]  
-   log(Ds:dE) 0       0.18390 (13)        [  0.18 (17) ]  
-              1        -0.696 (44)        [ -0.7 (1.0) ]  
-              2         -0.71 (34)        [ -0.7 (1.0) ]  
-              3         -0.75 (99)        [ -0.7 (1.0) ]  
-   log(Dso:a) 0        -2.713 (86)        [ -2.3 (1.0) ]  
-              1         -2.38 (23)        [ -2.3 (1.0) ]  
-              2         -2.39 (95)        [ -2.3 (1.0) ]  
-              3         -2.3 (1.0)        [ -2.3 (1.0) ]  
-  log(Dso:dE) 0        0.3682 (73)        [  0.41 (24) ]  
-              1         -1.33 (32)        [ -0.7 (1.0) ]  
-              2         -0.54 (91)        [ -0.7 (1.0) ]  
-              3         -0.7 (1.0)        [ -0.7 (1.0) ]  
-        Vnn 0,0       0.76817 (91)        [  0.0 (1.0) ]  
-            0,1        -0.516 (38)        [  0.0 (1.0) ]  
-            0,2          0.38 (42)        [  0.0 (1.0) ]  
-            0,3          0.06 (99)        [  0.0 (1.0) ]  
-            1,0         0.016 (77)        [  0.0 (1.0) ]  
-            1,1         -0.21 (74)        [  0.0 (1.0) ]  
-            1,2       -0.005 (990)        [  0.0 (1.0) ]  
-            1,3    0.0009 (0.9999)        [  0.0 (1.0) ]  
-            2,0          0.12 (34)        [  0.0 (1.0) ]  
-            2,1        0.003 (993)        [  0.0 (1.0) ]  
-            2,2     -0.002 (1.000)        [  0.0 (1.0) ]  
-            2,3         3e-06 +- 1        [  0.0 (1.0) ]  
-            3,0         -0.52 (88)        [  0.0 (1.0) ]  
-            3,1      0.003 (1.000)        [  0.0 (1.0) ]  
-            3,2        -4e-06 +- 1        [  0.0 (1.0) ]  
-            3,3        -2e-06 +- 1        [  0.0 (1.0) ]  
-        Vno 0,0        -0.752 (39)        [  0.0 (1.0) ]  
-            0,1          0.26 (20)        [  0.0 (1.0) ]  
-            0,2          0.12 (96)        [  0.0 (1.0) ]  
-            0,3        0.01 (1.00)        [  0.0 (1.0) ]  
-            1,0         -0.08 (49)        [  0.0 (1.0) ]  
-            1,1         -0.35 (95)        [  0.0 (1.0) ]  
-            1,2       -0.01 (1.00)        [  0.0 (1.0) ]  
-            1,3   -0.0005 (1.0000)        [  0.0 (1.0) ]  
-            2,0          0.57 (87)        [  0.0 (1.0) ]  
-            2,1        0.02 (1.00)        [  0.0 (1.0) ]  
-            2,2     -0.001 (1.000)        [  0.0 (1.0) ]  
-            2,3        -7e-05 +- 1        [  0.0 (1.0) ]  
-            3,0          0.11 (99)        [  0.0 (1.0) ]  
-            3,1        0.01 (1.00)        [  0.0 (1.0) ]  
-            3,2        -1e-05 +- 1        [  0.0 (1.0) ]  
-            3,3        -2e-06 +- 1        [  0.0 (1.0) ]  
---------------------------------------------------------
-       etas:a 0       0.21839 (16)        [  0.30 (30) ]  
-              1         0.135 (76)        [  0.30 (30) ]  
-              2          0.26 (15)        [  0.30 (30) ]  
-              3          0.33 (22)        [  0.30 (30) ]  
-      etas:dE 0       0.41628 (12)        [  0.40 (20) ]  
-              1          0.54 (11)        [  0.50 (50) ]  
-              2          0.37 (21)        [  0.50 (50) ]  
-              3          0.43 (39)        [  0.50 (50) ]  
-         Ds:a 0       0.21490 (20)        [  0.30 (30) ]  
-              1         0.266 (27)        [  0.30 (30) ]  
-              2          0.44 (15)        [  0.30 (30) ]  
-              3          0.32 (32)        [  0.30 (30) ]  
-        Ds:dE 0       1.20190 (16)        [  1.20 (20) ]  
-              1         0.499 (22)        [  0.50 (50) ]  
-              2          0.49 (17)        [  0.50 (50) ]  
-              3          0.47 (46)        [  0.50 (50) ]  
-        Dso:a 0        0.0663 (57)        [  0.10 (10) ]  
-              1         0.092 (21)        [  0.10 (10) ]  
-              2         0.092 (87)        [  0.10 (10) ]  
-              3          0.10 (10)        [  0.10 (10) ]  
-       Dso:dE 0         1.445 (11)        [  1.50 (36) ]  
-              1         0.266 (85)        [  0.50 (50) ]  
-              2          0.58 (53)        [  0.50 (50) ]  
-              3          0.50 (50)        [  0.50 (50) ]  
+  chi2/dof [dof] = 0.8 [71]    Q = 0.89    logGBF = 1633.6
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 62/0.9)
+  svdcut/n = 1e-05/7    tol = (1e-08*,1e-10,1e-10)    (itns/time = 61/1.2)
 
-Leading parameter chi2/dof [dof] = 0.91 [8]   Q = 0.5
+    etas:a:  fit = 0.21816(16)    exact = 0.21835      diff = -0.00019(16)
+   etas:dE:  fit = 0.41610(11)    exact = 0.4162       diff = -0.00010(11)
+      Ds:a:  fit = 0.21449(19)    exact = 0.21461      diff = -0.00013(19)
+     Ds:dE:  fit = 1.20153(16)    exact = 1.2016       diff = -0.00010(16)
+       Vnn:  fit = 0.76585(98)    exact = 0.76736      diff = -0.00151(98)
+
+Accuracy of key parameters: chi2/dof = 0.86 [5]    Q = 0.51
 
 ============================== simulation
 Least Square Fit:
-  chi2/dof [dof] = 0.81 [69]    Q = 0.88    logGBF = 1596.6
-
-Parameters:
-  log(etas:a) 0     -1.52324 (74)       [ -1.2 (1.0) ]  
-              1        -1.84 (24)       [ -1.2 (1.0) ]  
-              2        -0.86 (52)       [ -1.2 (1.0) ]  
-              3        -1.08 (97)       [ -1.2 (1.0) ]  
- log(etas:dE) 0     -0.87722 (28)       [ -0.92 (50) ]  
-              1        -0.60 (11)       [ -0.7 (1.0) ]  
-              2        -0.46 (40)       [ -0.7 (1.0) ]  
-              3        -0.78 (98)       [ -0.7 (1.0) ]  
-    log(Ds:a) 0     -1.54023 (96)       [ -1.2 (1.0) ]  
-              1        -1.41 (11)       [ -1.2 (1.0) ]  
-              2        -0.77 (31)       [ -1.2 (1.0) ]  
-              3        -1.10 (98)       [ -1.2 (1.0) ]  
-   log(Ds:dE) 0      0.18346 (13)       [  0.18 (17) ]  
-              1       -0.750 (51)       [ -0.7 (1.0) ]  
-              2        -0.70 (30)       [ -0.7 (1.0) ]  
-              3        -0.77 (99)       [ -0.7 (1.0) ]  
-   log(Dso:a) 0       -2.710 (92)       [ -2.3 (1.0) ]  
-              1        -2.46 (26)       [ -2.3 (1.0) ]  
-              2        -2.35 (90)       [ -2.3 (1.0) ]  
-              3        -2.3 (1.0)       [ -2.3 (1.0) ]  
-  log(Dso:dE) 0       0.3703 (79)       [  0.41 (24) ]  
-              1        -1.46 (36)       [ -0.7 (1.0) ]  
-              2        -0.59 (84)       [ -0.7 (1.0) ]  
-              3        -0.7 (1.0)       [ -0.7 (1.0) ]  
-        Vnn 0,0      0.76840 (85)       [  0.0 (1.0) ]  
-            0,1       -0.474 (38)       [  0.0 (1.0) ]  
-            0,2         0.18 (32)       [  0.0 (1.0) ]  
-            0,3         0.03 (99)       [  0.0 (1.0) ]  
-            1,0        0.002 (28)       [  0.0 (1.0) ]  
-            1,1         0.72 (58)       [  0.0 (1.0) ]  
-            1,2         0.12 (98)       [  0.0 (1.0) ]  
-            1,3     0.008 (1.000)       [  0.0 (1.0) ]  
-            2,0         0.13 (20)       [  0.0 (1.0) ]  
-            2,1       0.01 (1.00)       [  0.0 (1.0) ]  
-            2,2   0.0009 (1.0000)       [  0.0 (1.0) ]  
-            2,3        7e-05 +- 1       [  0.0 (1.0) ]  
-            3,0         0.07 (99)       [  0.0 (1.0) ]  
-            3,1     0.001 (1.000)       [  0.0 (1.0) ]  
-            3,2        2e-05 +- 1       [  0.0 (1.0) ]  
-            3,3        6e-07 +- 1       [  0.0 (1.0) ]  
-        Vno 0,0       -0.797 (68)       [  0.0 (1.0) ]  
-            0,1         0.35 (24)       [  0.0 (1.0) ]  
-            0,2        -0.04 (94)       [  0.0 (1.0) ]  
-            0,3    -0.002 (0.999)       [  0.0 (1.0) ]  
-            1,0         0.19 (37)       [  0.0 (1.0) ]  
-            1,1         0.34 (94)       [  0.0 (1.0) ]  
-            1,2       0.02 (1.00)       [  0.0 (1.0) ]  
-            1,3     0.002 (1.000)       [  0.0 (1.0) ]  
-            2,0        -0.21 (95)       [  0.0 (1.0) ]  
-            2,1      -0.02 (1.00)       [  0.0 (1.0) ]  
-            2,2   0.0002 (1.0000)       [  0.0 (1.0) ]  
-            2,3        2e-05 +- 1       [  0.0 (1.0) ]  
-            3,0      -0.02 (1.00)       [  0.0 (1.0) ]  
-            3,1    -0.002 (1.000)       [  0.0 (1.0) ]  
-            3,2       -4e-06 +- 1       [  0.0 (1.0) ]  
-            3,3        2e-07 +- 1       [  0.0 (1.0) ]  
-------------------------------------------------------
-       etas:a 0      0.21800 (16)       [  0.30 (30) ]  
-              1        0.158 (38)       [  0.30 (30) ]  
-              2         0.42 (22)       [  0.30 (30) ]  
-              3         0.34 (33)       [  0.30 (30) ]  
-      etas:dE 0      0.41594 (12)       [  0.40 (20) ]  
-              1        0.548 (59)       [  0.50 (50) ]  
-              2         0.63 (25)       [  0.50 (50) ]  
-              3         0.46 (45)       [  0.50 (50) ]  
-         Ds:a 0      0.21433 (21)       [  0.30 (30) ]  
-              1        0.245 (28)       [  0.30 (30) ]  
-              2         0.46 (15)       [  0.30 (30) ]  
-              3         0.33 (32)       [  0.30 (30) ]  
-        Ds:dE 0      1.20137 (16)       [  1.20 (20) ]  
-              1        0.473 (24)       [  0.50 (50) ]  
-              2         0.50 (15)       [  0.50 (50) ]  
-              3         0.46 (46)       [  0.50 (50) ]  
-        Dso:a 0       0.0666 (61)       [  0.10 (10) ]  
-              1        0.085 (22)       [  0.10 (10) ]  
-              2        0.096 (86)       [  0.10 (10) ]  
-              3         0.10 (10)       [  0.10 (10) ]  
-       Dso:dE 0        1.448 (11)       [  1.50 (36) ]  
-              1        0.233 (84)       [  0.50 (50) ]  
-              2         0.56 (47)       [  0.50 (50) ]  
-              3         0.50 (50)       [  0.50 (50) ]  
+  chi2/dof [dof] = 0.49 [71]    Q = 1    logGBF = 1647.9
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 47/0.6)
+  svdcut/n = 1e-05/7    tol = (1e-08*,1e-10,1e-10)    (itns/time = 81/1.7)
 
-Leading parameter chi2/dof [dof] = 1.19 [8]   Q = 0.3
+    etas:a:  fit = 0.21835(15)    exact = 0.21835      diff = 5(1497)e-07
+   etas:dE:  fit = 0.41620(11)    exact = 0.4162       diff = -6(1110)e-07
+      Ds:a:  fit = 0.21460(19)    exact = 0.21461      diff = -0.00001(19)
+     Ds:dE:  fit = 1.20161(16)    exact = 1.2016       diff = -0.00003(16)
+       Vnn:  fit = 0.76633(78)    exact = 0.76736      diff = -0.00102(78)
+
+Accuracy of key parameters: chi2/dof = 0.35 [5]    Q = 0.88
 </pre></div>
 </div>
-<p>This shows that the fit is working well, at least for the leading
-parameter for each key.</p>
+<p>This shows that the fit is working well.</p>
 <p>Other options are easily checked. For example,
 only one line need be changed in <code class="docutils literal"><span class="pre">test_fit</span></code> in order to test
 a marginalized fit:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdata</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">pexact</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">pdata</span><span class="o">=</span><span class="n">spdata</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">pexact</span><span class="p">,</span> <span class="n">nterm</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Running this code gives:</p>
-<div class="highlight-python"><div class="highlight"><pre>Random seed: (623738625, 435880512, 1745400596)
+<div class="highlight-python"><div class="highlight"><pre>Random seed: 98
 
 ============================== simulation
 Least Square Fit:
-  chi2/dof [dof] = 0.75 [69]    Q = 0.94    logGBF = 1611.8
-
-Parameters:
-  log(etas:a) 0   -1.52071 (66)      [ -1.2 (1.0) ]  
-              1     -1.774 (19)      [ -1.2 (1.0) ]  
- log(etas:dE) 0   -0.87629 (27)      [ -0.92 (50) ]  
-              1     -0.510 (16)      [ -0.7 (1.0) ]  
-    log(Ds:a) 0   -1.53874 (69)      [ -1.2 (1.0) ]  
-              1    -1.3385 (55)      [ -1.2 (1.0) ]  
-   log(Ds:dE) 0    0.18370 (11)      [  0.18 (17) ]  
-              1    -0.7106 (58)      [ -0.7 (1.0) ]  
-   log(Dso:a) 0     -2.776 (31)      [ -2.3 (1.0) ]  
-              1     -2.417 (35)      [ -2.3 (1.0) ]  
-  log(Dso:dE) 0     0.3619 (31)      [  0.41 (24) ]  
-              1     -1.435 (86)      [ -0.7 (1.0) ]  
-        Vnn 0,0    0.76744 (32)      [  0.0 (1.0) ]  
-            0,1    -0.4826 (48)      [  0.0 (1.0) ]  
-            1,0     0.0336 (76)      [  0.0 (1.0) ]  
-            1,1       1.20 (57)      [  0.0 (1.0) ]  *
-        Vno 0,0     -0.747 (24)      [  0.0 (1.0) ]  
-            0,1      0.179 (47)      [  0.0 (1.0) ]  
-            1,0       0.58 (17)      [  0.0 (1.0) ]  
-            1,1      -0.01 (94)      [  0.0 (1.0) ]  
----------------------------------------------------
-       etas:a 0    0.21856 (14)      [  0.30 (30) ]  
-              1     0.1697 (33)      [  0.30 (30) ]  
-      etas:dE 0    0.41633 (11)      [  0.40 (20) ]  
-              1     0.6007 (98)      [  0.50 (50) ]  
-         Ds:a 0    0.21465 (15)      [  0.30 (30) ]  
-              1     0.2622 (14)      [  0.30 (30) ]  
-        Ds:dE 0    1.20166 (14)      [  1.20 (20) ]  
-              1     0.4913 (28)      [  0.50 (50) ]  
-        Dso:a 0     0.0623 (20)      [  0.10 (10) ]  
-              1     0.0891 (31)      [  0.10 (10) ]  
-       Dso:dE 0     1.4360 (44)      [  1.50 (36) ]  
-              1      0.238 (20)      [  0.50 (50) ]  
+  chi2/dof [dof] = 0.84 [71]    Q = 0.82    logGBF = 1647.2
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 6/0.1)
+  svdcut/n = 1e-05/7    tol = (1e-08*,1e-10,1e-10)    (itns/time = 11/0.1)
 
-Leading parameter chi2/dof [dof] = 0.96 [8]   Q = 0.5
+    etas:a:  fit = 0.21821(14)    exact = 0.21834      diff = -0.00013(14)
+   etas:dE:  fit = 0.41611(11)    exact = 0.41619      diff = -0.00007(11)
+      Ds:a:  fit = 0.21447(13)    exact = 0.21458      diff = -0.00011(13)
+     Ds:dE:  fit = 1.20150(13)    exact = 1.2016       diff = -0.00011(13)
+       Vnn:  fit = 0.76639(42)    exact = 0.76716      diff = -0.00077(42)
+
+Accuracy of key parameters: chi2/dof = 0.86 [5]    Q = 0.51
 
 ============================== simulation
 Least Square Fit:
-  chi2/dof [dof] = 0.91 [69]    Q = 0.68    logGBF = 1606.2
-
-Parameters:
-  log(etas:a) 0   -1.52175 (66)      [ -1.2 (1.0) ]  
-              1     -1.791 (19)      [ -1.2 (1.0) ]  
- log(etas:dE) 0   -0.87645 (27)      [ -0.92 (50) ]  
-              1     -0.525 (16)      [ -0.7 (1.0) ]  
-    log(Ds:a) 0   -1.53891 (69)      [ -1.2 (1.0) ]  
-              1    -1.3413 (54)      [ -1.2 (1.0) ]  
-   log(Ds:dE) 0    0.18376 (11)      [  0.18 (17) ]  
-              1    -0.7129 (58)      [ -0.7 (1.0) ]  
-   log(Dso:a) 0     -2.776 (32)      [ -2.3 (1.0) ]  
-              1     -2.425 (35)      [ -2.3 (1.0) ]  
-  log(Dso:dE) 0     0.3627 (32)      [  0.41 (24) ]  
-              1     -1.462 (87)      [ -0.7 (1.0) ]  
-        Vnn 0,0    0.76796 (33)      [  0.0 (1.0) ]  
-            0,1    -0.4868 (48)      [  0.0 (1.0) ]  
-            1,0     0.0335 (74)      [  0.0 (1.0) ]  
-            1,1       0.38 (56)      [  0.0 (1.0) ]  
-        Vno 0,0     -0.761 (27)      [  0.0 (1.0) ]  
-            0,1      0.200 (49)      [  0.0 (1.0) ]  
-            1,0       0.54 (17)      [  0.0 (1.0) ]  
-            1,1       0.16 (93)      [  0.0 (1.0) ]  
----------------------------------------------------
-       etas:a 0    0.21833 (15)      [  0.30 (30) ]  
-              1     0.1668 (31)      [  0.30 (30) ]  
-      etas:dE 0    0.41626 (11)      [  0.40 (20) ]  
-              1     0.5917 (97)      [  0.50 (50) ]  
-         Ds:a 0    0.21461 (15)      [  0.30 (30) ]  
-              1     0.2615 (14)      [  0.30 (30) ]  
-        Ds:dE 0    1.20173 (14)      [  1.20 (20) ]  
-              1     0.4902 (28)      [  0.50 (50) ]  
-        Dso:a 0     0.0623 (20)      [  0.10 (10) ]  
-              1     0.0885 (31)      [  0.10 (10) ]  
-       Dso:dE 0     1.4372 (45)      [  1.50 (36) ]  
-              1      0.232 (20)      [  0.50 (50) ]  
+  chi2/dof [dof] = 0.58 [71]    Q = 1    logGBF = 1656.7
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 5/0.1)
+  svdcut/n = 1e-05/7    tol = (1e-08*,1e-10,1e-10)    (itns/time = 14/0.1)
 
-Leading parameter chi2/dof [dof] = 0.69 [8]   Q = 0.7
+    etas:a:  fit = 0.21830(14)    exact = 0.21834      diff = -0.00004(14)
+   etas:dE:  fit = 0.41617(11)    exact = 0.41619      diff = -0.00002(11)
+      Ds:a:  fit = 0.21458(13)    exact = 0.21458      diff = 7(1319)e-07
+     Ds:dE:  fit = 1.20161(13)    exact = 1.2016       diff = -9(131)e-06
+       Vnn:  fit = 0.76668(42)    exact = 0.76716      diff = -0.00048(42)
+
+Accuracy of key parameters: chi2/dof = 0.3 [5]    Q = 0.91
 </pre></div>
 </div>
 <p>This is also fine and confirms that <code class="docutils literal"><span class="pre">nterm=(2,2)</span></code> marginalized fits
-are a useful, faster substitute for full fits. Indeed the simulation
-suggests that the marginalized fit is somewhat more accurate
-than the original fit for the oscillating-state parameters (<code class="docutils literal"><span class="pre">Vno</span></code>,
-<code class="docutils literal"><span class="pre">log(Dso:a)</span></code>, <code class="docutils literal"><span class="pre">log(Dso:dE)</span></code> &#8212; compare the simulated results with
-the <code class="docutils literal"><span class="pre">nterm=4</span></code> results from the original fit, as these were used to
-define <code class="docutils literal"><span class="pre">pexact</span></code>).</p>
+are a useful, faster substitute for full fits in this case.</p>
 </div>
 <div class="section" id="mixing">
 <h2>Mixing<a class="headerlink" href="#mixing" title="Permalink to this headline">¶</a></h2>
 <p>Code to analyze <img class="math" src="_images/math/4ab16ad780f2c6d0fe11c3e3882e932b0b6b87c4.png" alt="D_s" style="vertical-align: -3px"/>-<img class="math" src="_images/math/4ab16ad780f2c6d0fe11c3e3882e932b0b6b87c4.png" alt="D_s" style="vertical-align: -3px"/> mixing is very similar to the code above for
 a transition form factor. The <code class="docutils literal"><span class="pre">main()</span></code> and <code class="docutils literal"><span class="pre">make_data()</span></code> functions are
-identical, except that here data is read from file <code class="docutils literal"><span class="pre">'Ds-Ds.data'</span></code>.
+identical, except that here data is read from file <code class="docutils literal"><span class="pre">'Ds-Ds.h5'</span></code>.
 We need models for the two-point <img class="math" src="_images/math/4ab16ad780f2c6d0fe11c3e3882e932b0b6b87c4.png" alt="D_s" style="vertical-align: -3px"/> correlator, and for two three-point
 correlators describing the <img class="math" src="_images/math/4ab16ad780f2c6d0fe11c3e3882e932b0b6b87c4.png" alt="D_s" style="vertical-align: -3px"/> to <img class="math" src="_images/math/4ab16ad780f2c6d0fe11c3e3882e932b0b6b87c4.png" alt="D_s" style="vertical-align: -3px"/> transition:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
@@ -1258,23 +922,20 @@ correlators describing the <img class="math" src="_images/math/4ab16ad780f2c6d0f
     <span class="n">tp</span> <span class="o">=</span> <span class="mi">64</span>
     <span class="n">models</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">cf</span><span class="o">.</span><span class="n">Corr2</span><span class="p">(</span>
-            <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;Ds&#39;</span><span class="p">,</span>
-            <span class="n">tp</span><span class="o">=</span><span class="n">tp</span><span class="p">,</span> <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">tp</span><span class="p">),</span> <span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="n">tp</span><span class="o">-</span><span class="n">tmin</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;Ds&#39;</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="n">tp</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="n">tmin</span><span class="p">,</span>
             <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dE</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span> <span class="s">&#39;dEo&#39;</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">),</span>
             <span class="p">),</span>
         <span class="n">cf</span><span class="o">.</span><span class="n">Corr3</span><span class="p">(</span>
-            <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;DsDsT18&#39;</span><span class="p">,</span>
-            <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">19</span><span class="p">),</span> <span class="n">T</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="mi">18</span> <span class="o">-</span> <span class="n">tmin</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;DsDsT18&#39;</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="n">tmin</span><span class="p">,</span>
             <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dEa</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span> <span class="s">&#39;dEo&#39;</span><span class="p">),</span> <span class="n">tpa</span><span class="o">=</span><span class="n">tp</span><span class="p">,</span> <span class="n">sa</span><span class="o">=</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
             <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dEb</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span> <span class="s">&#39;dEo&#39;</span><span class="p">),</span> <span class="n">tpb</span><span class="o">=</span><span class="n">tp</span><span class="p">,</span> <span class="n">sb</span><span class="o">=</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">),</span>
-            <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span> <span class="n">Voo</span><span class="o">=</span><span class="s">&#39;Voo&#39;</span><span class="p">,</span> <span class="n">Vno</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span> <span class="n">Von</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span> <span class="n">symmetric_V</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span> <span class="n">Voo</span><span class="o">=</span><span class="s">&#39;Voo&#39;</span><span class="p">,</span> <span class="n">Vno</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span> <span class="n">symmetric_V</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="n">cf</span><span class="o">.</span><span class="n">Corr3</span><span class="p">(</span>
-            <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;DsDsT15&#39;</span><span class="p">,</span>
-            <span class="n">tdata</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span> <span class="n">T</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">tfit</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="mi">15</span><span class="o">-</span><span class="n">tmin</span> <span class="o">+</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">datatag</span><span class="o">=</span><span class="s">&#39;DsDsT15&#39;</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="n">tmin</span><span class="p">,</span>
             <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dEa</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span> <span class="s">&#39;dEo&#39;</span><span class="p">),</span> <span class="n">tpa</span><span class="o">=</span><span class="n">tp</span><span class="p">,</span> <span class="n">sa</span><span class="o">=</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
             <span class="n">b</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;ao&#39;</span><span class="p">),</span> <span class="n">dEb</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;dE&#39;</span><span class="p">,</span> <span class="s">&#39;dEo&#39;</span><span class="p">),</span> <span class="n">tpb</span><span class="o">=</span><span class="n">tp</span><span class="p">,</span> <span class="n">sb</span><span class="o">=</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">),</span>
-            <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span> <span class="n">Voo</span><span class="o">=</span><span class="s">&#39;Voo&#39;</span><span class="p">,</span> <span class="n">Vno</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span> <span class="n">Von</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span> <span class="n">symmetric_V</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">Vnn</span><span class="o">=</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span> <span class="n">Voo</span><span class="o">=</span><span class="s">&#39;Voo&#39;</span><span class="p">,</span> <span class="n">Vno</span><span class="o">=</span><span class="s">&#39;Vno&#39;</span><span class="p">,</span> <span class="n">symmetric_V</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">]</span>
     <span class="k">return</span> <span class="n">models</span>
@@ -1299,14 +960,14 @@ here so we set parameter <code class="docutils literal"><span class="pre">symmet
 
     <span class="c"># V</span>
     <span class="n">nV</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">N</span> <span class="o">*</span> <span class="p">(</span><span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;Vnn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">nV</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0(1)&#39;</span><span class="p">])</span>
-    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;Voo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">nV</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0(1)&#39;</span><span class="p">])</span>
-    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;Vno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0(1)&#39;</span><span class="p">]])</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;Vnn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">nV</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.0(5)&#39;</span><span class="p">])</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;Voo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">nV</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.0(5)&#39;</span><span class="p">])</span>
+    <span class="n">prior</span><span class="p">[</span><span class="s">&#39;Vno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">gvar</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="n">N</span> <span class="o">*</span> <span class="p">[</span><span class="s">&#39;0.0(5)&#39;</span><span class="p">]])</span>
     <span class="k">return</span> <span class="n">prior</span>
 </pre></div>
 </div>
-<p>We use log-normal distributions for the energy differences, as usual, but
-Gaussian distributions for everything else.
+<p>We use log-normal distributions for the energy differences, and
+amplitudes.
 We store only the upper triangular parts of the <code class="docutils literal"><span class="pre">Vnn</span></code> and <code class="docutils literal"><span class="pre">Voo</span></code> matrices
 since they are symmetrical (because <code class="docutils literal"><span class="pre">symmetricV=True</span></code> is set).</p>
 <p>A minimal <code class="docutils literal"><span class="pre">print_results()</span></code> function is:</p>
@@ -1318,7 +979,12 @@ since they are symmetrical (because <code class="docutils literal"><span class="
 
     <span class="n">inputs</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
     <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;statistics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>             <span class="c"># statistical errors in data</span>
-    <span class="n">inputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">prior</span><span class="p">)</span>                    <span class="c"># errors from priors</span>
+    <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;Ds priors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">k</span><span class="p">:</span><span class="n">prior</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;log(a)&#39;</span><span class="p">,</span> <span class="s">&#39;log(dE)&#39;</span><span class="p">,</span> <span class="s">&#39;log(ao)&#39;</span><span class="p">,</span> <span class="s">&#39;log(dEo)&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;V priors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">k</span><span class="p">:</span><span class="n">prior</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;Vnn&#39;</span><span class="p">,</span> <span class="s">&#39;Vno&#39;</span><span class="p">,</span> <span class="s">&#39;Voo&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
     <span class="n">inputs</span><span class="p">[</span><span class="s">&#39;svd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">svdcorrection</span>       <span class="c"># errors from svd cut (if present)</span>
 
     <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">gv</span><span class="o">.</span><span class="n">fmt_values</span><span class="p">(</span><span class="n">outputs</span><span class="p">))</span>
@@ -1328,213 +994,117 @@ since they are symmetrical (because <code class="docutils literal"><span class="
 <p>Running the mixing code gives the following output:</p>
 <div class="highlight-python"><div class="highlight"><pre>============================== nterm = 1
 Least Square Fit:
-  chi2/dof [dof] = 1.7e+04 [53]    Q = 0    logGBF = -4.4415e+05
-
-Parameters:
-       log(a) 0   -1.12645 (17)      [ -1.2 (1.0) ]  
-      log(dE) 0   0.363429 (67)      [  0.18 (17) ]  *
-      log(ao) 0    -0.7093 (15)      [ -2.3 (1.0) ]  *
-     log(dEo) 0    0.82253 (39)      [  0.41 (24) ]  *
-          Vnn 0    0.16757 (35)      [  0.0 (1.0) ]  
-          Voo 0      -0.3 (1.0)      [  0.0 (1.0) ]  
-        Vno 0,0    -0.2938 (41)      [  0.0 (1.0) ]  
----------------------------------------------------
-            a 0   0.324183 (54)      [  0.30 (30) ]  
-           dE 0   1.438253 (96)      [  1.20 (20) ]  *
-           ao 0    0.49198 (73)      [  0.10 (10) ]  ***
-          dEo 0    2.27626 (89)      [  1.50 (36) ]  **
+  chi2/dof [dof] = 1.6e+04 [55]    Q = 0    logGBF = -4.447e+05
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 38/0.2)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 36/0.2)
 
 ============================== nterm = 2
 Least Square Fit:
-  chi2/dof [dof] = 6.8 [53]    Q = 8.3e-47    logGBF = 1407.9
-
-Parameters:
-       log(a) 0      -1.52375 (90)        [ -1.2 (1.0) ]  
-              1       -0.6979 (19)        [ -1.2 (1.0) ]  
-      log(dE) 0       0.27500 (17)        [  0.18 (17) ]  
-              1       -0.3614 (21)        [ -0.7 (1.0) ]  
-      log(ao) 0        -2.620 (14)        [ -2.3 (1.0) ]  
-              1       -1.9630 (69)        [ -2.3 (1.0) ]  
-     log(dEo) 0        0.3517 (16)        [  0.41 (24) ]  
-              1        -0.941 (17)        [ -0.7 (1.0) ]  
-          Vnn 0       0.10827 (26)        [  0.0 (1.0) ]  
-              1       -0.0195 (12)        [  0.0 (1.0) ]  
-              2    0.0002 (1.0000)        [  0.0 (1.0) ]  
-          Voo 0        -0.051 (12)        [  0.0 (1.0) ]  
-              1        -0.010 (21)        [  0.0 (1.0) ]  
-              2   -0.0004 (1.0000)        [  0.0 (1.0) ]  
-        Vno 0,0       -0.2063 (29)        [  0.0 (1.0) ]  
-            0,1        0.0078 (51)        [  0.0 (1.0) ]  
-            1,0         0.011 (14)        [  0.0 (1.0) ]  
-            1,1         -2.31 (96)        [  0.0 (1.0) ]  **
---------------------------------------------------------
-            a 0       0.21789 (20)        [  0.30 (30) ]  
-              1       0.49762 (96)        [  0.30 (30) ]  
-           dE 0       1.31653 (22)        [  1.20 (20) ]  
-              1        0.6967 (15)        [  0.50 (50) ]  
-           ao 0       0.07278 (98)        [  0.10 (10) ]  
-              1       0.14044 (96)        [  0.10 (10) ]  
-          dEo 0        1.4215 (23)        [  1.50 (36) ]  
-              1        0.3904 (66)        [  0.50 (50) ]  
+  chi2/dof [dof] = 6.7 [55]    Q = 1e-47    logGBF = 1469.7
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10*    (itns/time = 66/0.6)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 51/0.4)
 
 ============================== nterm = 3
 Least Square Fit:
-  chi2/dof [dof] = 0.74 [53]    Q = 0.92    logGBF = 1551.7
-
-Parameters:
-       log(a) 0       -1.5548 (53)        [ -1.2 (1.0) ]  
-              1         -1.59 (25)        [ -1.2 (1.0) ]  
-              2        -0.670 (14)        [ -1.2 (1.0) ]  
-      log(dE) 0       0.27135 (52)        [  0.18 (17) ]  
-              1         -0.90 (17)        [ -0.7 (1.0) ]  
-              2        -0.803 (42)        [ -0.7 (1.0) ]  
-      log(ao) 0         -2.79 (19)        [ -2.3 (1.0) ]  
-              1         -2.22 (26)        [ -2.3 (1.0) ]  
-              2         -2.36 (40)        [ -2.3 (1.0) ]  
-     log(dEo) 0         0.339 (15)        [  0.41 (24) ]  
-              1         -1.36 (36)        [ -0.7 (1.0) ]  
-              2         -0.92 (91)        [ -0.7 (1.0) ]  
-          Vnn 0        0.1062 (14)        [  0.0 (1.0) ]  
-              1        0.0021 (78)        [  0.0 (1.0) ]  
-              2        -0.028 (10)        [  0.0 (1.0) ]  
-              3      0.003 (0.999)        [  0.0 (1.0) ]  
-              4     -0.001 (0.999)        [  0.0 (1.0) ]  
-              5         3e-05 +- 1        [  0.0 (1.0) ]  
-          Voo 0        -0.082 (94)        [  0.0 (1.0) ]  
-              1        0.007 (161)        [  0.0 (1.0) ]  
-              2       -0.007 (404)        [  0.0 (1.0) ]  
-              3     -0.004 (0.999)        [  0.0 (1.0) ]  
-              4      0.002 (1.000)        [  0.0 (1.0) ]  
-              5        -7e-06 +- 1        [  0.0 (1.0) ]  
-        Vno 0,0        -0.211 (11)        [  0.0 (1.0) ]  
-            0,1        -0.011 (56)        [  0.0 (1.0) ]  
-            0,2         0.019 (66)        [  0.0 (1.0) ]  
-            1,0          0.04 (11)        [  0.0 (1.0) ]  
-            1,1   -0.0003 (0.9979)        [  0.0 (1.0) ]  
-            1,2   -0.0005 (1.0000)        [  0.0 (1.0) ]  
-            2,0        0.003 (102)        [  0.0 (1.0) ]  
-            2,1      0.009 (0.999)        [  0.0 (1.0) ]  
-            2,2        -7e-06 +- 1        [  0.0 (1.0) ]  
---------------------------------------------------------
-            a 0        0.2112 (11)        [  0.30 (30) ]  
-              1         0.204 (51)        [  0.30 (30) ]  
-              2        0.5116 (72)        [  0.30 (30) ]  
-           dE 0       1.31174 (69)        [  1.20 (20) ]  
-              1         0.405 (68)        [  0.50 (50) ]  
-              2         0.448 (19)        [  0.50 (50) ]  
-           ao 0         0.061 (11)        [  0.10 (10) ]  
-              1         0.109 (29)        [  0.10 (10) ]  
-              2         0.094 (38)        [  0.10 (10) ]  
-          dEo 0         1.403 (20)        [  1.50 (36) ]  
-              1         0.256 (93)        [  0.50 (50) ]  
-              2          0.40 (36)        [  0.50 (50) ]  
+  chi2/dof [dof] = 0.72 [55]    Q = 0.94    logGBF = 1618
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 179/1.5)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 118/0.9)
 
 ============================== nterm = 4
 Least Square Fit:
-  chi2/dof [dof] = 0.74 [53]    Q = 0.92    logGBF = 1551.4
+  chi2/dof [dof] = 0.72 [55]    Q = 0.94    logGBF = 1616.5
 
 Parameters:
-       log(a) 0       -1.5556 (60)        [ -1.2 (1.0) ]  
-              1         -1.70 (34)        [ -1.2 (1.0) ]  
-              2         -0.74 (15)        [ -1.2 (1.0) ]  
-              3         -1.41 (87)        [ -1.2 (1.0) ]  
-      log(dE) 0       0.27129 (57)        [  0.18 (17) ]  
-              1         -0.96 (23)        [ -0.7 (1.0) ]  
-              2         -0.87 (14)        [ -0.7 (1.0) ]  
-              3         -0.86 (98)        [ -0.7 (1.0) ]  
-      log(ao) 0         -2.80 (16)        [ -2.3 (1.0) ]  
-              1         -2.17 (17)        [ -2.3 (1.0) ]  
-              2         -2.52 (60)        [ -2.3 (1.0) ]  
-              3         -2.52 (96)        [ -2.3 (1.0) ]  
-     log(dEo) 0         0.338 (13)        [  0.41 (24) ]  
-              1         -1.33 (25)        [ -0.7 (1.0) ]  
-              2         -0.85 (95)        [ -0.7 (1.0) ]  
-              3         -0.57 (97)        [ -0.7 (1.0) ]  
-          Vnn 0        0.1082 (38)        [  0.0 (1.0) ]  
-              1        -0.029 (52)        [  0.0 (1.0) ]  
-              2          0.06 (15)        [  0.0 (1.0) ]  
-              3         -0.37 (63)        [  0.0 (1.0) ]  
-              4      0.007 (0.999)        [  0.0 (1.0) ]  
-              5      0.007 (0.998)        [  0.0 (1.0) ]  
-              6        0.01 (1.00)        [  0.0 (1.0) ]  
-              7    0.0001 (1.0000)        [  0.0 (1.0) ]  
-              8         2e-05 +- 1        [  0.0 (1.0) ]  
-              9         6e-08 +- 1        [  0.0 (1.0) ]  
-          Voo 0         -0.15 (15)        [  0.0 (1.0) ]  
-              1          0.12 (26)        [  0.0 (1.0) ]  
-              2         -0.26 (72)        [  0.0 (1.0) ]  
-              3         -0.13 (97)        [  0.0 (1.0) ]  
-              4     -0.007 (0.999)        [  0.0 (1.0) ]  
-              5     -0.002 (1.000)        [  0.0 (1.0) ]  
-              6     -0.006 (1.000)        [  0.0 (1.0) ]  
-              7        -5e-06 +- 1        [  0.0 (1.0) ]  
-              8        -5e-06 +- 1        [  0.0 (1.0) ]  
-              9        -1e-09 +- 1        [  0.0 (1.0) ]  
-        Vno 0,0        -0.207 (14)        [  0.0 (1.0) ]  
-            0,1        -0.025 (62)        [  0.0 (1.0) ]  
-            0,2          0.12 (26)        [  0.0 (1.0) ]  
-            0,3         -0.13 (95)        [  0.0 (1.0) ]  
-            1,0          0.01 (12)        [  0.0 (1.0) ]  
-            1,1     -0.006 (0.999)        [  0.0 (1.0) ]  
-            1,2   -0.0008 (1.0000)        [  0.0 (1.0) ]  
-            1,3    0.0006 (1.0000)        [  0.0 (1.0) ]  
-            2,0          0.06 (22)        [  0.0 (1.0) ]  
-            2,1        0.01 (1.00)        [  0.0 (1.0) ]  
-            2,2        -1e-05 +- 1        [  0.0 (1.0) ]  
-            2,3        -4e-06 +- 1        [  0.0 (1.0) ]  
-            3,0         -0.17 (93)        [  0.0 (1.0) ]  
-            3,1     -0.003 (1.000)        [  0.0 (1.0) ]  
-            3,2         5e-06 +- 1        [  0.0 (1.0) ]  
-            3,3         1e-08 +- 1        [  0.0 (1.0) ]  
---------------------------------------------------------
-            a 0        0.2111 (13)        [  0.30 (30) ]  
-              1         0.183 (63)        [  0.30 (30) ]  
-              2         0.476 (72)        [  0.30 (30) ]  
-              3          0.24 (21)        [  0.30 (30) ]  
-           dE 0       1.31166 (74)        [  1.20 (20) ]  
-              1         0.382 (87)        [  0.50 (50) ]  
-              2         0.418 (60)        [  0.50 (50) ]  
-              3          0.42 (42)        [  0.50 (50) ]  
-           ao 0        0.0611 (96)        [  0.10 (10) ]  
-              1         0.114 (19)        [  0.10 (10) ]  
-              2         0.080 (48)        [  0.10 (10) ]  
-              3         0.080 (77)        [  0.10 (10) ]  
-          dEo 0         1.402 (18)        [  1.50 (36) ]  
-              1         0.266 (66)        [  0.50 (50) ]  
-              2          0.43 (40)        [  0.50 (50) ]  
-              3          0.56 (55)        [  0.50 (50) ]  
+       log(a) 0      -1.5553 (59)       [ -1.2 (1.0) ]  
+              1        -1.67 (33)       [ -1.2 (1.0) ]  
+              2        -0.73 (13)       [ -1.2 (1.0) ]  
+              3        -1.50 (94)       [ -1.2 (1.0) ]  
+      log(dE) 0      0.27132 (56)       [  0.18 (17) ]  
+              1        -0.95 (22)       [ -0.7 (1.0) ]  
+              2        -0.86 (13)       [ -0.7 (1.0) ]  
+              3        -0.81 (99)       [ -0.7 (1.0) ]  
+      log(ao) 0        -2.76 (12)       [ -2.3 (1.0) ]  
+              1        -2.15 (13)       [ -2.3 (1.0) ]  
+              2        -2.60 (70)       [ -2.3 (1.0) ]  
+              3        -2.46 (95)       [ -2.3 (1.0) ]  
+     log(dEo) 0        0.341 (10)       [  0.41 (24) ]  
+              1        -1.27 (21)       [ -0.7 (1.0) ]  
+              2        -0.76 (93)       [ -0.7 (1.0) ]  
+              3        -0.58 (97)       [ -0.7 (1.0) ]  
+          Vnn 0       0.1065 (16)       [  0.00 (50) ]  
+              1       -0.002 (21)       [  0.00 (50) ]  
+              2       -0.014 (49)       [  0.00 (50) ]  
+              3        -0.05 (20)       [  0.00 (50) ]  
+              4       0.004 (500)       [  0.00 (50) ]  
+              5    -0.0005 (4991)       [  0.00 (50) ]  
+              6     0.0008 (4998)       [  0.00 (50) ]  
+              7   0.00006 (50000)       [  0.00 (50) ]  
+              8     -1e-06 +- 0.5       [  0.00 (50) ]  
+              9      2e-08 +- 0.5       [  0.00 (50) ]  
+        Vno 0,0      -0.2117 (90)       [  0.00 (50) ]  
+            0,1       -0.003 (46)       [  0.00 (50) ]  
+            0,2         0.05 (18)       [  0.00 (50) ]  
+            0,3        -0.13 (39)       [  0.00 (50) ]  
+            1,0        0.024 (85)       [  0.00 (50) ]  
+            1,1       0.001 (500)       [  0.00 (50) ]  
+            1,2      2e-06 +- 0.5       [  0.00 (50) ]  
+            1,3     0.0001 (5000)       [  0.00 (50) ]  
+            2,0         0.02 (11)       [  0.00 (50) ]  
+            2,1       0.002 (500)       [  0.00 (50) ]  
+            2,2     -9e-07 +- 0.5       [  0.00 (50) ]  
+            2,3      3e-07 +- 0.5       [  0.00 (50) ]  
+            3,0        -0.05 (39)       [  0.00 (50) ]  
+            3,1    -0.0006 (5000)       [  0.00 (50) ]  
+            3,2      4e-07 +- 0.5       [  0.00 (50) ]  
+            3,3     -2e-09 +- 0.5       [  0.00 (50) ]  
+          Voo 0       -0.087 (53)       [  0.00 (50) ]  
+              1        0.016 (88)       [  0.00 (50) ]  
+              2        -0.02 (31)       [  0.00 (50) ]  
+              3        -0.01 (45)       [  0.00 (50) ]  
+              4      -0.003 (500)       [  0.00 (50) ]  
+              5      5e-05 +- 0.5       [  0.00 (50) ]  
+              6    -0.0004 (4999)       [  0.00 (50) ]  
+              7     -1e-06 +- 0.5       [  0.00 (50) ]  
+              8     -9e-08 +- 0.5       [  0.00 (50) ]  
+              9     -3e-10 +- 0.5       [  0.00 (50) ]  
+------------------------------------------------------
+            a 0       0.2111 (12)       [  0.30 (30) ]  
+              1        0.188 (62)       [  0.30 (30) ]  
+              2        0.483 (63)       [  0.30 (30) ]  
+              3         0.22 (21)       [  0.30 (30) ]  
+           dE 0      1.31169 (73)       [  1.20 (20) ]  
+              1        0.388 (84)       [  0.50 (50) ]  
+              2        0.423 (54)       [  0.50 (50) ]  
+              3         0.44 (44)       [  0.50 (50) ]  
+           ao 0       0.0635 (78)       [  0.10 (10) ]  
+              1        0.117 (15)       [  0.10 (10) ]  
+              2        0.074 (52)       [  0.10 (10) ]  
+              3        0.085 (81)       [  0.10 (10) ]  
+          dEo 0        1.407 (15)       [  1.50 (36) ]  
+              1        0.280 (58)       [  0.50 (50) ]  
+              2         0.47 (44)       [  0.50 (50) ]  
+              3         0.56 (54)       [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-15/0    reltol/abstol = 1e-10/1e-10    (itns/time = 41/0.7)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 96/1.7)
 
 
 Values:
-                mDs: 1.31166(74)         
-                Vnn: 0.1082(38)          
+                mDs: 1.31169(73)         
+                Vnn: 0.1065(16)          
 
 Partial % Errors:
                   mDs       Vnn
 -------------------------------
-statistics:      0.05      2.32
-    log(a):      0.02      1.05
-   log(dE):      0.01      0.64
-   log(ao):      0.01      0.33
-  log(dEo):      0.00      0.16
-       Vnn:      0.00      1.78
-       Voo:      0.00      1.39
-       Vno:      0.00      0.46
+statistics:      0.05      1.00
+ Ds priors:      0.02      0.24
+  V priors:      0.00      1.09
        svd:      0.00      0.00
 -------------------------------
-     total:      0.06      3.51
+     total:      0.06      1.50
 </pre></div>
 </div>
 <p>The fits for individual correlators look good:</p>
@@ -1627,7 +1197,7 @@ statistics:      0.05      2.32
         <li class="right" >
           <a href="example-etas.html" title="Annotated Example: Two-Point Correlator"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 5.0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

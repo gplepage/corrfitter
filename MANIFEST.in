@@ -1,14 +1,18 @@
 include makefile README INSTALLATION COPYING MANIFEST.in CHANGES
-include dataset.py dataset-setup.py
+include avg.py
 
 graft doc
 graft tests
 graft examples
+exclude tests/extra-fits.*
 exclude tests/*.tmp
 exclude tests/*.pyc
 exclude tests/*.p
 exclude examples/*.tmp
 exclude examples/*.pyc
 exclude examples/*.p
+exclude examples/tmp/
+exclude examples/old/
+exclude doc/latex/
 recursive-exclude doc/source/_build *
 prune dist build __pycache__

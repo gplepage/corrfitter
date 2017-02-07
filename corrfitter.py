@@ -39,7 +39,7 @@ given in the tutorial documentation for |CorrFitter|.
 """
 
 # Created by G. Peter Lepage, Cornell University, on 2010-11-26.
-# Copyright (c) 2010-2016 G. Peter Lepage.
+# Copyright (c) 2010-2017 G. Peter Lepage.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,21 +52,15 @@ given in the tutorial documentation for |CorrFitter|.
 # GNU General Public License for more details.
 
 import collections
-import copy
 import fileinput
 import math
+import re
 import time
-import gvar as _gvar
+
 import lsqfit
+import gvar as _gvar
 import numpy
-__version__ = '5.1'
-
-_NA = numpy.newaxis
-NEWCODE = True
-
-if not hasattr(collections,'OrderedDict'):
-    # for older versions of python
-    collections.OrderedDict = dict
+__version__ = '6.0'
 
 try:
     import scipy
@@ -74,136 +68,18 @@ try:
 except ImportError:
     scipy = None
 
-class BaseModel(object):
-    """ Base class for correlator models.
+def _parse_param(p,default=None):
+    " Parse fit-parameter label "
+    return p if isinstance(p, tuple) else (p, default)
 
-   Derived classes must define methods ``fitfcn``, ``buildprior``, and
-   ``builddata``, all of which are described below. In addition they
-   can have attributes:
-
-    .. attribute:: datatag
-
-       |CorrFitter| builds fit data for the correlator by extracting the
-       data in an input |Dataset| labelled by string ``datatag``. This
-       label is stored in the ``BaseModel`` and must be passed to its
-       constructor.
-
-    .. attribute:: all_datatags
-
-       Models can specify more than one set of fit data to use in fitting.
-       The list of all the datatags used is ``self.all_datatags``. The
-       first entry is always ``self.datatag``; the other entries are
-       from ``othertags``.
-
-    .. attribute:: _abscissa
-
-        (Optional) Array of abscissa values used in plots of the data and
-        fit corresponding to the model. Plots are not made for a model that
-        doesn't specify this attribute.
-    """
-    def __init__(self, datatag, othertags=[], ncg=1):
-        super(BaseModel, self).__init__()
-        if othertags is None:
-            othertags = []
-        self.datatag = datatag  # label
-        self.all_datatags = [self.datatag] + list(othertags)
-        self._abscissa = None   # for plots
-        self.ncg = int(ncg)
-
-    def fitfcn(self, p, nterm=None, ncg=None):
-        """ Compute fit function fit parameters ``p`` using ``nterm`` terms. "
-
-        :param p: Dictionary of parameter values.
-        :type p: dictionary
-        :param nterm: Restricts the number of non-oscillating terms in the
-            fit function to ``nterm[0]`` and oscillating terms to
-            ``nterm[1]``. Setting either (or both) to ``None`` implies that
-            all terms in the prior are used.
-        :type nterm: tuple of ``None`` or integers
-        :param ncg: overrides ``self.ncg``
-        """
-        raise NotImplementedError("fitfcn not defined")
-
-    def builddata(self, data):
-        """ Construct fit data.
-
-        Format of output must be same as format for fitfcn output.
-
-        :param data: Dataset containing correlator data
-            (see ``gvar.dataset``).
-        :type data: dictionary
-        """
-        raise NotImplementedError("builddata not defined")
-
-    def buildprior(self, prior, nterm=None):
-        """ Extract fit prior from ``prior``; resizing as needed.
-
-        If ``nterm`` is not ``None``, the sizes of the priors may need
-        adjusting so that they correspond to the values specified in
-        ``nterm`` (for normal and oscillating pieces).
-
-        :param prior: Dictionary containing *a priori* estimates of the
-            fit parameters.
-        :type prior: dictionary
-        :param nterm: Restricts the number of non-oscillating terms in the
-            fit function to ``nterm[0]`` and oscillating terms to
-            ``nterm[1]``. Setting either (or both) to ``None`` implies that
-            all terms in the prior are used.
-        :type nterm: tuple of ``None`` or integers
-        """
-        raise NotImplementedError("buildprior not defined")
-
-    @staticmethod
-    def coarse_grain(G, ncg):
-        """ Coarse-grain array ``G``.
-
-        Bin array ``G``, in bins of width ``ncg``, and replace
-        each bin by its average. Returns the binned+averaged array.
-
-        Args:
-            G: 1-dimensional array to be coarse-grained.
-            ncg: Bin width for coarse graining.
-        """
-        n = (len(G) // ncg) * ncg
-        if n <= 0:
-            return numpy.average([G], axis=1)
-        else:
-            return numpy.average([G[i:i+n:ncg] for i in range(ncg)], axis=0)
-
-    @staticmethod
-    def _param(p, default=None):
-        """ Parse fit-parameter label --- utility function. """
-        if isinstance(p, tuple):
-            return p
-        else:
-            return (p, default)
-        # ans = [BaseModel._paramkey(i) for i in p]
-        # return tuple(ans)
-
-    basekey = staticmethod(_gvar.ExtendedDict.basekey)
-
-    # @staticmethod
-    # def _transform_prior(prior):
-    #     return lsqfit.transform_p(prior.keys()).transform(prior)
-
-    # @staticmethod
-    # def _dE(dE, logdE):
-    #     """ Parse fit-parameter label for E differences --- utility fcn. """
-    #     if dE is None:
-    #         assert logdE is not None, "must specify dE"
-    #         return BaseModel._param(logdE, None)
-    #     else:
-    #         return BaseModel._param(dE, None)
-
-
-class Corr2(BaseModel):
+class Corr2(lsqfit.MultiFitterModel):
     """ Two-point correlators ``Gab(t) = <b(t) a(0)>``.
 
     |Corr2| models the ``t`` dependence of a 2-point correlator ``Gab(t)``
     using ::
 
-        Gab(t) = sn * sum_i an[i]*bn[i] * fn(En[i], t)
-               + so * sum_i ao[i]*bo[i] * fo(Eo[i], t)
+        Gab(t) = sn * sum_i an[i] * bn[i] * fn(En[i], t)
+               + so * sum_i ao[i] * bo[i] * fo(Eo[i], t)
 
     where ``sn`` and ``so`` are typically ``-1``, ``0``, or ``1`` and ::
 
@@ -216,20 +92,22 @@ class Corr2(BaseModel):
     The fit parameters for the non-oscillating piece of ``Gab`` (first term)
     are ``an[i]``, ``bn[i]``, and ``dEn[i]`` where::
 
-        dEn[0] = En[0] > 0
+        dEn[0] = En[0]
         dEn[i] = En[i]-En[i-1] > 0     (for i>0)
 
     and therefore ``En[i] = sum_j=0..i dEn[j]``. The fit parameters for
-    the oscillating pied are defined analogously: ``ao[i]``, ``bo[i]``,
+    the oscillating piece are defined analogously: ``ao[i]``, ``bo[i]``,
     and ``dEo[i]``.
 
     The fit parameters are specified by the keys corresponding to these
-    parameters in a dictionary of priors supplied by |CorrFitter|. The keys
-    are strings and are also used to access fit results. Any key that
-    begins with "log" is assumed to refer to the logarithm of the parameter
-    in question (that is, the exponential of the fit-parameter is used in
-    the formula for ``Gab(t)``.) This is useful for forcing ``an``, ``bn``
-    and/or ``dE`` to be positive.
+    parameters in a dictionary of priors supplied to |CorrFitter|. The keys
+    are strings and are also used to access fit results. A log-normal
+    prior can be specified for a parameter by including an entry for
+    ``log(c)`` in the prior, rather than for ``c`` itself. See the
+    :mod:`lsqfit` documentation for information about other distributions
+    that are available. Values for both ``log(c)`` and ``c`` are
+    included in the parameter dictionary. Log-normal distributions
+    are  useful for forcing ``an``, ``bn`` and/or ``dE`` to be positive.
 
     When ``tp is not None`` and positive, the correlator is assumed to be
     symmetrical about ``tp/2``, with ``Gab(t)=Gab(tp-t)``. Data from
@@ -237,91 +115,148 @@ class Corr2(BaseModel):
     before fitting. When ``tp`` is negative, the correlator is assumed to
     be anti-symetrical about ``-tp/2``.
 
-    :param datatag: Key used to access correlator data in the input data
-        dictionary (see |CorrFitter|). ``data[self.datatag]`` is (1-d)
-        array containing the correlator values (|GVar|\s) if ``data`` is the
-        input data.
-    :type datatag: string
-    :param a: Key identifying the fit parameters for the source amplitudes
-        ``an`` in the dictionary of priors provided by |CorrFitter|; or a
-        two-tuple of keys for the source amplitudes ``(an, ao)``. The
-        corresponding values in the dictionary of priors are (1-d) arrays
-        of prior values with one term for each ``an[i]`` or ``ao[i]``.
-        Replacing either key by ``None`` causes the corresponding term to
-        be dropped from the fit function. These keys are used to label the
-        corresponding parameter arrays in the fit results as well as in the
-        prior.
-    :type a: string, or two-tuple of strings and/or ``None``
-    :param b: Same as ``self.a`` but for the sinks ``(bn, bo)`` instead of
-        the sources ``(an, ao)``.
-    :type b: string, or two-tuple of strings and/or ``None``
-    :param dE: Key identifying the fit parameters for the energy
-        differences ``dEn`` in the dictionary of priors provided by
-        |CorrFitter|; or a two-tuple of keys for the energy differences
-        ``(dEn, dEo)``. The corresponding values in the dictionary of priors
-        are (1-d) arrays of prior values with one term for each ``dEn[i]``
-        or ``dEo[i]``. Replacing either key by ``None`` causes the
-        corresponding term to be dropped from the fit function. These keys
-        are used to label the corresponding parameter arrays in the fit
-        results as well as in the prior.
-    :type dE: string, or two-tuple of strings and/or ``None``
-    :param s: Overall factor ``sn``, or two-tuple of overall factors
-        ``(sn, so)``.
-    :type s: number or two-tuple of numbers
-    :param tdata: The ``t``\s corresponding to data entries in the input
-        data. Note that ``len(self.tdata) == len(data[self.datatag])`` is
-        required if ``data`` is the input data dictionary.
-    :type tdata: list of integers
-    :param tfit: List of ``t``\s to use in the fit. Only data with these
-        ``t``\s (all of which should be in ``tdata``) is used in the fit.
-    :type tfit: list of integers
-    :param tp: If not ``None`` and positive, the correlator is assumed to
-        be periodic with ``Gab(t)=Gab(tp-t)``. If negative, the correlator
-        is assumed to be anti-periodic with ``Gab(t)=-Gab(-tp-t)``. Setting
-        ``tp=None`` implies that the correlator is not periodic, but rather
-        continues to fall exponentially as ``t`` is increased indefinitely.
-    :type tp: integer or ``None``
-    :param ncg: Width of bins used to coarse-grain the correlator before
-        fitting. Each bin of ``ncg`` correlator values is replaced by
-        its average. Default is ``ncg=1`` (ie, no coarse-graining).
-    :type ncg: positive integer
-    :param othertags: List of additional data tags for data to be
-        averaged with the ``self.datatag`` data before fitting.
-    :type othertags: sequence of strings
+    Args:
+        datatag (str): Key used to access correlator data in the input data
+            dictionary (see |CorrFitter|): ``data[self.datatag]`` is a (1-d)
+            array containing the correlator values (|GVar|\s).
+        a (str or tuple): Key identifying the fit parameters for the source
+            amplitudes ``an`` in the dictionary of priors provided to
+            |CorrFitter|; or a two-tuple of keys for the source amplitudes
+            ``(an, ao)``. The corresponding values in the dictionary of priors
+            are (1-d) arrays of prior values with one term for each ``an[i]``
+            or ``ao[i]``. Replacing either key by ``None`` causes the
+            corresponding term to be dropped from the fit function. These keys
+            are used to label  the corresponding parameter arrays in the fit
+            results as well as  in the prior.
+        b (str or tuple): Same as ``self.a`` but for the sinks ``(bn, bo)``
+            instead of the sources ``(an, ao)``.
+        dE (str): Key identifying the fit parameters for the energy
+            differences ``dEn`` in the dictionary of priors provided by
+            |CorrFitter|; or a two-tuple of keys for the energy differences
+            ``(dEn, dEo)``. The corresponding values in the dictionary of
+            priors are (1-d) arrays of prior values with one term for each
+            ``dEn[i]`` or ``dEo[i]``. Replacing either key by ``None`` causes
+            the corresponding term to be dropped from the fit function. These
+            keys are used to label the corresponding parameter arrays in the
+            fit results as well as in the prior.
+        s (float or tuple): Overall factor ``sn`` for non-oscillating part
+            of fit function, or two-tuple of overall factors ``(sn, so)``
+            for both pieces.
+        tdata (list of ints): The ``t``\s corresponding to data
+            entries in the input data. Note that ``len(self.tdata)``
+            should equal ``len(data[self.datatag])``. If ``tdata`` is
+            omitted, ``tdata=numpy.arange(tp)`` is assumed, or
+            ``tdata=numpy.arange(tmax)`` if ``tp`` is not specified.
+        tfit (list of ints): List of ``t``\s to use in the fit. Only data
+            with these ``t``\s (all of which should be in ``tdata``) is  used
+            in the fit. If ``tfit`` is omitted, it is assumed to be all ``t``
+            values from ``tdata`` that are larger than or equal to ``tmin``
+            (if specified) and smaller than or equal to ``tmax`` (if
+            specified).
+        tp (int or ``None``): If ``tp`` is positive, the correlator
+            is assumed to be periodic with ``Gab(t)=Gab(tp-t)``.
+            If negative, the correlator is assumed to be anti-periodic
+            with ``Gab(t)=-Gab(-tp-t)``. Setting ``tp=None`` implies that
+            the correlator is not periodic, but rather continues
+            to fall exponentially as ``t`` is increased indefinitely.
+        tmin (int or ``None``): If ``tfit`` is omitted, it is assumed
+            to be all ``t`` values from ``tdata`` that are larger than or
+            equal to ``tmin`` and smaller than or equal to ``tmax``
+            (if specified). ``tmin`` is ignored if ``tfit`` is specified.
+        tmax (int or ``None``): If ``tfit`` is omitted, it is assumed
+            to be all ``t`` values from ``tdata`` that are larger than or
+            equal to ``tmin`` (if specified) and smaller than or
+            equal to ``tmax``. ``tmin`` is ignored if ``tfit`` and ``tdata``
+            are specified.
+        ncg (int): Width of bins used to coarse-grain the correlator before
+            fitting. Each bin of ``ncg`` correlator values is replaced by
+            its average. Default is ``ncg=1`` (ie, no coarse-graining).
+        reverse (bool): If ``True``, the data associated with ``self.datatag``
+            is time-reversed (``data -> [data[0], data[-1], data[-2]...data[1]]``).
+            Ignored otherwise.
+        otherdata (str or list or ``None``): Data tag or list of data tags for
+            additional data that are averaged with the ``self.datatag``
+            data before fitting. This is useful including data
+            from correlators with the source and sink interchanged.
+            Default is ``None``.
+        reverseddata (str or list or ``None``): Data tag or list of data tags
+            for data that is time-reversed and then averaged with
+            the ``self.datatag`` data before fitting. Default is ``None``.
     """
     def __init__(
-        self, datatag, tdata, tfit, a, b, dE=None,
-        s=1.0, tp=None, ncg=1, othertags=[],
+        self, datatag, a, b, dE, tmin=None, tmax=None, tdata=None, tfit=None,
+        tp=None, s=1.0, ncg=1, reverse=False, otherdata=None, reverseddata=None,
+        othertags=None  # backwards compatibility
         ):
-        super(Corr2, self).__init__(datatag, othertags, ncg)
-        self.a = self._param(a)
-        self.b = self._param(b)
-        self.dE = self._param(dE)
-        self.tdata = list(tdata)
+        super(Corr2, self).__init__(datatag, ncg)
+        # othertags is the old name for otherdata
+        if othertags is not None and otherdata is None:
+            otherdata = othertags
+        if isinstance(otherdata, str):
+            otherdata = [otherdata]
+        elif otherdata is None:
+            otherdata = []
+        if isinstance(reverseddata, str):
+            reverseddata = [reverseddata]
+        elif reverseddata is None:
+            reverseddata = []
+        self.otherdata = list(otherdata)
+        self.reverseddata = list(reverseddata)
+        self.reverse = reverse
+        self.a = _parse_param(a)
+        self.b = _parse_param(b)
+        self.dE = _parse_param(dE)
+        self.s = _parse_param(s, -1.)
         self.tp = tp
-        self.s = self._param(s, -1.)
-        # verify and compress tfit
-        ntfit = []
-        for t in tfit:
-            if tp is None:
-                assert t in tdata, ("tfit incompatible with tdata: "
-                                  +str(tfit)+" "+str(tdata))
-                ntfit.append(t)
-            else:
-                t1, t2 = sorted([t, abs(tp)-t])
-                if t1 in ntfit or t2 in ntfit:
-                    continue
-                assert (t >= 0 and t < abs(tp)), "illegal t in tfit: "+str(t)
-                if t1 in tdata:
-                    ntfit.append(t1)
-                elif t2 in tdata:
-                    ntfit.append(t2)
-                else:
-                    raise ValueError("tfit incompatible with tdata: "
-                                      +str(tfit)+" "+str(tdata))
 
-        self.tfit = numpy.array(ntfit)
-        self._abscissa = self.coarse_grain(self.tfit, self.ncg)
+        # check consistency
+        for x in zip(self.a, self.b, self.dE):
+            x = set(x)
+            if None in x and len(x) > 1:
+                raise ValueError('inconsistent a, b and dE')
+
+        # figure out tdata
+        if tdata is None:
+            # assume tdata starts at 0
+            if tp is not None:
+                self.tdata = numpy.arange(abs(self.tp))
+            elif tmax is not None:
+                self.tdata = numpy.arange(tmax + 1)
+            else:
+                raise ValueError('need to specify tdata or tp or tmax.')
+        else:
+            self.tdata = tdata
+
+        # figure out tfit
+        if tfit is None:
+            if tmin is None:
+                tmin = numpy.min(self.tdata)
+            if tmax is None:
+                tmax = numpy.max(self.tdata)
+            if self.tp is not None and tmax > abs(self.tp) // 2:
+                tmax = abs(self.tp) // 2
+            tfit = []
+            for t in self.tdata:
+                if t >= tmin and t <= tmax:
+                    tfit.append(t)
+            tfit = numpy.sort(numpy.array(tfit))
+        new_tfit = []
+        for t in tfit:
+            if self.tp is None:
+                if t not in self.tdata:
+                    raise ValueError('tfit not contained in tdata')
+                new_tfit.append(t)
+            else:
+                t1, t2 = numpy.sort([t, abs(self.tp) - t])
+                if t1 in new_tfit or t2 in new_tfit:
+                    continue
+                if t1 in self.tdata:
+                    new_tfit.append(t1)
+                elif t2 in self.tdata:
+                    new_tfit.append(t2)
+                else:
+                    raise ValueError('tfit not contained in tdata')
+        self.tfit = numpy.array(new_tfit)
 
     def __str__(self):
         ans = "{c.datatag}[a={c.a}"
@@ -330,52 +265,89 @@ class Corr2(BaseModel):
         ans += ', tfit=[{t1}...{t2}]]'
         return ans.format(c=self, t1=self.tfit[0], t2=self.tfit[-1])
 
-    def buildprior(self, prior, nterm):
-        """ Create fit prior by extracting relevant pieces of ``prior``.
+    def buildprior(self, prior, nterm=None, mopt=None, extend=None):
+        """ Create fit prior by extracting relevant pieces from ``prior``.
 
-        This routine does two things: 1) discard parts of ``prior``
-        that are not needed in the fit; and 2) determine whether
-        any of the parameters has a log-normal/sqrt-normal prior,
-        in which case the logarithm/sqrt of the parameter appears in
-        prior, rather than the parameter itself.
+        This routine selects the entries in dictionary ``prior``
+        corresponding to the model's fit parameters. If ``nterm`` is
+        not ``None``, it also adjusts the number of terms that are
+        retained.
 
-        The number of terms kept in each part of the fit is
-        specified using ``nterm = (n, no)`` where ``n`` is the
-        number of non-oscillating terms and ``no`` is the number
-        of oscillating terms. Setting ``nterm = None`` keeps
-        all terms.
+        Args:
+            prior (dictionary): Dictionary containing priors for fit
+                parameters.
+            nterm (``None`` or int or two-tuple): Setting ``nterm=(n,no)``
+                restricts the number of terms to ``n`` in the
+                non-oscillating part and ``no`` in the oscillating part
+                of the fit function. Replacing either or both by
+                ``None`` keeps all terms, as does setting ``nterm=None``.
+                This optional argument is used to implement
+                marginalization.
         """
+        # mopt=nterm = #terms to keep when marginalizing (None => all)
+        # N.B. extend=True is built in but must allow argument
         if nterm is None:
-            nterm = (None, None)
-
+            nterm = mopt
+        nterm = _parse_param(nterm, None)
         newprior = _gvar.BufferDict()
         for ai, bi, dEi, ntermi in zip(self.a, self.b, self.dE, nterm):
+            len_x = None
             for x in [ai, bi, dEi]:
                 if x is None:
                     continue
-                x = self.basekey(prior, x)
+                x = self.prior_key(prior, x)
                 newprior[x] = prior[x][None:ntermi]
+                if len_x is None:
+                    len_x = len(newprior[x])
+                elif len(newprior[x]) != len_x:
+                    raise ValueError('length mismatch between a, b, and dE')
         return newprior
 
-    def builddata(self, data):
-        """ Assemble fit data from dictionary ``data``.
-
-        Extracts parts of array ``data[self.datatag]`` that are needed for
-        the fit, as specified by ``self.tp`` and ``self.tfit``. The entries
-        in the (1-D) array ``data[self.datatag]`` are assumed to be
-        |GVar|\s and correspond to the ``t``s in ``self.tdata``.
-        """
-        # tags = self.all_datatags
-        # if self.othertags is not None:
-        #     tags.extend(self.othertags)
-        tdata = self.tdata
+    def builddataset(self, dataset):
+        """ Assemble fit data from data set dictionary ``dataset``. """
+        tdata = list(self.tdata)
         tp = self.tp
         if tp is not None:
-            pfac = math.copysign(1,tp)
+            pfac = math.copysign(1, tp)
             tp = abs(tp)
+        def collect_data(odata):
+            odata = numpy.asarray(odata)
+            ndata = []
+            for t in self.tfit:
+                idt = tdata.index(t)
+                if tp is None or tp-t not in tdata or t == tp-t:
+                    ndata.append(odata[:, idt])
+                else:
+                    idt_r = tdata.index(tp-t)
+                    ndata.append((odata[:, idt] + pfac * odata[:, idt_r]) / 2.)
+            return numpy.transpose(ndata)
         ans = []
-        for tag in self.all_datatags:
-            odata = data[tag]
+        if self.reverse:
+            otherdata = self.otherdata
+            reverseddata = [self.datatag] + self.reverseddata
+        else:
+            otherdata = [self.datatag] + self.otherdata
+            reverseddata = self.reverseddata
+        for tag in otherdata:
+            ans.append(collect_data(dataset[tag]))
+        for tag in reverseddata:
+            rdset = numpy.empty(dataset[tag].shape, dtype=float)
+            rdset[:, 0] = dataset[tag][:, 0]
+            rdset[:, 1:] = dataset[tag][:, -1:0:-1]
+            ans.append(collect_data(rdset))
+        return (
+            numpy.array(ans[0]) if len(ans) == 1 else
+            numpy.average(ans, axis=0)
+            )
+
+    def builddata(self, data):
+        """ Assemble fit data from dictionary ``data``. """
+        tdata = list(self.tdata)
+        tp = self.tp
+        if tp is not None:
+            pfac = math.copysign(1, tp)
+            tp = abs(tp)
+        def collect_data(odata):
             ndata = []
             for t in self.tfit:
                 idt = tdata.index(t)
@@ -384,16 +356,32 @@ class Corr2(BaseModel):
                 else:
                     idt_r = tdata.index(tp-t)
                     ndata.append(lsqfit.wavg([odata[idt], pfac*odata[idt_r]]))
-            ans.append(ndata)
-        fdata = numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
-        return fdata if self.ncg == 1 else self.coarse_grain(fdata, self.ncg)
+            return ndata
+        if self.reverse:
+            otherdata = self.otherdata
+            reverseddata = [self.datatag] + self.reverseddata
+        else:
+            otherdata = [self.datatag] + self.otherdata
+            reverseddata = self.reverseddata
+        ans = []
+        for tag in otherdata:
+            ans.append(collect_data(data[tag]))
+        for tag in reverseddata:
+            rdata = numpy.empty(data[tag].shape, dtype=data[tag].dtype)
+            rdata[0] = data[tag][0]
+            rdata[1:] = data[tag][-1:0:-1]
+            ans.append(collect_data(rdata))
+        return numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
 
-    def old_fitfcn(self, p, nterm=None, t=None, ncg=None):
+    def fitfcn(self, p, t=None):
         """ Return fit function for parameters ``p``. """
-        if ncg is None:
-            ncg = self.ncg
+        # setup
         if t is None:
             t = self.tfit
+        else:
+            t = numpy.asarray(t)
+            if len(t.shape) != 1:
+                raise ValueError('t must be 1-d array')
         if self.tp is None:
             tp_t = None
         elif self.tp >= 0:
@@ -402,970 +390,674 @@ class Corr2(BaseModel):
         else:
             tp_t = -self.tp - t
             pfac = -1
-        if nterm is None:
-            nterm = (None, None)
         ofac = (None if self.s[0] == 0.0 else self.s[0],
                 (None if self.s[1] == 0.0 else self.s[1]*(-1)**t))
+
+        # calculate function
         ans = 0.0
-        for _ai, _bi, _dEi, ofaci, ntermi in zip(
-            self.a, self.b, self.dE, ofac, nterm
-            ):
-            if _ai is None or _bi is None or _dEi is None or ofaci is None:
+        for ai, bi, dEi, ofaci in zip(self.a, self.b, self.dE, ofac):
+            if ai is None or ofaci is None:
                 continue
-            if ntermi is not None:
-                if ntermi == 0:
-                    continue
-                ai = p[_ai][:ntermi]
-                bi = p[_bi][:ntermi]
-                dEi = p[_dEi][:ntermi]
-            else:
-                ai = p[_ai]
-                bi = p[_bi]
-                dEi = p[_dEi]
             if tp_t is None:
-                exp_t = _gvar.exp(-t)
-                for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
-                    ans += ofaci * aij * bij * exp_t ** sumdE
+                sumdE = numpy.cumsum(p[dEi])
+                ans += ofaci * numpy.sum(
+                    (p[ai] * p[bi])[None, :]
+                    * _gvar.exp(-t[:, None] * sumdE[None, :]),
+                    axis=1,
+                    )
             else:
-                exp_t = _gvar.exp(-t)
-                exp_tp_t = _gvar.exp(-tp_t)
-                for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
-                    ans += ofaci * aij * bij * (exp_t ** sumdE + pfac * exp_tp_t ** sumdE)
-        return ans if ncg == 1 else self.coarse_grain(ans, ncg)
+                sumdE = numpy.cumsum(p[dEi])
+                ans += ofaci * numpy.sum(
+                    (p[ai] * p[bi])[None, :] * (
+                        _gvar.exp(-t[:, None] * sumdE[None, :])
+                        + pfac * _gvar.exp(-tp_t[:, None] * sumdE[None, :])
+                        ),
+                    axis=1,
+                    )
+        return ans
 
-    def fitfcn(self, p, nterm=None, t=None, ncg=None):
-        """ Return fit function for parameters ``p``. """
-        if ncg is None:
-            ncg = self.ncg
-        if t is None:
-            t = self.tfit
-        if self.tp is None:
-            tp_t = None
-        elif self.tp >= 0:
-            tp_t = self.tp - t
-            pfac = 1
-        else:
-            tp_t = -self.tp - t
-            pfac = -1
-        if nterm is None:
-            nterm = (None, None)
-        ofac = (None if self.s[0] == 0.0 else self.s[0],
-                (None if self.s[1] == 0.0 else self.s[1]*(-1)**t))
-        ans = 0.0
-        for _ai, _bi, _dEi, ofaci, ntermi in zip(
-            self.a, self.b, self.dE, ofac, nterm
-            ):
-            if _ai is None or _bi is None or _dEi is None or ofaci is None:
-                continue
-            if ntermi is not None:
-                if ntermi == 0:
-                    continue
-                ai = p[_ai][:ntermi]
-                bi = p[_bi][:ntermi]
-                dEi = p[_dEi][:ntermi]
-            else:
-                ai = p[_ai]
-                bi = p[_bi]
-                dEi = p[_dEi]
-            if tp_t is None:
-                if NEWCODE:
-                    ans += ofaci * numpy.sum(
-                        ai[_NA, :] * bi[_NA, :]
-                        * _gvar.exp(-t[:, _NA] * numpy.cumsum(dEi)[_NA, :]),
-                        axis=1,
-                        )
-                else:
-                    exp_t = _gvar.exp(-t)
-                    for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
-                        ans += ofaci * aij * bij * exp_t ** sumdE
-            else:
-                if NEWCODE:
-                    sumdE = numpy.cumsum(dEi)
-                    ans += ofaci * numpy.sum(
-                        ai[_NA, :] * bi[_NA, :] * (
-                            _gvar.exp(-t[:, _NA] * sumdE[_NA, :])
-                            + pfac * _gvar.exp(-tp_t[:, _NA] * sumdE[_NA, :])
-                            ),
-                        axis=1,
-                        )
-                else:
-                    exp_t = _gvar.exp(-t)
-                    exp_tp_t = _gvar.exp(-tp_t)
-                    for aij, bij, sumdE in zip(ai, bi, numpy.cumsum(dEi)):
-                        ans += ofaci * aij * bij * (exp_t ** sumdE + pfac * exp_tp_t ** sumdE)
-        return ans if ncg == 1 else self.coarse_grain(ans, ncg)
-
-
-class Corr3(BaseModel):
+class Corr3(lsqfit.MultiFitterModel):
     """ Three-point correlators ``Gavb(t, T) = <b(T) V(t) a(0)>``.
 
     |Corr3| models the ``t`` dependence of a 3-point correlator
     ``Gavb(t, T)`` using ::
 
         Gavb(t, T) =
-         sum_i,j san*an[i]*fn(Ean[i],t)*Vnn[i,j]*sbn*bn[j]*fn(Ebn[j],T-t)
-        +sum_i,j san*an[i]*fn(Ean[i],t)*Vno[i,j]*sbo*bo[j]*fo(Ebo[j],T-t)
-        +sum_i,j sao*ao[i]*fo(Eao[i],t)*Von[i,j]*sbn*bn[j]*fn(Ebn[j],T-t)
-        +sum_i,j sao*ao[i]*fo(Eao[i],t)*Voo[i,j]*sbo*bo[j]*fo(Ebo[j],T-t)
+         sum_i,j san * an[i] * fn(Ean[i],t) * Vnn[i,j] * sbn * bn[j] * fn(Ebn[j],T-t)
+        +sum_i,j san * an[i] * fn(Ean[i],t) * Vno[i,j] * sbo * bo[j] * fo(Ebo[j],T-t)
+        +sum_i,j sao * ao[i] * fo(Eao[i],t) * Von[i,j] * sbn * bn[j] * fn(Ebn[j],T-t)
+        +sum_i,j sao * ao[i] * fo(Eao[i],t) * Voo[i,j] * sbo * bo[j] * fo(Ebo[j],T-t)
 
     where ::
 
-        fn(E, t) =  exp(-E*t) + exp(-E*(tp-t)) # tp>0 -- periodic
-               or   exp(-E*t) - exp(-E*(-tp-t))# tp<0 -- anti-periodic
-               or   exp(-E*t)                  # if tp is None (nonperiodic)
-
-        fo(E, t) = (-1)**t * fn(E, t)
+        fn(E, t) =  exp(-E*t)
+        fo(E, t) = (-1)**t * exp(-E*t)
 
     The fit parameters for the non-oscillating piece of ``Gavb`` (first term)
     are ``Vnn[i,j]``, ``an[i]``, ``bn[j]``, ``dEan[i]`` and ``dEbn[j]`` where,
     for example::
 
-        dEan[0] = Ean[0] > 0
-        dEan[i] = Ean[i]-Ean[i-1] > 0     (for i>0)
+        dEan[0] = Ean[0]
+        dEan[i] = Ean[i] - Ean[i-1] > 0     (for i>0)
 
     and therefore ``Ean[i] = sum_j=0..i dEan[j]``. The parameters for the
     other terms are similarly defined.
 
-    :param datatag: Tag used to label correlator in the input |Dataset|.
-    :type datatag: string
-    :param a: Key identifying the fit parameters for the source amplitudes
-        ``an``, for ``a->V``, in the dictionary of priors provided by
-        |CorrFitter|; or a two-tuple of keys for the source amplitudes
-        ``(an, ao)``. The corresponding values in the dictionary of priors
-        are (1-d) arrays of prior values with one term for each ``an[i]``
-        or ``ao[i]``. Replacing either key by ``None`` causes the
-        corresponding term to be dropped from the fit function. These keys
-        are used to label the corresponding parameter arrays in the fit
-        results as well as in the prior.
-    :type a: string, or two-tuple of strings or ``None``
-    :param b: Same as ``self.a`` except for sink amplitudes ``(bn, bo)``
-        for ``V->b`` rather than for ``(an, ao)``.
-    :type b: string, or two-tuple of strings or ``None``
-    :param dEa: Fit-parameter label for ``a->V`` intermediate-state energy
-        differences ``dEan``, or two-tuple of labels for the differences
-        ``(dEan,dEao)``. Each label represents an array of energy differences.
-        Replacing either label by ``None`` causes the corresponding term in
-        the correlator function to be dropped. These keys
-        are used to label the corresponding parameter arrays in the fit
-        results as well as in the prior.
-    :type dEa: string, or two-tuple of strings or ``None``
-    :param dEb: Fit-parameter label for ``V->b`` intermediate-state energy
-        differences ``dEbn``, or two-tuple of labels for the differences
-        ``(dEbn,dEbo)``. Each label represents an array of energy differences.
-        Replacing either label by ``None`` causes the corresponding term in
-        the correlator function to be dropped. These keys
-        are used to label the corresponding parameter arrays in the fit
-        results as well as in the prior.
-    :type dEb: string, or two-tuple of strings or ``None``
-    :param sa: Overall factor ``san`` for the non-oscillating ``a->V`` terms
-        in the correlator, or two-tuple containing the overall factors
-        ``(san,sao)`` for the non-oscillating and oscillating terms.
-    :type sa: number, or two-tuple of numbers
-    :param sb: Overall factor ``sbn`` for the non-oscillating ``V->b`` terms
-        in the correlator, or two-tuple containing the overall factors
-        ``(sbn,sbo)`` for the non-oscillating and oscillating terms.
-    :type sb: number, or two-tuple of numbers
-    :param Vnn: Fit-parameter label for the matrix of current matrix
-        elements ``Vnn[i,j]`` connecting non-oscillating states. Labels that
-        begin with "log" indicate that the corresponding matrix elements are
-        replaced by their exponentials; these parameters are logarithms of the
-        corresponding matrix elements, which must then be positive.
-    :type Vnn: string or ``None``
-    :param Vno: Fit-parameter label for the matrix of current matrix
-        elements ``Vno[i,j]`` connecting non-oscillating to oscillating
-        states. Labels that begin with "log" indicate that the corresponding
-        matrix elements are replaced by their exponentials; these parameters
-        are logarithms of the corresponding matrix elements, which must then
-        be positive.
-    :type Vno: string or ``None``
-    :param Von: Fit-parameter label for the matrix of current matrix
-        elements ``Von[i,j]`` connecting oscillating to non-oscillating
-        states. Labels that begin with "log" indicate that the corresponding
-        matrix elements are replaced by their exponentials; these parameters
-        are logarithms of the corresponding matrix elements, which must then
-        be positive.
-    :type Von: string or ``None``
-    :param Voo: Fit-parameter label for the matrix of current matrix
-        elements ``Voo[i,j]`` connecting oscillating states. Labels that begin
-        with "log" indicate that the corresponding matrix elements are
-        replaced by their exponentials; these parameters are logarithms of the
-        corresponding matrix elements, which must then be positive.
-    :type Voo: string or ``None``
-    :param transpose_V: If ``True``, the transpose ``V[j,i]`` is used in
-        place of ``V[i,j]`` for each current matrix element in the fit
-        function. This is useful for doing simultaneous fits to
-        ``a->V->b`` and ``b->V->a``, where the current matrix elements
-        for one are the transposes of those for the other. Default value
-        is ``False``.
-    :type transpose_V: boolean
-    :param symmetric_V: If ``True``, the fit function for ``a->V->b`` is
-        unchanged (symmetrical) under the the interchange of ``a`` and
-        ``b``. Then ``Vnn`` and ``Voo`` are square, symmetric matrices
-        with ``V[i,j]=V[j,i]`` and their priors are one-dimensional arrays
-        containing only elements ``V[i,j]`` with ``j>=i`` in the following
-        layout::
+    Args:
+        datatag (str): Tag used to label correlator in the input data.
+        a (str or tuple): Key identifying the fit parameters for the source
+            amplitudes ``an``, for ``a->V``, in the dictionary of priors
+            provided to |CorrFitter|; or a two-tuple of keys for the source
+            amplitudes ``(an, ao)``. The corresponding values in the
+            dictionary of priors are (1-d) arrays of prior values with one
+            term for each ``an[i]`` or ``ao[i]``. Replacing either key by
+            ``None`` causes the corresponding term to be dropped from the fit
+            function. These keys are used to label the corresponding parameter
+            arrays in the fit results as well as in the prior.
+        b (str or tuple): Same as ``self.a`` but  for the ``V->b`` sink
+            amplitudes ``(bn, bo)``.
+        dEa (str or tuple): Fit-parameter label for ``a->V``
+            intermediate-state energy differences ``dEan``, or two-tuple of
+            labels for the differences ``(dEan, dEao)``. Each label represents
+            an array of energy differences. Replacing either label by ``None``
+            causes the corresponding term in the correlator function to be
+            dropped. These keys are used to label the corresponding parameter
+            arrays in the fit results as well as in the prior.
+        dEb (str or tuple): Same as ``self.dEa`` but for ``V->b`` sink
+            energies ``(dEbn, dEbo)``.
+        sa (float or tuple): Overall factor ``san`` for the non-oscillating
+            ``a->V`` terms in the correlator, or two-tuple containing
+            the overall factors ``(san, sao)`` for the non-oscillating and
+            oscillating terms. Default is ``(1,-1)``.
+        sb (float or tuple): Same as ``self.sa`` but for ``V->b`` sink
+            overall factors ``(sbn, sbo)``.
+        Vnn (str or ``None``): Fit-parameter label for the matrix of current
+            matrix elements ``Vnn[i,j]`` connecting non-oscillating states.
+            The matrix must be square and symmetric if ``symmetric_V=True``,
+            and only the elements ``V[i,j]`` for ``j>=i`` are specified, using
+            a 1-d array ``V_sym`` with the following layout::
 
-            [V[0,0],V[0,1],V[0,2]...V[0,N],
-                    V[1,1],V[1,2]...V[1,N],
-                           V[2,2]...V[2,N],
-                                 .
-                                  .
-                                   .
-                                    V[N,N]]
+                [V[0,0],V[0,1],V[0,2]...V[0,N],
+                        V[1,1],V[1,2]...V[1,N],
+                               V[2,2]...V[2,N],
+                                     .
+                                      .
+                                       .
+                                        V[N,N]]
 
-        Furthermore the matrix specified for ``Von`` is transposed before
-        being used by the fitter; normally the matrix specified for ``Von``
-        is the same as the matrix specified for ``Vno`` when the amplitude
-        is symmetrical. Default value is ``False``.
-    :type symmetric_V: boolean
-    :param tdata: The ``t``\s corresponding to data entries in the input
-        |Dataset|.
-    :type tdata: list of integers
-    :param tfit: List of ``t``\s to use in the fit. Only data with these
-        ``t``\s (all of which should be in ``tdata``) is used in the fit.
-    :type tfit: list of integers
-    :param tpa: If not ``None`` and positive, the ``a->V`` correlator is
-        assumed to be periodic with period ``tpa``. If negative, the
-        correlator is anti-periodic with period ``-tpa``. Setting
-        ``tpa=None`` implies that the correlators are not periodic.
-    :type tpa: integer or ``None``
-    :param tpb: If not ``None`` and positive, the ``V->b`` correlator is
-        assumed to be periodic with period ``tpb``. If negative, the
-        correlator is periodic with period ``-tpb``. Setting ``tpb=None``
-        implies that the correlators are not periodic.
-    :type tpb: integer or ``None``
-    :param ncg: Width of bins used to coarse-grain the correlator before
-        fitting. Each bin of ``ncg`` correlator values is replaced by
-        its average. Default is ``ncg=1`` (ie, no coarse-graining).
-    :type ncg: positive integer
+            Note that ``V[i,j] = V_symm[i*N + j - i * (i+1) / 2]`` for
+            ``j>=i``. Set ``Vnn=None`` to omit it.
+        Vno (str or ``None``): Fit-parameter label for the matrix of current
+            matrix elements ``Vno[i,j]`` connecting non-oscillating to
+            oscillating states. Only one of ``Von`` and ``Vno`` can be
+            specified if ``symmetric_V=True``; the other is defined to be its
+            transform. Set ``Vno=None`` to omit it.
+        Von (str or ``None``): Fit-parameter label for the matrix of current
+            matrix elements ``Vno[i,j]`` connecting oscillating to non-
+            oscillating states. Only one of ``Von`` and ``Vno`` can be
+            specified if ``symmetric_V=True``; the other is defined to be its
+            transform. Set ``Von=None`` to omit it.
+        Voo (str or ``None``): Fit-parameter label for the matrix of current
+            matrix elements ``Voo[i,j]`` connecting oscillating states. The
+            matrix must be square and symmetric if ``symmetric_V=True``, and
+            only the elements ``V[i,j]`` for ``j>=i`` are specified, using a
+            1-d array ``V_sym`` with the following layout::
+
+                [V[0,0],V[0,1],V[0,2]...V[0,N],
+                        V[1,1],V[1,2]...V[1,N],
+                               V[2,2]...V[2,N],
+                                     .
+                                      .
+                                       .
+                                        V[N,N]]
+
+            Note that ``V[i,j] = V_symm[i*N + j - i * (i+1) / 2]`` for
+            ``j>=i``. Set ``Voo=None`` to omit it.
+        reverse (bool): If ``True``, the data associated with ``self.datatag``
+            is time-reversed before fitting (interchanging ``t=0`` with
+            ``t=T``). This is useful for doing simultaneous fits to
+            ``a->V->b`` and ``b->V->a``, where one is time-reversed relative
+            to the other: *e.g.*, ::
+
+                models = [ ...
+                    Corr3(
+                        datatag='a->V->b', tmin=3, T=15,
+                        a=('a', 'ao'), dEa=('dEa', 'dEao'),
+                        b=('b', 'bo'), dEb=('dEb', 'dEbo'),
+                        Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
+                        ),
+                    Corr3(
+                        datatag='b->V->a', tmin=3, T=15,
+                        a=('a', 'ao'), dEa=('dEa', 'dEao'),
+                        b=('b', 'bo'), dEb=('dEb', 'dEbo'),
+                        Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
+                        reverse=True,
+                        ),
+                    ...
+                    ]
+
+            Another (faster) strategy for such situations is to average
+            data from the second process with that from the  first, before
+            fitting, using keyword ``reverseddata``. Default is ``False``.
+        symmetric_V (bool): If ``True``, the fit function for ``a->V->b`` is
+            unchanged (symmetrical) under the the interchange of ``a`` and
+            ``b``. Then ``Vnn`` and ``Voo`` are square, symmetric matrices
+            and their priors are one-dimensional arrays containing only
+            elements ``V[i,j]`` with ``j>=i``, as discussed above.
+            Only one of ``Von`` and ``Vno`` can be specified if
+            ``symmetric_V=True``; the other is defined to be its transform.
+        T (int): Separation between source and sink.
+        tdata (list of ints): The ``t``\s corresponding to data entries
+            in the input data. If omitted, is assumed equal to
+            ``numpy.arange(T + 1)``.
+        tfit (list of ints): List of ``t``\s to use in the fit. Only data
+            with these ``t``\s (all of which should be in ``tdata``)
+            is used in the fit. If omitted, is assumed equal to
+            ``numpy.arange(tmin, T - tmin + 1)``.
+        tmin (int or ``None``): If ``tfit`` is omitted, it is set equal
+            to ``numpy.arange(tmin, T - tmin + 1)``. ``tmin`` is ignored
+            if ``tfit`` is specified.
+        ncg (int): Width of bins used to coarse-grain the correlator before
+            fitting. Each bin of ``ncg`` correlator values is replaced by
+            its average. Default is ``ncg=1`` (ie, no coarse-graining).
+        reverseddata (str or list or ``None``): Data tag or list of data tags
+            for additional data that are time-reversed and then averaged with
+            the ``self.datatag`` data before fitting. This is useful for
+            folding data from ``b->V->a`` into a fit for ``a->V->b``:
+            *e.g.*, ::
+
+                Corr3(
+                    datatag='a->V->b',
+                    a=('a', 'ao'), dEa=('dEa', 'dEao'),
+                    b=('b', 'bo'), dEb=('dEb', 'dEbo'),
+                    Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
+                    tmin=3, T=15, reverseddata='b->V->a'
+                    ),
+
+            This is faster than using a separate model with
+            ``transpose_V=True``. Default is ``None``.
+        otherdata (str or list or ``None``): Data tag or list of data tags
+            for additional data that are averaged with the ``self.datatag``
+            data before fitting. Default is ``None``.
     """
+        # transpose_V (bool): This keyword is deprecated; its function is
+        #     now handled by keywords ``reverse`` or ``reverseddata``.  If
+        #     ``True``, the transpose ``V[j,i]`` is used in place of ``V[i,j]``
+        #     for each of matrices ``Vnn``, ``Vno``, ``Von``, and ``Voo``. This
+        #     is useful for doing simultaneous fits to ``a->V->b`` and
+        #     ``b->V->a``, where the current matrix elements for one are the
+        #     transposes of those for the other: *e.g.*, ::
+
+        #         models = [ ...
+        #             Corr3(
+        #                 datatag='a->V->b',
+        #                 a=('a', 'ao'), dEa=('dEa', 'dEao'),
+        #                 b=('b', 'bo'), dEb=('dEb', 'dEbo'),
+        #                 Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
+        #                 tmin=3, T=15,
+        #                 ),
+        #             Corr3(
+        #                 datatag='b->V->a',
+        #                 a=('b', 'bo'), dEa=('dEb', 'dEbo'),
+        #                 b=('a', 'ao'), dEb=('dEa', 'dEao'),
+        #                 Vnn='Vnn', Vno='Von', Von='Vno', Voo='Voo',
+        #                 tmin=3, T=15, transpose_V=True,
+        #                 ),
+        #             ...
+        #             ]
+
+        #     An simpler strategy relies upon keyword ``reverse`` (see above).
+        #     A faster strategy employs keyword ``reverseddata`` (see below).
     def __init__(
-        self, datatag, T, tdata, tfit,
-        Vnn, a, b, dEa=None, dEb=None, sa=1., sb=1.,
-        Vno=None, Von=None, Voo=None, transpose_V=False, symmetric_V=False,
-        tpa=None, tpb=None, ncg=1,
-        othertags=[]
+        self, datatag, T=None, tdata=None, tfit=None, tmin=None,
+        a=None, b=None, dEa=None, dEb=None, sa=1., sb=1.,
+        Vnn=None, Vno=None, Von=None, Voo=None,
+        reverse=False, symmetric_V=False, transpose_V=False, ncg=1,
+        reverseddata=None, otherdata=None,
+        tpa=None, tpb=None, othertags=None # backwards compatibility; tp's ignored
         ):
-        super(Corr3, self).__init__(datatag, othertags, ncg)
-        self.a = self._param(a)
-        self.dEa = self._param(dEa)
-        self.sa = self._param(sa, -1.)
-        self.b = self._param(b)
-        self.dEb = self._param(dEb)
-        self.sb = self._param(sb, -1.)
-        self.V = [[Vnn, Vno], [Von, Voo]]
+        super(Corr3, self).__init__(datatag, ncg)
+        # othertags is the old name for otherdata
+        if othertags is not None and otherdata is None:
+            otherdata = othertags
+        if isinstance(otherdata, str):
+            otherdata = [otherdata]
+        elif otherdata is None:
+            otherdata = []
+        if isinstance(reverseddata, str):
+            reverseddata = [reverseddata]
+        elif reverseddata is None:
+            reverseddata = []
+        self.reverseddata = list(reverseddata)
+        self.reverse = reverse
+        self.otherdata = list(otherdata)
+        self.a = _parse_param(a)
+        self.dEa = _parse_param(dEa)
+        self.sa = _parse_param(sa, -1.)
+        self.b = _parse_param(b)
+        self.dEb = _parse_param(dEb)
+        self.sb = _parse_param(sb, -1.)
         self.transpose_V = transpose_V
         self.symmetric_V = symmetric_V
-        self.T = T
-        self.tdata = list(tdata)
-        self.tpa = tpa
-        self.tpb = tpb
-        # validate tfit
-        ntfit = []
-        for t in tfit:
-            if t >= 0 and t <= T:
-                ntfit.append(t)
-        self.tfit = numpy.array(ntfit)
-        self._abscissa = self.coarse_grain(self.tfit, self.ncg)
+        if self.symmetric_V:
+            # use transpose of Vno (if present) for Von (or vice versa)
+            if Vno is not None:
+                Von = None
+        self.V = [[Vnn, Vno], [Von, Voo]]
+        self.T = abs(T)
 
-    def buildprior(self, prior, nterm):
-        """ Create fit prior by extracting relevant pieces of ``prior``.
+        # consistency checks
+        for x in zip(self.a, self.dEa):
+            x = set(x)
+            if None in x and len(x) > 1:
+                raise ValueError('inconsistent a and dEa')
+        for x in zip(self.b, self.dEb):
+            x = set(x)
+            if None in x and len(x) > 1:
+                raise ValueError('inconsistent b and dEb')
 
-        This routine does two things: 1) discard parts of ``prior``
-        that are not needed in the fit; and 2) determine whether
-        any of the parameters has a log-normal/sqrt-normal prior,
-        in which case the logarithm/sqrt of the parameter appears in
-        prior, rather than the parameter itself.
+        for i in range(2):
+            for j in range(2):
+                if self.V[i][j] is not None:
+                    if None in [self.a[i], self.b[j]]:
+                        raise ValueError('inconsistent a, b and V' + str((i,j)))
+                else:
+                    if self.symmetric_V and i != j:
+                        if self.V[j][i] is not None:
+                            continue
+                    if None not in [self.a[i], self.b[j]]:
+                        raise ValueError('inconsistent a, b and V' + str((i,j)))
 
-        The number of terms kept in each part of the fit is
-        specified using ``nterm = (n, no)`` where ``n`` is the
-        number of non-oscillating terms and ``no`` is the number
-        of oscillating terms. Setting ``nterm = None`` keeps
-        all terms.
-        """
-        def resize_sym(Vii, nterm):
-            N = int(numpy.round((((8*len(Vii)+1)**0.5 - 1.)/2.)))
+        # tdata amd tfit
+        if tdata is None:
+            tdata = numpy.arange(self.T + 1)
+        self.tdata = tdata
+        if tfit is None:
+            if tmin is None:
+                self.tfit = numpy.array(self.tdata)
+            else:
+                new_tfit = []
+                tmin = abs(tmin)
+                for t in self.tdata:
+                    if t < tmin or self.T - t < tmin - 1:
+                        continue
+                    new_tfit.append(t)
+                self.tfit = numpy.array(new_tfit)
+        else:
+            new_tfit = []
+            for t in tfit:
+                if t in self.tdata:
+                    new_tfit.append(t)
+                else:
+                    raise ValueError('tfit not contained in tdata')
+        self.tfit = numpy.sort(numpy.array(new_tfit))
+
+    def buildprior(self, prior, mopt=None, nterm=None, extend=None):
+        if nterm is None:
+            nterm = mopt
+        nterm = _parse_param(nterm, None)
+        def resize_sym(Vii, ntermi):
+            # N = size of Vii; ntermi is new max. dimension
+            N = int(numpy.round((((8. * len(Vii) + 1.) ** 0.5 - 1.) / 2.)))
+            if ntermi is None or N == ntermi:
+                return Vii
             ans = []
             iterV = iter(Vii)
             for i in range(N):
                 for j in range(i, N):
                     v = next(iterV)
-                    if ((nterm[0] is None or i < nterm[0])
-                        and (nterm[1] is None or j < nterm[1])):
+                    if j < ntermi:
                         ans.append(v)
             return numpy.array(ans)
         ans = _gvar.BufferDict()
+
+        # unpack propagator parameters
         for x in [self.a, self.dEa, self.b, self.dEb]:
             for xi, ntermi in zip(x, nterm):
                 if xi is not None:
-                    xi = self.basekey(prior, xi)
+                    xi = self.prior_key(prior, xi)
                     ans[xi] = prior[xi][None:ntermi]
+
+        # i,j range from n to o
         for i in range(2):
             for j in range(2):
                 vij = self.V[i][j]
                 if vij is None:
                     continue
-                vij = self.basekey(prior, vij)
+                vij = self.prior_key(prior, vij)
                 if i == j and self.symmetric_V:
-                    ans[vij] = resize_sym(prior[vij], nterm)
+                    ans[vij] = (
+                        prior[vij] if nterm[i] is None else
+                        resize_sym(prior[vij], nterm[i])
+                        )
                 else:
-                    ans[vij] = prior[vij][slice(None, nterm[i]),
-                                          slice(None, nterm[j])]
+                    if self.transpose_V:
+                        ans[vij] = prior[vij][None:nterm[j], None:nterm[i]]
+                    else:
+                        ans[vij] = prior[vij][None:nterm[i], None:nterm[j]]
+
+        # verify dimensions
+        for ai, dEai in zip(self.a, self.dEa):
+            if ai is None:
+                continue
+            ai, dEai = self.get_prior_keys(prior, [ai, dEai], extend=True)
+            if len(ans[ai]) != len(ans[dEai]):
+                raise ValueError('length mismatch between a and dEa')
+        for bj, dEbj in zip(self.b, self.dEb):
+            if bj is None or dEbj is None:
+                continue
+            bj, dEbj = self.get_prior_keys(prior, [bj, dEbj], extend=True)
+            if len(ans[bj]) != len(ans[dEbj]):
+                raise ValueError('length mismatch between b and dEb')
+        for i in range(2):
+            for j in range(2):
+                Vij = self.V[i][j]
+                if Vij is None:
+                    continue
+                ai, bj, Vij = self.get_prior_keys(
+                    prior, [self.a[i], self.b[j], Vij], extend=True
+                    )
+                if i == j and self.symmetric_V:
+                    N = ans[ai].shape[0]
+                    if ans[bj].shape[0] != N:
+                        raise ValueError('length mismatch between a, b, and V')
+                    if len(ans[Vij].shape) != 1:
+                        raise ValueError('symmetric_V=True => Vnn, Voo = 1-d arrays')
+                    if ans[Vij].shape[0] !=  (N * (N+1)) / 2:
+                        raise ValueError('length mismatch between a, b, and V')
+                else:
+                    ai, bj, Vij = self.get_prior_keys(
+                        prior, [self.a[i], self.b[j], Vij], extend=True
+                        )
+                    Vij_shape = (
+                        ans[Vij].shape[::-1] if self.transpose_V else
+                        ans[Vij].shape
+                        )
+                    if ans[ai].shape[0] != Vij_shape[0]:
+                        raise ValueError('length mismatch between a and V')
+                    elif ans[bj].shape[0] != Vij_shape[1]:
+                        raise ValueError('length mismatch between b and V')
         return ans
 
-    def builddata(self, data):
-        """ Assemble fit data from dictionary ``data``.
-
-        Extracts parts of array ``data[self.datatag]`` that are needed for
-        the fit, as specified by ``self.tfit``. The entries in the (1-D)
-        array ``data[self.datatag]`` are assumed to be |GVar|\s and
-        correspond to the ``t``s in ``self.tdata``.
-        """
-        # tags = [self.datatag]
-        # if self.othertags is not None:
-        #     tags.extend(self.othertags)
-        ans = []
-        for tag in self.all_datatags:
-            odata = data[tag]
-            tdata = self.tdata
+    def builddataset(self, dataset):
+        tdata = list(self.tdata)
+        def collect_data(odata):
+            odata = numpy.asarray(odata)
             ndata = []
             for t in self.tfit:
-                idt = tdata.index(t)
-                ndata.append(odata[idt])
-            ans.append(ndata)
-        ans = numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
-        return ans if self.ncg == 1 else self.coarse_grain(ans, self.ncg)
+                ndata.append(odata[:, tdata.index(t)])
+            return numpy.transpose(ndata)
+        if self.reverse:
+            ans = [collect_data(numpy.asarray(dataset[self.datatag])[:, ::-1])]
+        else:
+            ans = [collect_data(dataset[self.datatag])]
+        for tag in self.otherdata:
+            ans.append(collect_data(dataset[tag]))
+        for tag in self.reverseddata:
+            ans.append(collect_data(numpy.asarray(dataset[tag])[:, ::-1]))
+        return (
+            numpy.array(ans[0]) if len(ans) == 1 else
+            numpy.average(ans, axis=0)
+            )
 
-    def fitfcn(self, p, nterm=None, t=None, ncg=None):
-        """ Return fit function for parameters ``p``. """
+    def builddata(self, data):
+        tdata = list(self.tdata)
+        def collect_data(odata):
+            ndata = []
+            for t in self.tfit:
+                ndata.append(odata[tdata.index(t)])
+            return ndata
+        ans = []
+        if self.reverse:
+            ans = [collect_data(data[self.datatag][::-1])]
+        else:
+            ans = [collect_data(data[self.datatag])]
+        for tag in self.otherdata:
+            ans.append(collect_data(data[tag]))
+        for tag in self.reverseddata:
+            ans.append(collect_data(data[tag][::-1]))
+        return numpy.array(ans[0]) if len(ans) == 1 else lsqfit.wavg(ans)
+
+    def fitfcn(self, p, t=None):
         # setup
-        if ncg is None:
-            ncg = self.ncg
         if t is None:
             t = self.tfit
-        ta = t
-        tb = self.T - t
-        if self.tpa is None:
-            tp_ta = None
-        elif self.tpa >= 0:
-            tp_ta = self.tpa - ta
-            pafac = 1
-        else:
-            tp_ta = -self.tpa - ta
-            pafac = -1
-        #
-        if self.tpb is None:
-            tp_tb = None
-        elif self.tpb >= 0:
-            tp_tb = self.tpb - tb
-            pbfac = 1
-        else:
-            tp_tb = -self.tpb - tb
-            pbfac = -1
-        if nterm is None:
-            nterm = (None, None)
+        ta = numpy.asarray(t)
+        if len(ta.shape) != 1:
+            raise ValueError('t must be 1-d array')
+        tb = self.T - ta
 
-        # initial and final propagators
-        aprop = []  # aprop[i][j] i= n or o; j=excitation level
-        ofac = (self.sa[0], (0.0 if self.sa[1] == 0.0 else self.sa[1]*(-1)**ta))
-        for _ai, _dEai, ofaci, ntermai in zip(self.a, self.dEa, ofac, nterm):
-            if _ai is None:
+        # initial propagators
+        # aprop[i][j][t] where i = n or o and j = excitation level
+        aprop = []
+        ofac = (
+            None if self.sa[0] == 0.0 else self.sa[0],
+            None if self.sa[1] == 0.0 else self.sa[1] * (-1)**ta[None, :]
+            )
+        for ai, dEai, ofaci in zip(self.a, self.dEa, ofac):
+            if ai is None or ofaci is None:
                 aprop.append(None)
                 continue
-            ans = []
-            if ntermai is None:
-                ai =  p[_ai]
-                dEai = p[_dEai]
-            else:
-                if ntermai <= 0:
-                    aprop.append(None)
-                    continue
-                ai =  p[_ai][:ntermai]
-                dEai = p[_dEai][:ntermai]
-            if tp_ta is None:
-                if NEWCODE:
-                    ans = ofaci * ai[:, _NA] * _gvar.exp(
-                        -ta[_NA, :] * numpy.cumsum(dEai)[:, _NA]
-                        )
-                else:
-                    exp_ta = _gvar.exp(-ta)
-                    ans = [
-                        ofaci * aij * exp_ta ** sumdE
-                        for aij, sumdE in zip(ai, numpy.cumsum(dEai))
-                        ]
-            else:
-                if NEWCODE:
-                    sumdE = numpy.cumsum(dEai)
-                    ans = ofaci * ai[:, _NA] * (
-                        _gvar.exp(-ta[_NA, :] * sumdE[:, _NA])
-                        + pafac * _gvar.exp(-tp_ta[_NA, :] * sumdE[:, _NA])
-                        )
-                else:
-                    exp_ta = _gvar.exp(-ta)
-                    exp_tp_ta = _gvar.exp(-tp_ta)
-                    ans = [
-                        ofaci * aij * (exp_ta ** sumdE + pafac * exp_tp_ta ** sumdE)
-                        for aij, sumdE in zip(ai, numpy.cumsum(dEai))
-                        ]
-            aprop.append(ans)
+            sumdE = numpy.cumsum(p[dEai])
+            aprop.append(
+                ofaci * p[ai][:, None] * _gvar.exp(-ta[None, :] * sumdE[:, None])
+                )
+        aprop = numpy.array(aprop)
+
+        # final propagators
+        # bprop[i][j][t] where i = n or o and j = excitation level
         bprop = []
-        ofac = (self.sb[0], (0.0 if self.sb[1] == 0.0 else self.sb[1]*(-1)**tb))
-        for _bi, _dEbi, ofaci, ntermbi in zip(self.b, self.dEb, ofac, nterm):
-            if _bi is None:
+        ofac = (
+            None if self.sb[0] == 0.0 else self.sb[0],
+            None if self.sb[1] == 0.0 else self.sb[1] * (-1)**tb[None, :]
+            )
+        for bj, dEbj, ofacj in zip(self.b, self.dEb, ofac):
+            if bj is None or ofacj is None:
                 bprop.append(None)
                 continue
-            ans = []
-            if ntermbi is None:
-                bi = p[_bi]
-                dEbi = p[_dEbi]
-            else:
-                if ntermbi <= 0:
-                    bprop.append(None)
-                    continue
-                bi = p[_bi][:ntermbi]
-                dEbi = p[_dEbi][:ntermbi]
-            if tp_tb is None:
-                if NEWCODE:
-                    ans = ofaci * bi[:, _NA] * _gvar.exp(
-                        -tb[_NA, :] * numpy.cumsum(dEbi)[:, _NA]
-                        )
-                else:
-                    exp_tb = _gvar.exp(-tb)
-                    ans = [
-                        ofaci * bij * exp_tb ** sumdE
-                        for bij, sumdE in zip(bi, numpy.cumsum(dEbi))
-                        ]
-            else:
-                if NEWCODE:
-                    sumdE = numpy.cumsum(dEbi)
-                    ans = ofaci * bi[:, _NA] * (
-                        _gvar.exp(-tb[_NA, :] * sumdE[:, _NA])
-                        + pbfac * _gvar.exp(-tp_tb[_NA, :] * sumdE[:, _NA])
-                        )
-                else:
-                    exp_tb = _gvar.exp(-tb)
-                    exp_tp_tb = _gvar.exp(-tp_tb)
-                    ans = [
-                        ofaci * bij * (exp_tb ** sumdE + pbfac * exp_tp_tb ** sumdE)
-                        for bij, sumdE in zip(bi, numpy.cumsum(dEbi))
-                        ]
-            bprop.append(ans)
+            sumdE = numpy.cumsum(p[dEbj])
+            bprop.append(
+                ofacj * p[bj][:, None] * _gvar.exp(-tb[None, :] * sumdE[:, None])
+                )
+        bprop = numpy.array(bprop)
 
+        # combine with vertices
         # combine propagators with vertices
         ans = 0.0
         for i, (apropi, Vi) in enumerate(zip(aprop, self.V)):
             if apropi is None:
                 continue
             for j, (bpropj, Vij) in enumerate(zip(bprop, Vi)):
-                if bpropj is None or Vij is None:
+                if bpropj is None:
                     continue
-                V = p[Vij]
+                elif i != j and self.symmetric_V:
+                    # Von is Vno.T or vice versa
+                    if Vij is None:
+                        Vij = self.V[j][i]
+                        if Vij is None:
+                            continue
+                        V = p[Vij].T
+                    else:
+                        V = p[Vij]
+                elif Vij is None:
+                    continue
+                else:
+                    V = p[Vij]
                 if i == j and self.symmetric_V:
-                    # unpack symmetric matrix V
+                    # unpack symmetric matrix V (assumed square)
                     na = len(apropi)
-                    nb = len(bpropj)
-                    assert na == nb, \
-                        "Vnn and Voo must be square matrices if symmetric"
                     iterV = iter(V)
-                    V = numpy.empty((na, nb), dtype=V.dtype)
+                    V = numpy.empty((na, na), dtype=V.dtype)
                     for k in range(na):
-                        for l in range(k, nb):
+                        for l in range(k, na):
                             V[k, l] = next(iterV)
                             if k != l:
                                 V[l, k] = V[k, l]
-
-                if self.transpose_V or (i>j and self.symmetric_V):
+                if self.transpose_V:
                     V = V.T
-                for ak, Vk in zip(apropi, V):
-                    acc = 0.0
-                    for bl, Vkl in zip(bpropj, Vk):
-                        acc += Vkl*bl
-                    ans += ak*acc
-        return ans if ncg == 1 else self.coarse_grain(ans, ncg)
+                ans += numpy.sum(apropi * numpy.dot(V, bpropj), axis=0)
+        return ans
 
-class CorrFitter(object):
-    """ Nonlinear least-squares fitter for a collection of correlators.
+class CorrFitter(lsqfit.MultiFitter):
+    """ Nonlinear least-squares fitter for a collection of correlator models.
 
-    :param models: Sequence of correlator models, such as
-        :class:`corrfitter.Corr2` or :class:`corrfitter.Corr3`,
-        to use in fits of fit data. Individual
-        models in the sequence can be replaced by sequences of models
-        (and/or further sequences, recursively) for use by
-        :func:`corrfitter.CorrFitter.chained_lsqfit`; such nesting
-        is ignored by the other methods.
-    :type models: list or other sequence
-    :param svdcut: If ``svdcut`` is positive, eigenvalues ``ev[i]`` of the
-        correlation matrix that are smaller than
-        ``svdcut*max(ev)`` are replaced by ``svdcut*max(ev)``.
-        If ``svdcut`` is negative, eigenvalues less than
-        ``|svdcut|*max(ev)`` are set to zero in the correlation matrix. The
-        correlation matrix is left unchanged if ``svdcut`` is set equal to
-        ``None`` (default).
-    :type svdcut: number or ``None``
-    :param tol: Tolerance used in :func:`lsqfit.nonlinear_fit` for the
-        least-squares fits. Use a tuple to specify separate values for
-        the relative and absolute tolerances: ``tol=(reltol, abstol)``;
-        otherwise they are both set equal to ``tol`` (default=1e-10).
-    :type tol: number or tuple
-    :param maxit: Maximum number of iterations to use in least-squares fit
-        (default=500).
-    :type maxit: integer
-    :param nterm: Number of terms fit in the non-oscillating parts of fit
-        functions; or two-tuple of numbers indicating how many terms to fit
-        for each of the non-oscillating and oscillating pieces in fits. If set
-        to ``None``, the number is specified by the number of parameters in
-        the prior.
-    :type nterm: number or ``None``; or two-tuple of numbers or ``None``
-    :param ratio: If ``True``, use ratio corrections for fit
-        data when the prior specifies more terms than are used in the fit. If
-        ``False`` (the default), use difference corrections
-        (see implementation notes, above).
-    :type ratio: boolean
+    Args:
+        models: List of models, derived from :mod:`lsqfit.MultiFitterModel`,
+            to be fit to the data. Individual models in the list can
+            be replaced by lists of models or tuples of models; see below.
+        nterm (tuple or int or None): Number of terms fit in the
+            non-oscillating part of fit functions; or a two-tuple of
+            numbers indicating how many terms to fit in each of the
+            non-oscillating and oscillating parts. Terms  omitted from the
+            fit are marginalized (*i.e.*, included as corrections to the
+            fit data). If set to ``None``, all parameters in the
+            prior are fit, and none are marginalized.
+        ratio (bool): If ``True``, implement marginalization using
+            ratios: ``data_marg = data * fitfcn(prior_marg) / fitfcn(prior)``.
+            If ``False`` (default), implement using differences:
+            ``data_marg = data + (fitfcn(prior_marg) - fitfcn(prior))``.
+        fast (bool): Setting ``fast=True`` (default) strips any variable
+            not required by the fit from the prior. This speeds
+            fits but loses information about correlations between
+            variables in the fit and those that are not. The
+            information can be restored using ``lsqfit.wavg`` after
+            the fit.
+        fitterargs: Additional arguments for the :class:`lsqfit.nonlinear_fit`,
+            such as ``tol``, ``maxit``, ``svdcut``, ``fitter``, etc., as needed.
     """
     def __init__(
-        self, models, svdcut=1e-15, tol=1e-10,
-        maxit=500, nterm=None, ratio=False, fast=False,
-        processed_data=None
+        self, models, nterm=None, ratio=False, fast=True, **fitterargs
         ):
-        super(CorrFitter, self).__init__()
-        models = [models] if isinstance(models, BaseModel) else models
-        self.flat_models = CorrFitter._flatten_models(models)
-        self.models = models
-        self.svdcut = svdcut
-        self.tol = tol
-        self.maxit = maxit
-        self.fit = None
-        self.ratio = ratio
-        self.nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
-        self.processed_data = processed_data
-        self.fast = fast
-
-    @staticmethod
-    def _flatten_models(models):
-        """ Create flat version of model list ``models``. """
-        ans = []
-        for m in models:
-            if isinstance(m, BaseModel):
-                ans.append(m)
-            else:
-                ans += CorrFitter._flatten_models(m)
-        return ans
-
-    def buildfitfcn(self, priorkeys):
-        " Create fit function. "
-        def _fitfcn(
-            p, nterm=None, default_nterm=self.nterm, models=self.flat_models
-            ):
-            """ Composite fit function.
-
-            :param p: Fit parameters.
-            :type p: dict-like
-            :param nterm: Number of terms fit in the non-oscillating parts of fit
-                functions; or two-tuple of numbers indicating how many terms to
-                fit for each of the non-oscillating and oscillating pieces in
-                fits. If set to ``None``, the number is specified by the number of
-                parameters in the prior.
-            :type nterm: number or ``None``; or two-tuple of numbers or ``None``
-            :returns: A dictionary containing the fit function results for
-                parameters ``p`` from each model, indexed using the models'
-                ``datatag``\s.
-            """
-            ans = _gvar.BufferDict()
-            if nterm is None:
-                nterm = default_nterm
-            for m in models:
-                ans[m.datatag] = m.fitfcn(p, nterm=nterm)
-            return ans
-
-        return _fitfcn
-
-    def builddata(self, data, prior, nterm=None):
-        """ Build fit data, corrected for marginalized terms. """
-        fitdata = _gvar.BufferDict()
-        prior = _gvar.ExtendedDict(prior) ###
-        for m in self.flat_models:
-            fitdata[m.datatag] = m.builddata(data)
-        # remove marginal fit parameters
-        if nterm is None:
-            nterm = self.nterm
-        # use priors to remove marginal parameters
-        if nterm == (None, None):
-            return fitdata
-        else:
-            fitfcn = self.buildfitfcn(prior.keys())
-            ftrunc = fitfcn(prior, nterm=nterm)
-            fall = fitfcn(prior, nterm=(None, None))
-            for m in self.flat_models:
-                if not self.ratio:
-                    diff = ftrunc[m.datatag] - fall[m.datatag]
-                    fitdata[m.datatag] += diff
-                else:
-                    ii = (_gvar.mean(fall[m.datatag]) != 0.0)
-                    ratio = ftrunc[m.datatag][ii]/fall[m.datatag][ii]
-                    fitdata[m.datatag][ii] *= ratio
-        return fitdata
-
-    def buildprior(self, prior, nterm=None, fast=False):
-        """ Build correctly sized prior for fit from ``prior``.
-
-        Adjust the sizes of the arrays of  amplitudes and energies in
-        a copy of ``prior`` according to  parameter ``nterm``; return
-        ``prior`` if both ``nterm`` and ``self.nterm`` are ``None``.
-        """
-        tmp = _gvar.BufferDict()
-        if nterm is None:
-            if self.nterm is None:
-                return prior
-            nterm = self.nterm
-        for m in self.flat_models:
-            tmp.update(m.buildprior(prior=prior, nterm=nterm))
-        # restore order of keys --- same as prior
-        ans = _gvar.BufferDict()
-        if fast:
-            # keep only parameters used by fit
-            for k in prior:
-                if k in tmp:
-                    ans[k] = tmp[k]
-        else:
-            # keep all parameters
-            for k in prior:
-                ans[k] = tmp[k] if k in tmp else prior[k]
-        return ans
+        super(CorrFitter, self).__init__(
+            models=models, mopt=nterm, ratio=ratio, fast=fast,
+            extend=True, **fitterargs
+            )
 
     def lsqfit(
-        self, data, prior, p0=None, print_fit=True, nterm=None,
-        svdcut=None, tol=None, maxit=None, fast=None,
-        **args
+        self, data=None, prior=None, pdata=None, p0=None, nterm=None, **kargs
         ):
-        """ Compute least-squares fit of the correlator models to data.
-
-        :param data: Input data. The ``datatag``\s from the
-            correlator models are used as data labels, with
-            ``data[datatag]`` being a 1-d array of |GVar|\s
-            corresponding to correlator values.
-        :type data: dictionary
-        :param prior: Bayesian prior for the fit parameters used in the
-            correlator models.
-        :type prior: dictionary
-        :param p0: A dictionary, indexed by parameter labels, containing
-            initial values for the parameters in the fit. Setting
-            ``p0=None`` implies that initial values are extracted from the
-            prior. Setting ``p0="filename"`` causes the fitter to look in
-            the file with name ``"filename"`` for initial values and to
-            write out best-fit parameter values after the fit (for the next
-            call to ``self.lsqfit()``).
-        :param print_fit: Print fit information to standard output if
-            ``True``; print nothing if ``False``. Alternatively,
-            ``print_fit`` can be a dictionary containing arguments for
-            :func:`lsqfit.nonlinear_fit.format`.
-        :param fast: If ``True``, remove parameters from ``prior`` that are
-            not needed by the correlator models; otherwise keep all
-            parameters in ``prior`` as fit parameters (default).
-            Ignoring extra parameters usually makes fits go faster.
-            This has no other effect unless there are correlations between the
-            fit parameters needed by the models and the other parameters in
-            ``prior`` that are ignored.
-
-        The following parameters overwrite the values specified in the
-        |CorrFitter| constructor when set to anything other than ``None``:
-        ``nterm``, ``svdcut``, ``tol``, and ``maxit``. Any
-        further keyword arguments are passed on to
-        :func:`lsqfit.nonlinear_fit`, which does the fit.
-        """
-        # setup
-        if svdcut is None:
-            svdcut = self.svdcut
-        if maxit is None:
-            maxit = self.maxit
-        if tol is None:
-            tol = self.tol
-        if numpy.size(tol) == 1:
-            tol = (tol, tol)
-        # elif numpy.size(tol) > 2:
-        #     raise ValueError('bad tolerance: ' + str(tol))
-        # reltol = tol[0] if 'reltol' not in args else args['reltol']
-        # abstol = tol[1] if 'abstol' not in args else args['abstol']
-        argscopy = dict(args)
-        for k in ['reltol', 'abstol']:
-            if k in argscopy:
-                del argscopy[k]
-        if nterm is None:
-            nterm = self.nterm
-        else:
-            nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
-        if fast is None:
-            fast = self.fast
-        self.prior = prior
-        self.data = data
-        self.chained = False
-        self.flat = True
-        self.parallel = False
-        self.fast = fast
-        self.nterm = nterm
-
-        # do the fit and print results
-        data = self.builddata(data=data, prior=prior, nterm=self.nterm)
-        prior = self.buildprior(prior, nterm=self.nterm, fast=fast)
-        fitfcn = self.buildfitfcn(prior.keys())
-        self.fit = lsqfit.nonlinear_fit( #
-            data=data, p0=p0, fcn=fitfcn, prior=prior,
-            svdcut=svdcut,
-            tol=tol, # reltol=reltol, abstol=abstol,
-            maxit=maxit,
-            extend=True, **argscopy
+        if 'extend' in kargs:
+            kargs['extend'] = True
+        return super(CorrFitter, self).lsqfit(
+            data=data, prior=prior, pdata=pdata, p0=p0, mopt=nterm, **kargs
             )
-        if print_fit is not False:
-            if print_fit is True:
-                print(self.fit.format())
-            else:
-                print(self.fit.format(**print_fit))
-        return self.fit
 
     def chained_lsqfit(
-        self, data, prior, p0=None, print_fit=True, nterm=None,
-        svdcut=None, tol=None, maxit=None, parallel=False,
-        flat=False, fast=None,
-        **args
+        self, data=None, prior=None, pdata=None, p0=None, nterm=None, **kargs
         ):
-        """ Compute chained least-squares fit.
-
-        A *chained* fit fits data for each model in ``self.models``
-        sequentially, using the best-fit parameters (means and
-        covariance matrix) of one fit to construct the prior for the
-        fit parameters in the  next fit: Correlators are fit one at a
-        time, starting with the correlator for ``self.models[0]``. The
-        best-fit output from the fit for ``self.models[i]`` is fed, as
-        a prior, into the fit for ``self.models[i+1]``. The best-fit
-        output from  the last fit in the chain is the final result.
-        Results from the individual fits can be found in dictionary
-        ``self.fit.fits``, which is indexed  by the
-        ``models[i].datatag``\s.
-
-        Setting parameter ``parallel=True`` causes parallel fits, where
-        each model is fit separately, using the original ``prior``. Parallel
-        fits make sense when models share few or no parameters; the results
-        from the individual fits are combined using weighted averages of
-        the best-fit values for each parameter from every fit. Parallel
-        fits can require larger *svd* cuts.
-
-        Entries ``self.models[i]`` in the list of models can themselves  be
-        lists of models, rather than just an individual model. In such a
-        chase, the models listed in ``self.models[i]`` are fit together using
-        a parallel fit if parameter ``parallel`` is ``False`` or a chained fit
-        otherwise. Grouping models in this ways instructs the fitter to
-        alternate between chained and parallel fits. For example, setting ::
-
-            models = [ m1, m2, [m3a,m3b], m4]
-
-        with ``parallel=False`` causes the following chain of
-        fits ::
-
-             m1 -> m2 -> [m3a,m3b] -> m4
-
-        where: 1) the output from ``m1`` is used as the prior for
-        ``m2``; 2) the output from ``m2`` is used as the prior for
-        for a parallel fit of ``m3a`` and ``m3b`` together;
-        3) the output from the parallel fit of ``[m3a,m3b]`` is used
-        as the prior for ``m4``; and, finally, 4) the output from
-        ``m4`` is the final result of the entire chained fit.
-
-        A slightly more complicated example is ::
-
-            models = [ m1, m2, [m3a,[m3bx,m3by]], m4]
-
-        which leads to the chain of fits
-
-            m1 -> m2 -> [m3a, m3bx -> m3by] -> m4
-
-        where fits of ``m3bx`` and ``m3by`` are chained, in parallel with
-        the fit to ``m3a``. The fitter alternates between chained and
-        parallel fits at each new level of grouping of models.
-
-        :param data: Input data. The ``datatag``\s from the
-            correlator models are used as data labels, with
-            ``data[datatag]`` being a 1-d array of |GVar|\s
-            corresponding to correlator values.
-        :type data: dictionary
-        :param prior: Bayesian prior for the fit parameters used in the
-            correlator models.
-        :type prior: dictionary
-        :param p0: A dictionary, indexed by parameter labels, containing
-            initial values for the parameters in the fit. Setting
-            ``p0=None`` implies that initial values are extracted from the
-            prior. Setting ``p0="filename"`` causes the fitter to look in
-            the file with name ``"filename"`` for initial values and to
-            write out best-fit parameter values after the fit (for the next
-            call to ``self.lsqfit()``).
-        :param parallel: If ``True``, fit models in parallel using ``prior``
-            for each; otherwise chain the fits (default).
-        :type parallel: bool
-        :param flat: If ``True``, flatten the list of models thereby chaining
-            all fits (``parallel==False``) or doing them all in parallel
-            (``parallel==True``); otherwise use ``self.models``
-            as is (default).
-        :type flat: bool
-        :param fast: If ``True``, use the smallest number of parameters needed
-            in each fit; otherwise use all the parameters specified in
-            ``prior`` in every fit. Omitting extra parameters can make
-            fits go faster, sometimes much faster. Final results are
-            unaffected unless ``prior`` contains strong correlations between
-            different parameters, where only some of the correlated parameters
-            are kept in individual fits. Default is ``False``.
-        :param print_fit: Print fit information to standard output if
-            ``True``; otherwise print nothing.
-
-        The following parameters overwrite the values specified in the
-        |CorrFitter| constructor when set to anything other than ``None``:
-        ``nterm``, ``svdcut``, ``tol``, and ``maxit``. Any
-        further keyword arguments are passed on to
-        :func:`lsqfit.nonlinear_fit`, which does the fit.
-        """        # setup
-        cpu_time = time.clock()
-        if svdcut is None:
-            svdcut = self.svdcut
-        if maxit is None:
-            maxit = self.maxit
-        if tol is None:
-            tol = self.tol
-        if numpy.size(tol) == 1:
-            tol = (tol, tol)
-        elif numpy.size(tol) > 2:
-            raise ValueError('bad tolerance: ' + str(tol))
-        reltol = tol[0] if 'reltol' not in args else args['reltol']
-        abstol = tol[1] if 'abstol' not in args else args['abstol']
-        argscopy = dict(args)
-        for k in ['reltol', 'abstol']:
-            if k in argscopy:
-                del argscopy[k]
-        if nterm is None:
-            nterm = self.nterm
-        else:
-            nterm = nterm if isinstance(nterm, tuple) else (nterm, None)
-        if fast is None:
-            fast = self.fast
-        self.prior = prior
-        self.data = data
-        self.chained = True
-        self.flat = flat
-        self.parallel = parallel
-        self.fast = fast
-
-        # prepare data, do fits
-        processed_data = (
-            self.processed_data if self.processed_data is not None else
-            self.builddata(data=data, prior=prior, nterm=nterm)
+        if 'extend' in kargs:
+            kargs['extend'] = True
+        return super(CorrFitter, self).chained_lsqfit(
+            data=data, prior=prior, pdata=pdata, p0=p0, mopt=nterm, **kargs
             )
-        fits = collections.OrderedDict()
-        p0file = p0 if isinstance(p0, str) else None
-        if p0file is not None:
-            try:
-                p0 = lsqfit.nonlinear_fit.load_parameters(p0file)
-            except (IOError, EOFError):
-                p0 = None
 
-        truncated_prior = self.buildprior(
-            prior=prior, nterm=nterm, fast=fast
-            )
-        if parallel:
-            parallel_parameters = []
+    def display_plots(self, save=False):
+        self.fit.show_plots(save=save)
+
+    @staticmethod
+    def read_dataset(
+        inputfiles, grep=None, keys=None, h5group='/', binsize=1,
+        tcol=0, Gcol=1,
+        ):
+        """ Read correlator Monte Carlo data from files into a :class:`gvar.dataset.Dataset`.
+
+        Three files formats are supported by :func:`read_dataset`, depending
+        upon ``inputfiles``.
+
+        If ``inputfiles`` is a string ending in ``'.h5'``, it is assumed to
+        be the name of a file in hpf5 format. The file is opened as
+        ``h5file`` and all hpf5 datasets in ``h5file[h5group]`` are
+        collected into a dictionary and returned.
+
+        The second file format is the text-file format supported by
+        :class:`gvar.dataset.Dataset`: each line consists of a  tag or key
+        identifying a correlator followed by data corresponding to  a single
+        Monte Carlo measurement of the correlator. This format is assumed if
+        ``inputfiles`` is a filename or a list of filenames. It allows a
+        single file to contain an arbitrary number of measurements for an
+        arbitrary number of different correlators. The data can also be spread
+        over multiple files. A typical file might look like ::
+
+            # this is a comment; it is ignored
+            aa 1.237 0.912 0.471
+            bb 3.214 0.535 0.125
+            aa 1.035 0.851 0.426
+            bb 2.951 0.625 0.091
+            ...
+
+        which describes two correlators, ``aa`` and ``bb``, each having
+        three different ``t`` values.
+
+        The third file format is assumed when ``inputfiles`` is a dictionary. The
+        dictionary's keys and values identify the (one-dimensional) correlators
+        and the files containing their Monte Carlo data, respectively. So the
+        data for correlators ``aa`` and ``bb`` above are in separate files::
+
+            fileinputs = dict(aa='aafile', bb='bbfile')
+
+        Each line in these data files consists of an index ``t`` value followed by
+        the corresponding value for correlator ``G(t)``.  The ``t``\s increase
+        from line to line up to their maximum value,  at which point they repeat.
+        The ``aafile`` file for correlator ``aa`` above  would look like::
+
+            # this is a comment; it is ignored
+            1 1.237
+            2 0.912
+            3 0.471
+            1 1.035
+            2 0.851
+            3 0.426
+            ...
+
+        The columns in these files containing ``t`` and ``G(t)`` are
+        assumed to be columns 0 and 1, respectively. These can be changed
+        by setting arguments ``tcol`` and ``Gcol``, respectively.
+
+        ``corrfitter.process_dataset`` supports keywords ``binsize``,
+        ``grep`` and ``keys``. If ``binsize`` is greater than one,
+        random samples are binned with bins of size ``binsize``.
+        If ``grep`` is not ``None``, only keys that match or partially
+        match regular expression ``grep`` are retained; others are ignored.
+        If ``keys`` is not ``None``, only keys that are in list ``keys``
+        are retained; others are discarded.
+        """
+        if not hasattr(inputfiles, 'keys'):
+            # inputfiles is a filename or list of filenames (or files)
+            if h5group == [] or h5group is None:   # not needed after next gvar update
+                h5group = '/'
+            dset = _gvar.dataset.Dataset(
+                inputfiles, binsize=binsize, grep=grep,
+                h5group=h5group, keys=keys,
+                )
         else:
-            chained_prior = (
-                _gvar.BufferDict() if fast else
-                _gvar.BufferDict(truncated_prior)
-                )
-        for m in (self.flat_models if flat else self.models):
-            if isinstance(m, BaseModel):
-                if fast:
-                    m_prior = m.buildprior(prior=prior, nterm=nterm)
-                    if not parallel:
-                        m_prior.update(chained_prior)
-                else:
-                    m_prior = truncated_prior if parallel else chained_prior
-                def m_fitfcn(
-                    p, nterm=None, default_nterm=self.nterm, fitfcn = m.fitfcn
-                    ):
-                    if nterm is None:
-                        nterm = default_nterm
-                    return fitfcn(p, nterm=nterm)
-                lastfit = lsqfit.nonlinear_fit(
-                    data=processed_data[m.datatag], fcn=m_fitfcn, prior=m_prior,
-                    p0=p0, svdcut=svdcut, reltol=reltol,
-                    abstol=abstol, maxit=maxit,
-                    extend=True, **argscopy
-                    )
-                fits[m.datatag] = lastfit
-            else:
-                if parallel:
-                    # provide every parameter to chained_fit
-                    m_prior = truncated_prior
-                else:
-                    # merge existing chained parameters with copy of prior
-                    m_prior = _gvar.BufferDict(truncated_prior)
-                    m_prior.update(chained_prior)
-                fitter = CorrFitter(
-                    models=m, svdcut=svdcut, tol=tol,
-                    maxit=maxit, nterm=nterm, ratio=self.ratio,
-                    processed_data=processed_data
-                    )
-                lastfit = fitter.chained_lsqfit(
-                    data=data, prior=m_prior, p0=p0,
-                    print_fit=False, parallel=(not parallel),
-                    abstol=abstol, reltol=reltol,
-                    fast=fast
-                    )
-                for k in lastfit.fits:
-                    fits[k] = lastfit.fits[k]
-            if parallel:
-                # tmp = _gvar.BufferDict()
-                # for k in tmp_prior:
-                #     tmp[k] = lastfit.p[k] if k in lastfit.p else tmp_prior[k]
-                parallel_parameters.append(lastfit.p)
-            else:
-                chained_prior.update(lastfit.p)
-        # print ('------------ all together')
-        self.fit = copy.copy(lastfit)
-        self.fit.fits = fits
-        chi2 = 0.0
-        dof = 0
-        logGBF = 0.0
-        svdn = 0
-        nit = 0
-        svdcorrection = _gvar.gvar('0(0)')
-        all_y = _gvar.BufferDict()
-        for key in self.fit.fits:
-            f = self.fit.fits[key]
-            all_y[key] = f.y
-            chi2 += f.chi2
-            dof += f.dof
-            logGBF += f.logGBF
-            svdn += f.svdn
-            nit += f.nit
-            svdcorrection += f.svdcorrection
-        if parallel:
-            self.fit._p = _gvar.BufferDict(
-                lsqfit.wavg(parallel_parameters, svdcut=svdcut)
-                )
-            self.fit.pmean = _gvar.mean(self.fit.p)
-            self.fit._palt = self.fit.p
-        self.fit.parallel = parallel
-        self.fit.chi2 = chi2
-        self.fit.dof = dof
-        self.fit.logGBF = logGBF
-        self.fit.Q = lsqfit.gammaQ(self.fit.dof/2., self.fit.chi2/2.)
-        self.fit.nit = int(nit / len(self.fit.fits) + 0.5)
-        self.fit.y = all_y
-        self.fit.data = processed_data
-        self.fit.prior = truncated_prior
-        self.fit.fcn = self.buildfitfcn(self.fit.prior.keys())
-        self.fit.svdcorrection = svdcorrection
-        self.fit.svdn = svdn
-        self.fit.nblocks = {}
-        if p0file is not None:
-            self.fit.dump_pmean(p0file)
-        self.fit.time = time.clock() - cpu_time
-        if print_fit:
-            print('Chained ' + self.fit.format())
-        return self.fit
+            # inputfiles is a dictionary
+            # files are in t-G format
+            if grep:
+                grep = re.compile(grep)
+            dset = _gvar.dataset.Dataset()
+            for k in inputfiles:
+                if keys and k not in keys:
+                    continue
+                if grep and grep.search(k) is None:
+                    continue
+                tlast = - float('inf')
+                G = []
+                for line in fileinput.input([inputfiles[k]]):
+                    f = line.split()
+                    if f[0][0] == '#':
+                        # comment
+                        continue
+                    t = eval(f[tcol])
+                    if t <= tlast:
+                        dset.append(k, numpy.array(G))
+                        G = [eval(f[Gcol])]
+                    else:
+                        G.append(eval(f[Gcol]))
+                    tlast = t
+                dset.append(k, numpy.array(G))
+            if binsize > 1:
+                dset = _gvar.dataset.bin_data(dset, binsize=binsize)
+        return dset
 
     def bootstrap_iter(self, datalist=None, n=None):
         """ Iterator that creates bootstrap copies of a |CorrFitter| fit using
@@ -1405,34 +1097,29 @@ class CorrFitter(object):
 
     bootstrap_fit_iter = bootstrap_iter
 
-
-    def simulated_data_iter(self, n, dataset, pexact=None, rescale=1.):
-        """ Create iterator that returns simulated fit data from ``dataset``.
+    def simulated_pdata_iter(self, n, dataset, pexact=None, rescale=1.):
+        """ Create iterator that returns simulated fit pdata from ``dataset``.
 
         Simulated fit data has the same covariance matrix as
-        ``data=gvar.dataset.avg_data(dataset)``, but mean values that
+        ``pdata=self.process_dataset(dataset)``, but mean values that
         fluctuate randomly, from copy to copy, around
         the value of the fitter's fit function evaluated at ``p=pexact``.
-        The fluctuations are generated from averages of bootstrap copies
+        The fluctuations are generated from bootstrap copies
         of ``dataset``.
 
-        The best-fit results from a fit to such simulated copies of ``data``
-        should agree with the numbers in ``pexact`` to within the errors specified
-        by the fits (to the simulated data) --- ``pexact`` gives the "correct"
-        values for the parameters. Knowing the correct value for each
-        fit parameter ahead of a fit allows us to test the reliability of
+        The best-fit results from a fit to such simulated copies of ``pdata``
+        should agree with the numbers in ``pexact`` to within the errors
+        specified by the fits (to the simulated data) --- ``pexact`` gives the
+        "correct" values for the parameters. Knowing the correct value for
+        each fit parameter ahead of a fit allows us to test the reliability of
         the fit's error estimates and to explore the impact of various fit
         options (*e.g.*, ``fitter.chained_fit`` versus ``fitter.lsqfit``,
-        choice of *svd* cuts, omission of select models, etc.)
+        choice of SVD cuts, omission of select models, etc.)
 
         Typically one need examine only a few simulated fits in order
         to evaluate fit reliability, since we know the correct values
         for the parameters ahead of time. Consequently this method is
-        much faster than traditional bootstrap analyses. More
-        thorough testing would involve running many simulations and
-        examining the distribution of fit parameters or functions
-        of fit parameters around their exact values (from ``pexact``).
-        This is overkill for most problems, however.
+        much faster than traditional bootstrap analyses.
 
         ``pexact`` is usually taken from the last fit done by the fitter
         (``self.fit.pmean``) unless overridden in the function call.
@@ -1443,177 +1130,67 @@ class CorrFitter(object):
             ...
             fit = fitter.lsqfit(data=data, ...)
             ...
-            for sdata in fitter.simulated_bootstrap_data_iter(n=4, dataset):
+            for spdata in fitter.simulated_pdata_iter(n=4, dataset):
                 # redo fit 4 times with different simulated data each time
                 # here pexact=fit.pmean is set implicitly
-                sfit = fitter.lsqfit(data=sdata, ...)
+                sfit = fitter.lsqfit(pdata=spdata, ...)
                 ... check that sfit.p (or functions of it) agrees ...
                 ... with pexact=fit.pmean to within sfit.p's errors      ...
 
-        :param n: Maximum number of simulated data sets made by iterator.
-        :type n: integer
-        :param dataset: Dataset containing Monte Carlo copies of the correlators.
-        :type dataset: gvar.dataset.Dataset
-        :param pexact: Correct parameter values for fits to the simulated
-            data --- fit results should agree with ``pexact`` to within
-            errors. If ``None``, uses ``self.fit.pmean`` from the last fit.
-        :type pexact: dictionary of numbers
-        :param rescale: Rescale errors in simulated data by ``rescale``
-            (*i.e.*, multiply covariance matrix by ``rescale ** 2``).
-            Default is one, which implies no rescaling.
-        :type rescale: positive number
+        Args:
+            n (int): Maximum number of simulated data sets made by iterator.
+            dataset (dictionary): Dataset containing Monte Carlo copies of
+                the correlators. ``dataset[datatag]`` is a two-dimensional
+                array for the correlator corresponding to ``datatag``,
+                where the first index labels the Monte Carlo copy
+                and the second index labels time.
+            pexact (dictionary or ``None``): Correct parameter values for
+                fits to the simulated data --- fit results should agree
+                with ``pexact`` to within errors. If ``None``, uses
+                ``self.fit.pmean`` from the last fit.
+            rescale (float): Rescale errors in simulated data by ``rescale``
+                (*i.e.*, multiply covariance matrix by ``rescale ** 2``).
+                Default is one, which implies no rescaling.
         """
-        if self.fit is not None:
-            # info from last fit if not provided
-            pexact = self.fit.pmean if pexact is None else pexact
-        else:
-            # no last fit
-            if pexact is None:
+        if pexact is None:
+            if self.fit is None:
                 raise ValueError('must specify pexact')
-        tmpdata = _gvar.dataset.avg_data(dataset)
-        # reorder data (and prune if necessary)
-        data = _gvar.BufferDict()
-        for m in self.flat_models:
-            for tag in m.all_datatags:
-                data[tag] = tmpdata[tag]
-        datamean = _gvar.mean(data)
-        datacov = _gvar.evalcov(data.buf)
-        del tmpdata
-        del data
-        keys = pexact.keys()
-        fcn_mean = _gvar.BufferDict()
-        for m in self.flat_models:
-            m_fcn = m.fitfcn
-            m_fcn_mean = (
-                m_fcn(pexact, t=numpy.asarray(m.tdata), nterm=(None, None), ncg=1)
-                )
-            for tag in m.all_datatags:
-                fcn_mean[tag] = m_fcn_mean
+            pexact = self.fit.pmean
+        pdata = CorrFitter.process_dataset(dataset, self.models)
+        pdata_mean = _gvar.mean(pdata)
+        pdata_cov = _gvar.evalcov(pdata.buf)
+        del pdata
+        fcn_mean = self.buildfitfcn()(pexact)
         if rescale is None or rescale == 1.:
             rescale = None
             correction = _gvar.BufferDict(
-                fcn_mean, buf=fcn_mean.buf - datamean.buf
+                fcn_mean, buf=fcn_mean.buf - pdata_mean.buf
                 )
             del fcn_mean
         else:
-            datacov *= rescale ** 2
+            pdata_cov *= rescale ** 2
         for bs_dataset in _gvar.dataset.bootstrap_iter(dataset, n=n):
-            bs_mean = _gvar.dataset.avg_data(bs_dataset, noerror=True)
+            bs_mean = CorrFitter.process_dataset(
+                bs_dataset, self.models, noerror=True
+                )
             ans = _gvar.BufferDict()
             if rescale is None:
-                for datatag in correction:
-                    ans[datatag] = bs_mean[datatag] + correction[datatag]
+                for k in bs_mean:
+                    ans[k] = bs_mean[k] + correction[k]
             else:
-                for datatag in fcn_mean:
-                    ans[datatag] = (fcn_mean[datatag] +
-                        (bs_mean[datatag] - datamean[datatag]) * rescale
+                for k in fcn_mean:
+                    ans[k] = (
+                        fcn_mean[k] + (bs_mean[k] - pdata_mean[k]) * rescale
                         )
             yield _gvar.BufferDict(
-                ans,
-                buf=_gvar.gvar(ans.buf, datacov)
+                ans, buf=_gvar.gvar(ans.buf, pdata_cov)
                 )
 
-    def collect_fitresults(self):
-        """ Collect results from last fit for plots, tables etc.
 
-        :returns: A dictionary with one entry per correlator model,
-            containing ``(t,G,dG,Gth,dGth)`` --- arrays containing::
-
-                t       = times
-                G(t)    = data averages for correlator at times t
-                dG(t)   = uncertainties in G(t)
-                Gth(t)  = fit function for G(t) with best-fit parameters
-                dGth(t) = uncertainties in Gth(t)
-        """
-        corr = self.fit.data
-        corrth = self.fit.fcn(self.fit.p)
-        ans = {}
-        keys = []
-        for m in self.flat_models:
-            tag = m.datatag
-            x = m._abscissa
-            if x is None:
-                continue
-            c = corr[tag]
-            cth = corrth[tag]
-            keys.append(tag)
-            ans[tag] = (x, _gvar.mean(c), _gvar.sdev(c),
-                        _gvar.mean(cth), _gvar.sdev(cth))
-        self.keys = keys
-        return ans
-
-    def display_plots(self, save=False):
-        """ Show plots of data/fit-function for each correlator.
-
-        Assumes :mod:`matplotlib` is installed (to make the plots). Plots
-        are shown for one correlator at a time. Press key ``n`` to see the
-        next correlator; press key ``p`` to see the previous one; press key
-        ``q`` to quit the plot and return control to the calling program;
-        press a digit to go directly to one of the first ten plots. Zoom,
-        pan and save using the window controls.
-
-        Copies of all the plots can be saved by setting parameter
-        ``save=prefix`` where ``prefix`` is a string used to create
-        file names: the file name for the plot corresponding to datatag
-        ``k`` is ``prefix.format(corr=k)``. It is important that the
-        filename end with a suffix indicating the type of plot file
-        desired: e.g., ``'.pdf'``.
-        """
-        import matplotlib.pyplot as plt
-        data = self.collect_fitresults()
-        keys = self.keys
-        # keys = data.keys()
-        # keys.sort()
-        fig = plt.figure()
-        idx = [0]
-        def plotdata(idx, fig=fig, keys=keys, data=data, save=False):
-            if idx[0] >= len(keys):
-                idx[0] = len(keys)-1
-            elif idx[0] < 0:
-                idx[0] = 0
-            i = idx[0]
-            k = keys[i]
-            t, g, dg, gth, dgth = data[k]
-            fig.clear()
-            plt.title("%d) %s   (press 'n', 'p', 'q' or a digit)"
-                        % (i, k))
-            ax = fig.add_subplot(111)
-            ax.set_ylabel(str(k)+' / '+'fit')
-            ax.set_xlim(min(t)-1,max(t)+1)
-            # ax.set_xlabel('t')
-            ii = (gth != 0.0)       # check for exact zeros (eg, antiperiodic)
-            ax.errorbar(t[ii], g[ii]/gth[ii], dg[ii]/gth[ii], fmt='o')
-            ax.plot(t, numpy.ones(len(t), float), 'r-')
-            ax.plot(t[ii], 1+dgth[ii]/gth[ii], 'r--')
-            ax.plot(t[ii], 1-dgth[ii]/gth[ii], 'r--')
-            if save:
-                plt.savefig(save.format(corr=k), bbox_inches='tight')
-            else:
-                plt.draw()
-            # fig.draw()
-
-        def onpress(event, idx=idx):
-            try:    # digit?
-                idx[0] = int(event.key)
-            except ValueError:
-                if event.key == 'n':
-                    idx[0] += 1
-                elif event.key == 'p':
-                    idx[0] -= 1
-                elif event.key == 'q':
-                    if save:
-                        for i in range(len(keys)):
-                            plotdata([i], save=save)
-                    plt.close()
-                    return
-                else:
-                    return
-            plotdata(idx)
-
-        fig.canvas.mpl_connect('key_press_event', onpress)
-        plotdata(idx)
-        plt.show()
-
+# short cuts
+process_data = CorrFitter.process_data
+process_dataset = CorrFitter.process_dataset
+read_dataset = CorrFitter.read_dataset
 
 class EigenBasis(object):
     """ Eigen-basis of correlator sources/sinks.
@@ -1800,14 +1377,18 @@ class EigenBasis(object):
         t0 = tdata[i0]
         t1 = tdata[i1]
         self.t = (t0, t1)
-        try:
-            G0 = _gvar.mean(lsqfit.wavg([G[:, :, i0], G[:, :, i0].T]))
-            G1 = _gvar.mean(lsqfit.wavg([G[:, :, i1], G[:, :, i1].T]))
-        except TypeError:
-            G0 = _gvar.mean(G[:, :, i0])
-            G1 = _gvar.mean(G[:, :, i1])
-        G0 = (G0 + G0.T) / 2.
-        G1 = (G1 + G1.T) / 2.
+
+        G0 = numpy.empty(G.shape[:-1], float)
+        G1 = numpy.empty(G.shape[:-1], float)
+        for i in range(G.shape[0]):
+            G0[i, i] = G[i, i, i0].mean
+            G1[i, i] = G[i, i, i1].mean
+            for j in range(i + 1, G.shape[1]):
+                G0[i, j] = lsqfit.wavg([G[i, j, i0], G[j, i, i0]], tol=1e-10).mean
+                G1[i, j] = lsqfit.wavg([G[i, j, i1], G[j, i, i1]], tol=1e-10).mean
+                G0[j, i] = G0[i, j]
+                G1[j, i] = G1[i, j]
+
         w, v = scipy.linalg.eigh(G1, G0, eigvals_only=False)
         v = numpy.array(v.T)
         E = numpy.log(w) / (t0 - t1)
@@ -2209,7 +1790,7 @@ class fastfit(object):
 
         Large values for ``chi2/dof`` indicate an unreliable results. In
         such cases the priors should be adjusted, and/or ``tmin`` increased,
-        and/or an *svd* cut introduced. The averages in the example above
+        and/or an SVD cut introduced. The averages in the example above
         have good values for ``chi2/dof``.
 
     Parameters:
@@ -2247,10 +1828,10 @@ class fastfit(object):
             Default is ``None``.
         tmin (int): Only ``G(t)`` with ``t >= tmin`` are used. Default
             value is ``6``.
-        svdcut (float or None): *svd* cut used in the weighted average
+        svdcut (float or None): SVD cut used in the weighted average
             of results from different times. (See the
             :class:`corrfitter.CorrFitter` documentation for a discussion
-            of *svd* cuts.) Default is ``1e-6``.
+            of SVD cuts.) Default is ``1e-6``.
         osc (bool): Set ``osc=True`` if the lowest-lying state is an
             oscillating state. Default is ``False``.
 
@@ -2372,84 +1953,5 @@ class fastfit(object):
             self.E, self.ampl, self.E.chi2 / self.E.dof,
             self.ampl.chi2 / self.ampl.dof, self.E.dof, self.E.Q, self.ampl.Q,
             )
-
-def read_dataset(inputfiles, tcol=0, Gcol=1, binsize=1):
-    """ Read correlator Monte Carlo data from files into a :class:`gvar.dataset.Dataset`.
-
-    Two files formats are supported by :func:`read_dataset`, depending upon the
-    data type of ``inputfiles``.
-
-    The first file format is that normally used by :class:`gvar.dataset.Dataset`:
-    each line consists of a  tag or key identifying a correlator
-    followed by data corresponding to  a single Monte Carlo measurement of the
-    correlator. This format is assumed if ``inputfiles`` is a filename or a
-    list of filenames. It allows a single file to contain an arbitrary number
-    of measurements for an arbitrary number of different correlators. The data
-    can also be spread over multiple files. A typical file might look like ::
-
-        # this is a comment; it is ignored
-        aa 1.237 0.912 0.471
-        bb 3.214 0.535 0.125
-        aa 1.035 0.851 0.426
-        bb 2.951 0.625 0.091
-        ...
-
-    which describes two correlators, ``aa`` and ``bb``, each having
-    three different ``t`` values.
-
-    The second file format is assumed when ``inputfiles`` is a dictionary. The
-    dictionary's keys and values identify the (one-dimensional) correlators
-    and the files containing their Monte Carlo data, respectively. So the
-    data for correlators ``aa`` and ``bb`` above are in separate files::
-
-        fileinputs = dict(aa='aafile', bb='bbfile')
-
-    Each line in these data files consists of an index ``t`` value followed by
-    the corresponding value for correlator ``G(t)``.  The ``t``\s increase
-    from line to line up to their maximum value,  at which point they repeat.
-    The ``aafile`` file for correlator ``aa`` above  would look like::
-
-        # this is a comment; it is ignored
-        1 1.237
-        2 0.912
-        3 0.471
-        1 1.035
-        2 0.851
-        3 0.426
-        ...
-
-    The columns in these files containing ``t`` and ``G(t)`` are
-    assumed to be columns 0 and 1, respectively. These can be changed
-    by setting arguments ``tcol`` and ``Gcol``, respectively.
-
-    Setting parameter ``binsize`` larger than 1 bins the data. (See
-    :func:`gvar.dataset.bin_data`.)
-    """
-    if not hasattr(inputfiles, 'keys'):
-        # inputfiles is a filename or list of filenames (or files)
-        dset = _gvar.dataset.Dataset(inputfiles)
-    else:
-        # inputfiles is a dictionary
-        # files are in t-G format
-        dset = _gvar.dataset.Dataset()
-        for k in inputfiles:
-            tlast = - float('inf')
-            G = []
-            for line in fileinput.input([inputfiles[k]]):
-                f = line.split()
-                if f[0][0] == '#':
-                    # comment
-                    continue
-                t = eval(f[tcol])
-                if t <= tlast:
-                    dset.append(k, numpy.array(G))
-                    G = [eval(f[Gcol])]
-                else:
-                    G.append(eval(f[Gcol]))
-                tlast = t
-            dset.append(k, numpy.array(G))
-    if binsize > 1:
-        dset = _gvar.dataset.bin_data(dset, binsize=binsize)
-    return dset
 
 
