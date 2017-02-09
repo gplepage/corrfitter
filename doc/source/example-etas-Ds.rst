@@ -139,9 +139,8 @@ are for the |etas| and |Ds| two-point correlators, corresponding to
 entries in the data dictionary with keys ``'etas'`` and ``'Ds'``,
 respectively.
 These are periodic propagators, with period 64 (``tp``), and we want to
-omit the first and last 5 (``tmin``) time steps in the correlator. The
-``t``\s to be fit are listed in ``tfit``, while the ``t``\s contained in the
-data are in ``tdata``. Labels for the fit parameters corresponding to the
+omit the first and last 5 (``tmin``) time steps in the correlator.
+Labels for the fit parameters corresponding to the
 sources (and sinks) are specified for each, ``'etas:a'`` and ``'Ds:a'``, as
 are labels for the energy differences, ``'etas:dE'`` and ``'Ds:dE'``.  The
 |Ds| propagator also has an oscillating piece because this data comes from
