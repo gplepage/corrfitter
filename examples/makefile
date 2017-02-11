@@ -12,7 +12,6 @@ run run-all run-examples:
 	-diff -w -I 't=' -I svdcut etas-Ds-chained.tmp etas-Ds-chained.out
 	-$(PYTHON) Ds-Ds.py > Ds-Ds.tmp
 	-diff -w -I 't=' -I svdcut Ds-Ds.tmp Ds-Ds.out
-	-diff -w -I 't=' -I svdcut etas-Ds-chained.tmp etas-Ds-chained.out
 	-$(PYTHON) etab.py > etab.tmp
 	-diff -w -I 't=' -I svdcut etab.tmp etab.out
 	-$(PYTHON) etab-alt.py > etab-alt.tmp
