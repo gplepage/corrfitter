@@ -1,5 +1,5 @@
-Version 6.0.1
-=================
+Version 6.0.1 2017-02-13
+=========================
 Fixed bug in Corr3 when using tmin. Thanks Chris!
 
 Version 6.0

@@ -196,8 +196,8 @@ by ``alt_make_prior(N, data['etas'])`` where::
         da = 2 * fastfit.ampl.mean ** 0.5
         dE = 2 * fastfit.E.mean
         prior = collections.OrderedDict()
-        prior['a'] = gv.gvar([gv.gvar(0, da) for i in range(N)])
-        prior['log(dE)'] = gv.log(gv.gvar([gv.gvar(dE, dE) for i in range(N)]))
+        prior['a'] = [gv.gvar(0, da) for i in range(N)]
+        prior['log(dE)'] = gv.log([gv.gvar(dE, dE) for i in range(N)])
         return prior
 
 This code does a fast fit using data from very large ``t``, where priors for
