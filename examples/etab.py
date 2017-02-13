@@ -19,7 +19,7 @@ def main():
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N, basis)
         fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=0.0004)
-        print(fit.format(pstyle=None if N < 7 else 'm'))
+        print(fit.format(pstyle=None if N < 7 else 'v'))
         p0 = fit.pmean
     print_results(fit, basis, prior, data)
     if SHOWPLOTS:

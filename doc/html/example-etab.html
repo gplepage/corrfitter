@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Annotated Example: Matrix Correlator &mdash; corrfitter 6.0 documentation</title>
+    <title>Annotated Example: Matrix Correlator &mdash; corrfitter 6.0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.0',
+        VERSION:     '6.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="corrfitter 6.0 documentation" href="index.html" />
+    <link rel="top" title="corrfitter 6.0.1 documentation" href="index.html" />
     <link rel="prev" title="Annotated Example: Transition Form Factor and Mixing" href="example-etas-Ds.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -106,7 +106,7 @@ modified to handle the <a class="reference internal" href="corrfitter.html#corrf
         <span class="k">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nterm =&#39;</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
         <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">)</span>
         <span class="n">fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="mf">0.0004</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pstyle</span><span class="o">=</span><span class="bp">None</span> <span class="k">if</span> <span class="n">N</span> <span class="o">&lt;</span> <span class="mi">7</span> <span class="k">else</span> <span class="s">&#39;m&#39;</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pstyle</span><span class="o">=</span><span class="bp">None</span> <span class="k">if</span> <span class="n">N</span> <span class="o">&lt;</span> <span class="mi">7</span> <span class="k">else</span> <span class="s">&#39;v&#39;</span><span class="p">))</span>
         <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
     <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">SHOWPLOTS</span><span class="p">:</span>
@@ -345,7 +345,7 @@ Parameters:
               6       0.85 (78)      [   0.62 (62) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    tol = (1e-08*,1e-10,1e-10)    (itns/time = 97/3.7)
+  svdcut/n = 0.0004/172    tol = (1e-08*,1e-10,1e-10)    (itns/time = 97/3.5)
 </pre></div>
 </div>
 <p>This is a good fit, with a chi-squared per degree of freedom of 1.0 for
@@ -549,7 +549,7 @@ Parameters:
               6       0.87 (79)      [  0.62 (62) ]  
 
 Settings:
-  svdcut/n = 0.0004/172    tol = (1e-08*,1e-10,1e-10)    (itns/time = 109/4.0)
+  svdcut/n = 0.0004/172    tol = (1e-08*,1e-10,1e-10)    (itns/time = 109/4.1)
 
 ============================== Results
 
@@ -813,7 +813,7 @@ Partial % Errors:
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

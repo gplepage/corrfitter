@@ -224,7 +224,7 @@ We also turn energy differences into energies using :mod:`numpy`'s cummulative
 sum function :func:`numpy.cumsum`. The final output is:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 109-120
+    :lines: 112-123
 
 Finally we  create an error budget for the |etas|
 and |Ds| masses, for the mass difference between the |Ds| and its
@@ -237,7 +237,7 @@ contributes to the errors in the final results, as detailed in the
 error budget:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 122-143
+    :lines: 125-146
 
 The error budget shows, for example, that the largest sources of uncertainty
 in every quantity are the statistical errors in the input data.
@@ -247,7 +247,7 @@ Results
 The output from running the code is as follows:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 1-143
+    :lines: 1-146
 
 Note:
 
@@ -320,7 +320,7 @@ is replaced by ``fitter.chained_lsqfit(...)`` in ``main()``. The results
 are about the same: for example,
 
 .. literalinclude:: examples/etas-Ds-chained.out
-    :lines: 331-365
+    :lines: 353-387
 
 Chained fits are particularly useful for very large data sets
 (much larger than this one).
@@ -341,7 +341,7 @@ and computes the chi-squared of the difference between the leading
 parameters and ``pexact``. The output is:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 148-
+    :lines: 151-
 
 This shows that the fit is working well.
 

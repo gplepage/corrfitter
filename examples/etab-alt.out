@@ -10,14 +10,14 @@ Least Square Fit:
   chi2/dof [dof] = 1.1e+02 [260]    Q = 0    logGBF = -12398
 
 Settings:
-  svdcut/n = 0.005/171    tol = (1e-08*,1e-10,1e-10)    (itns/time = 22/0.6)
+  svdcut/n = 0.005/171    tol = (1e-08*,1e-10,1e-10)    (itns/time = 22/0.7)
 
 ============================== nterm = 3
 Least Square Fit:
   chi2/dof [dof] = 7.9 [260]    Q = 1e-275    logGBF = 1084.8
 
 Settings:
-  svdcut/n = 0.005/171    tol = (1e-08*,1e-10,1e-10)    (itns/time = 12/0.7)
+  svdcut/n = 0.005/171    tol = (1e-08*,1e-10,1e-10)    (itns/time = 12/0.6)
 
 ============================== nterm = 4
 Least Square Fit:
@@ -31,14 +31,14 @@ Least Square Fit:
   chi2/dof [dof] = 1.1 [260]    Q = 0.12    logGBF = 1938.5
 
 Settings:
-  svdcut/n = 0.005/171    tol = (1e-08*,1e-10,1e-10)    (itns/time = 20/0.8)
+  svdcut/n = 0.005/171    tol = (1e-08*,1e-10,1e-10)    (itns/time = 20/0.9)
 
 ============================== nterm = 6
 Least Square Fit:
   chi2/dof [dof] = 0.98 [260]    Q = 0.57    logGBF = 1945
 
 Settings:
-  svdcut/n = 0.005/171    tol = (1e-08*,1e-10,1e-10)    (itns/time = 42/1.5)
+  svdcut/n = 0.005/171    tol = (1e-08*,1e-10,1e-10)    (itns/time = 42/1.6)
 
 ============================== nterm = 7
 Least Square Fit:
