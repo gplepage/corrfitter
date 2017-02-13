@@ -213,7 +213,9 @@ class Corr2(lsqfit.MultiFitterModel):
         for x in zip(self.a, self.b, self.dE):
             x = set(x)
             if None in x and len(x) > 1:
-                raise ValueError('inconsistent a, b and dE')
+                raise ValueError(
+                    'inconsistent a, b and dE for ' + str(self.datatag)
+                    )
 
         # figure out tdata
         if tdata is None:
@@ -223,7 +225,10 @@ class Corr2(lsqfit.MultiFitterModel):
             elif tmax is not None:
                 self.tdata = numpy.arange(tmax + 1)
             else:
-                raise ValueError('need to specify tdata or tp or tmax.')
+                raise ValueError(
+                    'need to specify tdata or tp or tmax for '
+                    + str(self.datatag)
+                    )
         else:
             self.tdata = tdata
 
@@ -244,7 +249,9 @@ class Corr2(lsqfit.MultiFitterModel):
         for t in tfit:
             if self.tp is None:
                 if t not in self.tdata:
-                    raise ValueError('tfit not contained in tdata')
+                    raise ValueError(
+                        'tfit not contained in tdata for ' + str(self.datatag)
+                        )
                 new_tfit.append(t)
             else:
                 t1, t2 = numpy.sort([t, abs(self.tp) - t])
@@ -255,8 +262,12 @@ class Corr2(lsqfit.MultiFitterModel):
                 elif t2 in self.tdata:
                     new_tfit.append(t2)
                 else:
-                    raise ValueError('tfit not contained in tdata')
+                    raise ValueError(
+                        'tfit not contained in tdata for ' + str(self.datatag)
+                        )
         self.tfit = numpy.array(new_tfit)
+        if len(self.tfit) == 0:
+            raise ValueError("empty tfit for " + str(self.datatag))
 
     def __str__(self):
         ans = "{c.datatag}[a={c.a}"
@@ -300,7 +311,10 @@ class Corr2(lsqfit.MultiFitterModel):
                 if len_x is None:
                     len_x = len(newprior[x])
                 elif len(newprior[x]) != len_x:
-                    raise ValueError('length mismatch between a, b, and dE')
+                    raise ValueError(
+                        'length mismatch between a, b, and dE for '
+                         + str(self.datatag)
+                         )
         return newprior
 
     def builddataset(self, dataset):
@@ -650,23 +664,32 @@ class Corr3(lsqfit.MultiFitterModel):
         for x in zip(self.a, self.dEa):
             x = set(x)
             if None in x and len(x) > 1:
-                raise ValueError('inconsistent a and dEa')
+                raise ValueError(
+                    'inconsistent a and dEa for ' + str(self.datatag)
+                    )
         for x in zip(self.b, self.dEb):
             x = set(x)
             if None in x and len(x) > 1:
-                raise ValueError('inconsistent b and dEb')
+                raise ValueError(
+                    'inconsistent b and dEb ' + str(self.datatag)
+                    )
 
         for i in range(2):
             for j in range(2):
                 if self.V[i][j] is not None:
                     if None in [self.a[i], self.b[j]]:
-                        raise ValueError('inconsistent a, b and V' + str((i,j)))
+                        raise ValueError(
+                            'inconsistent a, b and V for '
+                            + str(self.datatag)
+                            )
                 else:
                     if self.symmetric_V and i != j:
                         if self.V[j][i] is not None:
                             continue
                     if None not in [self.a[i], self.b[j]]:
-                        raise ValueError('inconsistent a, b and V' + str((i,j)))
+                        raise ValueError(
+                            'inconsistent a, b and V for ' + str(self.datatag)
+                            )
 
         # tdata amd tfit
         if tdata is None:
@@ -689,8 +712,12 @@ class Corr3(lsqfit.MultiFitterModel):
                 if t in self.tdata:
                     new_tfit.append(t)
                 else:
-                    raise ValueError('tfit not contained in tdata')
+                    raise ValueError(
+                        'tfit not contained in tdata for ' + str(self.datatag)
+                        )
         self.tfit = numpy.sort(numpy.array(new_tfit))
+        if len(self.tfit) == 0:
+            raise ValueError("empty tfit for " + str(self.datatag))
 
     def buildprior(self, prior, mopt=None, nterm=None, extend=None):
         if nterm is None:
@@ -742,13 +769,19 @@ class Corr3(lsqfit.MultiFitterModel):
                 continue
             ai, dEai = self.get_prior_keys(prior, [ai, dEai], extend=True)
             if len(ans[ai]) != len(ans[dEai]):
-                raise ValueError('length mismatch between a and dEa')
+                raise ValueError(
+                    'length mismatch between a and dEa for '
+                    + str(self.datatag)
+                    )
         for bj, dEbj in zip(self.b, self.dEb):
             if bj is None or dEbj is None:
                 continue
             bj, dEbj = self.get_prior_keys(prior, [bj, dEbj], extend=True)
             if len(ans[bj]) != len(ans[dEbj]):
-                raise ValueError('length mismatch between b and dEb')
+                raise ValueError(
+                    'length mismatch between b and dEb for '
+                    + str(self.datatag)
+                    )
         for i in range(2):
             for j in range(2):
                 Vij = self.V[i][j]
@@ -760,11 +793,20 @@ class Corr3(lsqfit.MultiFitterModel):
                 if i == j and self.symmetric_V:
                     N = ans[ai].shape[0]
                     if ans[bj].shape[0] != N:
-                        raise ValueError('length mismatch between a, b, and V')
+                        raise ValueError(
+                            'length mismatch between a, b, and V for '
+                            + str(self.datatag)
+                            )
                     if len(ans[Vij].shape) != 1:
-                        raise ValueError('symmetric_V=True => Vnn, Voo = 1-d arrays')
+                        raise ValueError(
+                            'symmetric_V=True => Vnn, Voo = 1-d arrays for '
+                            + str(self.datatag)
+                            )
                     if ans[Vij].shape[0] !=  (N * (N+1)) / 2:
-                        raise ValueError('length mismatch between a, b, and V')
+                        raise ValueError(
+                            'length mismatch between a, b, and V for '
+                            + str(self.datatag)
+                            )
                 else:
                     ai, bj, Vij = self.get_prior_keys(
                         prior, [self.a[i], self.b[j], Vij], extend=True
@@ -774,9 +816,15 @@ class Corr3(lsqfit.MultiFitterModel):
                         ans[Vij].shape
                         )
                     if ans[ai].shape[0] != Vij_shape[0]:
-                        raise ValueError('length mismatch between a and V')
+                        raise ValueError(
+                            'length mismatch between a and V for '
+                            + str(self.datatag)
+                            )
                     elif ans[bj].shape[0] != Vij_shape[1]:
-                        raise ValueError('length mismatch between b and V')
+                        raise ValueError(
+                            'length mismatch between b and V for '
+                            + str(self.datatag)
+                            )
         return ans
 
     def builddataset(self, dataset):
