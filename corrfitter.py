@@ -671,7 +671,7 @@ class Corr3(lsqfit.MultiFitterModel):
             x = set(x)
             if None in x and len(x) > 1:
                 raise ValueError(
-                    'inconsistent b and dEb ' + str(self.datatag)
+                    'inconsistent b and dEb for ' + str(self.datatag)
                     )
 
         for i in range(2):
