@@ -679,7 +679,7 @@ class Corr3(lsqfit.MultiFitterModel):
                 new_tfit = []
                 tmin = abs(tmin)
                 for t in self.tdata:
-                    if t < tmin or self.T - t < tmin - 1:
+                    if t < tmin or self.T - t < tmin:
                         continue
                     new_tfit.append(t)
                 self.tfit = numpy.array(new_tfit)

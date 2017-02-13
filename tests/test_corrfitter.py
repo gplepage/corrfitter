@@ -362,7 +362,7 @@ class test_corr3(unittest.TestCase):
             and m.dEa == ('dEa',None) and m.dEb == ('dEb',None)
             and m.V == [['Vnn', None], [None, None]]
             and m.transpose_V == True and m.symmetric_V == True
-            and np.all(m.tdata == [0,1,2,3,4,5]) and np.all(m.tfit == [2,3,4])
+            and np.all(m.tdata == [0,1,2,3,4,5]) and np.all(m.tfit == [2,3])
             and m.T == 5 and m.otherdata == [] and
             m.reverseddata == []
             )
@@ -419,7 +419,7 @@ class test_corr3(unittest.TestCase):
             and m.dEa == ('dEa','dEao') and m.dEb == ('dEb','dEbo')
             and m.V == [['Vnn', 'Vno'], ['Von', 'Voo']]
             and m.transpose_V == True and m.symmetric_V == False
-            and np.all(m.tdata == [0,1,2,3,4,5]) and np.all(m.tfit == [2,3,4])
+            and np.all(m.tdata == [0,1,2,3,4,5]) and np.all(m.tfit == [2,3])
             and m.T == 5 and m.otherdata == [] and
             m.reverseddata == []
             )
@@ -518,28 +518,28 @@ class test_corr3(unittest.TestCase):
             'tag', tmin=1, T=3,
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn',
             )
-        self.assertEqual(str(m.builddata(data)), str(data['tag'][1:]))
+        self.assertEqual(str(m.builddata(data)), str(data['tag'][1:-1]))
 
         # reverse=True
         m = Corr3(
             'tag', tmin=1, T=3,
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn', reverse=True
             )
-        self.assertEqual(str(m.builddata(data)), str(data['tag'][::-1][1:]))
+        self.assertEqual(str(m.builddata(data)), str(data['tag'][::-1][1:-1]))
 
         # reverseddata
         m = Corr3(
             'tag', tmin=1, T=3,
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn', reverseddata='rtag',
             )
-        self.assertEqual(str(m.builddata(data)), '[2.50(71) 2.50(71) 2.50(71)]')
+        self.assertEqual(str(m.builddata(data)), '[2.50(71) 2.50(71)]')
 
         # otherdata
         m = Corr3(
             'tag', tmin=1, T=3,
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn', otherdata='otag',
             )
-        self.assertEqual(str(m.builddata(data)), '[2.50(71) 2.50(71) 2.50(71)]')
+        self.assertEqual(str(m.builddata(data)), '[2.50(71) 2.50(71)]')
 
     def test_builddataset(self):
         dataset = dict(
@@ -554,7 +554,7 @@ class test_corr3(unittest.TestCase):
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn',
             )
         self.assertEqual(
-            str(m.builddataset(dataset)), '[[ 2.  3.  4.]\n [ 4.  5.  6.]]'
+            str(m.builddataset(dataset)), '[[ 2.  3.]\n [ 4.  5.]]'
             )
 
         # reverse=True
@@ -563,7 +563,7 @@ class test_corr3(unittest.TestCase):
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn', reverse=True
             )
         self.assertEqual(
-            str(m.builddataset(dataset)), '[[ 3.  2.  1.]\n [ 5.  4.  3.]]'
+            str(m.builddataset(dataset)), '[[ 3.  2.]\n [ 5.  4.]]'
             )
 
         # reverseddata
@@ -572,7 +572,7 @@ class test_corr3(unittest.TestCase):
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn', reverseddata='rtag',
             )
         self.assertEqual(
-            str(m.builddataset(dataset)), '[[ 2.  3.  4.]\n [ 4.  5.  6.]]'
+            str(m.builddataset(dataset)), '[[ 2.  3.]\n [ 4.  5.]]'
             )
 
         # otherdata
@@ -581,7 +581,7 @@ class test_corr3(unittest.TestCase):
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn', otherdata='otag',
             )
         self.assertEqual(
-            str(m.builddataset(dataset)), '[[ 2.  3.  4.]\n [ 4.  5.  6.]]'
+            str(m.builddataset(dataset)), '[[ 2.  3.]\n [ 4.  5.]]'
             )
 
     def test_buildprior(self):
