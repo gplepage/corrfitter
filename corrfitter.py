@@ -60,7 +60,7 @@ import time
 import lsqfit
 import gvar as _gvar
 import numpy
-__version__ = '6.0.1'
+__version__ = '6.0.2'
 
 try:
     import scipy
@@ -1348,43 +1348,42 @@ class EigenBasis(object):
 
     |EigenBasis| requires the scipy library in Python.
 
-    The parameters for creating an eigen-basis are:
+    Args:
+        data: Dictionary containing the matrix correlator
+            using the original basis of sources and sinks.
 
-    :param data: Dictionary containing the matrix correlator
-        using the original basis of sources and sinks.
+        keyfmt: Format string used to generate the keys
+            in dictionary ``data`` corresponding to different
+            components of the matrix of correlators. The
+            key for :math:`G_{ij}` is assumed to be
+            ``keyfmt.format(s1=i, s2=j)`` where ``i`` and ``j``
+            are drawn from the list of sources, ``srcs``.
 
-    :param keyfmt: Format string used to generate the keys
-        in dictionary ``data`` corresponding to different
-        components of the matrix of correlators. The
-        key for :math:`G_{ij}` is assumed to be
-        ``keyfmt.format(s1=i, s2=j)`` where ``i`` and ``j``
-        are drawn from the list of sources, ``srcs``.
+        srcs: List of source names used with ``keyfmt``
+            to create the keys for finding correlator
+            components :math:`G_{ij}` in the data dictionary.
 
-    :param srcs: List of source names used with ``keyfmt``
-        to create the keys for finding correlator
-        components :math:`G_{ij}` in the data dictionary.
+        t: ``t=(t0, t1)`` specifies the ``t`` values
+            used to diagonalize the correlation function.
+            Larger ``t`` values are better than smaller ones,
+            but only if the statistics are adequate.
+            When fitting staggered-quark correlators, with oscillating
+            components, choose ``t`` values where
+            the oscillating pieces are positive (typically odd ``t``).
+            If only one ``t`` is given, ``t=t0``, then ``t1=t0+2``
+            is used with it. Fits that use |EigenBasis| typically
+            depend only weakly on the choice of ``t``.
 
-    :param t: ``t=(t0, t1)`` specifies the ``t`` values
-        used to diagonalize the correlation function.
-        Larger ``t`` values are better than smaller ones,
-        but only if the statistics are adequate.
-        When fitting staggered-quark correlators, with oscillating
-        components, choose ``t`` values where
-        the oscillating pieces are positive (typically odd ``t``).
-        If only one ``t`` is given, ``t=t0``, then ``t1=t0+2``
-        is used with it. Fits that use |EigenBasis| typically
-        depend only weakly on the choice of ``t``.
-
-    :param tdata: Array containing the times for which there is
-        correlator data. ``tdata`` is set equal to
-        ``numpy.arange(len(G_ij))`` if it is not specified
-        (or equals ``None``).
+        tdata: Array containing the times for which there is
+            correlator data. ``tdata`` is set equal to
+            ``numpy.arange(len(G_ij))`` if it is not specified
+            (or equals ``None``).
 
     The interface for :class:`EigenBasis` is experimental.
     It may change in the near future, as experience
     accumulates from its use.
     """
-    def __init__(self, data, srcs, t, keyfmt='{s1}.{s2}', tdata=None):
+    def __init__(self, data, srcs, t, keyfmt='{s1}.{s2}', tdata=None, osc=False):
         if keyfmt is None:
             keyfmt = '{s1}.{s2}'
         if scipy is None:
@@ -1394,6 +1393,7 @@ class EigenBasis(object):
         self.eig_srcs = [str(s) for s in numpy.arange(len(self.srcs))]
         self.svdcorrection = _gvar.gvar('0(0)')
         self.svdn = 0
+        self.osc = osc
         G = EigenBasis.assemble_data(
             data=data,
             keys=EigenBasis.generate_keys(keyfmt, self.srcs),
@@ -1419,11 +1419,13 @@ class EigenBasis(object):
             if len(i0) == 0:
                 raise ValueError('t not in tdata: ' + str(t))
             i0 = i0[0]
-            i1 = i0 + 2 if (i0 + 2) < len(tdata) else i0 - 2
+            i1 = i0 + 1 if (i0 + 1) < len(tdata) else i0 - 1
             if i1 < 0:
                 raise ValueError('tdata too short: ' + str(tdata))
         t0 = tdata[i0]
         t1 = tdata[i1]
+        if self.osc and (t1 - t0) % 2 == 0:
+            raise ValueError('t1-t0 must be odd of osc==True')
         self.t = (t0, t1)
 
         G0 = numpy.empty(G.shape[:-1], float)
@@ -1437,16 +1439,48 @@ class EigenBasis(object):
                 G0[j, i] = G0[i, j]
                 G1[j, i] = G1[i, j]
 
-        w, v = scipy.linalg.eigh(G1, G0, eigvals_only=False)
-        v = numpy.array(v.T)
-        E = numpy.log(w) / (t0 - t1)
-        # set normalization so vn.G.vn = exp(-En*t)
-        for i, Ei in enumerate(E):
-            v[i] *= _gvar.exp(-E[i] * t0 / 2.)
-        E, v = zip(*sorted(zip(E,v)))
-        self.v = numpy.array(v)
-        self.E = numpy.array(E)
-        self.v_inv = numpy.linalg.inv(self.v)
+        if not self.osc:
+            w, v = scipy.linalg.eigh(G1, G0, eigvals_only=False)
+            v = numpy.array(v.T)
+            E = numpy.log(w) / (t0 - t1)
+            # set normalization so vn.G.vn = exp(-En*t)
+            for i, Ei in enumerate(E):
+                v[i] *= _gvar.exp(-E[i] * t0 / 2.)
+            E, v = zip(*sorted(zip(E,v)))
+            self.v = numpy.array(v)
+            self.E = numpy.array(E)
+            self.v_inv = numpy.linalg.inv(self.v)
+            self.neig = (len(self.E), 0)
+        else:
+            try:
+                wall, vall = scipy.linalg.eigh(G1, G0)
+            except numpy.linalg.linalg.LinAlgError:
+                try:
+                    wall, vall = scipy.linalg.eigh(G0, G1)
+                    wall = 1. / wall
+                except numpy.linalg.linalg.LinAlgError:
+                    raise ValueError('cannot diagonalize G(t)')
+            # wall = numpy.array([wi.real for wi in wall])
+            vall = numpy.array(vall.T)
+            w = wall[wall > 0]
+            v = vall[wall > 0]
+            E = numpy.log(w) / (t0 - t1)
+            wo = wall[wall < 0]
+            vo = vall[wall < 0]
+            Eo = numpy.log(-wo) / (t0 - t1)
+            # set normalization so vn.G.vn = exp(-En*t)
+            for i, Ei in enumerate(E):
+                v[i] *= numpy.exp(-Ei * t0 / 2.)
+            for i, Eoi in enumerate(Eo):
+                vo[i] *= numpy.exp(-Eoi * t0 / 2.)
+            if len(E) > 1:
+                E, v = zip(*sorted(zip(E,v)))
+            if len(Eo) > 1:
+                Eo, vo = zip(*sorted(zip(Eo,vo)))
+            self.v = numpy.array(numpy.concatenate((v, vo)))
+            self.E = numpy.array(numpy.concatenate((E, Eo)))
+            self.v_inv = numpy.linalg.inv(self.v)
+            self.neig = (len(E), len(Eo))
 
     def make_prior(
         self, nterm,
@@ -1458,92 +1492,168 @@ class EigenBasis(object):
         ):
         """ Create prior from eigen-basis.
 
-        :param keyfmt: Format string usded to generate keys for
-            amplitudes and energies in the prior (a dictionary):
-            keys are obtained from ``keyfmt.format(s1=a)`` where
-            ``a`` is one of the original sources, ``self.srcs``,
-            if ``eig_srcs=False`` (default), or one of the
-            eigen-sources, ``self.eig_srcs``, if ``eig_srcs=True``.
-            The key for the energy differences is generated by
-            ``'log({})'.format(keyfmt.format(s1='dE'))``. The default
-            is ``keyfmt={s1}``.
-        :param dEfac: A string or :class:`gvar.GVar` from which
-            the priors for energy differences ``dE[i]`` are constructed.
-            The mean value for ``dE[0]`` is set equal to the lowest
-            energy obtained from the diagonalization. The mean values
-            for the other ``dE[i]``\s are set equal to the difference
-            between the lowest two energies from the diagonalization
-            (or to the lowest energy if there is only one). These
-            central values are then multiplied by ``gvar.gvar(dEfac)``.
-            The default value, `1(1)`, sets the width equal to the
-            mean value. The prior is the logarithm of the resulting
-            values.
-        :type dEfac: string or :class:`gvar.GVar`
-        :param ampl: A 3-tuple of strings or :class:`gvar.GVar`\s from
-            which priors are contructed for amplitudes corresponding to
-            the eigen-sources. ``gvar.gvar(ampl[0])`` is used for
-            for source components where the overlap with a particular
-            state is expected to be large; ``1.0(3)`` is the default value.
-            ``gvar.gvar(ampl[1])`` is used for states that are expected
-            to have little overlap with the source; ``0.03(10)`` is
-            the default value. ``gvar.gvar(ampl[2])`` is used where
-            there is nothing known about the overlap of a state with
-            the source; ``0(1)`` is the default value.
-        :param states: A list of the states in the correlator corresponding to
-            successive eigen-sources, where ``states[i]`` is the state
-            corresponding to ``i``-th source. The correspondence between
-            sources and states is strong for the first sources, but
-            can decay for subsequent sources, depending upon the quality
-            of the data being used and the ``t`` values used in the
-            diagonalization. In such situations one might specify
-            fewer states than there are sources by making the length
-            of ``states`` smaller than the number of sources. Setting
-            ``states=[]`` assigns broad priors to the every component
-            of every source. Parameter ``states`` can also be
-            used to deal with situations where the order
-            of later sources is not aligned with that of the
-            actual states: for example, ``states=[0,1,3]`` connects the
-            eigen-sources with the first, second and fourth states in the
-            correlator. The default value, ``states=[0, 1 ... N-1]`` where
-            ``N`` is the number of sources, assumes that sources
-            and states are aligned.
+        Args:
+            nterm (int): Number of terms in fit function.
+
+            keyfmt (str): Format string usded to generate keys for
+                amplitudes and energies in the prior (a dictionary):
+                keys are obtained from ``keyfmt.format(s1=a)`` where
+                ``a`` is one of the original sources, ``self.srcs``,
+                if ``eig_srcs=False`` (default), or one of the
+                eigen-sources, ``self.eig_srcs``, if ``eig_srcs=True``.
+                The key for the energy differences is generated by
+                ``'log({})'.format(keyfmt.format(s1='dE'))``. The default
+                is ``keyfmt={s1}``.
+
+            dEfac (str or :class:`gvar.GVar`): A string or :class:`gvar.GVar`
+                from which the priors for energy differences ``dE[i]`` are
+                constructed. The mean value for ``dE[0]`` is set equal to the
+                lowest energy obtained from the diagonalization. The mean
+                values for the other ``dE[i]``\s are set equal to the
+                difference between the lowest two energies from the
+                diagonalization (or to the lowest energy if there is only
+                one). These central values are then multiplied by
+                ``gvar.gvar(dEfac)``. The default value, `1(1)`, sets the
+                width equal to the mean value. The prior is the logarithm of
+                the resulting values.
+
+            ampl (tuple): A 3-tuple of strings or :class:`gvar.GVar`\s from
+                which priors are contructed for amplitudes corresponding to
+                the eigen-sources. ``gvar.gvar(ampl[0])`` is used for
+                for source components where the overlap with a particular
+                state is expected to be large; ``1.0(3)`` is the default value.
+                ``gvar.gvar(ampl[1])`` is used for states that are expected
+                to have little overlap with the source; ``0.03(10)`` is
+                the default value. ``gvar.gvar(ampl[2])`` is used where
+                there is nothing known about the overlap of a state with
+                the source; ``0(1)`` is the default value.
+
+            states (list): A list of the states in the correlator corresponding
+                to successive eigen-sources, where ``states[i]`` is the state
+                corresponding to ``i``-th source. The correspondence between
+                sources and states is strong for the first sources, but
+                can decay for subsequent sources, depending upon the quality
+                of the data being used and the ``t`` values used in the
+                diagonalization. In such situations one might specify
+                fewer states than there are sources by making the length
+                of ``states`` smaller than the number of sources. Setting
+                ``states=[]`` assigns broad priors to the every component
+                of every source. Parameter ``states`` can also be
+                used to deal with situations where the order
+                of later sources is not aligned with that of the
+                actual states: for example, ``states=[0,1,3]`` connects the
+                eigen-sources with the first, second and fourth states in the
+                correlator. The default value, ``states=[0, 1 ... N-1]`` where
+                ``N`` is the number of sources, assumes that sources
+                and states are aligned.
+
+            eig_srcs (bool): Amplitudes for the eigen-sources are
+                tabulated if ``eig_srcs=True``; otherwise amplitudes
+                for the original basis of sources are tabulated (default).
         """
+        def _make_prior(states, keyfmt, E, skip):
+            # nsrcs can be larger than nstates
+            nsrcs = len(states)
+            if numpy.any(states >= nterm):
+                n = min(numpy.nonzero(states >= nterm)[0])
+                states = states[:n]
+            if len(states) > nterm:
+                states = states[:nterm]
+            one, small, big = ampl
+            prior = collections.OrderedDict()
+            # amplitudes
+            nstates = len(states)
+            nterm_ext = nterm + len(skip)
+            for i, k in enumerate(EigenBasis.generate_keys(keyfmt, srcs=self.eig_srcs)):
+                prior[k] = _gvar.gvar(nterm_ext * [big])
+                if True: # i < nsrcs:
+                    prior[k][states] = _gvar.gvar(nstates * [small])
+                if i < nstates:
+                    prior[k][states[i]] = _gvar.gvar(one)
+            if not eig_srcs:
+                prior = self.unapply(prior, keyfmt=keyfmt)
+            if len(skip) > 0:
+                idx = numpy.array([i for i in range(nterm_ext) if i not in skip])
+                for k in prior:
+                    prior[k] = numpy.array(prior[k][idx])
+            # energies
+            if len(E) == 0:
+                E = self.E
+            if len(E) >= 2:
+                de = E[1] - E[0]
+                e0 = E[0]
+            else:
+                de = E[0]
+                e0 = de
+            dE = _gvar.gvar(nterm * [str(dEfac)]) * de
+            dE[0] = dE[0] + e0 - dE[0].mean
+            prior['log({})'.format(keyfmt.format(s1='dE'))] = _gvar.log(dE)
+            return prior
+        # main body
         if keyfmt is None:
-            keyfmt = '{s1}'
+            keyfmt = ('{s1}', 'o.{s1}')
+        elif isinstance(keyfmt, str):
+            keyfmt = (keyfmt, 'o.{s1}')
         if states is None:
-            states = numpy.arange(len(self.eig_srcs))
+            states = (numpy.arange(self.neig[0]), numpy.arange(self.neig[1]))
+        elif isinstance(states, tuple):
+            states[0] = numpy.asarray(states[0], int)[:self.neig[0]]
+            states[1] = numpy.asarray(states[1], int)[:self.neig[1]]
         else:
             states = numpy.asarray(states, int)
-        # nsrcs can be larger than nstates
-        nsrcs = len(states)
-        if numpy.any(states >= nterm):
-            n = min(numpy.nonzero(states >= nterm)[0])
-            states = states[:n]
-        if len(states) > nterm:
-            states = states[:nterm]
-        one, small, big = ampl
-        prior = collections.OrderedDict()
-        # amplitudes
-        nstates = len(states)
-        for i, k in enumerate(EigenBasis.generate_keys(keyfmt, srcs=self.eig_srcs)):
-            prior[k] = _gvar.gvar(nterm * [big])
-            if i < nsrcs:
-                prior[k][states] = _gvar.gvar(nstates * [small])
-            if i < nstates:
-                prior[k][states[i]] = _gvar.gvar(one)
-        if not eig_srcs:
-            prior = self.unapply(prior, keyfmt=keyfmt)
-        # energies
-        if len(self.E) >= 2:
-            de = self.E[1] - self.E[0]
-            e0 = self.E[0]
-        else:
-            de = self.E[0]
-            e0 = de
-        dE = _gvar.gvar(nterm * [str(dEfac)]) * de
-        dE[0] = dE[0] + e0 - dE[0].mean
-        prior['log({})'.format(keyfmt.format(s1='dE'))] = _gvar.log(dE)
+            states = (
+                numpy.array(states[:self.neig[0]]),
+                numpy.array(states[:self.neig[1]])
+                )
+        prior = _make_prior(
+            states=states[0], keyfmt=keyfmt[0], E=self.E[:self.neig[0]],
+            skip=range(self.neig[0], self.neig[0] + self.neig[1]),
+            )
+        if self.osc:
+            oprior =  _make_prior(
+                states=states[1] + self.neig[0], keyfmt=keyfmt[1], E=self.E[self.neig[0]:],
+                skip=range(0, self.neig[0]),
+                )
+            prior.update(oprior)
         return prior
+
+    # @staticmethod
+    # def _make_prior(states, keyfmt, E, skip, eig_srcs, ampl, dEfac, nterm, use_eig):
+    #     # 1) non-oscillating prior
+    #     # nsrcs can be larger than nstates
+    #     nsrcs = len(states)
+    #     if numpy.any(states >= nterm):
+    #         n = min(numpy.nonzero(states >= nterm)[0])
+    #         states = states[:n]
+    #     if len(states) > nterm:
+    #         states = states[:nterm]
+    #     one, small, big = ampl
+    #     prior = collections.OrderedDict()
+    #     # amplitudes
+    #     nstates = len(states)
+    #     nterm_ext = nterm + len(skip)
+    #     for i, k in enumerate(EigenBasis.generate_keys(keyfmt, srcs=eig_srcs)):
+    #         prior[k] = _gvar.gvar(nterm_ext * [big])
+    #         if i < nsrcs:
+    #             prior[k][states] = _gvar.gvar(nstates * [small])
+    #         if i < nstates:
+    #             prior[k][states[i]] = _gvar.gvar(one)
+    #     if not use_eig:
+    #         prior = self.unapply(prior, keyfmt=keyfmt)
+    #     idx = numpy.array([i for i in range(nstates) if i not in skip])
+    #     for k in prior:
+    #         prior[k] = numpy.array(prior[k][idx])
+    #     # energies
+    #     if len(E) >= 2:
+    #         de = E[1] - E[0]
+    #         e0 = E[0]
+    #     else:
+    #         de = E[0]
+    #         e0 = de
+    #     dE = _gvar.gvar(nterm * [str(dEfac)]) * de
+    #     dE[0] = dE[0] + e0 - dE[0].mean
+    #     prior['log({})'.format(keyfmt.format(s1='dE'))] = _gvar.log(dE)
+    #     return prior
 
     def tabulate(self, p, keyfmt='{s1}', nterm=None, nsrcs=None, eig_srcs=False, indent=4 * ' '):
         """ Create table containing energies and amplitudes for ``nterm`` states.
@@ -1561,22 +1671,23 @@ class EigenBasis(object):
         case the amplitudes are projected onto the the eigen-basis
         defined by ``basis``.
 
-        :param p: Dictionary containing parameters values.
-        :param keyfmt: Parameters are ``p[k]`` where keys ``k`` are
-            obtained from ``keyfmt.format(s1=s)`` where ``s`` is one
-            of the original sources (``basis.srcs``) or one of the
-            eigen-sources (``basis.eig_srcs``). The
-            default definition is ``'{s1}'``.
-        :param nterm: The number of states from the fit  tabulated.
-            The default sets ``nterm`` equal to the number of
-            sources in the basis.
-        :param nsrcs: The number of sources tabulated. The default
-            causes all sources to be tabulated.
-        :param eig_srcs: Amplitudes for the eigen-sources are
-            tabulated if ``eigen_srcs=True``; otherwise amplitudes
-            for the original basis of sources are tabulated (default).
-        :param indent: A string prepended to each line of the table.
-            Default is ``4 * ' '``.
+        Args:
+            p: Dictionary containing parameters values.
+            keyfmt: Parameters are ``p[k]`` where keys ``k`` are
+                obtained from ``keyfmt.format(s1=s)`` where ``s`` is one
+                of the original sources (``basis.srcs``) or one of the
+                eigen-sources (``basis.eig_srcs``). The
+                default definition is ``'{s1}'``.
+            nterm: The number of states from the fit  tabulated.
+                The default sets ``nterm`` equal to the number of
+                sources in the basis.
+            nsrcs: The number of sources tabulated. The default
+                causes all sources to be tabulated.
+            eig_srcs: Amplitudes for the eigen-sources are
+                tabulated if ``eig_srcs=True``; otherwise amplitudes
+                for the original basis of sources are tabulated (default).
+            indent: A string prepended to each line of the table.
+                Default is ``4 * ' '``.
         """
 
         if keyfmt is None:

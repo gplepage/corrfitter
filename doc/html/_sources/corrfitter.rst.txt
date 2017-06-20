@@ -13,6 +13,7 @@
 .. |BaseModel| replace:: :class:`corrfitter.BaseModel`
 .. |Dataset| replace:: :class:`gvar.dataset.Dataset`
 .. |GVar| replace:: :class:`gvar.GVar`
+.. |chi2| replace:: :math:`\chi^2`
 
 Introduction
 ------------------
@@ -264,11 +265,11 @@ dictionary (we use :class:`gvar.BufferDict` but others would work)::
         prior['dE'] = gv.gvar(N * ['0.25(25)'])
         return prior
 
-``make_prior(N)`` associates arrays of ``N`` Gaussian random variables
+``make_prior(N)`` associates  arrays of ``N`` Gaussian random variables
 (|GVar|\s) with each fit-parameter label, enough for ``N`` terms in the fit
-function. These are the *a priori* values for the fit parameters, and they
+function. These  are the *a priori* values for the fit parameters, and they
 can be retrieved using the label: setting ``prior=make_prior(N)``, for
-example, implies that ``prior['a'][i]``, ``prior['b'][i]`` and
+example, implies  that ``prior['a'][i]``, ``prior['b'][i]`` and
 ``prior['dE'][i]`` are the *a priori* values for ``a[i]``, ``b[i]`` and
 ``dE[i]`` in the fit functions (see above). The *a priori* value for each
 ``a[i]`` here is set to ``0.1±0.5``, while that for each ``b[i]`` is
@@ -491,7 +492,7 @@ Large complicated fits, where lots of models and data are fit simultaneously,
 can  take a very long time. This is especially true if there are strong
 correlations in the data. Such correlations can also cause  problems from
 numerical roundoff errors when the inverse of the data's covariance matrix is
-computed for the ``chi**2`` function, requiring large SVD cuts which can
+computed for the |chi2| function, requiring large SVD cuts which can
 degrade precision (see below). An alternative approach is to use *chained*
 fits.  In a chained fit, each model is fit by itself in sequence, but with the
 best-fit parameters from each fit serving as priors for fit parameters in  the
@@ -574,6 +575,8 @@ is also possible to reset the default algorithms for all fits::
 
 The documentation for :mod:`lsqfit` describes many more options.
 
+.. _processed-datasets:
+
 Faster Fits --- Processed Datasets
 -----------------------------------
 When fitting very large data sets, it is usually worthwhile to pare the data
@@ -615,6 +618,97 @@ Processed data can only be used with the models that created it, so
 parameters in those models should not be changed after the data is
 processed.
 
+.. _svd-cuts:
+
+Accurate Fits --- SVD Cuts
+----------------------------
+
+A key feature of :mod:`corrfitter` is its ability to fit multiple correlators
+simultaneously, taking account of the statistical correlations between
+correlators at different times and between
+different correlators. Information about the correlations typically comes from
+Monte Carlo samples of the correlators. Problems arise, however, when the
+number :math:`N_s` of samples is not much larger than
+the number :math:`N_d` of data points being fit. Specifically the smallest
+eigenvalues of the correlation matrix can be substantially underestimated if
+:math:`N_s` is not sufficiently large (10 or 100 times larger than :math:`N_d`).
+Indeed there must be :math:`N_d-N_s` zero eigenvalues
+when :math:`N_s\le N_d`. The underestimated
+(or zero) eigenvalues lead to incorrect and large (or infinite) contributions
+to the fit's |chi2| function, invalidating the fit results.
+
+These problems tend show up as an unexpectedly large |chi2|\s,
+for example, in fits where the |chi2| per degree of freedom remains
+substantially larger than one no matter how many fit terms are
+employed. Such situations are usually improved by introducing an
+SVD cut::
+
+    fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=1e-2)
+
+This replaces the smallest eigenvalues of the correlation matrix as needed
+so that no eigenvalue is smaller than ``svdcut`` times the largest eigenvalue.
+Introducing an SVD cut increases the effective errors and so is a
+conservative move.
+
+The method :meth:`gvar.dataset.svd_diagnoisis` in module :mod:`gvar` is
+useful for assessing whether an SVD cut is needed, and for setting
+its value. One way to use it is in the ``make_pdata``
+routine when creating processed data (see :ref:`processed-datasets`)::
+
+    import gvar as gv
+    import corrfitter as cf
+
+    GENERATE_SVD = True
+
+    def make_pdata(filename, models):
+        dset = cf.read_dataset(filename)
+        pdata = cf.process_dataset(dset, models)
+        if GENERATE_SVD:
+            s = gv.dataset.svd_diagnosis(dset, models)
+            print('suggested svdcut =', s.svdcut)
+            s.plot_ratio(show=True)
+            svdcut = s.svdcut
+        else:
+            svdcut = 0.1
+        return gv.svd(pdata, svdcut=svdcut)
+
+Here ``gv.dataset.svd_diagnosis(dset, models)`` uses a bootstrap
+simulation (see :ref:`bootstrap-analyses`) to test the reliability
+of the eigenvalues determined from the
+Monte Carlo data in ``dset``. It places the SVD cut at the point
+where the bootstrapped eigenvalues fall well below the actual values.
+A plot showing the ratio of bootstrapped to actual eigenvalues is
+displayed by ``s.plot_ratio(show=True)``. The following are
+sample plots from two
+otherwise identical simulations of 3 correlators (66 data points in all),
+one with 100 configurations and the
+other with 10,000 configurations:
+
+==============================  ==============================
+==============================  ==============================
+.. image:: svd-bootstrap-1e2.*  .. image:: svd-bootstrap-1e4.*
+==============================  ==============================
+
+With only 100 configurations, three quarters of the eigenvalues are too
+small in the bootstrap simulation, and therefore also
+likely too small for the real data. Simulated and actual eigenvalues come into
+agreement around 0.1 (red dashed line),
+which is the suggested value for ``svdcut``. With 10,000 configurations,
+all of the eigenvalues are robust and no SVD cut is needed. Both data
+sets produce good fits (using the appropriate ``svdcut`` for each). The
+fits agree with each other, with uncertainties from the high-statistics
+case that are 10 times smaller, as expected.
+
+In ``make_pdata()`` above, the SVD cut is applied directly to the
+data (``gv.svd(pdata, svdcut=svdcut)``) before it is fit,
+and so need not be supplied to the fitter. This is convenient when
+using processed data because both the Monte Carlo data (``dset``) and
+the :mod:`corrfitter` models are available.
+Another option is to do the SVD diagnosis just before fitting and pass the
+value of ``svdcut`` to :mod:`corrfitter`.
+
+
+
 Variations
 ----------
 A 2-point correlator is turned into a periodic function of ``t`` by
@@ -651,18 +745,18 @@ other, put ``None`` in place of a label. Parameter ``s[0]`` is an overall
 factor multiplying the non-oscillating terms, and ``s[1]`` is the
 corresponding factor for the oscillating terms.
 
-Highly correlated data can lead to problems from numerical roundoff errors,
-particularly where the fit code inverts the covariance matrix when
-constructing the ``chi**2`` function. Such problems show up as unexpectedly
-large ``chi**2`` or fits that stall and appear never to converge. Such
-situations are usually improved by introducing an SVD cut: for example, ::
+.. Highly correlated data can lead to problems from numerical roundoff errors,
+.. particularly where the fit code inverts the covariance matrix when
+.. constructing the |chi2| function. Such problems show up as unexpectedly
+.. large |chi2| or fits that stall and appear never to converge. Such
+.. situations are usually improved by introducing an SVD cut: for example, ::
 
-    fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=1e-4)
+..     fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=1e-4)
 
-Introducing an SVD cut increases the effective errors and so is a
-conservative move. For more information about SVD cuts see the :mod:`lsqfit`
-tutorial and documentation. Parameter ``svdcut`` is used to
-specify an SVD cut.
+.. Introducing an SVD cut increases the effective errors and so is a
+.. conservative move. For more information about SVD cuts see the :mod:`lsqfit`
+.. tutorial and documentation. Parameter ``svdcut`` is used to
+.. specify an SVD cut.
 
 
 .. _very-fast-fits:
@@ -708,15 +802,15 @@ by a single term, ``A[0] * exp(-E[0]*t)``, which means that a fit is  not
 actually necessary since the functional form is so simple.  :class:`fastfit`
 averages estimates for ``E[0]`` and ``A[0]`` from all ``t``\s larger than
 ``tmin``. It is important to verify that these estimates agree  with each
-other, by checking the ``chi**2`` of the average. Try increasing ``tmin`` if
-the ``chi**2`` is too large; or introduce an SVD cut.
+other, by checking the |chi2| of the average. Try increasing ``tmin`` if
+the |chi2| is too large; or introduce an SVD cut.
 
 The energies from :class:`fastfit` are closely related to standard *effective
 masses*. The key difference is :class:`fastfit`’s marginalization of terms
 from excited states (``i>0`` above). This allows :class:`fastfit` to use
 information from much smaller ``t``\s than otherwise, increasing precision. It
 also quantifies the uncertainty caused by the existence of excited states,
-and gives a simple criterion for how small ``tmin`` can be (the ``chi**2``).
+and gives a simple criterion for how small ``tmin`` can be (the |chi2|).
 Results are typically as accurate as results obtained from a full
 multi-exponential fit that uses the same priors for ``A[i]`` and ``E[i]``,
 and the same ``tmin``. :class:`fastfit` can also be used for periodic and
@@ -874,11 +968,8 @@ might look something like::
             sfit = fitter.lsqfit(pdata=spdata, p0=pexact, prior=prior...)
             ... check that sfit.p values agree with pexact to within sfit.psdev ...
 
-Fit simulations are particularly useful for setting SVD cuts. Given
-a set of approximate parameter values to use for ``pexact``, it is easy
-to run fits with a range of SVD cuts to see how small ``svdcut``
-can be made before the parameters of interest deviate too far from ``pexact``.
 
+.. _bootstrap-analyses:
 
 Bootstrap Analyses
 ------------------

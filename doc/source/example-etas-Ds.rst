@@ -47,8 +47,6 @@ in :ref:`basic-fits`:
 .. literalinclude:: examples/etas-Ds.py
     :lines: 1-24
 
-We include an SVD cut (``svdcut=1e-5``) to ameliorate
-roundoff errors in the highly correlated data.
 The Monte Carlo data are in a file named ``'etas-Ds.h5'``. We are doing
 four fits, with 1, 2, 3, and 4 terms in the fit function. Each fit starts its
 minimization at point ``p0``, which is set equal to the mean values of the
@@ -103,6 +101,8 @@ in this data.
 
 Function ``gv.dataset.avg_data(dset)`` averages over the Monte Carlo samples
 for all the correlators to compute their means and covariance matrix.
+We also introduce an SVD cut (see :ref:`svd-cuts`) to account for the fact
+that we have only 225 Monte Carlo samples for each piece of data.
 The end result is a dictionary whose keys are the keys used to
 label the hdf5 datasets: for example, ::
 
@@ -156,7 +156,7 @@ for the transition matrix elements: ``'Vnn'`` connecting normal states, and
 c) make_prior
 _________________
 Method ``make_prior(N)`` creates *a priori* estimates for each fit
-parameter, to be used as priors in the fitter:
+parameter, to be used as  priors in the fitter:
 
 .. literalinclude:: examples/etas-Ds.py
     :lines: 85-108
@@ -216,7 +216,7 @@ Method ``print_results(fit, prior, data)`` reports on the best-fit values
 for the fit parameters from the last fit:
 
 .. literalinclude:: examples/etas-Ds.py
-    :lines: 110-154
+    :lines: 110-153
 
 The best-fit parameter values are stored in dictionary ``p=fit.p``,
 as are the exponentials of the log-normal parameters.
@@ -231,8 +231,8 @@ and |Ds| masses, for the mass difference between the |Ds| and its
 opposite-parity partner, and for the ground-state transition amplitudes
 ``Vnn`` and ``Vno``. The quantities of interest are specified in dictionary
 ``outputs``. For the error budget, we need another dictionary, ``inputs``,
-specifying various inputs to the calculation: the Monte Carlo data, the
-priors, and the results from any *svd* cuts (none here). Each of these inputs
+specifying various inputs to the calculation, here the Monte Carlo data and the
+priors. Each of these inputs
 contributes to the errors in the final results, as detailed in the
 error budget:
 
@@ -363,7 +363,8 @@ Mixing
 ----------
 Code to analyze |Ds|-|Ds| mixing is very similar to the code above for
 a transition form factor. The ``main()`` and ``make_data()`` functions are
-identical, except that here data is read from file ``'Ds-Ds.h5'``.
+identical, except that here data are read from file ``'Ds-Ds.h5'`` and
+the appropriate SVD cut is ``svdcut=0.014`` (see :ref:`svd-cuts`).
 We need models for the two-point |Ds| correlator, and for two three-point
 correlators describing the |Ds| to |Ds| transition:
 
@@ -386,7 +387,7 @@ since they are symmetrical (because ``symmetricV=True`` is set).
 A minimal ``print_results()`` function is:
 
 .. literalinclude:: examples/Ds-Ds.py
-    :lines: 78-95
+    :lines: 78-94
 
 Running the mixing code gives the following output:
 

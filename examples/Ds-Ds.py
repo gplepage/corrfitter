@@ -28,7 +28,7 @@ def main():
 
 def make_data(filename):
     """ Read data from file and average it. """
-    return gv.dataset.avg_data(h5py.File(filename))
+    return gv.svd(gv.dataset.avg_data(h5py.File(filename)), svdcut=0.014)
 
 def make_models():
     """ Create models to fit data. """
@@ -89,10 +89,10 @@ def print_results(fit, prior, data):
     inputs['V priors'] = {
         k:prior[k] for k in ['Vnn', 'Vno', 'Voo']
         }
-    inputs['svd'] = fit.svdcorrection       # errors from svd cut (if present)
 
     print('\n' + gv.fmt_values(outputs))
     print(gv.fmt_errorbudget(outputs, inputs))
+
 
 if __name__ == '__main__':
     main()

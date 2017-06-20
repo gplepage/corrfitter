@@ -1,7 +1,7 @@
 ## makefile for corrfitter library
 #
 # Created by G. Peter Lepage (Cornell University) on 2011-09-22.
-# Copyright (c) 2011-2013 G. Peter Lepage.
+# Copyright (c) 2011-2017 G. Peter Lepage.
 
 PYTHON = python
 PIP = $(PYTHON) -m pip
@@ -32,10 +32,10 @@ uninstall-dataset:
 	$(PIP) uninstall dataset
 
 try:
-	$(PYTHON) setup.py install --user --record files-corrfitter.$(PYTHONVERSION)
+	$(PYTHON) setup.py install --user --record files-corrfitter
 
 untry:
-	- cat files-corrfitter.$(PYTHONVERSION) | xargs rm -rf
+	- cat files-corrfitter | xargs rm -rf
 
 .PHONY : tests
 

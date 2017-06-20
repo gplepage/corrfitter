@@ -15,7 +15,7 @@ def main():
     data = make_data('etas-Ds.h5')
     models = make_models()
     prior = make_prior(8)
-    fitter = CorrFitter(models=make_models(), svdcut=1e-5)
+    fitter = CorrFitter(models=make_models())
     p0 = None
     for N in [1, 2, 3, 4]:
         print(30 * '=', 'nterm =', N)

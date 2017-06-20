@@ -11,7 +11,7 @@ SHOWPLOTS = True
 
 def main():
     data = make_data('etas-Ds.h5')
-    fitter = cf.CorrFitter(models=make_models(), svdcut=1e-5)
+    fitter = cf.CorrFitter(models=make_models())
     p0 = None
     for N in [1, 2, 3, 4]:
         print(30 * '=', 'nterm =', N)
@@ -51,7 +51,7 @@ def test_fit(fitter, datafile):
 def make_data(datafile):
     """ Read data from datafile and average it. """
     dset = cf.read_dataset(datafile)
-    return gv.dataset.avg_data(dset)
+    return gv.svd(gv.dataset.avg_data(dset), svdcut=0.0004)
 
 def make_models():
     """ Create models to fit data. """
@@ -147,11 +147,11 @@ def print_results(fit, prior, data):
     inputs = collections.OrderedDict()
     inputs['statistics'] = data                 # statistical errors in data
     inputs.update(prior)                        # all entries in prior
-    inputs['svd'] = fit.svdcorrection           # svd cut (if present)
 
     print('\n' + gv.fmt_values(outputs))
     print(gv.fmt_errorbudget(outputs, inputs))
     print('\n')
+
 
 if sys.argv[1:]:
     SHOWPLOTS = eval(sys.argv[1]) # show plots at end of fitting?

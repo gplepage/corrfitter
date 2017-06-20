@@ -1,3 +1,9 @@
+Version 6.0.2 2017-06-20
+==========================
+The only change in this version is in the documentation, which now includes
+instructions on how to use gvar.dataset.svd_diagnosis (gvar v8.3.1) to
+set SVD cuts (before fitting): see the section on Accurate Fits --- SVD Cuts.
+
 Version 6.0.1 2017-02-13
 =========================
 Fixed bug in Corr3 when using tmin. Thanks Chris!

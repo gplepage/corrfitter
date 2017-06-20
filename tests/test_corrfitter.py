@@ -1150,16 +1150,21 @@ class test_eigenbasis(unittest.TestCase):
     def setUp(self):
         self.u = np.array([[1., 0.5], [1., 2.]])
         self.E = np.array([1., 3.])
+        self.f = np.array([1., 1.])
 
-    def make_G(self, tdata, keyfmt, srcs):
+    def make_G(self, tdata, keyfmt, srcs, f=None):
         G = collections.OrderedDict()
         tdata = np.array(tdata)
+        if f is None:
+            f = self.f
+        else:
+            f = np.array(f)
         for i, s1 in enumerate(srcs):
             for j, s2 in enumerate(srcs):
                 key = keyfmt.format(s1=s1, s2=s2)
                 G[key] = 0
                 for n in range(2):
-                    G[key] += (
+                    G[key] += (f[n] ** tdata) * (
                         self.u[n, i] * self.u[n, j] * gv.exp(-self.E[n] * tdata)
                         * gv.gvar('1.00(1)')
                         )
@@ -1192,7 +1197,6 @@ class test_eigenbasis(unittest.TestCase):
 
     def test_svd(self):
         " EigenBasis.svd "
-        return #####################################
         tdata = [1,2,3,4]
         G = self.make_G(tdata, keyfmt='{s1}{s2}', srcs='ab')
         basis = EigenBasis(
@@ -1208,7 +1212,6 @@ class test_eigenbasis(unittest.TestCase):
 
     def test_make_prior(self):
         " EigenBasis.make_prior "
-        return ##########################################
         tdata = np.arange(4.)
         datafmt = 'G.{s1}.{s2}'
         srcs = 'ab'
@@ -1227,15 +1230,15 @@ class test_eigenbasis(unittest.TestCase):
             )
         dE = gv.gvar(nterm * [dEfac]) * (self.E[1] - self.E[0])
         dE[0] += self.E[0] - dE[0].mean
-        self.assert_gvclose(gv.exp(prior['log(a.dE)']), dE)
+        self.assertEqual(str(gv.exp(prior['log(a.dE)'])), str(dE))
         a0 = gv.gvar(nterm * [big])
         a0[0] = gv.gvar(one)
         a0[1] = gv.gvar(small)
-        self.assert_gvclose(prior['a.0'], a0)
+        self.assertEqual(str(prior['a.0']), str(a0))
         a1 = gv.gvar(nterm * [big])
         a1[0] = gv.gvar(small)
         a1[1] = gv.gvar(one)
-        self.assert_gvclose(prior['a.1'], a1)
+        self.assertEqual(str(prior['a.1']), str(a1))
 
         # default values
         ampl = '1.0(3)', '0.03(10)', '0.2(1.0)'
@@ -1246,26 +1249,120 @@ class test_eigenbasis(unittest.TestCase):
         prior = basis.make_prior(nterm=nterm, keyfmt='a.{s1}', states=[0], eig_srcs=True)
         a0 = gv.gvar(nterm * [big])
         a0[0] = gv.gvar(one)
-        self.assert_gvclose(prior['a.0'], a0)
+        self.assertEqual(str(prior['a.0']), str(a0))
         a1 = gv.gvar(nterm * [big])
-        self.assert_gvclose(prior['a.1'], a1)
+        a1[0] = gv.gvar(small)
+        self.assertEqual(str(prior['a.1']), str(a1))
 
         # case 3 - swap states
         prior = basis.make_prior(nterm=nterm, keyfmt='a.{s1}', states=[1, 0], eig_srcs=True)
         dE = gv.gvar(nterm * ['1(1)']) * (self.E[1] - self.E[0])
         dE[0] += self.E[0] - dE[0].mean
-        self.assert_gvclose(gv.exp(prior['log(a.dE)']), dE)
+        self.assertEqual(str(gv.exp(prior['log(a.dE)'])), str(dE))
         a1 = gv.gvar(nterm * [big])
         a1[0] = gv.gvar(one)
         a1[1] = gv.gvar(small)
-        self.assert_gvclose(prior['a.1'], a1)
+        self.assertEqual(str(prior['a.1']), str(a1))
         a0 = gv.gvar(nterm * [big])
         a0[0] = gv.gvar(small)
         a0[1] = gv.gvar(one)
-        self.assert_gvclose(prior['a.0'], a0)
+        self.assertEqual(str(prior['a.0']), str(a0))
+
+    def test_make_prior_osc_osc(self):
+        " EigenBasis.make_prior "
+        tdata = np.arange(4.)
+        datafmt = 'G.{s1}.{s2}'
+        srcs = 'ab'
+        G = self.make_G(tdata=tdata, keyfmt=datafmt, srcs=srcs)
+        basis = EigenBasis(
+            data=G, keyfmt=datafmt, srcs=srcs, t=(1,2),
+            )
+        nterm = 4
+        ampl = '1.0(2)', '0.03(20)', '0.2(2.0)'
+        dEfac = '1(1)'
+        one, small, big = ampl
+
+        # case 1 - canonical
+        prior = basis.make_prior(
+            nterm=nterm, keyfmt='a.{s1}', ampl=ampl, dEfac=dEfac, eig_srcs=True
+            )
+        dE = gv.gvar(nterm * [dEfac]) * (self.E[1] - self.E[0])
+        dE[0] += self.E[0] - dE[0].mean
+        self.assertEqual(str(gv.exp(prior['log(a.dE)'])), str(dE))
+        a0 = gv.gvar(nterm * [big])
+        a0[0] = gv.gvar(one)
+        a0[1] = gv.gvar(small)
+        self.assertEqual(str(prior['a.0']), str(a0))
+        a1 = gv.gvar(nterm * [big])
+        a1[0] = gv.gvar(small)
+        a1[1] = gv.gvar(one)
+        self.assertEqual(str(prior['a.1']), str(a1))
+
+        # default values
+        ampl = '1.0(3)', '0.03(10)', '0.2(1.0)'
+        dEfac = '1(1)'
+        one, small, big = ampl
+
+        # case 2 - omit state
+        prior = basis.make_prior(nterm=nterm, keyfmt='a.{s1}', states=[0], eig_srcs=True)
+        a0 = gv.gvar(nterm * [big])
+        a0[0] = gv.gvar(one)
+        self.assertEqual(str(prior['a.0']), str(a0))
+        a1 = gv.gvar([small] + (nterm - 1) * [big])
+        self.assertEqual(str(prior['a.1']), str(a1))
+
+        # case 3 - swap states
+        prior = basis.make_prior(nterm=nterm, keyfmt='a.{s1}', states=[1, 0], eig_srcs=True)
+        dE = gv.gvar(nterm * ['1(1)']) * (self.E[1] - self.E[0])
+        dE[0] += self.E[0] - dE[0].mean
+        self.assertEqual(str(gv.exp(prior['log(a.dE)'])), str(dE))
+        a1 = gv.gvar(nterm * [big])
+        a1[0] = gv.gvar(one)
+        a1[1] = gv.gvar(small)
+        self.assertEqual(str(prior['a.1']), str(a1))
+        a0 = gv.gvar(nterm * [big])
+        a0[0] = gv.gvar(small)
+        a0[1] = gv.gvar(one)
+        self.assertEqual(str(prior['a.0']), str(a0))
+
+    def test_make_prior_osc(self):
+        " EigenBasis.make_prior "
+        osc = True
+        tdata = np.arange(4.)
+        datafmt = 'G.{s1}.{s2}'
+        srcs = 'ab'
+        G = self.make_G(tdata=tdata, keyfmt=datafmt, srcs=srcs, f=[-1., 1.])
+        basis = EigenBasis(
+            data=G, keyfmt=datafmt, srcs=srcs, t=(1,2), osc=osc
+            )
+        nterm = 4
+        ampl = '1.0(2)', '0.03(20)', '0.2(2.0)'
+        dEfac = '1(1)'
+        one, small, big = ampl
+
+        # case 1 - canonical
+        prior = basis.make_prior(
+            nterm=nterm, keyfmt=('a.{s1}','ao.{s1}'),
+            ampl=ampl, dEfac=dEfac, eig_srcs=True, #states=[0,1,2]
+            )
+        self.assertEqual(
+            str(gv.exp(prior['log(a.dE)'])),
+            str(self.E[1] * np.array(gv.gvar(nterm * [dEfac])))
+            )
+        self.assertEqual(
+            str(gv.exp(prior['log(ao.dE)'])),
+            str(self.E[0] * np.array(gv.gvar(nterm * [dEfac])))
+            )
+        a0 = gv.gvar(nterm * [big])
+        a0[0] = gv.gvar(one)
+        self.assertEqual(str(prior['a.0']), str(a0))
+        self.assertEqual(str(prior['ao.0']), str(a0))
+        a1 = gv.gvar(nterm * [big])
+        a1[0] = gv.gvar(small)
+        self.assertEqual(str(prior['a.1']), str(a1))
+        self.assertEqual(str(prior['ao.1']), str(a1))
 
 class test_read_dataset(unittest.TestCase):
-
     def setUp(self):
         pass
 
