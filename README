@@ -9,9 +9,8 @@ corrfitter.py - Defines class CorrFitter for fitting the t dependence of
 
 Information on how to install the library is in the file INSTALLATION.
 
-Documentation on how to use this module is in doc/html/index.html (html
-version, which is the better one) and doc/corrfitter.pdf (pdf version, for
-printing).
+Documentation on how to use this module is in doc/html/index.html or
+online at <https://corrfitter.readthedocs.io>.
 
 To test the module try 'make tests'.
 

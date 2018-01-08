@@ -8,5 +8,6 @@ dependencies:
 - numpy
 - scipy
 - pip:
+  - gvar
   - lsqfit
 
