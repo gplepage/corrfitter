@@ -9,6 +9,3 @@ dependencies:
 - scipy
 - pip:
   - gvar
-- pip:
-  - lsqfit
-
