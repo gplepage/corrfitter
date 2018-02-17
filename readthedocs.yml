@@ -3,7 +3,7 @@ formats:
     - epub
     - pdf
 
-requirements_file: doc/requirements.txt
+# requirements_file: doc/requirements.txt
 
 conda:
   file: doc/environment.yml

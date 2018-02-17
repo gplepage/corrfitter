@@ -1,3 +1,11 @@
+Version 6.0.3 2018-02-16
+========================
+Very minor update.
+
+- Improved installation script.
+
+- Documentation fix.
+
 Version 6.0.2 2017-06-20
 ==========================
 The only change in this version is in the documentation, which now includes

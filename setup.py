@@ -1,8 +1,12 @@
 from distutils.core import setup
-import corrfitter
+
+CORRFITTER_VERSION = '6.0.3'
+
+with open('corrfitter.py', 'a') as cfile:
+    cfile.write("\n__version__ = '%s'\n" % CORRFITTER_VERSION)
 
 setup(name='corrfitter',
-    version=corrfitter.__version__,
+    version=CORRFITTER_VERSION,
     description='Utilities for fitting correlators in lattice QCD.',
     author='G. Peter Lepage, Cornell University',
     author_email='g.p.lepage@cornell.edu',

@@ -60,7 +60,6 @@ import time
 import lsqfit
 import gvar as _gvar
 import numpy
-__version__ = '6.0.2'
 
 try:
     import scipy

@@ -664,7 +664,7 @@ routine when creating processed data (see :ref:`processed-datasets`)::
         dset = cf.read_dataset(filename)
         pdata = cf.process_dataset(dset, models)
         if GENERATE_SVD:
-            s = gv.dataset.svd_diagnosis(dset, models)
+            s = gv.dataset.svd_diagnosis(dset, models=models)
             print('suggested svdcut =', s.svdcut)
             s.plot_ratio(show=True)
             svdcut = s.svdcut

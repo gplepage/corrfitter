@@ -3,9 +3,8 @@ channels:
 - defaults
 dependencies:
 - python>=3.5
-- cython
-- gsl>=2.2.1
 - numpy
 - scipy
 - pip:
   - gvar
+  - lsqfit
