@@ -1,43 +1,29 @@
 To install:
 
-1. If not already installed, install the lsqfit and gvar modules system.
-	The lsqfit and corrfitter codes work for Python 2.7 and 3.4 (and later).
-	Also install scipy in Python if you want to use the
-	corrfitter.EigenBasis class.
+1. Use 'make install' to install the module in the system library (or
+    use 'make install-user' to install in the user's library). The numpy,
+    gvar, and lsqfit Python modules are installed if not already present.
 
-2. Use 'make install' to copy the relevant files into your Python. The
-	files are installed in a standard directory (that Python knows about) in
-	the user's space. A list of the installed files is stored in the file
-	files-corrfitter.python.
+    N.B. Rather than using make and the makefile, one can instead use
+    standard python installation tools: run 'pip install .' to install
+    to the system library (or 'pip install . --user' to install to
+    the user's directory) from within the top directory.
 
-	Alternatively 'make install-sys' will install the files in the
-	appropriate system-level python directory, instead of a user directory.
-	This requires superuser permission usually.
+    Install the scipy Python module if you want to use the
+    corrfitter.EigenBasis class. Install the matplotlib Python module
+    to use CorrFitter.show_plots() for plots of the fits. Neither
+    module is not installed automatically.
 
-	Note: Distutils commands like 'python setup.py install --user' can be
-	used instead of 'make install'. This may be useful for non-unix systems
-	where 'make' is  unavailable.
-
-	Note: To install corrfitter for an alternative version of python, say
-	python3 for example, use 'make PYTHON=python3 install'. Python's standard
-	directories are structured in such a way that it is necessary to do a
-	separate installation for each python version that will use corrfitter.
-
-3. (Optional) Use 'make tests' to run a series of unittests that verify
+2. (Optional) Use 'make tests' to run a series of unittests that verify
    that the major components of corrfitter are working. The tests have been
-   successful if the output ends with "OK". (To test an installation
-   for a different version of Python, say python3, use 'make PYTHON=python3
-	tests'.) If 'make' is unavailable (non-unix systems),
-	'python -m unittest discover' can be used to run the tests from
-	inside the tests/ directory.
+   successful if the output ends with "OK". If 'make' is unavailable
+   (non-unix systems), 'python -m unittest discover' can be used to run the
+   tests from inside the tests/ directory.
 
-4. (Optional) Look at the examples of corrfitter use in the examples/
+3. (Optional) Look at the examples of corrfitter use in the examples/
    directory; run them all using 'make run-examples'.
 
-5. (Optional) Use 'make clean' to erase work files and directories.
-
-6. (Optional) Install matplotlib (http://matplotlib.sourceforge.net/) in
-	order to use CorrFitter.show_plots() for plots of the fits.
+4. (Optional) Use 'make clean' to erase work files and directories.
 
 
 To uninstall:
@@ -53,5 +39,5 @@ Problems:
 
 
 Created by G. Peter Lepage (Cornell University) on 2008-02-12.
-Copyright (c) 2008--2014 G. Peter Lepage.
+Copyright (c) 2008--2018 G. Peter Lepage.
 All rights reserved.

@@ -7,12 +7,12 @@ PYTHON = python
 PIP = $(PYTHON) -m pip
 VERSION = `python -c 'import corrfitter; print corrfitter.__version__'`
 
-install:
+install-user:
 	$(PIP) install . --user
 
 #	$(PYTHON) setup.py install --user	--record files-corrfitter.$(PYTHON)
 
-install-sys:
+install install-sys:
 	$(PIP) install .
 
 #	$(PYTHON) setup.py install	--record files-corrfitter.$(PYTHON)

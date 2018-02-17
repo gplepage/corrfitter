@@ -39,7 +39,7 @@ given in the tutorial documentation for |CorrFitter|.
 """
 
 # Created by G. Peter Lepage, Cornell University, on 2010-11-26.
-# Copyright (c) 2010-2017 G. Peter Lepage.
+# Copyright (c) 2010-2018 G. Peter Lepage.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
