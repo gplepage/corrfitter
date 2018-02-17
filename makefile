@@ -5,7 +5,7 @@
 
 PYTHON = python
 PIP = $(PYTHON) -m pip
-VERSION = `python -c 'import corrfitter; print corrfitter.__version__'`
+VERSION = `cd ..; python -c 'import corrfitter; print corrfitter.__version__'`
 
 install-user:
 	$(PIP) install . --user
