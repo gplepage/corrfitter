@@ -1,9 +1,11 @@
 include makefile README INSTALLATION COPYING MANIFEST.in CHANGES
 include avg.py
+include src/*.py
 
 graft doc
 graft tests
 graft examples
+exclude src/*.pyc
 exclude tests/extra-fits.*
 exclude tests/*.tmp
 exclude tests/*.pyc

@@ -7,6 +7,9 @@ PYTHON = python
 PIP = $(PYTHON) -m pip
 VERSION = `cd ..; python -c 'import corrfitter; print corrfitter.__version__'`
 
+DOCFILES :=  $(shell ls doc/source/*.{rst,py,png})
+SRCFILES := $(shell ls setup.py src/*.py)
+
 install-user:
 	$(PIP) install . --user
 
@@ -59,15 +62,22 @@ corrfitter.tz:	# everything distribution
 	make clean
 	tar -C .. --exclude '\.svn' -z -c -v -f corrfitter.tz corrfitter
 
-doc-html:		# html version of documentation (in doc/html)
-	sphinx-build -b html doc/source doc/html
+doc-html:
+	make doc/html/index.html
+
+doc/html/index.html : $(DOCFILES) $(SRCFILES)
+	rm -rf doc/html; sphinx-build -b html doc/source doc/html
+
+doc-pdf:
+	make doc/corrfitter.pdf
+
+doc/corrfitter.pdf : $(DOCFILES) $(SRCFILES)
+	rm -rf doc/corrfitter.pdf
+	sphinx-build -b latex doc/source doc/latex
+	cd doc/latex; make corrfitter.pdf; mv corrfitter.pdf ..
 
 doc-zip doc.zip:
 	cd doc/html; zip -r doc *; mv doc.zip ../..
-
-doc-pdf:		# pdf version of documentation (in doc/)
-	sphinx-build -b latex doc/source doc/latex
-	cd doc/latex; make corrfitter.pdf; mv corrfitter.pdf ..
 
 doc-all: doc-html doc-pdf
 
@@ -78,9 +88,11 @@ upload-pypi:
 	python setup.py sdist upload
 
 upload-git:
-	make doc-all
-	git commit -a -m "prep for upload"
+	make doc-html doc-pdf
+	git diff --exit-code
+	git diff --cached --exit-code
 	git push origin master
+
 
 test-download:
 	-$(PIP) uninstall corrfitter

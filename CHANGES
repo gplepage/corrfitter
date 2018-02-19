@@ -1,3 +1,10 @@
+Version 6.0.4 2018-02-19
+========================
+Even more minor update than the last. This has tiny improvements to the
+installation script (setup.py) and distribution file layout to make
+installation more robust, with less opportunity for confusion on the
+part of the user.
+
 Version 6.0.3 2018-02-16
 ========================
 Very minor update.

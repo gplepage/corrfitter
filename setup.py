@@ -1,9 +1,14 @@
+from distutils.command.build_py import build_py as _build_py
 from distutils.core import setup
 
-CORRFITTER_VERSION = '6.0.3'
+CORRFITTER_VERSION = '6.0.4'
 
-with open('corrfitter.py', 'a') as cfile:
-    cfile.write("\n__version__ = '%s'\n" % CORRFITTER_VERSION)
+class build_py(_build_py):
+    def run(self):
+        """ Append version number to corrfitter.py """
+        with open('src/corrfitter.py', 'a') as cffile:
+            cffile.write("\n__version__ = '%s'\n" % CORRFITTER_VERSION)
+        _build_py.run(self)
 
 setup(name='corrfitter',
     version=CORRFITTER_VERSION,
@@ -11,7 +16,9 @@ setup(name='corrfitter',
     author='G. Peter Lepage, Cornell University',
     author_email='g.p.lepage@cornell.edu',
     license='GPLv3+',
-    py_modules=['corrfitter'],
+    packages={''},
+    package_dir={'':'src'},
+    cmdclass={'build_py': build_py},
     requires=["lsqfit (>=9.1.1)", 'numpy (>=1.7)', 'gvar (>=8.2)'],
     install_requires=['lsqfit>=9.1.1', 'gvar>=8.2', 'numpy>=1.7'],
     platforms="Any",

@@ -2112,6 +2112,3 @@ class fastfit(object):
             self.ampl.chi2 / self.ampl.dof, self.E.dof, self.E.Q, self.ampl.Q,
             )
 
-
-
-__version__ = '6.0.3'
