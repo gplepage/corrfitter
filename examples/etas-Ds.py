@@ -76,7 +76,7 @@ def make_models():
 
         cf.Corr3(
             datatag='3ptT16', T=16, tmin=tmin, a='etas:a', dEa='etas:dE',
-            b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'), tpb=tp,
+            b=('Ds:a', 'Dso:a'), dEb=('Ds:dE', 'Dso:dE'),
             Vnn='Vnn', Vno='Vno',
             )
         ]

@@ -4,6 +4,8 @@ Minor update.
 
 - Modified tests to account for change in numpy.
 
+- Cleaned up some obsolete tests.
+
 - Reorganized documentation.
 
 
