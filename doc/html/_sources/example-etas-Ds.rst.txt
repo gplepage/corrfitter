@@ -272,10 +272,10 @@ Note:
       :width: 70%
 
   The points with error bars are the correlator data points; the fit
-  result is 1.0 in this plot, of course, and the dashed lines show the
+  result is 1.0 in this plot, of course, and the shaded band shows the
   uncertainty in the fit function evaluated with the best-fit parameters.
   Fit and data agree to within errors. Note how the fit-function errors
-  (the dashed lines) track the data errors. In general the fit function
+  (the shaded band) track the data errors. In general the fit function
   is at least as accurate as the data. It can be much more accurate,
   for example, when the data errors grow rapidly with ``t``.
 

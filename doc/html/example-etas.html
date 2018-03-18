@@ -24,7 +24,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Annotated Example: Transition Form Factor and Mixing" href="example-etas-Ds.html" />
-    <link rel="prev" title="corrfitter - Least-Squares Fit to Correlators" href="corrfitter.html" />
+    <link rel="prev" title="Faster, More Accurate Fits" href="faster.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <!--[if lte IE 6]>
@@ -47,7 +47,7 @@
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="corrfitter.html" title="corrfitter - Least-Squares Fit to Correlators"
+          <a href="faster.html" title="Faster, More Accurate Fits"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.4 documentation</a> &#187;</li> 
       </ul>
@@ -68,7 +68,7 @@ two-point correlator. Here we analyze an <img class="math" src="_images/math/89f
 source and sink are the same.</p>
 <p>The one slightly non-obvious aspect of this fit is its use of
 log-normal priors for the energy differences <code class="docutils literal"><span class="pre">dE</span></code> between successive
-states in the correlator. As discussed in <a class="reference internal" href="corrfitter.html#positive-parameters"><span class="std std-ref">Faster Fits — Postive Parameters</span></a>,
+states in the correlator. As discussed in <a class="reference internal" href="faster.html#positive-parameters"><span class="std std-ref">Postive Parameters</span></a>,
 this choice imposes an order on the states in relation to the
 fit parameters by forcing all <code class="docutils literal"><span class="pre">dE</span></code> values to be positive.
 Any such restriction helps stabilize a fit, improving both
@@ -78,7 +78,7 @@ fits, with increasing  number <code class="docutils literal"><span class="pre">N
 the results  from the <code class="docutils literal"><span class="pre">N-1</span></code> fit are used by the fitter as the  starting
 point (<code class="docutils literal"><span class="pre">p0</span></code>) for the <code class="docutils literal"><span class="pre">N</span></code> fit. The initial fits are bad, but this procedure
 helps guide the fit parameters towards sensible values as the number of states
-increases. See <a class="reference internal" href="corrfitter.html#faster-fits"><span class="std std-ref">Faster Fits</span></a> for more discussion.</p>
+increases. See <a class="reference internal" href="faster.html#faster-fits"><span class="std std-ref">Priming a Fit</span></a> for more discussion.</p>
 <p>The source code (<code class="docutils literal"><span class="pre">etas.py</span></code>) and
 data file (<code class="docutils literal"><span class="pre">etas-Ds.data</span></code>) are included with the <a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><code class="xref py py-mod docutils literal"><span class="pre">corrfitter</span></code></a>
 distribution, in the <code class="docutils literal"><span class="pre">examples/</span></code> directory.
@@ -86,7 +86,7 @@ The data are from the HPQCD collaboration.</p>
 </div>
 <div class="section" id="code">
 <h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
-<p>Following the template outlined in <a class="reference internal" href="corrfitter.html#basic-fits"><span class="std std-ref">Basic Fits</span></a>, the entire
+<p>Following the template outlined in <a class="reference internal" href="overview.html#basic-fits"><span class="std std-ref">Basic Fits</span></a>, the entire
 code is:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>   <span class="c1"># makes this work for python2 and 3</span>
 
@@ -320,7 +320,7 @@ with increasing bin sizes until fit error estimates stop growing.</p>
 <h2>Fast Fit and Effective Mass<a class="headerlink" href="#fast-fit-and-effective-mass" title="Permalink to this headline">¶</a></h2>
 <p>The last two lines in the <code class="docutils literal"><span class="pre">main()</span></code> function of the code illustrate the  use
 of <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a> to get a very fast results for the lowest-energy
-state. As discussed in <a class="reference internal" href="corrfitter.html#very-fast-fits"><span class="std std-ref">Very Fast (But Limited) Fits</span></a>, <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a>
+state. As discussed in <a class="reference internal" href="overview.html#very-fast-fits"><span class="std std-ref">Very Fast (But Limited) Fits</span></a>, <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a>
 provides  an alternative to the multi-exponential fits discussed above when
 only  the lowest-energy parameters are needed. The method used is similar to a
 traditional effective mass analysis except that estimates for contributions
@@ -394,8 +394,8 @@ useful when multiple sources and sinks are involved, as in a matrix fit.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="corrfitter.html"
-                        title="previous chapter"><code class="docutils literal"><span class="pre">corrfitter</span></code> - Least-Squares Fit to Correlators</a></p>
+  <p class="topless"><a href="faster.html"
+                        title="previous chapter">Faster, More Accurate Fits</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="example-etas-Ds.html"
                         title="next chapter">Annotated Example: Transition Form Factor and Mixing</a></p>
@@ -426,14 +426,14 @@ useful when multiple sources and sinks are involved, as in a matrix fit.</p>
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              >next</a> |</li>
         <li class="right" >
-          <a href="corrfitter.html" title="corrfitter - Least-Squares Fit to Correlators"
+          <a href="faster.html" title="Faster, More Accurate Fits"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2010-14, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+        &#169; Copyright 2010-18, G.P. Lepage.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
   </body>
 </html>

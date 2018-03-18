@@ -56,6 +56,7 @@ import fileinput
 import math
 import re
 import time
+import warnings
 
 import lsqfit
 import gvar as _gvar
@@ -587,8 +588,8 @@ class Corr3(lsqfit.MultiFitterModel):
                     tmin=3, T=15, reverseddata='b->V->a'
                     ),
 
-            This is faster than using a separate model with
-            ``transpose_V=True``. Default is ``None``.
+            This is faster than using a separate model with ``reverse=True``.
+            Default is ``None``.
         otherdata (str or list or ``None``): Data tag or list of data tags
             for additional data that are averaged with the ``self.datatag``
             data before fitting. Default is ``None``.
@@ -625,11 +626,13 @@ class Corr3(lsqfit.MultiFitterModel):
         self, datatag, T=None, tdata=None, tfit=None, tmin=None,
         a=None, b=None, dEa=None, dEb=None, sa=1., sb=1.,
         Vnn=None, Vno=None, Von=None, Voo=None,
-        reverse=False, symmetric_V=False, transpose_V=False, ncg=1,
+        reverse=False, symmetric_V=False, transpose_V=None, ncg=1,
         reverseddata=None, otherdata=None,
         tpa=None, tpb=None, othertags=None # backwards compatibility; tp's ignored
         ):
         super(Corr3, self).__init__(datatag, ncg)
+        if tpa is not None or tpb is not None:
+            warnings.warn('parameters tpa and tbp are ignored (obsolete)')
         # othertags is the old name for otherdata
         if othertags is not None and otherdata is None:
             otherdata = othertags
@@ -651,6 +654,8 @@ class Corr3(lsqfit.MultiFitterModel):
         self.dEb = _parse_param(dEb)
         self.sb = _parse_param(sb, -1.)
         self.transpose_V = transpose_V
+        if transpose_V is not None:
+            warnings.warn("'transpose_V' is deprecated; use 'reverse' keyword instead")
         self.symmetric_V = symmetric_V
         if self.symmetric_V:
             # use transpose of Vno (if present) for Von (or vice versa)

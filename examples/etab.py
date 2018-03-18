@@ -23,7 +23,7 @@ def main():
         p0 = fit.pmean
     print_results(fit, basis, prior, data)
     if SHOWPLOTS:
-        fit.show_plots()
+        fit.show_plots(save='etab.{}.png', view='ratio')
 
 def make_data(filename):
     data = gv.dataset.avg_data(cf.read_dataset(filename, grep='1s0'))

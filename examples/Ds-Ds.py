@@ -24,7 +24,7 @@ def main():
         p0 = fit.pmean
     print_results(fit, prior, data)
     if SHOWPLOTS:
-        fit.show_plots()
+        fit.show_plots(save='Ds-Ds.{}.png', view='ratio')
 
 def make_data(filename):
     """ Read data from file and average it. """
@@ -41,14 +41,14 @@ def make_models():
             ),
         cf.Corr3(
             datatag='DsDsT18', T=18, tmin=tmin,
-            a=('a', 'ao'), dEa=('dE', 'dEo'), tpa=tp, sa=(1., -1),
-            b=('a', 'ao'), dEb=('dE', 'dEo'), tpb=tp, sb=(1., -1.),
+            a=('a', 'ao'), dEa=('dE', 'dEo'), sa=(1., -1),
+            b=('a', 'ao'), dEb=('dE', 'dEo'), sb=(1., -1.),
             Vnn='Vnn', Voo='Voo', Vno='Vno', symmetric_V=True,
             ),
         cf.Corr3(
             datatag='DsDsT15', T=15, tmin=tmin,
-            a=('a', 'ao'), dEa=('dE', 'dEo'), tpa=tp, sa=(1., -1),
-            b=('a', 'ao'), dEb=('dE', 'dEo'), tpb=tp, sb=(1., -1.),
+            a=('a', 'ao'), dEa=('dE', 'dEo'), sa=(1., -1),
+            b=('a', 'ao'), dEb=('dE', 'dEo'), sb=(1., -1.),
             Vnn='Vnn', Voo='Voo', Vno='Vno', symmetric_V=True,
             )
         ]

@@ -355,13 +355,13 @@ class test_corr3(unittest.TestCase):
         " Corr3 "
         m = Corr3(
             'tag', a='a', dEa='dEa', b='b', dEb='dEb', Vnn='Vnn',
-            transpose_V=True, symmetric_V=True, tmin=2, T=5
+            reverse=True, symmetric_V=True, tmin=2, T=5
             )
         self.assertTrue(
             m.datatag == 'tag' and m.a == ('a',None) and m.b == ('b',None)
             and m.dEa == ('dEa',None) and m.dEb == ('dEb',None)
             and m.V == [['Vnn', None], [None, None]]
-            and m.transpose_V == True and m.symmetric_V == True
+            and m.reverse == True and m.symmetric_V == True
             and np.all(m.tdata == [0,1,2,3,4,5]) and np.all(m.tfit == [2,3])
             and m.T == 5 and m.otherdata == [] and
             m.reverseddata == []
@@ -370,10 +370,10 @@ class test_corr3(unittest.TestCase):
         # tfit
         m = Corr3(
             'tag', a='a', dEa='dEa', b='b', dEb='dEb', Vnn='Vnn',
-            tfit=[1,3,4], T=5, transpose_V=True,
+            tfit=[1,3,4], T=5, reverse=True,
             )
         self.assertTrue(
-            m.transpose_V == True and m.symmetric_V == False
+            m.reverse == True and m.symmetric_V == False
             and m.V == [['Vnn', None], [None, None]]
             )
         np.testing.assert_almost_equal([1,3,4], m.tfit)
@@ -384,7 +384,7 @@ class test_corr3(unittest.TestCase):
             Vnn='Vnn', tmin=2, tdata=[1,2,3,5], T=5,
             )
         self.assertTrue(
-            m.transpose_V == False and m.symmetric_V == False
+            m.reverse == False and m.symmetric_V == False
             and m.V == [['Vnn', None], [None, None]]
             )
         np.testing.assert_almost_equal([2,3], m.tfit)
@@ -392,7 +392,7 @@ class test_corr3(unittest.TestCase):
         # otherdata
         m = Corr3(
             'tag', a='a', dEa='dEa', b='b', dEb='dEb', Vnn='Vnn',
-            transpose_V=True, symmetric_V=True, tmin=2, T=5,
+            reverse=True, symmetric_V=True, tmin=2, T=5,
             otherdata='otag',
             )
         self.assertEqual(m.otherdata, ['otag'])
@@ -401,7 +401,7 @@ class test_corr3(unittest.TestCase):
         # reverseddata
         m = Corr3(
             'tag', a='a', dEa='dEa', b='b', dEb='dEb', Vnn='Vnn',
-            transpose_V=True, symmetric_V=True, tmin=2, T=5,
+            reverse=True, symmetric_V=True, tmin=2, T=5,
             reverseddata='rtag',
             )
         self.assertEqual(m.otherdata, [])
@@ -412,13 +412,13 @@ class test_corr3(unittest.TestCase):
         m = Corr3(
             'tag', a=('a', 'ao'), dEa=('dEa', 'dEao'), b=('b', 'bo'),
             dEb=('dEb', 'dEbo'), Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
-            transpose_V=True, symmetric_V=False, tmin=2, T=5
+            reverse=True, symmetric_V=False, tmin=2, T=5
             )
         self.assertTrue(
             m.datatag == 'tag' and m.a == ('a','ao') and m.b == ('b','bo')
             and m.dEa == ('dEa','dEao') and m.dEb == ('dEb','dEbo')
             and m.V == [['Vnn', 'Vno'], ['Von', 'Voo']]
-            and m.transpose_V == True and m.symmetric_V == False
+            and m.reverse == True and m.symmetric_V == False
             and np.all(m.tdata == [0,1,2,3,4,5]) and np.all(m.tfit == [2,3])
             and m.T == 5 and m.otherdata == [] and
             m.reverseddata == []
@@ -429,7 +429,7 @@ class test_corr3(unittest.TestCase):
         args = dict(
             datatag='tag', a=('a', 'ao'), dEa=('dEa', 'dEao'), b=('b', 'bo'),
             dEb=('dEb', 'dEbo'), Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
-            transpose_V=False, symmetric_V=False, tmin=2, T=5
+            reverse=False, symmetric_V=False, tmin=2, T=5
             )
         m = Corr3(**args)
 
@@ -554,7 +554,8 @@ class test_corr3(unittest.TestCase):
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn',
             )
         self.assertEqual(
-            str(m.builddataset(dataset)), '[[ 2.  3.]\n [ 4.  5.]]'
+            str(m.builddataset(dataset)).replace(' ',''),
+            '[[ 2.  3.]\n [ 4.  5.]]'.replace(' ',''),
             )
 
         # reverse=True
@@ -563,7 +564,8 @@ class test_corr3(unittest.TestCase):
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn', reverse=True
             )
         self.assertEqual(
-            str(m.builddataset(dataset)), '[[ 3.  2.]\n [ 5.  4.]]'
+            str(m.builddataset(dataset)).replace(' ',''),
+            '[[ 3.  2.]\n [ 5.  4.]]'.replace(' ','')
             )
 
         # reverseddata
@@ -572,7 +574,8 @@ class test_corr3(unittest.TestCase):
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn', reverseddata='rtag',
             )
         self.assertEqual(
-            str(m.builddataset(dataset)), '[[ 2.  3.]\n [ 4.  5.]]'
+            str(m.builddataset(dataset)).replace(' ',''),
+            '[[ 2.  3.]\n [ 4.  5.]]'.replace(' ','')
             )
 
         # otherdata
@@ -581,7 +584,8 @@ class test_corr3(unittest.TestCase):
             a='a', b='b', dEa='dEa', dEb='dEb', Vnn='Vnn', otherdata='otag',
             )
         self.assertEqual(
-            str(m.builddataset(dataset)), '[[ 2.  3.]\n [ 4.  5.]]'
+            str(m.builddataset(dataset)).replace(' ',''),
+            '[[ 2.  3.]\n [ 4.  5.]]'.replace(' ','')
             )
 
     def test_buildprior(self):
@@ -635,7 +639,7 @@ class test_corr3(unittest.TestCase):
         m = Corr3(
             'tag', a=('a', 'ao'), dEa=('dEa', 'dEao'), b=('b', 'bo'),
             dEb=('dEb', 'dEbo'), Vnn='Vnn', Vno='Vno', Voo='Voo',
-            transpose_V=False, symmetric_V=True, tmin=2, T=5,
+            reverse=False, symmetric_V=True, tmin=2, T=5,
             )
         prior = dict(
             a=['1(1)', '2(1)', '3(1)'],
@@ -659,11 +663,11 @@ class test_corr3(unittest.TestCase):
         self.assertTrue('dummy' not in mprior)
         self.assertTrue('Von' not in mprior)
 
-        # use Von instead of Vno with transpose_V=True
+        # use Von instead of Vno with reverse=True
         m = Corr3(
             'tag', a=('a', 'ao'), dEa=('dEa', 'dEao'), b=('b', 'bo'),
-            dEb=('dEb', 'dEbo'), Vnn='Vnn', Von='Vno', Voo='Voo',
-            transpose_V=True, symmetric_V=True, tmin=2, T=5,
+            dEb=('dEb', 'dEbo'), Vnn='Vnn', Vno='Vno', Voo='Voo',
+            reverse=True, symmetric_V=True, tmin=2, T=5,
             )
         mprior = m.buildprior(prior)
         for k in prior:
@@ -672,14 +676,14 @@ class test_corr3(unittest.TestCase):
             self.assertEqual(str(prior[k]), str(mprior[k]))
         self.assertTrue('dummy' not in mprior)
         self.assertTrue('Von' not in mprior)
-        # check marginalization with transpose_V=True
+        # check marginalization with reverse=True
         mprior = m.buildprior(prior, nterm=(2,1))
 
         # symmetric plus marginalization
         m = Corr3(
             'tag', a=('a', 'ao'), dEa=('dEa', 'dEao'), b=('b', 'bo'),
             dEb=('dEb', 'dEbo'), Vnn='Vnn', Vno='Vno', Voo='Voo',
-            transpose_V=False, symmetric_V=True, tmin=2, T=5,
+            reverse=False, symmetric_V=True, tmin=2, T=5,
             )
         mprior = m.buildprior(prior, nterm=(2,1))
         for k in prior:
@@ -738,7 +742,7 @@ class test_corr3(unittest.TestCase):
         m = Corr3(
             'tag', a=('a', 'ao'), dEa=('dEa', 'dEao'), b=('b', 'bo'),
             dEb=('dEb', 'dEbo'), Vnn='Vnn', Vno='Vno', Voo='Voo',
-            transpose_V=False, symmetric_V=True, tmin=2, T=5,
+            reverse=False, symmetric_V=True, tmin=2, T=5,
             )
         prior = dict(
             a=['1(1)', '2(1)', '3(1)'],
@@ -758,11 +762,11 @@ class test_corr3(unittest.TestCase):
         m.fitfcn(mprior)
         m.fitfcn(mprior, t=[1,2])
 
-        # symmetric_V=True, transpose_V=True
+        # symmetric_V=True, reverse=True
         m = Corr3(
             'tag', a=('a', 'ao'), dEa=('dEa', 'dEao'), b=('b', 'bo'),
-            dEb=('dEb', 'dEbo'), Vnn='Vnn', Von='Vno', Voo='Voo',
-            transpose_V=True, symmetric_V=True, tmin=2, T=5,
+            dEb=('dEb', 'dEbo'), Vnn='Vnn', Von='Von', Voo='Voo',
+            reverse=True, symmetric_V=True, tmin=2, T=5,
             )
         prior = dict(
             a=['1(1)', '2(1)', '3(1)'],
@@ -786,7 +790,7 @@ class test_corr3(unittest.TestCase):
         m = Corr3(
             'tag', a=('a', 'ao'), dEa=('dEa', 'dEao'), b=('b', 'bo'),
             dEb=('dEb', 'dEbo'), Vnn='Vnn', Vno='Vno', Voo='Voo',
-            transpose_V=False, symmetric_V=True, tmin=2, T=5,
+            reverse=False, symmetric_V=True, tmin=2, T=5,
             )
         mprior = m.buildprior(prior, nterm=(2,1))
         m.fitfcn(mprior)
@@ -857,15 +861,14 @@ class test_corr3(unittest.TestCase):
             return ans
         self.assertEqual(str(G(p)), str(m.fitfcn(p)))
 
-        # osc, transform_V=True
-        # symmetry = [interchange a,b and Vno, Von; run tfit backwards]
+        # osc, reverse=True (has no effect on model, just on data)
         m = Corr3(
-            'tag', b=('a', 'ao'), dEb=('dEa', 'dEao'), a=('b', 'bo'),
-            dEa=('dEb', 'dEbo'), Vnn='Vnn', Von='Vno', Vno='Von', Voo='Voo',
-            tmin=0, T=5, transpose_V=True
+            'tag', b=('b', 'bo'), dEb=('dEb', 'dEbo'), a=('a', 'ao'),
+            dEa=('dEa', 'dEao'), Vnn='Vnn', Von='Von', Vno='Vno', Voo='Voo',
+            tmin=0, T=5, reverse=True
             )
         mprior = m.buildprior(p)
-        self.assertEqual(str(G(p, m.tfit[::-1])), str(m.fitfcn(p)))
+        self.assertEqual(str(G(p, m.tfit)), str(m.fitfcn(p)))
 
     def test_fitfcn_symm(self):
         " Corr3.fitfcn with symmetric_V=True "
@@ -940,15 +943,14 @@ class test_corr3(unittest.TestCase):
             return ans
         self.assertEqual(str(G(p)), str(m.fitfcn(p)))
 
-        # osc, transpose_V=True
-        # symmetry = [ interchange a,b and Vno,Von; run tfit backwards ]
+        # osc, reverse=True (no effect on model, just on data)
         m = Corr3(
-            'tag', b=('a', 'ao'), dEb=('dEa', 'dEao'), a=('b', 'bo'),
-            dEa=('dEb', 'dEbo'), Vnn='Vnn', Von='Vno', Voo='Voo',
-            tmin=0, T=5, symmetric_V=True, transpose_V=True
+            'tag', a=('a', 'ao'), dEa=('dEa', 'dEao'), b=('b', 'bo'),
+            dEb=('dEb', 'dEbo'), Vnn='Vnn', Vno='Vno', Voo='Voo',
+            tmin=0, T=5, symmetric_V=True, reverse=True,
             )
         mprior = m.buildprior(p)
-        self.assertEqual(str(G(p,t=m.tfit[::-1])), str(m.fitfcn(p)))
+        self.assertEqual(str(G(p,t=m.tfit)), str(m.fitfcn(p)))
 
 class test_corrfitter(unittest.TestCase):
     def setUp(self):

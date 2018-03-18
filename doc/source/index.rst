@@ -11,11 +11,13 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   corrfitter.rst
+   overview.rst
+   faster.rst
    example-etas.rst
-   example-etas-Ds.rst  
+   example-etas-Ds.rst
    example-etab.rst
-   
+   corrfitter.rst
+
 Indices and tables
 ==================
 

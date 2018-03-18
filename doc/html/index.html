@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="corrfitter - Least-Squares Fit to Correlators" href="corrfitter.html" />
+    <link rel="next" title="Overview" href="overview.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <!--[if lte IE 6]>
@@ -43,7 +43,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="corrfitter.html" title="corrfitter - Least-Squares Fit to Correlators"
+          <a href="overview.html" title="Overview"
              accesskey="N">next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">corrfitter 6.0.4 documentation</a> &#187;</li> 
       </ul>
@@ -59,26 +59,25 @@
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="corrfitter.html"><code class="docutils literal"><span class="pre">corrfitter</span></code> - Least-Squares Fit to Correlators</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#basic-fits">Basic Fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#faster-fits">Faster Fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#faster-fits-postive-parameters">Faster Fits — Postive Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#faster-fits-marginalization">Faster Fits — Marginalization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#faster-fits-chained-fits">Faster Fits — Chained Fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#faster-fits-faster-fitters">Faster Fits — Faster Fitters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#faster-fits-processed-datasets">Faster Fits — Processed Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#accurate-fits-svd-cuts">Accurate Fits — SVD Cuts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#variations">Variations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#very-fast-but-limited-fits">Very Fast (But Limited) Fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#point-correlators">3-Point Correlators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#testing-fits-with-simulated-data">Testing Fits with Simulated Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#bootstrap-analyses">Bootstrap Analyses</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#implementation">Implementation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#correlator-model-objects">Correlator Model Objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#corrfitter-objects"><code class="docutils literal"><span class="pre">corrfitter.CorrFitter</span></code> Objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#corrfitter-eigenbasis-objects"><code class="docutils literal"><span class="pre">corrfitter.EigenBasis</span></code> Objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#fast-fit-objects">Fast Fit Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#basic-fits">Basic Fits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#variations">Variations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#very-fast-but-limited-fits">Very Fast (But Limited) Fits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#point-correlators">3-Point Correlators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#testing-fits-with-simulated-data">Testing Fits with Simulated Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#bootstrap-analyses">Bootstrap Analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="faster.html">Faster, More Accurate Fits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="faster.html#priming-a-fit">Priming a Fit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faster.html#postive-parameters">Postive Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faster.html#marginalization">Marginalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faster.html#chained-fits">Chained Fits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faster.html#faster-fitters">Faster Fitters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faster.html#processed-datasets">Processed Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faster.html#accurate-fits-svd-cuts">Accurate Fits — SVD Cuts</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="example-etas.html">Annotated Example: Two-Point Correlator</a><ul>
@@ -107,6 +106,13 @@
 <li class="toctree-l2"><a class="reference internal" href="example-etab.html#alternative-organization">Alternative Organization</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="corrfitter.html"><code class="docutils literal"><span class="pre">corrfitter</span></code> - Least-Squares Fit to Correlators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#correlator-model-objects">Correlator Model Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#corrfitter-objects"><code class="docutils literal"><span class="pre">corrfitter.CorrFitter</span></code> Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#corrfitter-eigenbasis-objects"><code class="docutils literal"><span class="pre">corrfitter.EigenBasis</span></code> Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corrfitter.html#fast-fit-objects">Fast Fit Objects</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -132,8 +138,8 @@
 </ul>
 
   <h4>Next topic</h4>
-  <p class="topless"><a href="corrfitter.html"
-                        title="next chapter"><code class="docutils literal"><span class="pre">corrfitter</span></code> - Least-Squares Fit to Correlators</a></p>
+  <p class="topless"><a href="overview.html"
+                        title="next chapter">Overview</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -158,14 +164,14 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="corrfitter.html" title="corrfitter - Least-Squares Fit to Correlators"
+          <a href="overview.html" title="Overview"
              >next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">corrfitter 6.0.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2010-14, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+        &#169; Copyright 2010-18, G.P. Lepage.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
   </body>
 </html>

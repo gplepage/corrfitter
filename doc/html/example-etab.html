@@ -23,6 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="corrfitter - Least-Squares Fit to Correlators" href="corrfitter.html" />
     <link rel="prev" title="Annotated Example: Transition Form Factor and Mixing" href="example-etas-Ds.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -42,6 +43,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="corrfitter.html" title="corrfitter - Least-Squares Fit to Correlators"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              accesskey="P">previous</a> |</li>
@@ -86,7 +90,7 @@ The data are from the HPQCD collaboration.</p>
 </div>
 <div class="section" id="code">
 <h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
-<p>The main method follows the template in <a class="reference internal" href="corrfitter.html#basic-fits"><span class="std std-ref">Basic Fits</span></a>, but
+<p>The main method follows the template in <a class="reference internal" href="overview.html#basic-fits"><span class="std std-ref">Basic Fits</span></a>, but
 modified to handle the <a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.EigenBasis</span></code></a> object <code class="docutils literal"><span class="pre">basis</span></code>:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>   <span class="c1"># makes this work for python2 and 3</span>
 
@@ -109,7 +113,7 @@ modified to handle the <a class="reference internal" href="corrfitter.html#corrf
         <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
     <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">SHOWPLOTS</span><span class="p">:</span>
-        <span class="n">fit</span><span class="o">.</span><span class="n">show_plots</span><span class="p">()</span>
+        <span class="n">fit</span><span class="o">.</span><span class="n">show_plots</span><span class="p">(</span><span class="n">save</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{}</span><span class="s1">.png&#39;</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s1">&#39;ratio&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The eigen-basis is created by <code class="docutils literal"><span class="pre">make_data('etab.h5')</span></code>:</p>
@@ -783,6 +787,9 @@ little difference between the two approaches in this case:</p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="example-etas-Ds.html"
                         title="previous chapter">Annotated Example: Transition Form Factor and Mixing</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="corrfitter.html"
+                        title="next chapter"><code class="docutils literal"><span class="pre">corrfitter</span></code> - Least-Squares Fit to Correlators</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -807,14 +814,17 @@ little difference between the two approaches in this case:</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
+          <a href="corrfitter.html" title="corrfitter - Least-Squares Fit to Correlators"
+             >next</a> |</li>
+        <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2010-14, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+        &#169; Copyright 2010-18, G.P. Lepage.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
   </body>
 </html>
