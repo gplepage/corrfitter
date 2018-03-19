@@ -12,7 +12,7 @@ Faster, More Accurate Fits
 
 .. _faster-fits:
 
-Priming a Fit
+Priming Fits
 --------------
 Good fits often require fit functions with several exponentials and many
 parameters. Such fits can be costly. One strategy that can speed things up is

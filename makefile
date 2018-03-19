@@ -87,6 +87,9 @@ doc-all: doc-html doc-pdf
 upload-pypi:
 	python setup.py sdist upload
 
+upload-twine:
+	twine upload dist/corrfitter-$(VERSION).tar.gz
+
 upload-git:
 	make doc-html doc-pdf
 	git diff --exit-code

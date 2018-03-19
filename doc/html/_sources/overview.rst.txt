@@ -443,7 +443,7 @@ oscillate in sign from  one ``t`` to the next.
 
 :class:`fastfit`  is a special
 case of the more general marginalization strategy discussed later, in
-:ref:`faster-fits`.
+:ref:`marginalized-fits`.
 
 
 3-Point Correlators

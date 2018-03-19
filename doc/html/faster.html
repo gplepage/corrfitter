@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Faster, More Accurate Fits &#8212; corrfitter 6.0.4 documentation</title>
+    <title>Faster, More Accurate Fits &#8212; corrfitter 6.0.5 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.0.4',
+        VERSION:     '6.0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="overview.html" title="Overview"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.5 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,8 +60,8 @@
             
   <div class="section" id="faster-more-accurate-fits">
 <h1>Faster, More Accurate Fits<a class="headerlink" href="#faster-more-accurate-fits" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="priming-a-fit">
-<span id="faster-fits"></span><h2>Priming a Fit<a class="headerlink" href="#priming-a-fit" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="priming-fits">
+<span id="faster-fits"></span><h2>Priming Fits<a class="headerlink" href="#priming-fits" title="Permalink to this headline">¶</a></h2>
 <p>Good fits often require fit functions with several exponentials and many
 parameters. Such fits can be costly. One strategy that can speed things up is
 to use fits with fewer terms to generate estimates for the most important
@@ -166,7 +166,7 @@ parameters are, in effect, integrated out of the analysis, or <em>marginalized</
 The errors in the modified data are adjusted to account for uncertainties in
 the marginalized terms, as specified by their priors. The resulting fit
 function has many fewer parameters, and so the fit can be much faster.</p>
-<p>Continuing with the example in <a class="reference internal" href="#faster-fits"><span class="std std-ref">Priming a Fit</span></a>, imagine that <code class="docutils literal"><span class="pre">Nmax=8</span></code>
+<p>Continuing with the example in <a class="reference internal" href="#faster-fits"><span class="std std-ref">Priming Fits</span></a>, imagine that <code class="docutils literal"><span class="pre">Nmax=8</span></code>
 terms are needed to get a good fit, but we only care about parameter values
 for the first couple of terms. The code from that section can be modified to
 fit only the leading <code class="docutils literal"><span class="pre">N</span></code> terms where <code class="docutils literal"><span class="pre">N&lt;Nmax</span></code>, while incorporating
@@ -429,7 +429,7 @@ value of <code class="docutils literal"><span class="pre">svdcut</span></code> t
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Faster, More Accurate Fits</a><ul>
-<li><a class="reference internal" href="#priming-a-fit">Priming a Fit</a></li>
+<li><a class="reference internal" href="#priming-fits">Priming Fits</a></li>
 <li><a class="reference internal" href="#postive-parameters">Postive Parameters</a></li>
 <li><a class="reference internal" href="#marginalization">Marginalization</a></li>
 <li><a class="reference internal" href="#chained-fits">Chained Fits</a></li>
@@ -475,7 +475,7 @@ value of <code class="docutils literal"><span class="pre">svdcut</span></code> t
         <li class="right" >
           <a href="overview.html" title="Overview"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.5 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
