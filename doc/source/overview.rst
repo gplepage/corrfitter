@@ -622,7 +622,7 @@ large, or fluctuations are non-Gaussian. A typical code looks something like::
     nbootstrap = 10                     # number of bootstrap iterations
     bs_datalist = (ds.avg_data(d) for d in ds.bootstrap_iter(dset, nbootstrap))
     bs = ds.Dataset()                   # bootstrap output stored in bs
-    for bs_fit in fitter.bootstrap_iter(bs_datalist): # bs_fit = lsqfit output
+    for bs_fit in fitter.bootstrapped_fit_iter(bs_datalist): # bs_fit = lsqfit output
         p = bs_fit.pmean    # best fit values for current bootstrap iteration
         bs.append('a', p['a']))         # collect bootstrap results for a[i]
         bs.append('dE', p['dE'])        # collect results for dE[i]

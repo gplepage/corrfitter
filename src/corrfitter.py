@@ -986,21 +986,27 @@ class CorrFitter(lsqfit.MultiFitter):
             )
 
     def lsqfit(
-        self, data=None, prior=None, pdata=None, p0=None, nterm=None, **kargs
+        self, data=None, prior=None, pdata=None, p0=None, **kargs
         ):
         if 'extend' in kargs:
             kargs['extend'] = True
+        if 'nterm' in kargs:
+            kargs['mopt'] = kargs['nterm']
+            del kargs['nterm']
         return super(CorrFitter, self).lsqfit(
-            data=data, prior=prior, pdata=pdata, p0=p0, mopt=nterm, **kargs
+            data=data, prior=prior, pdata=pdata, p0=p0, **kargs
             )
 
     def chained_lsqfit(
-        self, data=None, prior=None, pdata=None, p0=None, nterm=None, **kargs
+        self, data=None, prior=None, pdata=None, p0=None, **kargs
         ):
         if 'extend' in kargs:
             kargs['extend'] = True
+        if 'nterm' in kargs:
+            kargs['mopt'] = nterm
+            del kargs['nterm']
         return super(CorrFitter, self).chained_lsqfit(
-            data=data, prior=prior, pdata=pdata, p0=p0, mopt=nterm, **kargs
+            data=data, prior=prior, pdata=pdata, p0=p0, **kargs
             )
 
     def display_plots(self, save=False):
@@ -1110,44 +1116,6 @@ class CorrFitter(lsqfit.MultiFitter):
             if binsize > 1:
                 dset = _gvar.dataset.bin_data(dset, binsize=binsize)
         return dset
-
-    def bootstrap_iter(self, datalist=None, n=None):
-        """ Iterator that creates bootstrap copies of a |CorrFitter| fit using
-        bootstrap data from list ``data_list``.
-
-        A bootstrap analysis is a robust technique for estimating means and
-        standard deviations of arbitrary functions of the fit parameters.
-        This method creates an interator that implements such an analysis
-        of list (or iterator) ``datalist``, which contains bootstrap
-        copies of the original data set. Each ``data_list[i]`` is a different
-        ``data`` input for ``self.lsqfit()`` (that is, a dictionary containing
-        fit data). The iterator works its way through the data sets in
-        ``data_list``, fitting the next data set on each iteration and
-        returning the resulting :class:`lsqfit.LSQFit` fit object. Typical
-        usage, for an |CorrFitter| object named ``fitter``, would be::
-
-            for fit in fitter.bootstrap_iter(datalist):
-                ... analyze fit parameters in fit.p ...
-
-        :param data_list: Collection of bootstrap ``data`` sets for fitter. If
-                ``None``, the data_list is generated internally using the
-                means and standard deviations of the fit data (assuming
-                gaussian statistics).
-        :type data_list: sequence or iterator or ``None``
-        :param n: Maximum number of iterations if ``n`` is not ``None``;
-                otherwise there is no maximum.
-        :type n: integer
-        :returns: Iterator that returns a :class:`lsqfit.LSQFit` object
-                containing results from the fit to the next data set in
-                ``data_list``.
-        """
-        if datalist is not None:
-            datalist = (self.builddata(d, self.prior)
-                        for d in datalist)
-        for bs_fit in self.fit.bootstrap_iter(n, datalist=datalist):
-            yield bs_fit
-
-    bootstrap_fit_iter = bootstrap_iter
 
     def simulated_pdata_iter(self, n, dataset, pexact=None, rescale=1.):
         """ Create iterator that returns simulated fit pdata from ``dataset``.

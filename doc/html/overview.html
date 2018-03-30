@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Overview &#8212; corrfitter 6.0.5 documentation</title>
+    <title>Overview &#8212; corrfitter 6.0.6 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.0.5',
+        VERSION:     '6.0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.6 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -623,7 +623,7 @@ large, or fluctuations are non-Gaussian. A typical code looks something like:</p
 <span class="n">nbootstrap</span> <span class="o">=</span> <span class="mi">10</span>                     <span class="c1"># number of bootstrap iterations</span>
 <span class="n">bs_datalist</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">bootstrap_iter</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">nbootstrap</span><span class="p">))</span>
 <span class="n">bs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>                   <span class="c1"># bootstrap output stored in bs</span>
-<span class="k">for</span> <span class="n">bs_fit</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">bootstrap_iter</span><span class="p">(</span><span class="n">bs_datalist</span><span class="p">):</span> <span class="c1"># bs_fit = lsqfit output</span>
+<span class="k">for</span> <span class="n">bs_fit</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">bootstrapped_fit_iter</span><span class="p">(</span><span class="n">bs_datalist</span><span class="p">):</span> <span class="c1"># bs_fit = lsqfit output</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">bs_fit</span><span class="o">.</span><span class="n">pmean</span>    <span class="c1"># best fit values for current bootstrap iteration</span>
     <span class="n">bs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]))</span>         <span class="c1"># collect bootstrap results for a[i]</span>
     <span class="n">bs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;dE&#39;</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;dE&#39;</span><span class="p">])</span>        <span class="c1"># collect results for dE[i]</span>
@@ -726,7 +726,7 @@ C. Bouchard et al, Phys.Rev. D90 (2014) 054506.</p>
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

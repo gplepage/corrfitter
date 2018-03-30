@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Annotated Example: Two-Point Correlator &#8212; corrfitter 6.0.5 documentation</title>
+    <title>Annotated Example: Two-Point Correlator &#8212; corrfitter 6.0.6 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.0.5',
+        VERSION:     '6.0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="faster.html" title="Faster, More Accurate Fits"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.6 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -107,7 +107,10 @@ code is:</p>
         <span class="n">p0</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">pmean</span>
         <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span>
     <span class="n">fastfit</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">fastfit</span><span class="p">(</span><span class="n">G</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;etas&#39;</span><span class="p">],</span> <span class="n">ampl</span><span class="o">=</span><span class="s1">&#39;0(1)&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s1">&#39;0.5(5)&#39;</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">fastfit</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;fastfit&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">fastfit</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;bootstrap&#39;</span><span class="p">)</span>
+    <span class="n">bootstrap_fit</span><span class="p">(</span><span class="n">fitter</span><span class="p">,</span> <span class="s1">&#39;etas.data&#39;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Read data, compute averages/covariance matrix for G(t). &quot;&quot;&quot;</span>
@@ -130,6 +133,25 @@ code is:</p>
     <span class="n">a</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:2}</span><span class="s1">  </span><span class="si">{:15}</span><span class="s1">  </span><span class="si">{:15}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:2}</span><span class="s1">  </span><span class="si">{:15}</span><span class="s1">  </span><span class="si">{:15}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+<span class="k">def</span> <span class="nf">bootstrap_fit</span><span class="p">(</span><span class="n">fitter</span><span class="p">,</span> <span class="n">ifile</span><span class="p">):</span>
+    <span class="n">gv</span><span class="o">.</span><span class="n">ranseed</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">dset</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">ifile</span><span class="p">)</span>
+    <span class="n">pdatalist</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">cf</span><span class="o">.</span><span class="n">process_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">make_models</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">bootstrap_iter</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">bs</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">bsfit</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">bootstrapped_fit_iter</span><span class="p">(</span><span class="n">pdatalist</span><span class="o">=</span><span class="n">pdatalist</span><span class="p">):</span>
+        <span class="n">bs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">E</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">bsfit</span><span class="o">.</span><span class="n">pmean</span><span class="p">[</span><span class="s1">&#39;dE&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="n">a</span><span class="o">=</span><span class="n">bsfit</span><span class="o">.</span><span class="n">pmean</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">],</span>
+            <span class="p">)</span>
+    <span class="n">bs</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">bstrap</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="n">bs</span><span class="p">[</span><span class="s1">&#39;E&#39;</span><span class="p">]</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">bs</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:2}</span><span class="s1">  </span><span class="si">{:15}</span><span class="s1">  </span><span class="si">{:15}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:2}</span><span class="s1">  </span><span class="si">{:15}</span><span class="s1">  </span><span class="si">{:15}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
@@ -223,7 +245,7 @@ this speeds up the larger fits and also helps to stabilize them.</p>
               <span class="mi">2</span>       <span class="mf">0.40</span> <span class="p">(</span><span class="mi">21</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.50</span> <span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="o">/</span><span class="mi">0</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">16</span><span class="o">/</span><span class="mf">0.0</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="o">/</span><span class="mi">0</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">17</span><span class="o">/</span><span class="mf">0.0</span><span class="p">)</span>
 
 <span class="n">E</span>   <span class="mf">0.41620</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>      <span class="mf">0.99</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>       
 <span class="n">a</span>   <span class="mf">0.21836</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>      <span class="mf">0.15</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>       
@@ -236,7 +258,7 @@ this speeds up the larger fits and also helps to stabilize them.</p>
             <span class="n">a</span> <span class="mi">0</span>    <span class="mf">0.21836</span> <span class="p">(</span><span class="mi">18</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.0</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
               <span class="mi">1</span>       <span class="mf">0.15</span> <span class="p">(</span><span class="mi">12</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.0</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
               <span class="mi">2</span>      <span class="mf">0.308</span> <span class="p">(</span><span class="mi">51</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.0</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
-              <span class="mi">3</span>     <span class="o">-</span><span class="mf">2e-06</span> <span class="o">+-</span> <span class="mi">1</span>      <span class="p">[</span>  <span class="mf">0.0</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
+              <span class="mi">3</span>     <span class="o">-</span><span class="mf">6e-07</span> <span class="o">+-</span> <span class="mi">1</span>      <span class="p">[</span>  <span class="mf">0.0</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
       <span class="n">log</span><span class="p">(</span><span class="n">dE</span><span class="p">)</span> <span class="mi">0</span>   <span class="o">-</span><span class="mf">0.87660</span> <span class="p">(</span><span class="mi">30</span><span class="p">)</span>      <span class="p">[</span> <span class="o">-</span><span class="mf">0.7</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
               <span class="mi">1</span>      <span class="o">-</span><span class="mf">0.56</span> <span class="p">(</span><span class="mi">28</span><span class="p">)</span>      <span class="p">[</span> <span class="o">-</span><span class="mf">0.7</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
               <span class="mi">2</span>      <span class="o">-</span><span class="mf">0.92</span> <span class="p">(</span><span class="mi">53</span><span class="p">)</span>      <span class="p">[</span> <span class="o">-</span><span class="mf">0.7</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
@@ -248,12 +270,17 @@ this speeds up the larger fits and also helps to stabilize them.</p>
               <span class="mi">3</span>       <span class="mf">0.50</span> <span class="p">(</span><span class="mi">50</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.50</span> <span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="o">/</span><span class="mi">0</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">34</span><span class="o">/</span><span class="mf">0.0</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="o">/</span><span class="mi">0</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">33</span><span class="o">/</span><span class="mf">0.1</span><span class="p">)</span>
 
 <span class="n">E</span>   <span class="mf">0.41620</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>      <span class="mf">0.99</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>       
 <span class="n">a</span>   <span class="mf">0.21836</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>      <span class="mf">0.15</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>       
 
-<span class="n">E</span><span class="p">:</span> <span class="mf">0.41624</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="n">ampl</span><span class="p">:</span> <span class="mf">0.047704</span><span class="p">(</span><span class="mi">71</span><span class="p">)</span> <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]:</span> <span class="mf">0.9</span> <span class="mf">0.8</span> <span class="p">[</span><span class="mi">57</span><span class="p">]</span> <span class="n">Q</span><span class="p">:</span> <span class="mf">0.8</span> <span class="mf">0.9</span>
+<span class="o">==============================</span> <span class="n">fastfit</span>
+<span class="n">E</span><span class="p">:</span> <span class="mf">0.41624</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="n">ampl</span><span class="p">:</span> <span class="mf">0.047704</span><span class="p">(</span><span class="mi">71</span><span class="p">)</span> <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]:</span> <span class="mf">0.9</span> <span class="mf">0.8</span> <span class="p">[</span><span class="mi">57</span><span class="p">]</span> <span class="n">Q</span><span class="p">:</span> <span class="mf">0.8</span> <span class="mf">0.9</span> 
+
+<span class="o">==============================</span> <span class="n">bootstrap</span>
+<span class="n">E</span>   <span class="mf">0.41624</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>      <span class="mf">1.023</span><span class="p">(</span><span class="mi">77</span><span class="p">)</span>      
+<span class="n">a</span>   <span class="mf">0.21846</span><span class="p">(</span><span class="mi">17</span><span class="p">)</span>      <span class="mf">0.169</span><span class="p">(</span><span class="mi">73</span><span class="p">)</span>      
 </pre></div>
 </div>
 <p>These fits are very fast — a small fraction of a second each on a laptop.
@@ -318,7 +345,7 @@ with increasing bin sizes until fit error estimates stop growing.</p>
 </div>
 <div class="section" id="fast-fit-and-effective-mass">
 <h2>Fast Fit and Effective Mass<a class="headerlink" href="#fast-fit-and-effective-mass" title="Permalink to this headline">¶</a></h2>
-<p>The last two lines in the <code class="docutils literal"><span class="pre">main()</span></code> function of the code illustrate the  use
+<p>The code after the loop in the <code class="docutils literal"><span class="pre">main()</span></code> function illustrates the  use
 of <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a> to get a very fast results for the lowest-energy
 state. As discussed in <a class="reference internal" href="overview.html#very-fast-fits"><span class="std std-ref">Very Fast (But Limited) Fits</span></a>, <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a>
 provides  an alternative to the multi-exponential fits discussed above when
@@ -373,6 +400,32 @@ the original prior is pretty sensible to begin with).</p>
 <p>Designing a prior using <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a> would be even more
 useful when multiple sources and sinks are involved, as in a matrix fit.</p>
 </div>
+<div class="section" id="bootstrap">
+<h2>Bootstrap<a class="headerlink" href="#bootstrap" title="Permalink to this headline">¶</a></h2>
+<p>Function <code class="docutils literal"><span class="pre">bootstrap_fit()</span></code> shows how to check the error estimates from
+the fit using a bootstrap analysis. Ten bootstrap copies of the initial data
+set are generated and processed by iterator <code class="docutils literal"><span class="pre">pdatalist</span></code>. These are
+used by iterator <code class="docutils literal"><span class="pre">fitter.bootstrapped_fit_iter(pdatalist=pdatalist)</span></code>
+to generate fits for each of the bootstrap copies. Results for the
+energies and amplitudes of the first two levels are saved from each fit,
+and then averaged at the end. The spread of values between different fits
+is used to determine the errors assigned to each variable.</p>
+<p>Bootstrap copies of datasets (<code class="docutils literal"><span class="pre">gv.dataset.bootstrap_iter(dset,</span> <span class="pre">n=10)</span></code>)
+are created by choosing correlators at random from the original dataset. The
+variation from copy to copy reflects the underlying distribution of
+the random correlators. Thus the variation of fit parameters from fit to fit
+reflects the statistical errors in those parameters.</p>
+<p>The results here are consistent with the original estimates, to within
+the uncertainties expected from using only ten bootstrap copies. Normally
+one would use many more bootstrap copies but at a signficantly larger cost
+in run time. Traditionally, bootstrap analyses were important for capturing
+the correlations between different parameters. Here these correlations
+are captured in the original fit and built into the <code class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></code>s for
+the best-fit values of the fit parameters. A bootstrap analysis
+is needed only in situations
+where one is concerned that tje parameter results may be non-Gaussian,
+because of insufficient statistics.</p>
+</div>
 </div>
 
 
@@ -389,6 +442,7 @@ useful when multiple sources and sinks are involved, as in a matrix fit.</p>
 <li><a class="reference internal" href="#results">Results</a></li>
 <li><a class="reference internal" href="#correlated-data">Correlated Data?</a></li>
 <li><a class="reference internal" href="#fast-fit-and-effective-mass">Fast Fit and Effective Mass</a></li>
+<li><a class="reference internal" href="#bootstrap">Bootstrap</a></li>
 </ul>
 </li>
 </ul>
@@ -428,7 +482,7 @@ useful when multiple sources and sinks are involved, as in a matrix fit.</p>
         <li class="right" >
           <a href="faster.html" title="Faster, More Accurate Fits"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

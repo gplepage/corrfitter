@@ -1,3 +1,10 @@
+Version 6.0.6 2018-03-30
+=========================
+- Fixes CorrFitter.bootstrapped_fit_iter which was broken in the move
+  to v6.0. Thanks to Enrico Rinaldi for pointing this out.
+
+- Adds a bootstrap analysis to the etas.py example.
+
 Version 6.0.5 2018-03-18
 ==========================
 Minor update.
@@ -7,6 +14,9 @@ Minor update.
 - Cleaned up some obsolete tests.
 
 - Reorganized documentation.
+
+- Added warnings if Corr3 attempts to use tpa, tpb, or transpose_V,
+  all of which are deprecated.
 
 
 Version 6.0.4 2018-02-19

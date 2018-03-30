@@ -152,7 +152,7 @@ with increasing bin sizes until fit error estimates stop growing.
 Fast Fit and Effective Mass
 ----------------------------
 
-The last two lines in the ``main()`` function of the code illustrate the  use
+The code after the loop in the ``main()`` function illustrates the  use
 of :class:`corrfitter.fastfit` to get a very fast results for the lowest-energy
 state. As discussed in :ref:`very-fast-fits`, :class:`corrfitter.fastfit`
 provides  an alternative to the multi-exponential fits discussed above when
@@ -211,3 +211,37 @@ the original prior is pretty sensible to begin with).
 Designing a prior using :class:`corrfitter.fastfit` would be even more
 useful when multiple sources and sinks are involved, as in a matrix fit.
 
+
+Bootstrap
+----------
+
+Function ``bootstrap_fit()`` shows how to check the error estimates from
+the fit using a bootstrap analysis. Ten bootstrap copies of the initial data
+set are generated and processed by iterator ``pdatalist``. These are
+used by iterator ``fitter.bootstrapped_fit_iter(pdatalist=pdatalist)``
+to generate fits for each of the bootstrap copies. Results for the
+energies and amplitudes of the first two levels are saved from each fit,
+and then averaged at the end. The spread of values between different fits
+is used to determine the errors assigned to each variable.
+
+
+Bootstrap copies of datasets (``gv.dataset.bootstrap_iter(dset, n=10)``)
+are created by choosing correlators at random from the original dataset. The
+variation from copy to copy reflects the underlying distribution of
+the random correlators. Thus the variation of fit parameters from fit to fit
+reflects the statistical errors in those parameters.
+
+The results here are consistent with the original estimates, to within
+the uncertainties expected from using only ten bootstrap copies. Normally
+one would use many more bootstrap copies but at a signficantly larger cost
+in run time. Traditionally, bootstrap analyses were important for capturing
+the correlations between different parameters. Here these correlations
+are captured in the original fit and built into the |GVar|\s for
+the best-fit values of the fit parameters. A bootstrap analysis
+is needed only in situations
+where one is concerned that tje parameter results may be non-Gaussian,
+because of insufficient statistics.
+
+.. ============================== bootstrap (n=1000)
+.. E   0.41623(14)      1.00(14)
+.. a   0.21841(20)      0.155(75)
