@@ -1,4 +1,4 @@
-Version 6.0.6 2018-03-30
+Version 6.0.7 2018-03-30
 =========================
 - Fixes CorrFitter.bootstrapped_fit_iter which was broken in the move
   to v6.0. Thanks to Enrico Rinaldi for pointing this out.
