@@ -1,4 +1,4 @@
-include makefile README INSTALLATION COPYING MANIFEST.in CHANGES
+include makefile README.rst INSTALLATION COPYING MANIFEST.in CHANGES
 include avg.py
 include src/*.py
 
