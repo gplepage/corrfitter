@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Annotated Example: Two-Point Correlator &#8212; corrfitter 6.0.7 documentation</title>
+    <title>Annotated Example: Two-Point Correlator &#8212; corrfitter 6.0.8 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '6.0.7',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -31,8 +23,7 @@
 <link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
 <![endif]-->
 
-  </head>
-  <body>
+  </head><body>
 
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -49,7 +40,7 @@
         <li class="right" >
           <a href="faster.html" title="Faster, More Accurate Fits"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.7 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.8 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,33 +53,33 @@
 <h1>Annotated Example: Two-Point Correlator<a class="headerlink" href="#annotated-example-two-point-correlator" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>The simplest use of <a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><code class="xref py py-mod docutils literal"><span class="pre">corrfitter</span></code></a> is calculating the
+<p>The simplest use of <a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><code class="xref py py-mod docutils literal notranslate"><span class="pre">corrfitter</span></code></a> is calculating the
 amplitude and energy of the ground state in a single
 two-point correlator. Here we analyze an <img class="math" src="_images/math/89f8243e8b1045054f89109c01d174880e1a051f.png" alt="\eta_s" style="vertical-align: -4px"/> propagator where the
 source and sink are the same.</p>
 <p>The one slightly non-obvious aspect of this fit is its use of
-log-normal priors for the energy differences <code class="docutils literal"><span class="pre">dE</span></code> between successive
+log-normal priors for the energy differences <code class="docutils literal notranslate"><span class="pre">dE</span></code> between successive
 states in the correlator. As discussed in <a class="reference internal" href="faster.html#positive-parameters"><span class="std std-ref">Postive Parameters</span></a>,
 this choice imposes an order on the states in relation to the
-fit parameters by forcing all <code class="docutils literal"><span class="pre">dE</span></code> values to be positive.
+fit parameters by forcing all <code class="docutils literal notranslate"><span class="pre">dE</span></code> values to be positive.
 Any such restriction helps stabilize a fit, improving both
 efficiency and the final results.</p>
 <p>Another design option that  helps stabilize the fit is to do a series of
-fits, with increasing  number <code class="docutils literal"><span class="pre">N</span></code> of states in the fit function, where
-the results  from the <code class="docutils literal"><span class="pre">N-1</span></code> fit are used by the fitter as the  starting
-point (<code class="docutils literal"><span class="pre">p0</span></code>) for the <code class="docutils literal"><span class="pre">N</span></code> fit. The initial fits are bad, but this procedure
+fits, with increasing  number <code class="docutils literal notranslate"><span class="pre">N</span></code> of states in the fit function, where
+the results  from the <code class="docutils literal notranslate"><span class="pre">N-1</span></code> fit are used by the fitter as the  starting
+point (<code class="docutils literal notranslate"><span class="pre">p0</span></code>) for the <code class="docutils literal notranslate"><span class="pre">N</span></code> fit. The initial fits are bad, but this procedure
 helps guide the fit parameters towards sensible values as the number of states
 increases. See <a class="reference internal" href="faster.html#faster-fits"><span class="std std-ref">Priming Fits</span></a> for more discussion.</p>
-<p>The source code (<code class="docutils literal"><span class="pre">etas.py</span></code>) and
-data file (<code class="docutils literal"><span class="pre">etas-Ds.data</span></code>) are included with the <a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><code class="xref py py-mod docutils literal"><span class="pre">corrfitter</span></code></a>
-distribution, in the <code class="docutils literal"><span class="pre">examples/</span></code> directory.
+<p>The source code (<code class="docutils literal notranslate"><span class="pre">etas.py</span></code>) and
+data file (<code class="docutils literal notranslate"><span class="pre">etas-Ds.data</span></code>) are included with the <a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><code class="xref py py-mod docutils literal notranslate"><span class="pre">corrfitter</span></code></a>
+distribution, in the <code class="docutils literal notranslate"><span class="pre">examples/</span></code> directory.
 The data are from the HPQCD collaboration.</p>
 </div>
 <div class="section" id="code">
 <h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
 <p>Following the template outlined in <a class="reference internal" href="overview.html#basic-fits"><span class="std std-ref">Basic Fits</span></a>, the entire
 code is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>   <span class="c1"># makes this work for python2 and 3</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>   <span class="c1"># makes this work for python2 and 3</span>
 
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">gvar</span> <span class="k">as</span> <span class="nn">gv</span>
@@ -157,10 +148,10 @@ code is:</p>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Here the Monte Carlo data are read by <code class="docutils literal"><span class="pre">make_data('etas.data')</span></code>  from file
-<code class="docutils literal"><span class="pre">etas.data</span></code>. This file contains 225 lines,  each
+<p>Here the Monte Carlo data are read by <code class="docutils literal notranslate"><span class="pre">make_data('etas.data')</span></code>  from file
+<code class="docutils literal notranslate"><span class="pre">etas.data</span></code>. This file contains 225 lines,  each
 with 64 numbers, of the form:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">etas</span>    <span class="mf">0.305044</span>    <span class="mf">0.0789607</span>   <span class="mf">0.0331313</span> <span class="o">...</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">etas</span>    <span class="mf">0.305044</span>    <span class="mf">0.0789607</span>   <span class="mf">0.0331313</span> <span class="o">...</span>
 <span class="n">etas</span>    <span class="mf">0.306573</span>    <span class="mf">0.0802435</span>   <span class="mf">0.0340765</span> <span class="o">...</span>
 <span class="o">...</span>
 </pre></div>
@@ -168,48 +159,48 @@ with 64 numbers, of the form:</p>
 <p>Each line is a different Monte Carlo estimate of the <img class="math" src="_images/math/89f8243e8b1045054f89109c01d174880e1a051f.png" alt="\eta_s" style="vertical-align: -4px"/>
 correlator for t=0…63. The mean values and covariance matrix
 are computed for the 64 elements of the correlator using
-<code class="xref py py-func docutils literal"><span class="pre">gvar.dataset.avg_data()</span></code>, and the result is stored in
-<code class="docutils literal"><span class="pre">data['etas']</span></code>, which is an array of Gaussian random
-variables (objects of type <code class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></code>).</p>
-<p>A <a class="reference internal" href="corrfitter.html#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.CorrFitter</span></code></a> object, <code class="docutils literal"><span class="pre">fitter</span></code>, is created for a single two-point
-correlator from a list of models created by <code class="docutils literal"><span class="pre">make_models()</span></code>. There
+<code class="xref py py-func docutils literal notranslate"><span class="pre">gvar.dataset.avg_data()</span></code>, and the result is stored in
+<code class="docutils literal notranslate"><span class="pre">data['etas']</span></code>, which is an array of Gaussian random
+variables (objects of type <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>).</p>
+<p>A <a class="reference internal" href="corrfitter.html#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.CorrFitter</span></code></a> object, <code class="docutils literal notranslate"><span class="pre">fitter</span></code>, is created for a single two-point
+correlator from a list of models created by <code class="docutils literal notranslate"><span class="pre">make_models()</span></code>. There
 is only one model in the list because there is only one correlator.
-It is a <code class="xref py py-class docutils literal"><span class="pre">Corr2</span></code> object which specifies that:
-the key (<code class="docutils literal"><span class="pre">datatag</span></code>) for extracting the correlator from the data dictionary is
-<code class="docutils literal"><span class="pre">'etas'</span></code>; the propagator is periodic with period 64; each correlator
+It is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Corr2</span></code> object which specifies that:
+the key (<code class="docutils literal notranslate"><span class="pre">datatag</span></code>) for extracting the correlator from the data dictionary is
+<code class="docutils literal notranslate"><span class="pre">'etas'</span></code>; the propagator is periodic with period 64; each correlator
 contains data for t values ranging from 0 to 63; only values
 greater than or equal to 5 and less than 64-5 are fit; the
-source and sink amplitudes are the same and labeled by <code class="docutils literal"><span class="pre">'a'</span></code> in
+source and sink amplitudes are the same and labeled by <code class="docutils literal notranslate"><span class="pre">'a'</span></code> in
 the prior; and the energy differences between successive states
-are labeled <code class="docutils literal"><span class="pre">'dE'</span></code> in the prior.</p>
-<p>Fits are tried with <code class="docutils literal"><span class="pre">N</span></code> states in the fit function, where <code class="docutils literal"><span class="pre">N</span></code>
-varies from 2 to 5. Usually <code class="docutils literal"><span class="pre">N=2</span></code> is too small, resulting in
+are labeled <code class="docutils literal notranslate"><span class="pre">'dE'</span></code> in the prior.</p>
+<p>Fits are tried with <code class="docutils literal notranslate"><span class="pre">N</span></code> states in the fit function, where <code class="docutils literal notranslate"><span class="pre">N</span></code>
+varies from 2 to 5. Usually <code class="docutils literal notranslate"><span class="pre">N=2</span></code> is too small, resulting in
 a poor fit. Here we will find that results have converged by
-<code class="docutils literal"><span class="pre">N=3</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">N=3</span></code>.</p>
 <p>A prior, containing <em>a priori</em> estimates for the fit parameters,
-is contructed for each <code class="docutils literal"><span class="pre">N</span></code> by <code class="docutils literal"><span class="pre">make_prior(N)</span></code>. The amplitude priors,
-<code class="docutils literal"><span class="pre">prior['a'][i]</span></code>,
+is contructed for each <code class="docutils literal notranslate"><span class="pre">N</span></code> by <code class="docutils literal notranslate"><span class="pre">make_prior(N)</span></code>. The amplitude priors,
+<code class="docutils literal notranslate"><span class="pre">prior['a'][i]</span></code>,
 are assumed to be 0±1, while the differences between successive
 energies are taken to be, roughly, 0.5±0.5. These are broad priors,
 based upon preliminary fits of the data.
 We want to use log-normal
 statistics for the energy differences, to guarantee that
 they are positive (and the states ordered, in order of
-increasing energy), so we use <code class="docutils literal"><span class="pre">prior['logdE']</span></code> for
+increasing energy), so we use <code class="docutils literal notranslate"><span class="pre">prior['logdE']</span></code> for
 the logarithms of the differences — instead of
-<code class="docutils literal"><span class="pre">prior['dE']</span></code> for the differences themselves — and take the logarithm
+<code class="docutils literal notranslate"><span class="pre">prior['dE']</span></code> for the differences themselves — and take the logarithm
 of the prior.</p>
-<p>The fit is done by <code class="docutils literal"><span class="pre">fitter.lsqfit()</span></code> and
-<code class="docutils literal"><span class="pre">print_results(fit)</span></code> prints results for the first two states after
-each fit (that is, for each <code class="docutils literal"><span class="pre">N</span></code>). Note how results from
-the fit to <code class="docutils literal"><span class="pre">N</span></code> terms is used as the starting point for the
-fit with <code class="docutils literal"><span class="pre">N+1</span></code> terms, via parameter <code class="docutils literal"><span class="pre">p0</span></code>. As mentioned above,
+<p>The fit is done by <code class="docutils literal notranslate"><span class="pre">fitter.lsqfit()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">print_results(fit)</span></code> prints results for the first two states after
+each fit (that is, for each <code class="docutils literal notranslate"><span class="pre">N</span></code>). Note how results from
+the fit to <code class="docutils literal notranslate"><span class="pre">N</span></code> terms is used as the starting point for the
+fit with <code class="docutils literal notranslate"><span class="pre">N+1</span></code> terms, via parameter <code class="docutils literal notranslate"><span class="pre">p0</span></code>. As mentioned above,
 this speeds up the larger fits and also helps to stabilize them.</p>
 </div>
 <div class="section" id="results">
 <h2>Results<a class="headerlink" href="#results" title="Permalink to this headline">¶</a></h2>
 <p>The output from this fit code is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">==============================</span> <span class="n">nterm</span> <span class="o">=</span> <span class="mi">2</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">==============================</span> <span class="n">nterm</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">Least</span> <span class="n">Square</span> <span class="n">Fit</span><span class="p">:</span>
   <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.98</span> <span class="p">[</span><span class="mi">28</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.49</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">481.95</span>
 
@@ -284,13 +275,13 @@ this speeds up the larger fits and also helps to stabilize them.</p>
 </pre></div>
 </div>
 <p>These fits are very fast — a small fraction of a second each on a laptop.
-Fit results converge by <code class="docutils literal"><span class="pre">N=3</span></code> states. The amplitudes and energy differences
+Fit results converge by <code class="docutils literal notranslate"><span class="pre">N=3</span></code> states. The amplitudes and energy differences
 for states above the first three are essentially identical to the prior
 values; the Monte Carlo data are not sufficiently accurate to add any new
-information about these levels. The fits for <code class="docutils literal"><span class="pre">N&gt;=3</span></code> are excellent, with
-chi-square per degree of freedom (<code class="docutils literal"><span class="pre">chi2/dof</span></code>) of 0.68. There are only
+information about these levels. The fits for <code class="docutils literal notranslate"><span class="pre">N&gt;=3</span></code> are excellent, with
+chi-square per degree of freedom (<code class="docutils literal notranslate"><span class="pre">chi2/dof</span></code>) of 0.68. There are only
 28 degrees of freedom here because the fitter, taking advantage of the
-periodicity, folded the data about the midpoint in <code class="docutils literal"><span class="pre">t</span></code> and averaged,
+periodicity, folded the data about the midpoint in <code class="docutils literal notranslate"><span class="pre">t</span></code> and averaged,
 before fitting. The ground state energy and amplitude are determined to
 a part in 1,000 or better.</p>
 </div>
@@ -300,14 +291,14 @@ a part in 1,000 or better.</p>
 from sample to sample, since such correlations lead to
 underestimated fit errors. One approach is verify that results are
 unchanged when the input data are binned. To bin the data we use</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Read data, compute averages/covariance matrix for G(t). &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">binsize</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>which averages successive samples (bins of 2). Binned data give the following
 results from the last iteration and summary:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">==============================</span> <span class="n">nterm</span> <span class="o">=</span> <span class="mi">4</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">==============================</span> <span class="n">nterm</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">Least</span> <span class="n">Square</span> <span class="n">Fit</span><span class="p">:</span>
   <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.94</span> <span class="p">[</span><span class="mi">28</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.55</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">477.28</span>
 
@@ -339,48 +330,48 @@ correlations are not a problem.</p>
 no correlations, provided the total number of samples after binning
 is sufficiently large (<em>e.g.</em>, more than 100—200). Strong
 correlations cause error estimates to grow with increased
-bin size (like the square root of <code class="docutils literal"><span class="pre">binsize</span></code>). Binning reduces
+bin size (like the square root of <code class="docutils literal notranslate"><span class="pre">binsize</span></code>). Binning reduces
 correlations; data should be binned
 with increasing bin sizes until fit error estimates stop growing.</p>
 </div>
 <div class="section" id="fast-fit-and-effective-mass">
 <h2>Fast Fit and Effective Mass<a class="headerlink" href="#fast-fit-and-effective-mass" title="Permalink to this headline">¶</a></h2>
-<p>The code after the loop in the <code class="docutils literal"><span class="pre">main()</span></code> function illustrates the  use
-of <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a> to get a very fast results for the lowest-energy
-state. As discussed in <a class="reference internal" href="overview.html#very-fast-fits"><span class="std std-ref">Very Fast (But Limited) Fits</span></a>, <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a>
+<p>The code after the loop in the <code class="docutils literal notranslate"><span class="pre">main()</span></code> function illustrates the  use
+of <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.fastfit</span></code></a> to get a very fast results for the lowest-energy
+state. As discussed in <a class="reference internal" href="overview.html#very-fast-fits"><span class="std std-ref">Very Fast (But Limited) Fits</span></a>, <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.fastfit</span></code></a>
 provides  an alternative to the multi-exponential fits discussed above when
 only  the lowest-energy parameters are needed. The method used is similar to a
 traditional effective mass analysis except that estimates for contributions
 from excited states are generated from priors and removed from the correlator
 before determining the effective mass. This allows the code to use much
-smaller <code class="docutils literal"><span class="pre">t</span></code> values than in the traditional approach, thereby obtaining
+smaller <code class="docutils literal notranslate"><span class="pre">t</span></code> values than in the traditional approach, thereby obtaining
 results that rival the multi-exponential fits.</p>
-<p>In this example, <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a> is used to analyze the two-point
-correlator stored in array <code class="docutils literal"><span class="pre">data['etas']</span></code>. The amplitudes for different
+<p>In this example, <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.fastfit</span></code></a> is used to analyze the two-point
+correlator stored in array <code class="docutils literal notranslate"><span class="pre">data['etas']</span></code>. The amplitudes for different
 states are estimated to have size 0±1, while the spacings between energies
 (and  between the first state and 0) are estimated to be 0.5±0.5. The code
-averages results form all <code class="docutils literal"><span class="pre">t</span></code> values down to <code class="docutils literal"><span class="pre">tmin=3</span></code>. Setting <code class="docutils literal"><span class="pre">tp=64</span></code>
+averages results form all <code class="docutils literal notranslate"><span class="pre">t</span></code> values down to <code class="docutils literal notranslate"><span class="pre">tmin=3</span></code>. Setting <code class="docutils literal notranslate"><span class="pre">tp=64</span></code>
 indicates that the correlator is periodic with period 64.</p>
 <p>The last line of the output summarizes the results of the fast fit. The
 energy and amplitude are almost identical to what was obtained from the
-multi-exponential fits (note that <code class="docutils literal"><span class="pre">fastfit.ampl</span></code> is the same  as
-<code class="docutils literal"><span class="pre">fit.a[0]**2</span></code>, which has value 0.047681(79)). <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a>
-estimates the energy and amplitude for each <code class="docutils literal"><span class="pre">t</span></code> greater than <code class="docutils literal"><span class="pre">tmin</span></code>, and
-then  averages the results. The consistency of results from different <code class="docutils literal"><span class="pre">t</span></code>s
+multi-exponential fits (note that <code class="docutils literal notranslate"><span class="pre">fastfit.ampl</span></code> is the same  as
+<code class="docutils literal notranslate"><span class="pre">fit.a[0]**2</span></code>, which has value 0.047681(79)). <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.fastfit</span></code></a>
+estimates the energy and amplitude for each <code class="docutils literal notranslate"><span class="pre">t</span></code> greater than <code class="docutils literal notranslate"><span class="pre">tmin</span></code>, and
+then  averages the results. The consistency of results from different <code class="docutils literal notranslate"><span class="pre">t</span></code>s
 is  measured by the chi-squared of the averages. The chi-squared per degree of
-freedom is reported here to be 0.8 for the <code class="docutils literal"><span class="pre">E</span></code> average and 0.9 for the
-<code class="docutils literal"><span class="pre">ampl</span></code> average, indicating that there is good agreement between different
-<code class="docutils literal"><span class="pre">t</span></code>s.</p>
+freedom is reported here to be 0.8 for the <code class="docutils literal notranslate"><span class="pre">E</span></code> average and 0.9 for the
+<code class="docutils literal notranslate"><span class="pre">ampl</span></code> average, indicating that there is good agreement between different
+<code class="docutils literal notranslate"><span class="pre">t</span></code>s.</p>
 <p>While a fast fit is easier to set up, multi-exponential fits are  usually more
 robust, and provide more detailed information about the fit. One  use for fast
 fits is to estimate the sizes of parameters for use in designing  the priors
 for a multi-exponential fit. There are often situations where <em>a priori</em>
 knowledge about fit parameters is sketchy, especially for amplitudes. A  fast
-fit to data at large <code class="docutils literal"><span class="pre">t</span></code> can quickly generate estimates for both  amplitudes
+fit to data at large <code class="docutils literal notranslate"><span class="pre">t</span></code> can quickly generate estimates for both  amplitudes
 and energies, from which it is then easy to construct priors. In the code
-above, for example, we could replace <code class="docutils literal"><span class="pre">make_prior(N)</span></code>
-by <code class="docutils literal"><span class="pre">alt_make_prior(N,</span> <span class="pre">data['etas'])</span></code> where:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">alt_make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
+above, for example, we could replace <code class="docutils literal notranslate"><span class="pre">make_prior(N)</span></code>
+by <code class="docutils literal notranslate"><span class="pre">alt_make_prior(N,</span> <span class="pre">data['etas'])</span></code> where:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">alt_make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
     <span class="n">fastfit</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">fastfit</span><span class="p">(</span><span class="n">G</span><span class="o">=</span><span class="n">G</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">tp</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
     <span class="n">da</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">fastfit</span><span class="o">.</span><span class="n">ampl</span><span class="o">.</span><span class="n">mean</span> <span class="o">**</span> <span class="mf">0.5</span>
     <span class="n">dE</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">fastfit</span><span class="o">.</span><span class="n">E</span><span class="o">.</span><span class="n">mean</span>
@@ -390,27 +381,27 @@ by <code class="docutils literal"><span class="pre">alt_make_prior(N,</span> <sp
     <span class="k">return</span> <span class="n">prior</span>
 </pre></div>
 </div>
-<p>This code does a fast fit using data from very large <code class="docutils literal"><span class="pre">t</span></code>, where priors for
+<p>This code does a fast fit using data from very large <code class="docutils literal notranslate"><span class="pre">t</span></code>, where priors for
 the excited states are unimportant. It then uses the results to create priors
 for the amplitudes and energy differences for all states, assuming that the
 ground state values are either larger, or smaller by no more than roughly a
 factor of two. This customized prior gives results that are almost identical
 to what was obtained using the original prior, above (in part because
 the original prior is pretty sensible to begin with).</p>
-<p>Designing a prior using <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal"><span class="pre">corrfitter.fastfit</span></code></a> would be even more
+<p>Designing a prior using <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.fastfit</span></code></a> would be even more
 useful when multiple sources and sinks are involved, as in a matrix fit.</p>
 </div>
 <div class="section" id="bootstrap">
 <h2>Bootstrap<a class="headerlink" href="#bootstrap" title="Permalink to this headline">¶</a></h2>
-<p>Function <code class="docutils literal"><span class="pre">bootstrap_fit()</span></code> shows how to check the error estimates from
+<p>Function <code class="docutils literal notranslate"><span class="pre">bootstrap_fit()</span></code> shows how to check the error estimates from
 the fit using a bootstrap analysis. Ten bootstrap copies of the initial data
-set are generated and processed by iterator <code class="docutils literal"><span class="pre">pdatalist</span></code>. These are
-used by iterator <code class="docutils literal"><span class="pre">fitter.bootstrapped_fit_iter(pdatalist=pdatalist)</span></code>
+set are generated and processed by iterator <code class="docutils literal notranslate"><span class="pre">pdatalist</span></code>. These are
+used by iterator <code class="docutils literal notranslate"><span class="pre">fitter.bootstrapped_fit_iter(pdatalist=pdatalist)</span></code>
 to generate fits for each of the bootstrap copies. Results for the
 energies and amplitudes of the first two levels are saved from each fit,
 and then averaged at the end. The spread of values between different fits
 is used to determine the errors assigned to each variable.</p>
-<p>Bootstrap copies of datasets (<code class="docutils literal"><span class="pre">gv.dataset.bootstrap_iter(dset,</span> <span class="pre">n=10)</span></code>)
+<p>Bootstrap copies of datasets (<code class="docutils literal notranslate"><span class="pre">gv.dataset.bootstrap_iter(dset,</span> <span class="pre">n=10)</span></code>)
 are created by choosing correlators at random from the original dataset. The
 variation from copy to copy reflects the underlying distribution of
 the random correlators. Thus the variation of fit parameters from fit to fit
@@ -420,7 +411,7 @@ the uncertainties expected from using only ten bootstrap copies. Normally
 one would use many more bootstrap copies but at a signficantly larger cost
 in run time. Traditionally, bootstrap analyses were important for capturing
 the correlations between different parameters. Here these correlations
-are already captured in the original fit, and built into the <code class="xref py py-class docutils literal"><span class="pre">gvar.GVar</span></code>s for
+are already captured in the original fit, and built into the <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>s for
 the best-fit values of the fit parameters. So a bootstrap analysis is
 unnecessary unless one is concerned that the parameter results
 are non-Gaussian (because of insufficient statistics).</p>
@@ -452,14 +443,23 @@ are non-Gaussian (because of insufficient statistics).</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="example-etas-Ds.html"
                         title="next chapter">Annotated Example: Transition Form Factor and Mixing</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/example-etas.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -481,12 +481,12 @@ are non-Gaussian (because of insufficient statistics).</p>
         <li class="right" >
           <a href="faster.html" title="Faster, More Accurate Fits"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.7 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.8 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2010-18, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
   </body>
 </html>

@@ -992,7 +992,8 @@ class CorrFitter(lsqfit.MultiFitter):
         """ Compute least-squares fit of models to data.
 
         :meth:`CorrFitter.lsqfit` fits all of the models together, in
-        a single fit. It returns the |nonlinear_fit| object from the fit.
+        a single fit. It returns the :class:`lsqfit.nonlinear_fit` object
+        from the fit.
 
         To see plots of the fit data divided by the fit function
         with the best-fit parameters use
