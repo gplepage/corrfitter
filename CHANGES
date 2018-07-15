@@ -1,3 +1,9 @@
+Version 6.0.8 2018-07-15
+========================
+- Small bug fixes for edge cases.
+
+- Documentation improved.
+
 Version 6.0.7 2018-03-30
 =========================
 - Fixes CorrFitter.bootstrapped_fit_iter which was broken in the move

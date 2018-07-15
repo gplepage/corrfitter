@@ -947,7 +947,8 @@ class Corr3(lsqfit.MultiFitterModel):
                                 V[l, k] = V[k, l]
                 if self.transpose_V:
                     V = V.T
-                ans += numpy.sum(apropi * numpy.dot(V, bpropj), axis=0)
+                if min(len(apropi), len(V), len(bpropj)) != 0:
+                    ans += numpy.sum(apropi * numpy.dot(V, bpropj), axis=0)
         return ans
 
 class CorrFitter(lsqfit.MultiFitter):
@@ -988,6 +989,43 @@ class CorrFitter(lsqfit.MultiFitter):
     def lsqfit(
         self, data=None, prior=None, pdata=None, p0=None, **kargs
         ):
+        """ Compute least-squares fit of models to data.
+
+        :meth:`CorrFitter.lsqfit` fits all of the models together, in
+        a single fit. It returns the |nonlinear_fit| object from the fit.
+
+        To see plots of the fit data divided by the fit function
+        with the best-fit parameters use
+
+            fit.show_plots()
+
+        Plotting requires module :mod:`matplotlib`.
+
+        Args:
+            data: Input data. One of ``data`` or ``pdata`` must be
+                specified but not both.
+            pdata: Input data that has been processed by the
+                models using :meth:`CorrFitter.process_data` or
+                :meth:`CorrFitter.process_dataset`. One of
+                ``data`` or ``pdata`` must be  specified but not both.
+                ``pdata`` is obtained from ``data`` by collecting the output
+                from ``m.builddata(data)`` for each model ``m`` and storing it
+                in a dictionary with key ``m.datatag``.
+            prior: Bayesian prior for fit parameters used by the models.
+            p0: Dictionary , indexed by parameter labels, containing
+                initial values for the parameters in the fit. Setting
+                ``p0=None`` implies that initial values are extracted from the
+                prior. Setting ``p0="filename"`` causes the fitter to look in
+                the file with name ``"filename"`` for initial values and to
+                write out best-fit parameter values after the fit (for the
+                next call to ``self.lsqfit()``).
+            wavg_svdcut (float):  SVD cut used in weighted averages for
+                parallel fits.
+            kargs: Arguments that override parameters specified when
+                the :class:`CorrFitter` was created. Can also include
+                additional arguments to be passed through to
+                the :mod:`lsqfit` fitter.
+        """
         if 'extend' in kargs:
             kargs['extend'] = True
         if 'nterm' in kargs:
@@ -1000,6 +1038,71 @@ class CorrFitter(lsqfit.MultiFitter):
     def chained_lsqfit(
         self, data=None, prior=None, pdata=None, p0=None, **kargs
         ):
+        """ Compute chained least-squares fit of models to data.
+
+        In a chained fit to models ``[s1, s2, ...]``, the models are fit one
+        at a time, with the fit output from one being fed into the prior for
+        the next. This can be much faster than  fitting the models together,
+        simultaneously. The final result comes from the last fit in the chain,
+        and includes parameters from all of the models.
+
+        The most general chain has the structure ``[s1, s2, s3 ...]``
+        where each ``sn`` is one of:
+
+            1) a model (derived from :class:`lsqfit.MultiFitterModel`);
+
+            2) a tuple ``(m1, m2, m3)`` of models, to be fit together in
+                a single fit (*i.e.*, simultaneously);
+
+            3) a list ``[p1, p2, p3 ...]`` where each ``pn`` is either
+                a model or a tuple of models (see #2). The ``pn`` are fit
+                separately, and independently of each other (*i.e.*, in
+                parallel). Results from the separate fits are averaged at the
+                end to provide a single composite result for the collection of
+                fits.
+
+        The final result ``fit`` returned by :meth:`CorrFitter.chained_fit`
+        has an extra attribute ``fit.chained_fits`` which is an ordered
+        dictionary containing fit results from each link ``sn`` in the chain,
+        and keyed by the models' ``datatag``\s. If any of these involves
+        parallel fits (see #3 above), it will have an extra attribute
+        ``fit.chained_fits[fittag].sub_fits`` that contains results from the
+        separate parallel fits. To list results from all the chained and
+        parallel fits, use ::
+
+            print(fit.formatall())
+
+
+        To see plots of the fit data divided by the fit function
+        with the best-fit parameters use
+
+            fit.show_plots()
+
+        Plotting requires module :mod:`matplotlib`.
+
+        Args:
+            data: Input data. One of ``data`` or ``pdata`` must be
+                specified but not both. ``pdata`` is obtained from ``data``
+                by collecting the output from ``m.builddata(data)``
+                for each model ``m`` and storing it in a dictionary
+                with key ``m.datatag``.
+            pdata: Input data that has been processed by the
+                models using :meth:`CorrFitter.process_data` or
+                :meth:`CorrFitter.process_dataset`. One of
+                ``data`` or ``pdata`` must be  specified but not both.
+            prior: Bayesian prior for fit parameters used by the models.
+            p0: Dictionary , indexed by parameter labels, containing
+                initial values for the parameters in the fit. Setting
+                ``p0=None`` implies that initial values are extracted from the
+                prior. Setting ``p0="filename"`` causes the fitter to look in
+                the file with name ``"filename"`` for initial values and to
+                write out best-fit parameter values after the fit (for the
+                next call to ``self.lsqfit()``).
+            kargs: Arguments that override parameters specified when
+                the :class:`CorrFitter` was created. Can also include
+                additional arguments to be passed through to
+                the :mod:`lsqfit` fitter.
+        """
         if 'extend' in kargs:
             kargs['extend'] = True
         if 'nterm' in kargs:
@@ -1010,6 +1113,39 @@ class CorrFitter(lsqfit.MultiFitter):
             )
 
     def display_plots(self, save=False):
+        """ Displays correlator plots.
+
+        Assumes :mod:`matplotlib` is installed (to make the plots). Plots
+        are shown for one correlator at a time. Press key ``n`` to see the
+        next correlator; press key ``p`` to see the previous one; press key
+        ``q`` to quit the plot and return control to the calling program;
+        press a digit to go directly to one of the first ten plots. Zoom,
+        pan and save using the window controls.
+
+        There are several different views available for each plot,
+        specified by parameter ``view``:
+
+            ``view='ratio'``: Data divided by fit (default).
+
+            ``view='diff'``: Data minus fit, divided by data's standard deviation.
+
+            ``view='std'``: Data and fit.
+
+            ``view='log'``: ``'std'`` with log scale on the vertical axis.
+
+            ``view='loglog'``: `'std'`` with log scale on both axes.
+
+        Press key ``v`` to cycle through these  views; or press keys
+        ``r``, ``d``, or ``l`` for the ``'ratio'``, ``'diff'``,
+        or ``'log'`` views, respectively.
+
+        Copies of the plots that are viewed can be saved by setting parameter
+        ``save=fmt`` where ``fmt`` is a string used to create
+        file names: the file name for the plot corresponding to key
+        ``k`` is ``fmt.format(k)``. It is important that the
+        filename end with a suffix indicating the type of plot file
+        desired: e.g., ``fmt='plot-{}.pdf'``
+        """
         self.fit.show_plots(save=save)
 
     @staticmethod

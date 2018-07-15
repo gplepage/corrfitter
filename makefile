@@ -1,7 +1,7 @@
 ## makefile for corrfitter library
 #
 # Created by G. Peter Lepage (Cornell University) on 2011-09-22.
-# Copyright (c) 2011-2017 G. Peter Lepage.
+# Copyright (c) 2011-2018 G. Peter Lepage.
 
 PYTHON = python
 PIP = $(PYTHON) -m pip
@@ -68,18 +68,18 @@ doc-html:
 doc/html/index.html : $(DOCFILES) $(SRCFILES)
 	rm -rf doc/html; sphinx-build -b html doc/source doc/html
 
-doc-pdf:
-	make doc/corrfitter.pdf
+# doc-pdf:
+# 	make doc/corrfitter.pdf
 
-doc/corrfitter.pdf : $(DOCFILES) $(SRCFILES)
-	rm -rf doc/corrfitter.pdf
-	sphinx-build -b latex doc/source doc/latex
-	cd doc/latex; make corrfitter.pdf; mv corrfitter.pdf ..
+# doc/corrfitter.pdf : $(DOCFILES) $(SRCFILES)
+# 	rm -rf doc/corrfitter.pdf
+# 	sphinx-build -b latex doc/source doc/latex
+# 	cd doc/latex; make corrfitter.pdf; mv corrfitter.pdf ..
 
 doc-zip doc.zip:
 	cd doc/html; zip -r doc *; mv doc.zip ../..
 
-doc-all: doc-html doc-pdf
+doc-all: doc-html # doc-pdf
 
 %.so : %.pyx
 	$(PYTHON) $*-setup.py build_ext --inplace
@@ -91,7 +91,7 @@ upload-twine:
 	twine upload dist/corrfitter-$(VERSION).tar.gz
 
 upload-git:
-	make doc-html doc-pdf
+	make doc-html # doc-pdf
 	git diff --exit-code
 	git diff --cached --exit-code
 	git push origin master
@@ -105,6 +105,9 @@ tag-git:
 	echo  "version $(VERSION)"
 	git tag -a v$(VERSION) -m "version $(VERSION)"
 	git push origin v$(VERSION)
+
+test-readme:
+	python setup.py --long-description | rst2html.py > README.html
 
 clean:
 	cd tests; make clean; cd ..
