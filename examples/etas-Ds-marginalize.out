@@ -62,7 +62,7 @@ Parameters:
               1      0.289 (77)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 11/0.1)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 13/0.1)
 
 Fit results:
   Eetas: [0.41616(12) 1.03(10)]
@@ -102,34 +102,34 @@ log(etas:dE):      0.00      0.00      0.11      0.01      0.09
 
 
 
-Random seed: 98
+Random seed: 9876
 
 ============================== simulation
 Least Square Fit:
-  chi2/dof [dof] = 0.91 [69]    Q = 0.68    logGBF = 1607.5
+  chi2/dof [dof] = 0.75 [69]    Q = 0.94    logGBF = 1603.1
 
 Settings:
-  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 10/0.0)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 15/0.1)
 
-    etas:a:  fit = 0.21820(14)    exact = 0.21833      diff = -0.00012(14)
-   etas:dE:  fit = 0.41609(11)    exact = 0.41616      diff = -0.00007(11)
-      Ds:a:  fit = 0.21447(15)    exact = 0.21463      diff = -0.00015(15)
-     Ds:dE:  fit = 1.20149(14)    exact = 1.2016       diff = -0.00014(14)
-       Vnn:  fit = 0.76603(42)    exact = 0.76681      diff = -0.00078(42)
+    etas:a:  fit = 0.21822(15)    exact = 0.21833      diff = -0.00011(15)
+   etas:dE:  fit = 0.41612(11)    exact = 0.41616      diff = -0.00005(11)
+      Ds:a:  fit = 0.21457(19)    exact = 0.21463      diff = -0.00005(19)
+     Ds:dE:  fit = 1.20161(15)    exact = 1.2016       diff = -0.00002(15)
+       Vnn:  fit = 0.76637(82)    exact = 0.76681      diff = -0.00044(82)
 
-Accuracy of key parameters: chi2/dof = 0.98 [5]    Q = 0.43
+Accuracy of key parameters: chi2/dof = 0.25 [5]    Q = 0.94
 
 ============================== simulation
 Least Square Fit:
-  chi2/dof [dof] = 0.6 [69]    Q = 1    logGBF = 1618.5
+  chi2/dof [dof] = 1 [69]    Q = 0.42    logGBF = 1593.8
 
 Settings:
-  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 12/0.1)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 22/0.1)
 
-    etas:a:  fit = 0.21827(14)    exact = 0.21833      diff = -0.00005(14)
-   etas:dE:  fit = 0.41614(11)    exact = 0.41616      diff = -0.00003(11)
-      Ds:a:  fit = 0.21468(15)    exact = 0.21463      diff = 0.00005(15)
-     Ds:dE:  fit = 1.20165(14)    exact = 1.2016       diff = 0.00002(14)
-       Vnn:  fit = 0.76635(41)    exact = 0.76681      diff = -0.00046(41)
+    etas:a:  fit = 0.21831(15)    exact = 0.21833      diff = -0.00001(15)
+   etas:dE:  fit = 0.41622(11)    exact = 0.41616      diff = 0.00005(11)
+      Ds:a:  fit = 0.21450(19)    exact = 0.21463      diff = -0.00013(19)
+     Ds:dE:  fit = 1.20151(16)    exact = 1.2016       diff = -0.00012(16)
+       Vnn:  fit = 0.76697(78)    exact = 0.76681      diff = 0.00016(78)
 
-Accuracy of key parameters: chi2/dof = 0.37 [5]    Q = 0.87
+Accuracy of key parameters: chi2/dof = 0.93 [5]    Q = 0.46

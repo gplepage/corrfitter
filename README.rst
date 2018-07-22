@@ -45,5 +45,5 @@ incompatible changes are signaled by incrementing the ``major`` version
 number, the ``minor`` number signals new features, and  the ``patch`` number
 signals bug fixes.
 
-Created by G. Peter Lepage (Cornell University) on 2008-02-12.
-Copyright (c) 2008-18 G. Peter Lepage.
+| Created by G. Peter Lepage (Cornell University) on 2008-02-12.
+| Copyright (c) 2008-18 G. Peter Lepage.

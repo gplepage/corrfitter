@@ -594,34 +594,6 @@ class Corr3(lsqfit.MultiFitterModel):
             for additional data that are averaged with the ``self.datatag``
             data before fitting. Default is ``None``.
     """
-        # transpose_V (bool): This keyword is deprecated; its function is
-        #     now handled by keywords ``reverse`` or ``reverseddata``.  If
-        #     ``True``, the transpose ``V[j,i]`` is used in place of ``V[i,j]``
-        #     for each of matrices ``Vnn``, ``Vno``, ``Von``, and ``Voo``. This
-        #     is useful for doing simultaneous fits to ``a->V->b`` and
-        #     ``b->V->a``, where the current matrix elements for one are the
-        #     transposes of those for the other: *e.g.*, ::
-
-        #         models = [ ...
-        #             Corr3(
-        #                 datatag='a->V->b',
-        #                 a=('a', 'ao'), dEa=('dEa', 'dEao'),
-        #                 b=('b', 'bo'), dEb=('dEb', 'dEbo'),
-        #                 Vnn='Vnn', Vno='Vno', Von='Von', Voo='Voo',
-        #                 tmin=3, T=15,
-        #                 ),
-        #             Corr3(
-        #                 datatag='b->V->a',
-        #                 a=('b', 'bo'), dEa=('dEb', 'dEbo'),
-        #                 b=('a', 'ao'), dEb=('dEa', 'dEao'),
-        #                 Vnn='Vnn', Vno='Von', Von='Vno', Voo='Voo',
-        #                 tmin=3, T=15, transpose_V=True,
-        #                 ),
-        #             ...
-        #             ]
-
-        #     An simpler strategy relies upon keyword ``reverse`` (see above).
-        #     A faster strategy employs keyword ``reverseddata`` (see below).
     def __init__(
         self, datatag, T=None, tdata=None, tfit=None, tmin=None,
         a=None, b=None, dEa=None, dEb=None, sa=1., sb=1.,
@@ -965,6 +937,7 @@ class CorrFitter(lsqfit.MultiFitter):
             fit are marginalized (*i.e.*, included as corrections to the
             fit data). If set to ``None``, all parameters in the
             prior are fit, and none are marginalized.
+        mopt: Marginalization options; alias for ``nterm``.
         ratio (bool): If ``True``, implement marginalization using
             ratios: ``data_marg = data * fitfcn(prior_marg) / fitfcn(prior)``.
             If ``False`` (default), implement using differences:
@@ -972,35 +945,34 @@ class CorrFitter(lsqfit.MultiFitter):
         fast (bool): Setting ``fast=True`` (default) strips any variable
             not required by the fit from the prior. This speeds
             fits but loses information about correlations between
-            variables in the fit and those that are not. The
-            information can be restored using ``lsqfit.wavg`` after
-            the fit.
+            variables in the fit and those that are not.
         fitterargs: Additional arguments for the :class:`lsqfit.nonlinear_fit`,
             such as ``tol``, ``maxit``, ``svdcut``, ``fitter``, etc., as needed.
     """
-    def __init__(
-        self, models, nterm=None, ratio=False, fast=True, **fitterargs
-        ):
-        super(CorrFitter, self).__init__(
-            models=models, mopt=nterm, ratio=ratio, fast=fast,
-            extend=True, **fitterargs
-            )
+    def __init__(self, models, **fitterargs):
+        if 'ratio' not in fitterargs:
+            fitterargs['ratio'] = False
+        if 'fast' not in fitterargs:
+            fitterargs['fast'] = True
+        if 'nterm' in fitterargs:
+            fitterargs['mopt'] = nterm
+        fitterargs['extend'] = True
+        super(CorrFitter, self).__init__(models=models, **fitterargs)
+        # replace nterm by mopt
+        for tasktype, taskdata in self.tasklist:
+            if tasktype == 'update-kargs' and 'nterm' in taskdata:
+                taskdata['mopt'] = taskdata['nterm']
+                del taskdata['nterm']
 
-    def lsqfit(
-        self, data=None, prior=None, pdata=None, p0=None, **kargs
-        ):
+    def lsqfit(self, data=None, prior=None, pdata=None, p0=None, **kargs):
         """ Compute least-squares fit of models to data.
 
         :meth:`CorrFitter.lsqfit` fits all of the models together, in
         a single fit. It returns the :class:`lsqfit.nonlinear_fit` object
         from the fit.
 
-        To see plots of the fit data divided by the fit function
-        with the best-fit parameters use
-
-            fit.show_plots()
-
-        Plotting requires module :mod:`matplotlib`.
+        See documentation for :mod:`lsqfit.MultiFitter.lsqfit` for
+        more information.
 
         Args:
             data: Input data. One of ``data`` or ``pdata`` must be
@@ -1041,45 +1013,12 @@ class CorrFitter(lsqfit.MultiFitter):
         ):
         """ Compute chained least-squares fit of models to data.
 
-        In a chained fit to models ``[s1, s2, ...]``, the models are fit one
-        at a time, with the fit output from one being fed into the prior for
-        the next. This can be much faster than  fitting the models together,
-        simultaneously. The final result comes from the last fit in the chain,
-        and includes parameters from all of the models.
+        :meth:`CorrFitter.chained_lsqfit` fits the models specified
+        in ``models`` one at a time, in sequence, with the fit output
+        from one being fed into the prior for the next.
 
-        The most general chain has the structure ``[s1, s2, s3 ...]``
-        where each ``sn`` is one of:
-
-            1) a model (derived from :class:`lsqfit.MultiFitterModel`);
-
-            2) a tuple ``(m1, m2, m3)`` of models, to be fit together in
-                a single fit (*i.e.*, simultaneously);
-
-            3) a list ``[p1, p2, p3 ...]`` where each ``pn`` is either
-                a model or a tuple of models (see #2). The ``pn`` are fit
-                separately, and independently of each other (*i.e.*, in
-                parallel). Results from the separate fits are averaged at the
-                end to provide a single composite result for the collection of
-                fits.
-
-        The final result ``fit`` returned by :meth:`CorrFitter.chained_fit`
-        has an extra attribute ``fit.chained_fits`` which is an ordered
-        dictionary containing fit results from each link ``sn`` in the chain,
-        and keyed by the models' ``datatag``\s. If any of these involves
-        parallel fits (see #3 above), it will have an extra attribute
-        ``fit.chained_fits[fittag].sub_fits`` that contains results from the
-        separate parallel fits. To list results from all the chained and
-        parallel fits, use ::
-
-            print(fit.formatall())
-
-
-        To see plots of the fit data divided by the fit function
-        with the best-fit parameters use
-
-            fit.show_plots()
-
-        Plotting requires module :mod:`matplotlib`.
+        See documentation for :mod:`lsqfit.MultiFitter.chained_lsqfit` for
+        (much) more information.
 
         Args:
             data: Input data. One of ``data`` or ``pdata`` must be
@@ -1113,41 +1052,18 @@ class CorrFitter(lsqfit.MultiFitter):
             data=data, prior=prior, pdata=pdata, p0=p0, **kargs
             )
 
-    def display_plots(self, save=False):
+    def display_plots(self, save=False, view='ratio'):
         """ Displays correlator plots.
 
-        Assumes :mod:`matplotlib` is installed (to make the plots). Plots
-        are shown for one correlator at a time. Press key ``n`` to see the
-        next correlator; press key ``p`` to see the previous one; press key
-        ``q`` to quit the plot and return control to the calling program;
-        press a digit to go directly to one of the first ten plots. Zoom,
-        pan and save using the window controls.
-
-        There are several different views available for each plot,
-        specified by parameter ``view``:
-
-            ``view='ratio'``: Data divided by fit (default).
-
-            ``view='diff'``: Data minus fit, divided by data's standard deviation.
-
-            ``view='std'``: Data and fit.
-
-            ``view='log'``: ``'std'`` with log scale on the vertical axis.
-
-            ``view='loglog'``: `'std'`` with log scale on both axes.
-
-        Press key ``v`` to cycle through these  views; or press keys
-        ``r``, ``d``, or ``l`` for the ``'ratio'``, ``'diff'``,
-        or ``'log'`` views, respectively.
-
-        Copies of the plots that are viewed can be saved by setting parameter
-        ``save=fmt`` where ``fmt`` is a string used to create
-        file names: the file name for the plot corresponding to key
-        ``k`` is ``fmt.format(k)``. It is important that the
-        filename end with a suffix indicating the type of plot file
-        desired: e.g., ``fmt='plot-{}.pdf'``
+        Deprecated. Use ``fit.show_plots(save, view)`` instead.
+        See documentation for :mod:`lsqfit.MultiFitter` for more
+        information.
         """
-        self.fit.show_plots(save=save)
+        warnings.warn(
+            'display_plots is deprecated; use ``fit.show_plots(...) instead',
+            DeprecationWarning,
+            )
+        self.fit.show_plots(save=save, view=view)
 
     @staticmethod
     def read_dataset(
@@ -1254,19 +1170,19 @@ class CorrFitter(lsqfit.MultiFitter):
                 dset = _gvar.dataset.bin_data(dset, binsize=binsize)
         return dset
 
-    def simulated_pdata_iter(self, n, dataset, pexact=None, rescale=1.):
+    def simulated_pdata_iter(self, n, dataset, p_exact=None, pexact=None, rescale=1.):
         """ Create iterator that returns simulated fit pdata from ``dataset``.
 
         Simulated fit data has the same covariance matrix as
         ``pdata=self.process_dataset(dataset)``, but mean values that
         fluctuate randomly, from copy to copy, around
-        the value of the fitter's fit function evaluated at ``p=pexact``.
+        the value of the fitter's fit function evaluated at ``p=p_exact``.
         The fluctuations are generated from bootstrap copies
         of ``dataset``.
 
         The best-fit results from a fit to such simulated copies of ``pdata``
-        should agree with the numbers in ``pexact`` to within the errors
-        specified by the fits (to the simulated data) --- ``pexact`` gives the
+        should agree with the numbers in ``p_exact`` to within the errors
+        specified by the fits (to the simulated data) --- ``p_exact`` gives the
         "correct" values for the parameters. Knowing the correct value for
         each fit parameter ahead of a fit allows us to test the reliability of
         the fit's error estimates and to explore the impact of various fit
@@ -1278,7 +1194,7 @@ class CorrFitter(lsqfit.MultiFitter):
         for the parameters ahead of time. Consequently this method is
         much faster than traditional bootstrap analyses.
 
-        ``pexact`` is usually taken from the last fit done by the fitter
+        ``p_exact`` is usually taken from the last fit done by the fitter
         (``self.fit.pmean``) unless overridden in the function call.
         Typical usage is as follows::
 
@@ -1289,10 +1205,10 @@ class CorrFitter(lsqfit.MultiFitter):
             ...
             for spdata in fitter.simulated_pdata_iter(n=4, dataset):
                 # redo fit 4 times with different simulated data each time
-                # here pexact=fit.pmean is set implicitly
+                # here p_exact=fit.pmean is set implicitly
                 sfit = fitter.lsqfit(pdata=spdata, ...)
                 ... check that sfit.p (or functions of it) agrees ...
-                ... with pexact=fit.pmean to within sfit.p's errors      ...
+                ... with p_exact=fit.pmean to within sfit.p's errors      ...
 
         Args:
             n (int): Maximum number of simulated data sets made by iterator.
@@ -1301,23 +1217,25 @@ class CorrFitter(lsqfit.MultiFitter):
                 array for the correlator corresponding to ``datatag``,
                 where the first index labels the Monte Carlo copy
                 and the second index labels time.
-            pexact (dictionary or ``None``): Correct parameter values for
+            p_exact (dictionary or ``None``): Correct parameter values for
                 fits to the simulated data --- fit results should agree
-                with ``pexact`` to within errors. If ``None``, uses
+                with ``p_exact`` to within errors. If ``None``, uses
                 ``self.fit.pmean`` from the last fit.
             rescale (float): Rescale errors in simulated data by ``rescale``
                 (*i.e.*, multiply covariance matrix by ``rescale ** 2``).
                 Default is one, which implies no rescaling.
         """
-        if pexact is None:
+        if pexact is not None:   # for legacy code
+            p_exact = pexact
+        if p_exact is None:
             if self.fit is None:
-                raise ValueError('must specify pexact')
-            pexact = self.fit.pmean
+                raise ValueError('must specify p_exact')
+            p_exact = self.fit.pmean
         pdata = CorrFitter.process_dataset(dataset, self.models)
         pdata_mean = _gvar.mean(pdata)
         pdata_cov = _gvar.evalcov(pdata.buf)
         del pdata
-        fcn_mean = self.buildfitfcn()(pexact)
+        fcn_mean = self.buildfitfcn()(p_exact)
         if rescale is None or rescale == 1.:
             rescale = None
             correction = _gvar.BufferDict(
@@ -1725,44 +1643,6 @@ class EigenBasis(object):
                 )
             prior.update(oprior)
         return prior
-
-    # @staticmethod
-    # def _make_prior(states, keyfmt, E, skip, eig_srcs, ampl, dEfac, nterm, use_eig):
-    #     # 1) non-oscillating prior
-    #     # nsrcs can be larger than nstates
-    #     nsrcs = len(states)
-    #     if numpy.any(states >= nterm):
-    #         n = min(numpy.nonzero(states >= nterm)[0])
-    #         states = states[:n]
-    #     if len(states) > nterm:
-    #         states = states[:nterm]
-    #     one, small, big = ampl
-    #     prior = collections.OrderedDict()
-    #     # amplitudes
-    #     nstates = len(states)
-    #     nterm_ext = nterm + len(skip)
-    #     for i, k in enumerate(EigenBasis.generate_keys(keyfmt, srcs=eig_srcs)):
-    #         prior[k] = _gvar.gvar(nterm_ext * [big])
-    #         if i < nsrcs:
-    #             prior[k][states] = _gvar.gvar(nstates * [small])
-    #         if i < nstates:
-    #             prior[k][states[i]] = _gvar.gvar(one)
-    #     if not use_eig:
-    #         prior = self.unapply(prior, keyfmt=keyfmt)
-    #     idx = numpy.array([i for i in range(nstates) if i not in skip])
-    #     for k in prior:
-    #         prior[k] = numpy.array(prior[k][idx])
-    #     # energies
-    #     if len(E) >= 2:
-    #         de = E[1] - E[0]
-    #         e0 = E[0]
-    #     else:
-    #         de = E[0]
-    #         e0 = de
-    #     dE = _gvar.gvar(nterm * [str(dEfac)]) * de
-    #     dE[0] = dE[0] + e0 - dE[0].mean
-    #     prior['log({})'.format(keyfmt.format(s1='dE'))] = _gvar.log(dE)
-    #     return prior
 
     def tabulate(self, p, keyfmt='{s1}', nterm=None, nsrcs=None, eig_srcs=False, indent=4 * ' '):
         """ Create table containing energies and amplitudes for ``nterm`` states.
@@ -2202,8 +2082,8 @@ class fastfit(object):
                 dG += so * aj * g(Ej, t) * (-1) ** t
         G = G - dG
         ratio = lsqfit.wavg(
-            0.5 * (G[2:] + G[:-2]) / G[1:-1],
-            prior=_gvar.cosh(E[0]), svdcut=svdcut,
+            (0.5 * (G[2:] + G[:-2]) / G[1:-1]).tolist() + [_gvar.cosh(E[0])],
+            svdcut=svdcut,
             )
         if ratio >= 1:
             self.E = type(ratio)(_gvar.arccosh(ratio), ratio.fit)
@@ -2211,7 +2091,10 @@ class fastfit(object):
             raise RuntimeError(
                 "can't estimate energy: cosh(E) = {}".format(ratio)
                 )
-        self.ampl = lsqfit.wavg(G / g(self.E, t) / s, svdcut=svdcut, prior=a[0])
+        self.ampl = lsqfit.wavg(
+            (G / g(self.E, t) / s).tolist() +  [a[0]],
+            svdcut=svdcut,
+            )
 
     def __str__(self):
         return (

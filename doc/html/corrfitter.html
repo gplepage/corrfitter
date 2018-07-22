@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>corrfitter - Least-Squares Fit to Correlators &#8212; corrfitter 6.0.8 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &#8212; corrfitter 7.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="example-etab.html" title="Annotated Example: Matrix Correlator"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -529,7 +529,7 @@ with or without the marginalized parameters.</p>
 is used to fit a collection of models to a collection of Monte Carlo data.</p>
 <dl class="class">
 <dt id="corrfitter.CorrFitter">
-<em class="property">class </em><code class="descclassname">corrfitter.</code><code class="descname">CorrFitter</code><span class="sig-paren">(</span><em>models</em>, <em>nterm=None</em>, <em>ratio=False</em>, <em>fast=True</em>, <em>**fitterargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">corrfitter.</code><code class="descname">CorrFitter</code><span class="sig-paren">(</span><em>models</em>, <em>**fitterargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Nonlinear least-squares fitter for a collection of correlator models.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -546,6 +546,7 @@ non-oscillating and oscillating parts. Terms  omitted from the
 fit are marginalized (<em>i.e.</em>, included as corrections to the
 fit data). If set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, all parameters in the
 prior are fit, and none are marginalized.</li>
+<li><strong>mopt</strong> – Marginalization options; alias for <code class="docutils literal notranslate"><span class="pre">nterm</span></code>.</li>
 <li><strong>ratio</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, implement marginalization using
 ratios: <code class="docutils literal notranslate"><span class="pre">data_marg</span> <span class="pre">=</span> <span class="pre">data</span> <span class="pre">*</span> <span class="pre">fitfcn(prior_marg)</span> <span class="pre">/</span> <span class="pre">fitfcn(prior)</span></code>.
 If <code class="docutils literal notranslate"><span class="pre">False</span></code> (default), implement using differences:
@@ -553,9 +554,7 @@ If <code class="docutils literal notranslate"><span class="pre">False</span></co
 <li><strong>fast</strong> (<em>bool</em>) – Setting <code class="docutils literal notranslate"><span class="pre">fast=True</span></code> (default) strips any variable
 not required by the fit from the prior. This speeds
 fits but loses information about correlations between
-variables in the fit and those that are not. The
-information can be restored using <code class="docutils literal notranslate"><span class="pre">lsqfit.wavg</span></code> after
-the fit.</li>
+variables in the fit and those that are not.</li>
 <li><strong>fitterargs</strong> – Additional arguments for the <code class="xref py py-class docutils literal notranslate"><span class="pre">lsqfit.nonlinear_fit</span></code>,
 such as <code class="docutils literal notranslate"><span class="pre">tol</span></code>, <code class="docutils literal notranslate"><span class="pre">maxit</span></code>, <code class="docutils literal notranslate"><span class="pre">svdcut</span></code>, <code class="docutils literal notranslate"><span class="pre">fitter</span></code>, etc., as needed.</li>
 </ul>
@@ -564,51 +563,58 @@ such as <code class="docutils literal notranslate"><span class="pre">tol</span><
 </tbody>
 </table>
 <dl class="method">
+<dt id="corrfitter.CorrFitter.lsqfit">
+<code class="descname">lsqfit</code><span class="sig-paren">(</span><em>data=None</em>, <em>prior=None</em>, <em>pdata=None</em>, <em>p0=None</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.lsqfit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute least-squares fit of models to data.</p>
+<p><a class="reference internal" href="#corrfitter.CorrFitter.lsqfit" title="corrfitter.CorrFitter.lsqfit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.lsqfit()</span></code></a> fits all of the models together, in
+a single fit. It returns the <code class="xref py py-class docutils literal notranslate"><span class="pre">lsqfit.nonlinear_fit</span></code> object
+from the fit.</p>
+<p>See documentation for <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit.MultiFitter.lsqfit</span></code> for
+more information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> – Input data. One of <code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be
+specified but not both.</li>
+<li><strong>pdata</strong> – Input data that has been processed by the
+models using <code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.process_data()</span></code> or
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.process_dataset()</span></code>. One of
+<code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be  specified but not both.
+<code class="docutils literal notranslate"><span class="pre">pdata</span></code> is obtained from <code class="docutils literal notranslate"><span class="pre">data</span></code> by collecting the output
+from <code class="docutils literal notranslate"><span class="pre">m.builddata(data)</span></code> for each model <code class="docutils literal notranslate"><span class="pre">m</span></code> and storing it
+in a dictionary with key <code class="docutils literal notranslate"><span class="pre">m.datatag</span></code>.</li>
+<li><strong>prior</strong> – Bayesian prior for fit parameters used by the models.</li>
+<li><strong>p0</strong> – Dictionary , indexed by parameter labels, containing
+initial values for the parameters in the fit. Setting
+<code class="docutils literal notranslate"><span class="pre">p0=None</span></code> implies that initial values are extracted from the
+prior. Setting <code class="docutils literal notranslate"><span class="pre">p0=&quot;filename&quot;</span></code> causes the fitter to look in
+the file with name <code class="docutils literal notranslate"><span class="pre">&quot;filename&quot;</span></code> for initial values and to
+write out best-fit parameter values after the fit (for the
+next call to <code class="docutils literal notranslate"><span class="pre">self.lsqfit()</span></code>).</li>
+<li><strong>wavg_svdcut</strong> (<em>float</em>) – SVD cut used in weighted averages for
+parallel fits.</li>
+<li><strong>kargs</strong> – Arguments that override parameters specified when
+the <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrFitter</span></code></a> was created. Can also include
+additional arguments to be passed through to
+the <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit</span></code> fitter.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="corrfitter.CorrFitter.chained_lsqfit">
 <code class="descname">chained_lsqfit</code><span class="sig-paren">(</span><em>data=None</em>, <em>prior=None</em>, <em>pdata=None</em>, <em>p0=None</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.chained_lsqfit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute chained least-squares fit of models to data.</p>
-<p>In a chained fit to models <code class="docutils literal notranslate"><span class="pre">[s1,</span> <span class="pre">s2,</span> <span class="pre">...]</span></code>, the models are fit one
-at a time, with the fit output from one being fed into the prior for
-the next. This can be much faster than  fitting the models together,
-simultaneously. The final result comes from the last fit in the chain,
-and includes parameters from all of the models.</p>
-<p>The most general chain has the structure <code class="docutils literal notranslate"><span class="pre">[s1,</span> <span class="pre">s2,</span> <span class="pre">s3</span> <span class="pre">...]</span></code>
-where each <code class="docutils literal notranslate"><span class="pre">sn</span></code> is one of:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li>a model (derived from <code class="xref py py-class docutils literal notranslate"><span class="pre">lsqfit.MultiFitterModel</span></code>);</li>
-<li><dl class="first docutils">
-<dt>a tuple <code class="docutils literal notranslate"><span class="pre">(m1,</span> <span class="pre">m2,</span> <span class="pre">m3)</span></code> of models, to be fit together in</dt>
-<dd>a single fit (<em>i.e.</em>, simultaneously);</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>a list <code class="docutils literal notranslate"><span class="pre">[p1,</span> <span class="pre">p2,</span> <span class="pre">p3</span> <span class="pre">...]</span></code> where each <code class="docutils literal notranslate"><span class="pre">pn</span></code> is either</dt>
-<dd>a model or a tuple of models (see #2). The <code class="docutils literal notranslate"><span class="pre">pn</span></code> are fit
-separately, and independently of each other (<em>i.e.</em>, in
-parallel). Results from the separate fits are averaged at the
-end to provide a single composite result for the collection of
-fits.</dd>
-</dl>
-</li>
-</ol>
-</div></blockquote>
-<p>The final result <code class="docutils literal notranslate"><span class="pre">fit</span></code> returned by <code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.chained_fit()</span></code>
-has an extra attribute <code class="docutils literal notranslate"><span class="pre">fit.chained_fits</span></code> which is an ordered
-dictionary containing fit results from each link <code class="docutils literal notranslate"><span class="pre">sn</span></code> in the chain,
-and keyed by the models’ <code class="docutils literal notranslate"><span class="pre">datatag</span></code>s. If any of these involves
-parallel fits (see #3 above), it will have an extra attribute
-<code class="docutils literal notranslate"><span class="pre">fit.chained_fits[fittag].sub_fits</span></code> that contains results from the
-separate parallel fits. To list results from all the chained and
-parallel fits, use</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">formatall</span><span class="p">())</span>
-</pre></div>
-</div>
-<p>To see plots of the fit data divided by the fit function
-with the best-fit parameters use</p>
-<blockquote>
-<div>fit.show_plots()</div></blockquote>
-<p>Plotting requires module <code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib</span></code>.</p>
+<p><a class="reference internal" href="#corrfitter.CorrFitter.chained_lsqfit" title="corrfitter.CorrFitter.chained_lsqfit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.chained_lsqfit()</span></code></a> fits the models specified
+in <code class="docutils literal notranslate"><span class="pre">models</span></code> one at a time, in sequence, with the fit output
+from one being fed into the prior for the next.</p>
+<p>See documentation for <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit.MultiFitter.chained_lsqfit</span></code> for
+(much) more information.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -643,80 +649,18 @@ the <code class="xref py py-mod docutils literal notranslate"><span class="pre">
 </dd></dl>
 
 <dl class="method">
-<dt id="corrfitter.CorrFitter.display_plots">
-<code class="descname">display_plots</code><span class="sig-paren">(</span><em>save=False</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.display_plots" title="Permalink to this definition">¶</a></dt>
-<dd><p>Displays correlator plots.</p>
-<p>Assumes <code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib</span></code> is installed (to make the plots). Plots
-are shown for one correlator at a time. Press key <code class="docutils literal notranslate"><span class="pre">n</span></code> to see the
-next correlator; press key <code class="docutils literal notranslate"><span class="pre">p</span></code> to see the previous one; press key
-<code class="docutils literal notranslate"><span class="pre">q</span></code> to quit the plot and return control to the calling program;
-press a digit to go directly to one of the first ten plots. Zoom,
-pan and save using the window controls.</p>
-<p>There are several different views available for each plot,
-specified by parameter <code class="docutils literal notranslate"><span class="pre">view</span></code>:</p>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">view='ratio'</span></code>: Data divided by fit (default).</p>
-<p><code class="docutils literal notranslate"><span class="pre">view='diff'</span></code>: Data minus fit, divided by data’s standard deviation.</p>
-<p><code class="docutils literal notranslate"><span class="pre">view='std'</span></code>: Data and fit.</p>
-<p><code class="docutils literal notranslate"><span class="pre">view='log'</span></code>: <code class="docutils literal notranslate"><span class="pre">'std'</span></code> with log scale on the vertical axis.</p>
-<p><code class="docutils literal notranslate"><span class="pre">view='loglog'</span></code>: <cite>‘std’`</cite> with log scale on both axes.</p>
-</div></blockquote>
-<p>Press key <code class="docutils literal notranslate"><span class="pre">v</span></code> to cycle through these  views; or press keys
-<code class="docutils literal notranslate"><span class="pre">r</span></code>, <code class="docutils literal notranslate"><span class="pre">d</span></code>, or <code class="docutils literal notranslate"><span class="pre">l</span></code> for the <code class="docutils literal notranslate"><span class="pre">'ratio'</span></code>, <code class="docutils literal notranslate"><span class="pre">'diff'</span></code>,
-or <code class="docutils literal notranslate"><span class="pre">'log'</span></code> views, respectively.</p>
-<p>Copies of the plots that are viewed can be saved by setting parameter
-<code class="docutils literal notranslate"><span class="pre">save=fmt</span></code> where <code class="docutils literal notranslate"><span class="pre">fmt</span></code> is a string used to create
-file names: the file name for the plot corresponding to key
-<code class="docutils literal notranslate"><span class="pre">k</span></code> is <code class="docutils literal notranslate"><span class="pre">fmt.format(k)</span></code>. It is important that the
-filename end with a suffix indicating the type of plot file
-desired: e.g., <code class="docutils literal notranslate"><span class="pre">fmt='plot-{}.pdf'</span></code></p>
-</dd></dl>
-
-<dl class="method">
-<dt id="corrfitter.CorrFitter.lsqfit">
-<code class="descname">lsqfit</code><span class="sig-paren">(</span><em>data=None</em>, <em>prior=None</em>, <em>pdata=None</em>, <em>p0=None</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.lsqfit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute least-squares fit of models to data.</p>
-<p><a class="reference internal" href="#corrfitter.CorrFitter.lsqfit" title="corrfitter.CorrFitter.lsqfit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.lsqfit()</span></code></a> fits all of the models together, in
-a single fit. It returns the <code class="xref py py-class docutils literal notranslate"><span class="pre">lsqfit.nonlinear_fit</span></code> object
-from the fit.</p>
-<p>To see plots of the fit data divided by the fit function
-with the best-fit parameters use</p>
-<blockquote>
-<div>fit.show_plots()</div></blockquote>
-<p>Plotting requires module <code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> – Input data. One of <code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be
-specified but not both.</li>
-<li><strong>pdata</strong> – Input data that has been processed by the
-models using <code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.process_data()</span></code> or
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.process_dataset()</span></code>. One of
-<code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be  specified but not both.
-<code class="docutils literal notranslate"><span class="pre">pdata</span></code> is obtained from <code class="docutils literal notranslate"><span class="pre">data</span></code> by collecting the output
-from <code class="docutils literal notranslate"><span class="pre">m.builddata(data)</span></code> for each model <code class="docutils literal notranslate"><span class="pre">m</span></code> and storing it
-in a dictionary with key <code class="docutils literal notranslate"><span class="pre">m.datatag</span></code>.</li>
-<li><strong>prior</strong> – Bayesian prior for fit parameters used by the models.</li>
-<li><strong>p0</strong> – Dictionary , indexed by parameter labels, containing
-initial values for the parameters in the fit. Setting
-<code class="docutils literal notranslate"><span class="pre">p0=None</span></code> implies that initial values are extracted from the
-prior. Setting <code class="docutils literal notranslate"><span class="pre">p0=&quot;filename&quot;</span></code> causes the fitter to look in
-the file with name <code class="docutils literal notranslate"><span class="pre">&quot;filename&quot;</span></code> for initial values and to
-write out best-fit parameter values after the fit (for the
-next call to <code class="docutils literal notranslate"><span class="pre">self.lsqfit()</span></code>).</li>
-<li><strong>wavg_svdcut</strong> (<em>float</em>) – SVD cut used in weighted averages for
-parallel fits.</li>
-<li><strong>kargs</strong> – Arguments that override parameters specified when
-the <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrFitter</span></code></a> was created. Can also include
-additional arguments to be passed through to
-the <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit</span></code> fitter.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dt id="corrfitter.CorrFitter.set">
+<code class="descname">set</code><span class="sig-paren">(</span><em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset default keyword parameters.</p>
+<p>Assigns new default values from dictionary <code class="docutils literal notranslate"><span class="pre">kargs</span></code> to the fitter’s
+keyword parameters. Keywords for the underlying <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit</span></code> fitters
+can also be  included (or grouped together in dictionary
+<code class="docutils literal notranslate"><span class="pre">fitterargs</span></code>).</p>
+<p>Returns tuple <code class="docutils literal notranslate"><span class="pre">(kargs,</span> <span class="pre">oldkargs)</span></code> where <code class="docutils literal notranslate"><span class="pre">kargs</span></code> is a dictionary
+containing all <code class="xref py py-class docutils literal notranslate"><span class="pre">lsqfit.MultiFitter</span></code> keywords after they have
+been updated, and <code class="docutils literal notranslate"><span class="pre">oldkargs</span></code> contains the  original values for these
+keywords. Use <code class="docutils literal notranslate"><span class="pre">fitter.set(**oldkargs)</span></code> to restore the original
+values.</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -782,17 +726,17 @@ are retained; others are discarded.</p>
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.simulated_pdata_iter">
-<code class="descname">simulated_pdata_iter</code><span class="sig-paren">(</span><em>n</em>, <em>dataset</em>, <em>pexact=None</em>, <em>rescale=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.simulated_pdata_iter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">simulated_pdata_iter</code><span class="sig-paren">(</span><em>n</em>, <em>dataset</em>, <em>p_exact=None</em>, <em>rescale=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.simulated_pdata_iter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create iterator that returns simulated fit pdata from <code class="docutils literal notranslate"><span class="pre">dataset</span></code>.</p>
 <p>Simulated fit data has the same covariance matrix as
 <code class="docutils literal notranslate"><span class="pre">pdata=self.process_dataset(dataset)</span></code>, but mean values that
 fluctuate randomly, from copy to copy, around
-the value of the fitter’s fit function evaluated at <code class="docutils literal notranslate"><span class="pre">p=pexact</span></code>.
+the value of the fitter’s fit function evaluated at <code class="docutils literal notranslate"><span class="pre">p=p_exact</span></code>.
 The fluctuations are generated from bootstrap copies
 of <code class="docutils literal notranslate"><span class="pre">dataset</span></code>.</p>
 <p>The best-fit results from a fit to such simulated copies of <code class="docutils literal notranslate"><span class="pre">pdata</span></code>
-should agree with the numbers in <code class="docutils literal notranslate"><span class="pre">pexact</span></code> to within the errors
-specified by the fits (to the simulated data) — <code class="docutils literal notranslate"><span class="pre">pexact</span></code> gives the
+should agree with the numbers in <code class="docutils literal notranslate"><span class="pre">p_exact</span></code> to within the errors
+specified by the fits (to the simulated data) — <code class="docutils literal notranslate"><span class="pre">p_exact</span></code> gives the
 “correct” values for the parameters. Knowing the correct value for
 each fit parameter ahead of a fit allows us to test the reliability of
 the fit’s error estimates and to explore the impact of various fit
@@ -802,7 +746,7 @@ choice of SVD cuts, omission of select models, etc.)</p>
 to evaluate fit reliability, since we know the correct values
 for the parameters ahead of time. Consequently this method is
 much faster than traditional bootstrap analyses.</p>
-<p><code class="docutils literal notranslate"><span class="pre">pexact</span></code> is usually taken from the last fit done by the fitter
+<p><code class="docutils literal notranslate"><span class="pre">p_exact</span></code> is usually taken from the last fit done by the fitter
 (<code class="docutils literal notranslate"><span class="pre">self.fit.pmean</span></code>) unless overridden in the function call.
 Typical usage is as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">gvar</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
@@ -812,10 +756,10 @@ Typical usage is as follows:</p>
 <span class="o">...</span>
 <span class="k">for</span> <span class="n">spdata</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">simulated_pdata_iter</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
     <span class="c1"># redo fit 4 times with different simulated data each time</span>
-    <span class="c1"># here pexact=fit.pmean is set implicitly</span>
+    <span class="c1"># here p_exact=fit.pmean is set implicitly</span>
     <span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">pdata</span><span class="o">=</span><span class="n">spdata</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
     <span class="o">...</span> <span class="n">check</span> <span class="n">that</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span> <span class="p">(</span><span class="ow">or</span> <span class="n">functions</span> <span class="n">of</span> <span class="n">it</span><span class="p">)</span> <span class="n">agrees</span> <span class="o">...</span>
-    <span class="o">...</span> <span class="k">with</span> <span class="n">pexact</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">pmean</span> <span class="n">to</span> <span class="n">within</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span><span class="s1">&#39;s errors      ...</span>
+    <span class="o">...</span> <span class="k">with</span> <span class="n">p_exact</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">pmean</span> <span class="n">to</span> <span class="n">within</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span><span class="s1">&#39;s errors      ...</span>
 </pre></div>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -829,9 +773,9 @@ the correlators. <code class="docutils literal notranslate"><span class="pre">da
 array for the correlator corresponding to <code class="docutils literal notranslate"><span class="pre">datatag</span></code>,
 where the first index labels the Monte Carlo copy
 and the second index labels time.</li>
-<li><strong>pexact</strong> (dictionary or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Correct parameter values for
+<li><strong>p_exact</strong> (dictionary or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Correct parameter values for
 fits to the simulated data — fit results should agree
-with <code class="docutils literal notranslate"><span class="pre">pexact</span></code> to within errors. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses
+with <code class="docutils literal notranslate"><span class="pre">p_exact</span></code> to within errors. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses
 <code class="docutils literal notranslate"><span class="pre">self.fit.pmean</span></code> from the last fit.</li>
 <li><strong>rescale</strong> (<em>float</em>) – Rescale errors in simulated data by <code class="docutils literal notranslate"><span class="pre">rescale</span></code>
 (<em>i.e.</em>, multiply covariance matrix by <code class="docutils literal notranslate"><span class="pre">rescale</span> <span class="pre">**</span> <span class="pre">2</span></code>).
@@ -1431,7 +1375,7 @@ and the <code class="docutils literal notranslate"><span class="pre">Q</span></c
         <li class="right" >
           <a href="example-etab.html" title="Annotated Example: Matrix Correlator"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

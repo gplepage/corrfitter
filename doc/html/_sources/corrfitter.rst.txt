@@ -42,7 +42,17 @@ identified by the data tag that labels it in the input file or |Dataset|.
 is used to fit a collection of models to a collection of Monte Carlo data.
 
 .. autoclass:: corrfitter.CorrFitter
-   :members:
+
+   .. automethod:: lsqfit
+
+   .. automethod:: chained_lsqfit
+
+   .. automethod:: set
+
+   .. automethod:: read_dataset
+
+   .. automethod:: simulated_pdata_iter(n, dataset, p_exact=None, rescale=1.0)
+
 
 :class:`corrfitter.EigenBasis` Objects
 --------------------------------------

@@ -1,4 +1,4 @@
-# Copyright (c) 2017 G. Peter Lepage.
+# Copyright (c) 2017-18 G. Peter Lepage.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

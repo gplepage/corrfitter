@@ -251,7 +251,7 @@ The output from running the code is as follows:
 
 Note:
 
-- This is a relatively simple fit, taking only a couple of seconds on a
+- This is a relatively simple fit, taking only a second or so on a
   laptop.
 
 - Fits with only one or two terms in the fit function are poor, with
@@ -288,12 +288,12 @@ Note:
 
 Variation: Marginalization
 --------------------------
-Marginalization (see :ref:`marginalized-fits`) can speed up fits like
+Marginalization (see :ref:`marginalization`) can speed up fits like
 this one. To use an 8-term fit function, while tuning parameters for only
 ``N`` terms, we change only four lines in the main program:
 
 .. literalinclude:: examples/etas-Ds-marginalize.py
-    :lines: 14-28
+    :lines: 15-27
 
 The first modification (``#1``)
 limits the
@@ -315,33 +315,83 @@ pretty good):
 
 Variation: Chained Fit
 ------------------------
-Chained fits (see :ref:`chained-fits`) are used if ``fitter.lsqfit(...)``
-is replaced by ``fitter.chained_lsqfit(...)`` in ``main()``. The results
-are about the same: for example,
+Chained fits are used if ``fitter.lsqfit(...)``
+is replaced by ``fitter.chained_lsqfit(...)`` in ``main()``. Following
+the advice at the end of :ref:`chained-fits`, we combine chained
+fits with marginalization. Three parts of our original code need
+modifications:
+
+.. literalinclude:: examples/etas-Ds-chained.py
+    :lines: 14-28
+
+The first modification (``#1``) replaces the original list of models with
+a structured list that instructs the (chained) fitter sequentially to:
+
+  a) fit the ``etas`` 2-point correlator described in ``models[0]``;
+
+  b) fit the ``Ds`` 2-point correlator described in ``models[1]``;
+
+  c) reset fit parameter ``nterm=(1,0)``, causing the fitter to
+     marginalize all states other than the (non-oscillating) ground
+     state in subsequent fits;
+
+  d) fit simultaneously the two 3-point correlators described
+     in ``(models[2],models[3])``.
+
+The second modification (``#2``) replaces ``lsqfit`` by ``chained_lsqfit``.
+The third modification (``#3``) changes what is listed by the code: results
+from all the fits in the chain are displayed.
+
+The output for ``N=4`` terms is substantially shorter than for our
+original code:
 
 .. literalinclude:: examples/etas-Ds-chained.out
-    :lines: 353-387
+    :lines: 67-188
+
+Note:
+
+  - Fit results are listed from each step in the chain: first just
+    the ``etas`` 2-point correlator, then the ``Ds`` 2-point
+    correlator, and finally a combined fit of both 3-point
+    correlators.
+
+  - The last fit (3-point correlators) has only five fit parameters
+    because all of the other parameters have been folded into the
+    data using marginalization. The priors for the energies and
+    amplitudes are the outputs from the preceding 2-point fits. The results
+    for these are changed only slightly by the last fit.
+
+  - One might try less marginalization (e.g., ``nterm=(1,1)``) to
+    check that results are stable.
+
+  - Final results are very similar to before except that there is
+    no information about ``Vno`` since it was marginalized out of
+    the fit. The value quoted for ``Vno`` is just that specified in
+    the prior.
 
 Chained fits are particularly useful for very large data sets
-(much larger than this one).
+(much larger than this one). Also marginalizing extraneous variables in the
+3-point fits can make fitting more robust (because it is simpler).
 
 Test the Analysis
 ---------------------
-We can test our analysis by adding
-``test_fit(fitter, 'etas-Ds.h5')`` to the ``main``
-program, where:
+We can test our analysis by adding ::
+
+  test_fit(fitter=fitter, p_exact=fit.pmean, prior=prior, datafile='etas-Ds.h5')
+
+to the ``main`` method, where:
 
 .. literalinclude:: examples/etas-Ds.py
-    :lines: 27-49
+    :lines: 29-51
 
-This code does ``n=2`` simulations of the full fit, using the means of fit
-results from the last fit done by ``fitter`` as ``pexact``.
-The code compares fit results woth ``pexact`` in each case,
+This code does ``n=2`` simulations of the full fit, using the means
+``fit.pmean`` from the last fit as ``p_exact``.
+The code compares fit results with ``p_exact`` in each case,
 and computes the chi-squared of the difference between the leading
-parameters and ``pexact``. The output is:
+parameters and ``p_exact``. The output is:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 151-
+    :lines: 152-
 
 This shows that the fit is working well.
 
@@ -349,12 +399,12 @@ Other options are easily checked. For example,
 only one line need be changed in ``test_fit`` in order to test
 a marginalized fit::
 
-    sfit = fitter.lsqfit(pdata=spdata, prior=prior, p0=pexact, nterm=(2,2))
+    sfit = fitter.lsqfit(pdata=spdata, prior=prior, p0=p_exact, nterm=(2,2))
 
 Running this code gives:
 
 .. literalinclude:: examples/etas-Ds-marginalize.out
-    :lines: 106-
+    :lines: 107-
 
 This is also fine and confirms that ``nterm=(2,2)`` marginalized fits
 are a useful, faster substitute for full fits in this case.

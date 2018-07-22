@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Faster, More Accurate Fits &#8212; corrfitter 6.0.8 documentation</title>
+    <title>Faster, More Accurate Fits &#8212; corrfitter 7.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="overview.html" title="Overview"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -147,7 +147,7 @@ sources and sinks is to generate priors for the
 fit amplitudes and energies using <a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.EigenBasis</span></code></a>.</p>
 </div>
 <div class="section" id="marginalization">
-<span id="marginalized-fits"></span><h2>Marginalization<a class="headerlink" href="#marginalization" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>Marginalization<a class="headerlink" href="#marginalization" title="Permalink to this headline">¶</a></h2>
 <p>Often we care only about parameters in the leading term of the fit function,
 or just a few of the leading terms. The non-leading terms are needed for a
 good fit, but we are uninterested in the values of their parameters. In such
@@ -189,7 +189,7 @@ In some situations an SVD cut (see below) can also
 help.</p>
 </div>
 <div class="section" id="chained-fits">
-<span id="id1"></span><h2>Chained Fits<a class="headerlink" href="#chained-fits" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2>Chained Fits<a class="headerlink" href="#chained-fits" title="Permalink to this headline">¶</a></h2>
 <p>Large complicated fits, where lots of models and data are fit simultaneously,
 can  take a very long time. This is especially true if there are strong
 correlations in the data. Such correlations can also cause  problems from
@@ -244,6 +244,29 @@ but rather are fit in parallel with each using a prior from fit <code class="doc
 result of the parallel fit of <code class="docutils literal notranslate"><span class="pre">[m3a,m3b]</span></code> is used as the prior for <code class="docutils literal notranslate"><span class="pre">m4</span></code>.
 Parallel fits make sense when there is little overlap between the parameters
 used by the different fits.</p>
+<p>Chained fits are particularly useful for combining results from
+2-point correlators with those from 3-point correlators, to determine a
+mixing amplitude or form factor for a ground state particle. A
+simultaneous fit of all these correlators can be quite unwieldy for
+realistic applications, but the analysis falls naturally into two parts.
+The first part uses the 2-point correlators to determine the energies and
+amplitudes of the various relevant states. The second part combines this
+information with the 3-point correlators to extract the desired 3-point
+amplitudes(<code class="docutils literal notranslate"><span class="pre">Vnn</span></code>, <code class="docutils literal notranslate"><span class="pre">Vno</span></code>, etc.).</p>
+<p>Schematically one might structure such a fit with the following <code class="docutils literal notranslate"><span class="pre">models</span></code>
+list:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">models</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span><span class="o">-</span><span class="n">pt</span> <span class="n">correlators</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)),</span> <span class="p">(</span><span class="mi">3</span><span class="o">-</span><span class="n">pt</span> <span class="n">correlators</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">(2-pt</span> <span class="pre">correlators)</span></code> is a tuple containing all 2-point correlators and
+<code class="docutils literal notranslate"><span class="pre">(3-pt</span> <span class="pre">correlators)</span></code> is a tuple containing all 3-point correlators. The
+dictionary <code class="docutils literal notranslate"><span class="pre">dict(nterm=(1,0))</span></code> resets fit parameter <code class="docutils literal notranslate"><span class="pre">nterm</span></code> for subsequent
+fits (i.e., the 3-point fits), which causes those fits to  remove all but the
+ground state using marginalization (see <a class="reference internal" href="#marginalization"><span class="std std-ref">Marginalization</span></a>).
+Marginalization is particularly effective here when the 2-point fits give good
+estimates for the nonlinear parameters (2-point amplitudes and energies; the
+3-point amplitudes are all linear). Extreme marginalization then makes the
+3-point fits much faster, but also accurate.</p>
 </div>
 <div class="section" id="faster-fitters">
 <h2>Faster Fitters<a class="headerlink" href="#faster-fitters" title="Permalink to this headline">¶</a></h2>
@@ -274,7 +297,7 @@ is also possible to reset the default algorithms for all fits:</p>
 <p>The documentation for <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit</span></code> describes many more options.</p>
 </div>
 <div class="section" id="processed-datasets">
-<span id="id2"></span><h2>Processed Datasets<a class="headerlink" href="#processed-datasets" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2>Processed Datasets<a class="headerlink" href="#processed-datasets" title="Permalink to this headline">¶</a></h2>
 <p>When fitting very large data sets, it is usually worthwhile to pare the data
 down to the smallest subset that is needed for the fit. Ideally this is done
 before the Monte Carlo data are averaged, to keep the size of the covariance
@@ -475,7 +498,7 @@ value of <code class="docutils literal notranslate"><span class="pre">svdcut</sp
         <li class="right" >
           <a href="overview.html" title="Overview"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 6.0.8 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 7.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

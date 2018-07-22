@@ -3,21 +3,21 @@ Least Square Fit:
   chi2/dof [dof] = 3.2e+03 [69]    Q = 0    logGBF = -1.0714e+05
 
 Settings:
-  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 32/0.1)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 33/0.1)
 
 ============================== nterm = 2
 Least Square Fit:
   chi2/dof [dof] = 1.1 [69]    Q = 0.28    logGBF = 1560.2
 
 Settings:
-  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 28/0.1)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 25/0.1)
 
 ============================== nterm = 3
 Least Square Fit:
   chi2/dof [dof] = 0.37 [69]    Q = 1    logGBF = 1577.8
 
 Settings:
-  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 30/0.2)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 28/0.1)
 
 ============================== nterm = 4
 Least Square Fit:
@@ -107,7 +107,7 @@ Parameters:
               3          0.49 (49)        [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 19/0.2)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 23/0.1)
 
 Fit results:
   Eetas: [0.41616(12) 1.006(79) 1.51(38)]
@@ -147,34 +147,34 @@ log(etas:dE):      0.00      0.00      0.10      0.01      0.08
 
 
 
-Random seed: 98
+Random seed: 9876
 
 ============================== simulation
 Least Square Fit:
-  chi2/dof [dof] = 0.87 [69]    Q = 0.77    logGBF = 1597.1
+  chi2/dof [dof] = 0.7 [69]    Q = 0.97    logGBF = 1604.5
 
 Settings:
-  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 43/0.4)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 57/0.2)
 
-    etas:a:  fit = 0.21813(16)    exact = 0.21832      diff = -0.00019(16)
-   etas:dE:  fit = 0.41606(11)    exact = 0.41616      diff = -0.00010(11)
-      Ds:a:  fit = 0.21451(20)    exact = 0.21464      diff = -0.00013(20)
-     Ds:dE:  fit = 1.20153(16)    exact = 1.2016       diff = -0.00011(16)
-       Vnn:  fit = 0.76542(97)    exact = 0.76684      diff = -0.00141(97)
+    etas:a:  fit = 0.21823(15)    exact = 0.21832      diff = -0.00009(15)
+   etas:dE:  fit = 0.41613(11)    exact = 0.41616      diff = -0.00003(11)
+      Ds:a:  fit = 0.21460(22)    exact = 0.21464      diff = -0.00004(22)
+     Ds:dE:  fit = 1.20164(16)    exact = 1.2016       diff = 6(164)e-06
+       Vnn:  fit = 0.7667(11)    exact = 0.76684      diff = -0.0001(11)
 
-Accuracy of key parameters: chi2/dof = 0.77 [5]    Q = 0.57
+Accuracy of key parameters: chi2/dof = 0.22 [5]    Q = 0.95
 
 ============================== simulation
 Least Square Fit:
-  chi2/dof [dof] = 0.5 [69]    Q = 1    logGBF = 1613
+  chi2/dof [dof] = 1 [69]    Q = 0.41    logGBF = 1593.9
 
 Settings:
-  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 72/0.7)
+  svdcut/n = 1e-12/0    tol = (1e-08*,1e-10,1e-10)    (itns/time = 128/0.5)
 
-    etas:a:  fit = 0.21830(15)    exact = 0.21832      diff = -0.00002(15)
-   etas:dE:  fit = 0.41614(11)    exact = 0.41616      diff = -0.00002(11)
-      Ds:a:  fit = 0.21464(19)    exact = 0.21464      diff = -5(188)e-06
-     Ds:dE:  fit = 1.20160(16)    exact = 1.2016       diff = -0.00003(16)
-       Vnn:  fit = 0.76569(82)    exact = 0.76684      diff = -0.00115(82)
+    etas:a:  fit = 0.21832(15)    exact = 0.21832      diff = -4(148)e-06
+   etas:dE:  fit = 0.41622(11)    exact = 0.41616      diff = 0.00006(11)
+      Ds:a:  fit = 0.21451(18)    exact = 0.21464      diff = -0.00013(18)
+     Ds:dE:  fit = 1.20151(15)    exact = 1.2016       diff = -0.00012(15)
+       Vnn:  fit = 0.76695(74)    exact = 0.76684      diff = 0.00011(74)
 
-Accuracy of key parameters: chi2/dof = 0.39 [5]    Q = 0.86
+Accuracy of key parameters: chi2/dof = 0.9 [5]    Q = 0.48

@@ -22,26 +22,28 @@ def main():
     print_results(fit, prior, data)
     if SHOWPLOTS:
         fit.show_plots()
-    test_fit(fitter, 'etas-Ds.h5')
+    test_fit(
+        fitter=fitter, p_exact=fit.pmean, prior=prior, datafile='etas-Ds.h5'
+        )
 
-def test_fit(fitter, datafile):
+def test_fit(fitter, p_exact, prior, datafile):
     """ Test the fit with simulated data """
-    gv.ranseed(98)
+    gv.ranseed(9876)
     print('\nRandom seed:', gv.ranseed.seed)
     dataset = h5py.File(datafile)
-    pexact = fitter.fit.pmean
-    prior = fitter.fit.prior
-    for spdata in fitter.simulated_pdata_iter(n=2, dataset=dataset, pexact=pexact):
+    for spdata in fitter.simulated_pdata_iter(
+        n=2, dataset=dataset, p_exact=p_exact
+        ):
         print('\n============================== simulation')
-        sfit = fitter.lsqfit(pdata=spdata, prior=prior, p0=pexact)
+        sfit = fitter.lsqfit(pdata=spdata, prior=prior, p0=p_exact)
         print(sfit.format(pstyle=None))
         # check chi**2 for key parameters
         diff = {}
         for k in ['etas:a', 'etas:dE', 'Ds:a', 'Ds:dE', 'Vnn']:
             p_k = sfit.p[k].flat[0]
-            pex_k = pexact[k].flat[0]
+            pex_k = p_exact[k].flat[0]
             print(
-                '{:>10}:  fit = {}    exact = {:<9.5}    diff = {}'
+                '{:>10}:  fit = {:<11}    exact = {:<9.5}    diff = {}'
                     .format(k, p_k, pex_k, p_k - pex_k)
                 )
 

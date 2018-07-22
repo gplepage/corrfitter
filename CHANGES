@@ -1,3 +1,18 @@
+Version 7.0 2018-07-21
+=======================
+corrfitter updated for version 10.0 of lsqfit. The most important
+new feature is the ability to change fitter keyword values in the middle
+of fit chain, by including a dictionary with the new values as
+an entry in the models list. This allows far more control over the
+individual fits in chain of fits.
+
+There are minor incompatibilities that mostly affect chained fits and are
+mostly internal. The list of chained fits (fit.chained_fit) now contains all
+fits, including the wavg fits done after a parallel fit. The output from
+fit.formatall() differs accordingly. Another change for all fits: bootstraps
+are initiated using the fit (not the fitter, as before) -- eg,
+fit.bootstrapped_fit_iter(10).
+
 Version 6.0.8 2018-07-15
 ========================
 - Small bug fixes for edge cases.

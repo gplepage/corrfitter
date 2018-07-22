@@ -116,7 +116,7 @@ Finally note that another option for stabilizings fits involving many
 sources and sinks is to generate priors for the
 fit amplitudes and energies using |EigenBasis|.
 
-.. _marginalized-fits:
+.. _marginalization:
 
 Marginalization
 -------------------------------
@@ -224,6 +224,33 @@ but rather are fit in parallel with each using a prior from fit ``m2``. The
 result of the parallel fit of ``[m3a,m3b]`` is used as the prior for ``m4``.
 Parallel fits make sense when there is little overlap between the parameters
 used by the different fits.
+
+Chained fits are particularly useful for combining results from
+2-point correlators with those from 3-point correlators, to determine a
+mixing amplitude or form factor for a ground state particle. A
+simultaneous fit of all these correlators can be quite unwieldy for
+realistic applications, but the analysis falls naturally into two parts.
+The first part uses the 2-point correlators to determine the energies and
+amplitudes of the various relevant states. The second part combines this
+information with the 3-point correlators to extract the desired 3-point
+amplitudes(``Vnn``, ``Vno``, etc.).
+
+Schematically one might structure such a fit with the following ``models``
+list::
+
+    models = [(2-pt correlators), dict(nterm=(1,0)), (3-pt correlators)]
+
+where ``(2-pt correlators)`` is a tuple containing all 2-point correlators and
+``(3-pt correlators)`` is a tuple containing all 3-point correlators. The
+dictionary ``dict(nterm=(1,0))`` resets fit parameter ``nterm`` for subsequent
+fits (i.e., the 3-point fits), which causes those fits to  remove all but the
+ground state using marginalization (see :ref:`marginalization`).
+Marginalization is particularly effective here when the 2-point fits give good
+estimates for the nonlinear parameters (2-point amplitudes and energies; the
+3-point amplitudes are all linear). Extreme marginalization then makes the
+3-point fits much faster, but also accurate.
+
+.. faster-fitters:
 
 Faster Fitters
 ------------------------------

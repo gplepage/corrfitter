@@ -1,6 +1,7 @@
 from __future__ import print_function   # makes this work for python2 and 3
 
 import gvar as gv
+import h5py
 import numpy as np
 import collections
 from corrfitter import CorrFitter, Corr2, Corr3, read_dataset
@@ -13,8 +14,6 @@ except ImportError:
 
 def main():
     data = make_data('etas-Ds.h5')
-    models = make_models()
-    prior = make_prior(8)
     fitter = CorrFitter(models=make_models())
     p0 = None
     for N in [1, 2]:                                                        # 1
@@ -25,27 +24,29 @@ def main():
         p0 = fit.pmean
     print_results(fit, prior, data)
     if DISPLAYPLOTS:
-        fitter.display_plots()
-    test_fit(fitter, 'etas-Ds.h5')
+        fit.show_plots()
+    test_fit(
+        fitter=fitter, p_exact=fit.pmean, prior=prior, datafile='etas-Ds.h5'
+        )
 
-def test_fit(fitter, datafile):
+def test_fit(fitter, p_exact, prior, datafile):
     """ Test the fit with simulated data """
-    gv.ranseed(98)
+    gv.ranseed(9876)
     print('\nRandom seed:', gv.ranseed.seed)
-    dataset = read_dataset(datafile)
-    pexact = fitter.fit.pmean
-    prior = fitter.fit.prior
-    for spdata in fitter.simulated_pdata_iter(n=2, dataset=dataset, pexact=pexact):
+    dataset = h5py.File(datafile)
+    for spdata in fitter.simulated_pdata_iter(
+        n=2, dataset=dataset, p_exact=p_exact
+        ):
         print('\n============================== simulation')
-        sfit = fitter.lsqfit(pdata=spdata, prior=prior, p0=pexact, nterm=(2, 2))
+        sfit = fitter.lsqfit(pdata=spdata, prior=prior, p0=p_exact, nterm=(2,2))
         print(sfit.format(pstyle=None))
+        # check chi**2 for key parameters
         diff = {}
-        # check chi**2 for leading parameters
         for k in ['etas:a', 'etas:dE', 'Ds:a', 'Ds:dE', 'Vnn']:
             p_k = sfit.p[k].flat[0]
-            pex_k = pexact[k].flat[0]
+            pex_k = p_exact[k].flat[0]
             print(
-                '{:>10}:  fit = {}    exact = {:<9.5}    diff = {}'
+                '{:>10}:  fit = {:<11}    exact = {:<9.5}    diff = {}'
                     .format(k, p_k, pex_k, p_k - pex_k)
                 )
 
