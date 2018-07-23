@@ -959,6 +959,25 @@ class test_corrfitter(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_nterm(self):
+        gv.ranseed(1)
+        prior = dict(
+            a=['1.00(1)', '1.10(1)'], ao=['1.20(1)', '1.30(1)'],
+            b=['1.40(1)', '1.50(1)'], bo=['1.60(1)', '1.70(1)'],
+            dE=['0.100(1)', '0.110(1)'],
+            )
+        prior = gv.gvar(prior)
+        models = [
+            Corr2('a', a='a', b='a', dE='dE', tmin=1, tmax=4),
+            Corr2('b', a='b', b='b', dE='dE', tmin=1, tmax=4)
+            ]
+        fitter = CorrFitter(models=models, nterm=13)
+        self.assertEqual(fitter.mopt, 13)
+        kargs, okargs = fitter.set(nterm=12)
+        self.assertEqual(fitter.mopt, 12)
+        fitter.set(**okargs)
+        self.assertEqual(fitter.mopt, 13)
+
     def test_lsqfit_2pt(self):
         " CorrFitter.lsqfit and chained_lsqfit 2pt amplitudes "
         gv.ranseed(1)

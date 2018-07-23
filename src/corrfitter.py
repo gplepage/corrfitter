@@ -949,15 +949,15 @@ class CorrFitter(lsqfit.MultiFitter):
         fitterargs: Additional arguments for the :class:`lsqfit.nonlinear_fit`,
             such as ``tol``, ``maxit``, ``svdcut``, ``fitter``, etc., as needed.
     """
-    def __init__(self, models, **fitterargs):
-        if 'ratio' not in fitterargs:
-            fitterargs['ratio'] = False
-        if 'fast' not in fitterargs:
-            fitterargs['fast'] = True
-        if 'nterm' in fitterargs:
-            fitterargs['mopt'] = nterm
-        fitterargs['extend'] = True
-        super(CorrFitter, self).__init__(models=models, **fitterargs)
+    def __init__(self, models, **kargs):
+        if 'ratio' not in kargs:
+            kargs['ratio'] = False
+        if 'fast' not in kargs:
+            kargs['fast'] = True
+        if 'nterm' in kargs:
+            kargs['mopt'] = kargs['nterm']
+        kargs['extend'] = True
+        super(CorrFitter, self).__init__(models=models, **kargs)
         # replace nterm by mopt
         for tasktype, taskdata in self.tasklist:
             if tasktype == 'update-kargs' and 'nterm' in taskdata:
@@ -1046,11 +1046,30 @@ class CorrFitter(lsqfit.MultiFitter):
         if 'extend' in kargs:
             kargs['extend'] = True
         if 'nterm' in kargs:
-            kargs['mopt'] = nterm
+            kargs['mopt'] = kargs['nterm']
             del kargs['nterm']
         return super(CorrFitter, self).chained_lsqfit(
             data=data, prior=prior, pdata=pdata, p0=p0, **kargs
             )
+
+    def set(self, **kargs):
+        """ Reset default keyword parameters.
+
+        Assigns new default values from dictionary ``kargs`` to the fitter's
+        keyword parameters. Keywords for the underlying :mod:`lsqfit` fitters
+        can also be  included (or grouped together in dictionary
+        ``fitterargs``).
+
+        Returns tuple ``(kargs, oldkargs)`` where ``kargs`` is a dictionary
+        containing all :class:`lsqfit.MultiFitter` keywords after they have
+        been updated, and ``oldkargs`` contains the  original values for these
+        keywords. Use ``fitter.set(**oldkargs)`` to restore the original
+        values.
+        """
+        if 'nterm' in kargs:
+            kargs['mopt'] = kargs['nterm']
+            del kargs['nterm']
+        return super(CorrFitter, self).set(**kargs)
 
     def display_plots(self, save=False, view='ratio'):
         """ Displays correlator plots.
