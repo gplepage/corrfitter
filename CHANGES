@@ -1,3 +1,8 @@
+Version 8.0 2018-07-27
+======================
+Adapted to work with v11 of lsqfit. Keyword extend disappears (but is
+no longer needed).
+
 Version 7.0.1 2018-07-21
 ========================
 Minor bug fix (to do with nterm vs mopt).
