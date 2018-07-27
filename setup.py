@@ -1,7 +1,7 @@
 from distutils.command.build_py import build_py as _build_py
 from distutils.core import setup
 
-CORRFITTER_VERSION = '8.0'
+CORRFITTER_VERSION = '8.0.1'
 
 class build_py(_build_py):
     def run(self):
@@ -23,8 +23,8 @@ setup(name='corrfitter',
     packages={''},
     package_dir={'':'src'},
     cmdclass={'build_py': build_py},
-    requires=["lsqfit (>=10.0)", 'numpy (>=1.7)', 'gvar (>=8.5)'],
-    install_requires=['lsqfit>=10.0', 'gvar>=8.5', 'numpy>=1.7'],
+    requires=["lsqfit (>=11.0)", 'numpy (>=1.7)', 'gvar (>=9.0)'],
+    install_requires=['lsqfit>=10.0', 'gvar>=9.0', 'numpy>=1.7'],
     platforms="Any",
     url="https://github.com/gplepage/corrfitter.git",
     long_description=long_description,
