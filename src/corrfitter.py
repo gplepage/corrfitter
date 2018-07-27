@@ -276,7 +276,7 @@ class Corr2(lsqfit.MultiFitterModel):
         ans += ', tfit=[{t1}...{t2}]]'
         return ans.format(c=self, t1=self.tfit[0], t2=self.tfit[-1])
 
-    def buildprior(self, prior, nterm=None, mopt=None, extend=None):
+    def buildprior(self, prior, nterm=None, mopt=None):
         """ Create fit prior by extracting relevant pieces from ``prior``.
 
         This routine selects the entries in dictionary ``prior``
@@ -306,7 +306,7 @@ class Corr2(lsqfit.MultiFitterModel):
             for x in [ai, bi, dEi]:
                 if x is None:
                     continue
-                x = self.prior_key(prior, x)
+                x = _gvar.dictkey(prior, x)
                 newprior[x] = prior[x][None:ntermi]
                 if len_x is None:
                     len_x = len(newprior[x])
@@ -695,7 +695,7 @@ class Corr3(lsqfit.MultiFitterModel):
         if len(self.tfit) == 0:
             raise ValueError("empty tfit for " + str(self.datatag))
 
-    def buildprior(self, prior, mopt=None, nterm=None, extend=None):
+    def buildprior(self, prior, mopt=None, nterm=None):
         if nterm is None:
             nterm = mopt
         nterm = _parse_param(nterm, None)
@@ -718,7 +718,7 @@ class Corr3(lsqfit.MultiFitterModel):
         for x in [self.a, self.dEa, self.b, self.dEb]:
             for xi, ntermi in zip(x, nterm):
                 if xi is not None:
-                    xi = self.prior_key(prior, xi)
+                    xi = _gvar.dictkey(prior, xi)
                     ans[xi] = prior[xi][None:ntermi]
 
         # i,j range from n to o
@@ -727,7 +727,7 @@ class Corr3(lsqfit.MultiFitterModel):
                 vij = self.V[i][j]
                 if vij is None:
                     continue
-                vij = self.prior_key(prior, vij)
+                vij = _gvar.dictkey(prior, vij)
                 if i == j and self.symmetric_V:
                     ans[vij] = (
                         prior[vij] if nterm[i] is None else
@@ -743,7 +743,7 @@ class Corr3(lsqfit.MultiFitterModel):
         for ai, dEai in zip(self.a, self.dEa):
             if ai is None:
                 continue
-            ai, dEai = self.get_prior_keys(prior, [ai, dEai], extend=True)
+            ai, dEai = _gvar.get_dictkeys(prior, [ai, dEai])
             if len(ans[ai]) != len(ans[dEai]):
                 raise ValueError(
                     'length mismatch between a and dEa for '
@@ -752,7 +752,7 @@ class Corr3(lsqfit.MultiFitterModel):
         for bj, dEbj in zip(self.b, self.dEb):
             if bj is None or dEbj is None:
                 continue
-            bj, dEbj = self.get_prior_keys(prior, [bj, dEbj], extend=True)
+            bj, dEbj = _gvar.get_dictkeys(prior, [bj, dEbj])
             if len(ans[bj]) != len(ans[dEbj]):
                 raise ValueError(
                     'length mismatch between b and dEb for '
@@ -763,8 +763,8 @@ class Corr3(lsqfit.MultiFitterModel):
                 Vij = self.V[i][j]
                 if Vij is None:
                     continue
-                ai, bj, Vij = self.get_prior_keys(
-                    prior, [self.a[i], self.b[j], Vij], extend=True
+                ai, bj, Vij = _gvar.get_dictkeys(
+                    prior, [self.a[i], self.b[j], Vij]
                     )
                 if i == j and self.symmetric_V:
                     N = ans[ai].shape[0]
@@ -784,8 +784,8 @@ class Corr3(lsqfit.MultiFitterModel):
                             + str(self.datatag)
                             )
                 else:
-                    ai, bj, Vij = self.get_prior_keys(
-                        prior, [self.a[i], self.b[j], Vij], extend=True
+                    ai, bj, Vij = _gvar.get_dictkeys(
+                        prior, [self.a[i], self.b[j], Vij]
                         )
                     Vij_shape = (
                         ans[Vij].shape[::-1] if self.transpose_V else
@@ -956,7 +956,6 @@ class CorrFitter(lsqfit.MultiFitter):
             kargs['fast'] = True
         if 'nterm' in kargs:
             kargs['mopt'] = kargs['nterm']
-        kargs['extend'] = True
         super(CorrFitter, self).__init__(models=models, **kargs)
         # replace nterm by mopt
         for tasktype, taskdata in self.tasklist:
@@ -999,8 +998,6 @@ class CorrFitter(lsqfit.MultiFitter):
                 additional arguments to be passed through to
                 the :mod:`lsqfit` fitter.
         """
-        if 'extend' in kargs:
-            kargs['extend'] = True
         if 'nterm' in kargs:
             kargs['mopt'] = kargs['nterm']
             del kargs['nterm']
@@ -1043,8 +1040,6 @@ class CorrFitter(lsqfit.MultiFitter):
                 additional arguments to be passed through to
                 the :mod:`lsqfit` fitter.
         """
-        if 'extend' in kargs:
-            kargs['extend'] = True
         if 'nterm' in kargs:
             kargs['mopt'] = kargs['nterm']
             del kargs['nterm']
