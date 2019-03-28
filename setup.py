@@ -1,7 +1,7 @@
 from distutils.command.build_py import build_py as _build_py
 from distutils.core import setup
 
-CORRFITTER_VERSION = '8.0.1'
+CORRFITTER_VERSION = '8.0.2'
 
 class build_py(_build_py):
     def run(self):
