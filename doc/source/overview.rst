@@ -552,6 +552,8 @@ In this case ``Vnn`` and ``Voo`` are treated as one-dimensional arrays with
 where ``N`` is the number of exponentials (that is, the number of
 ``a[i]``\s).
 
+.. _simulated-fits:
+
 Testing Fits with Simulated Data
 --------------------------------
 Large fits are complicated and often involve nontrivial choices about
@@ -561,36 +563,37 @@ parameters. In such situations it is often a good idea to test the
 fit protocol that has been selected. This can be done by fitting simulated
 data. Simulated data looks almost identical to the original fit
 data but has means that have been adjusted to correspond to fluctuations
-around a correlator with known (before the fit) parameter values: ``p=pexact``.
+around a correlator with known (before the fit) parameter values: ``p=p_exact``.
 The |CorrFitter| iterator ``simulated_pdata_iter`` creates any number of
 different simulated data sets of this kind. Fitting any of these with
 a particular fit protocol tests the reliability of that protocol since
-the fit results should agree with ``pexact``
+the fit results should agree with ``p_exact``
 to within the (simulated) fit's errors. One or two fit simulations of this
 sort are usually enough to establish the validity of a protocol. It is also
 easy to compare the performance of different fit options by applying these in
-fits of simulated data, again because we know the correct answers (``pexact``)
+fits of simulated data, again because we know the correct answers (``p_exact``)
 ahead of time.
 
-Typically one obtains reasonable values for ``pexact`` from a fit to the
-real data. Assuming these have been dumped into a file named ``"pexact_file"``
-(using, for example, ``fit.dump_pmean("pexact_file")``), a testing script
+Typically one obtains reasonable values for ``p_exact`` from a fit to the
+real data. Assuming these have been dumped into a file named ``"p_exact_file"``
+(using, for example, Python's :mod:`pickle` module), a testing script
 might look something like::
 
     import gvar as gv
     import lsqfit
     import corrfitter
+    import pickle
 
     def main():
         dataset = gv.dataset.Dataset(...)       # from original fit code
         prior = make_prior(...)
         fitter = corrfitter.CorrFitter(models = make_models(...))
         n = 2                                   # number of simulations
-        pexact = lsqfit.nonlinear_fit.load_parameters("pexact_file")
-        for spdata in fitter.simulated_pdata_iter(n, dataset, pexact=pexact):
+        p_exact = pickle.load(open('p_exact_file', 'rb'))
+        for spdata in fitter.simulated_pdata_iter(n, dataset, p_exact=p_exact):
             # sfit = fit to the simulated data sdata
-            sfit = fitter.lsqfit(pdata=spdata, p0=pexact, prior=prior...)
-            ... check that sfit.p values agree with pexact to within sfit.psdev ...
+            sfit = fitter.lsqfit(pdata=spdata, p0=p_exact, prior=prior...)
+            ... check that sfit.p values agree with p_exact to within sfit.psdev ...
 
 
 .. _bootstrap-analyses:

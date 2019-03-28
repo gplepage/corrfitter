@@ -798,23 +798,23 @@ accumulates from its use.</p>
 <dt id="corrfitter.EigenBasis">
 <em class="property">class </em><code class="descclassname">corrfitter.</code><code class="descname">EigenBasis</code><span class="sig-paren">(</span><em>data</em>, <em>srcs</em>, <em>t</em>, <em>keyfmt='{s1}.{s2}'</em>, <em>tdata=None</em>, <em>osc=False</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Eigen-basis of correlator sources/sinks.</p>
-<p>Given <img class="math" src="_images/math/5bb69647d7bd1889219c5b6df1c84e698dc2e9cc.png" alt="N" style="vertical-align: 0px"/> sources/sinks and the <img class="math" src="_images/math/338323ed4f4fbb758300f93609944c4d9b9a1ace.png" alt="N \times N" style="vertical-align: 0px"/>
-matrix <img class="math" src="_images/math/e4e6afd477915cbbb917f6465a282fc55b5899e2.png" alt="G_{ij}(t)" style="vertical-align: -6px"/> of 2-point correlators created from every
+<p>Given <img class="math" src="_images/math/5bb69647d7bd1889219c5b6df1c84e698dc2e9cc.svg" alt="N"/> sources/sinks and the <img class="math" src="_images/math/338323ed4f4fbb758300f93609944c4d9b9a1ace.svg" alt="N \times N"/>
+matrix <img class="math" src="_images/math/e4e6afd477915cbbb917f6465a282fc55b5899e2.svg" alt="G_{ij}(t)"/> of 2-point correlators created from every
 combination of source and sink, we can define a new basis
 of sources that makes the matrix correlator approximately
 diagonal. Each source in the new basis is associated with
-an eigenvector <img class="math" src="_images/math/ea60b3633de4abcae6b43f16d0924e2b2c283449.png" alt="v^{(a)}" style="vertical-align: 0px"/> defined by the matrix equation</p>
+an eigenvector <img class="math" src="_images/math/ea60b3633de4abcae6b43f16d0924e2b2c283449.svg" alt="v^{(a)}"/> defined by the matrix equation</p>
 <div class="math">
-<p><img src="_images/math/ff2fd5fa7ae6b6695a45e0794e8f8cdb6e7aa4b7.png" alt="G(t_1) v^{(a)} = \lambda^{(a)}(t_1-t_0) G(t_0) v^{(a)},"/></p>
-</div><p>for some <img class="math" src="_images/math/88db33fa1c91c63a2b58c16b751178f452c42995.png" alt="t_0, t_1" style="vertical-align: -3px"/>. As <img class="math" src="_images/math/88db33fa1c91c63a2b58c16b751178f452c42995.png" alt="t_0, t_1" style="vertical-align: -3px"/> increase, fewer
-and fewer states couple to <img class="math" src="_images/math/c74d6a03908f9629e4454dddd23c951c47cfff14.png" alt="G(t)" style="vertical-align: -4px"/>. In the limit where
-only <img class="math" src="_images/math/5bb69647d7bd1889219c5b6df1c84e698dc2e9cc.png" alt="N" style="vertical-align: 0px"/> states couple, the correlator</p>
+<p><img src="_images/math/ff2fd5fa7ae6b6695a45e0794e8f8cdb6e7aa4b7.svg" alt="G(t_1) v^{(a)} = \lambda^{(a)}(t_1-t_0) G(t_0) v^{(a)},"/></p>
+</div><p>for some <img class="math" src="_images/math/88db33fa1c91c63a2b58c16b751178f452c42995.svg" alt="t_0, t_1"/>. As <img class="math" src="_images/math/88db33fa1c91c63a2b58c16b751178f452c42995.svg" alt="t_0, t_1"/> increase, fewer
+and fewer states couple to <img class="math" src="_images/math/c74d6a03908f9629e4454dddd23c951c47cfff14.svg" alt="G(t)"/>. In the limit where
+only <img class="math" src="_images/math/5bb69647d7bd1889219c5b6df1c84e698dc2e9cc.svg" alt="N"/> states couple, the correlator</p>
 <div class="math">
-<p><img src="_images/math/00a4201b32966eaa3308b44dd3e76e8a5febb884.png" alt="\overline{G}_{ab}(t) \equiv v^{(a)T} G(t) v^{(b)}"/></p>
+<p><img src="_images/math/00a4201b32966eaa3308b44dd3e76e8a5febb884.svg" alt="\overline{G}_{ab}(t) \equiv v^{(a)T} G(t) v^{(b)}"/></p>
 </div><p>becomes diagonal, and each diagonal element couples to
 only a single state.</p>
 <p>In practice, this condition is only approximate: that is,
-<img class="math" src="_images/math/2cfdf4ab58a1cfaf6759938bd62a60821a6fb661.png" alt="\overline G(t)" style="vertical-align: -4px"/>  is approximately diagonal, with diagonal elements
+<img class="math" src="_images/math/2cfdf4ab58a1cfaf6759938bd62a60821a6fb661.svg" alt="\overline G(t)"/>  is approximately diagonal, with diagonal elements
 that overlap strongly with the lowest lying states, but
 somewhat with other states. These new sources are nevertheless useful
 for fits because there is an obvious prior for their amplitudes: <code class="docutils literal notranslate"><span class="pre">prior[a][b]</span></code>
@@ -823,7 +823,7 @@ when <code class="docutils literal notranslate"><span class="pre">b!=a</span></c
 <p>Such a prior can significantly enhance the stability of a multi-source fit,
 making it easier to extract reliable results for excited states.
 It encodes the fact that only a small number of states couple strongly
-to <img class="math" src="_images/math/c74d6a03908f9629e4454dddd23c951c47cfff14.png" alt="G(t)" style="vertical-align: -4px"/> by time <img class="math" src="_images/math/31611d4c08a497f622d22c8132ae0b292f57958b.png" alt="t_0" style="vertical-align: -3px"/>, without being overly
+to <img class="math" src="_images/math/c74d6a03908f9629e4454dddd23c951c47cfff14.svg" alt="G(t)"/> by time <img class="math" src="_images/math/31611d4c08a497f622d22c8132ae0b292f57958b.svg" alt="t_0"/>, without being overly
 prescriptive about what their energies are. We can easilty project our
 correlator onto the new eigen-basis (using <a class="reference internal" href="#corrfitter.EigenBasis.apply" title="corrfitter.EigenBasis.apply"><code class="xref py py-func docutils literal notranslate"><span class="pre">EigenBasis.apply()</span></code></a>)
 in order to use this prior, but this is unnecessary.
@@ -848,8 +848,8 @@ to the original sources.</p>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">data</span></code> is a dictionary containing all the correlators. Parameter
-<code class="docutils literal notranslate"><span class="pre">t</span></code> specifies the times used for the diagonalization: <img class="math" src="_images/math/c0276319c9d5547dc4ede6ab06f2ef2c7d4128a5.png" alt="t_0=5" style="vertical-align: -3px"/>
-and <img class="math" src="_images/math/412d89d8d0fe2ad6acdf8303ebe701c0a6530388.png" alt="t_1=7" style="vertical-align: -3px"/>. Parameter <code class="docutils literal notranslate"><span class="pre">nterm</span></code> specifies the number of terms
+<code class="docutils literal notranslate"><span class="pre">t</span></code> specifies the times used for the diagonalization: <img class="math" src="_images/math/c0276319c9d5547dc4ede6ab06f2ef2c7d4128a5.svg" alt="t_0=5"/>
+and <img class="math" src="_images/math/412d89d8d0fe2ad6acdf8303ebe701c0a6530388.svg" alt="t_1=7"/>. Parameter <code class="docutils literal notranslate"><span class="pre">nterm</span></code> specifies the number of terms
 in the fit. <code class="docutils literal notranslate"><span class="pre">basis.make_prior(...)</span></code> creates priors
 <code class="docutils literal notranslate"><span class="pre">prior['m.local']</span></code> and <code class="docutils literal notranslate"><span class="pre">prior['m.smeared']</span></code>
 for the amplitudes corresponding to the local and smeared source,
@@ -899,12 +899,12 @@ using the original basis of sources and sinks.</li>
 <li><strong>keyfmt</strong> – Format string used to generate the keys
 in dictionary <code class="docutils literal notranslate"><span class="pre">data</span></code> corresponding to different
 components of the matrix of correlators. The
-key for <img class="math" src="_images/math/73a91fae0f84c471244326900c17fe045aba0260.png" alt="G_{ij}" style="vertical-align: -6px"/> is assumed to be
+key for <img class="math" src="_images/math/73a91fae0f84c471244326900c17fe045aba0260.svg" alt="G_{ij}"/> is assumed to be
 <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=i,</span> <span class="pre">s2=j)</span></code> where <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">j</span></code>
 are drawn from the list of sources, <code class="docutils literal notranslate"><span class="pre">srcs</span></code>.</li>
 <li><strong>srcs</strong> – List of source names used with <code class="docutils literal notranslate"><span class="pre">keyfmt</span></code>
 to create the keys for finding correlator
-components <img class="math" src="_images/math/73a91fae0f84c471244326900c17fe045aba0260.png" alt="G_{ij}" style="vertical-align: -6px"/> in the data dictionary.</li>
+components <img class="math" src="_images/math/73a91fae0f84c471244326900c17fe045aba0260.svg" alt="G_{ij}"/> in the data dictionary.</li>
 <li><strong>t</strong> – <code class="docutils literal notranslate"><span class="pre">t=(t0,</span> <span class="pre">t1)</span></code> specifies the <code class="docutils literal notranslate"><span class="pre">t</span></code> values
 used to diagonalize the correlation function.
 Larger <code class="docutils literal notranslate"><span class="pre">t</span></code> values are better than smaller ones,
@@ -1376,7 +1376,7 @@ and the <code class="docutils literal notranslate"><span class="pre">Q</span></c
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2010-18, G.P. Lepage.
+        &#169; Copyright 2010-19, G.P. Lepage.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
   </body>

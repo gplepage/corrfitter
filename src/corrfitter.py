@@ -956,6 +956,7 @@ class CorrFitter(lsqfit.MultiFitter):
             kargs['fast'] = True
         if 'nterm' in kargs:
             kargs['mopt'] = kargs['nterm']
+            del kargs['nterm']
         super(CorrFitter, self).__init__(models=models, **kargs)
         # replace nterm by mopt
         for tasktype, taskdata in self.tasklist:
@@ -1471,14 +1472,24 @@ class EigenBasis(object):
 
         G0 = numpy.empty(G.shape[:-1], float)
         G1 = numpy.empty(G.shape[:-1], float)
-        for i in range(G.shape[0]):
-            G0[i, i] = G[i, i, i0].mean
-            G1[i, i] = G[i, i, i1].mean
-            for j in range(i + 1, G.shape[1]):
-                G0[i, j] = lsqfit.wavg([G[i, j, i0], G[j, i, i0]], tol=1e-10).mean
-                G1[i, j] = lsqfit.wavg([G[i, j, i1], G[j, i, i1]], tol=1e-10).mean
-                G0[j, i] = G0[i, j]
-                G1[j, i] = G1[i, j]
+        if isinstance(G[0, 0, 0], _gvar.GVar):
+            for i in range(G.shape[0]):
+                G0[i, i] = G[i, i, i0].mean
+                G1[i, i] = G[i, i, i1].mean
+                for j in range(i + 1, G.shape[1]):
+                    G0[i, j] = lsqfit.wavg([G[i, j, i0], G[j, i, i0]], tol=1e-10).mean
+                    G1[i, j] = lsqfit.wavg([G[i, j, i1], G[j, i, i1]], tol=1e-10).mean
+                    G0[j, i] = G0[i, j]
+                    G1[j, i] = G1[i, j]
+        else:
+            for i in range(G.shape[0]):
+                G0[i, i] = G[i, i, i0]
+                G1[i, i] = G[i, i, i1]
+                for j in range(i + 1, G.shape[1]):
+                    G0[i, j] = (G[i, j, i0] + G[j, i, i0]) / 2.
+                    G1[i, j] = (G[i, j, i1] + G[j, i, i1]) / 2.
+                    G0[j, i] = G0[i, j]
+                    G1[j, i] = G1[i, j]
 
         if not self.osc:
             w, v = scipy.linalg.eigh(G1, G0, eigvals_only=False)

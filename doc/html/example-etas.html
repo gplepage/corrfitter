@@ -55,7 +55,7 @@
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>The simplest use of <a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><code class="xref py py-mod docutils literal notranslate"><span class="pre">corrfitter</span></code></a> is calculating the
 amplitude and energy of the ground state in a single
-two-point correlator. Here we analyze an <img class="math" src="_images/math/89f8243e8b1045054f89109c01d174880e1a051f.png" alt="\eta_s" style="vertical-align: -4px"/> propagator where the
+two-point correlator. Here we analyze an <img class="math" src="_images/math/89f8243e8b1045054f89109c01d174880e1a051f.svg" alt="\eta_s"/> propagator where the
 source and sink are the same.</p>
 <p>The one slightly non-obvious aspect of this fit is its use of
 log-normal priors for the energy differences <code class="docutils literal notranslate"><span class="pre">dE</span></code> between successive
@@ -156,7 +156,7 @@ with 64 numbers, of the form:</p>
 <span class="o">...</span>
 </pre></div>
 </div>
-<p>Each line is a different Monte Carlo estimate of the <img class="math" src="_images/math/89f8243e8b1045054f89109c01d174880e1a051f.png" alt="\eta_s" style="vertical-align: -4px"/>
+<p>Each line is a different Monte Carlo estimate of the <img class="math" src="_images/math/89f8243e8b1045054f89109c01d174880e1a051f.svg" alt="\eta_s"/>
 correlator for t=0…63. The mean values and covariance matrix
 are computed for the 64 elements of the correlator using
 <code class="xref py py-func docutils literal notranslate"><span class="pre">gvar.dataset.avg_data()</span></code>, and the result is stored in
@@ -236,7 +236,7 @@ this speeds up the larger fits and also helps to stabilize them.</p>
               <span class="mi">2</span>       <span class="mf">0.40</span> <span class="p">(</span><span class="mi">21</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.50</span> <span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="o">/</span><span class="mi">0</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">16</span><span class="o">/</span><span class="mf">0.0</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="o">/</span><span class="mi">0</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">18</span><span class="o">/</span><span class="mf">0.0</span><span class="p">)</span>
 
 <span class="n">E</span>   <span class="mf">0.41620</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>      <span class="mf">0.99</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>       
 <span class="n">a</span>   <span class="mf">0.21836</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>      <span class="mf">0.15</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>       
@@ -249,7 +249,7 @@ this speeds up the larger fits and also helps to stabilize them.</p>
             <span class="n">a</span> <span class="mi">0</span>    <span class="mf">0.21836</span> <span class="p">(</span><span class="mi">18</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.0</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
               <span class="mi">1</span>       <span class="mf">0.15</span> <span class="p">(</span><span class="mi">12</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.0</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
               <span class="mi">2</span>      <span class="mf">0.308</span> <span class="p">(</span><span class="mi">51</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.0</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
-              <span class="mi">3</span>      <span class="mf">3e-06</span> <span class="o">+-</span> <span class="mi">1</span>      <span class="p">[</span>  <span class="mf">0.0</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
+              <span class="mi">3</span>     <span class="o">-</span><span class="mf">3e-06</span> <span class="o">+-</span> <span class="mi">1</span>      <span class="p">[</span>  <span class="mf">0.0</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
       <span class="n">log</span><span class="p">(</span><span class="n">dE</span><span class="p">)</span> <span class="mi">0</span>   <span class="o">-</span><span class="mf">0.87660</span> <span class="p">(</span><span class="mi">30</span><span class="p">)</span>      <span class="p">[</span> <span class="o">-</span><span class="mf">0.7</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
               <span class="mi">1</span>      <span class="o">-</span><span class="mf">0.56</span> <span class="p">(</span><span class="mi">28</span><span class="p">)</span>      <span class="p">[</span> <span class="o">-</span><span class="mf">0.7</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
               <span class="mi">2</span>      <span class="o">-</span><span class="mf">0.92</span> <span class="p">(</span><span class="mi">53</span><span class="p">)</span>      <span class="p">[</span> <span class="o">-</span><span class="mf">0.7</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">]</span>  
@@ -261,7 +261,7 @@ this speeds up the larger fits and also helps to stabilize them.</p>
               <span class="mi">3</span>       <span class="mf">0.50</span> <span class="p">(</span><span class="mi">50</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.50</span> <span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="o">/</span><span class="mi">0</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">38</span><span class="o">/</span><span class="mf">0.0</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="o">/</span><span class="mi">0</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">45</span><span class="o">/</span><span class="mf">0.0</span><span class="p">)</span>
 
 <span class="n">E</span>   <span class="mf">0.41620</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>      <span class="mf">0.99</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>       
 <span class="n">a</span>   <span class="mf">0.21836</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>      <span class="mf">0.15</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>       
@@ -270,8 +270,8 @@ this speeds up the larger fits and also helps to stabilize them.</p>
 <span class="n">E</span><span class="p">:</span> <span class="mf">0.41624</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="n">ampl</span><span class="p">:</span> <span class="mf">0.047704</span><span class="p">(</span><span class="mi">71</span><span class="p">)</span> <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]:</span> <span class="mf">0.9</span> <span class="mf">0.8</span> <span class="p">[</span><span class="mi">57</span><span class="p">]</span> <span class="n">Q</span><span class="p">:</span> <span class="mf">0.8</span> <span class="mf">0.9</span> 
 
 <span class="o">==============================</span> <span class="n">bootstrap</span>
-<span class="n">E</span>   <span class="mf">0.41624</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>      <span class="mf">1.023</span><span class="p">(</span><span class="mi">94</span><span class="p">)</span>      
-<span class="n">a</span>   <span class="mf">0.21845</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>      <span class="mf">0.170</span><span class="p">(</span><span class="mi">72</span><span class="p">)</span>      
+<span class="n">E</span>   <span class="mf">0.41624</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>      <span class="mf">1.023</span><span class="p">(</span><span class="mi">83</span><span class="p">)</span>      
+<span class="n">a</span>   <span class="mf">0.21845</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>      <span class="mf">0.172</span><span class="p">(</span><span class="mi">70</span><span class="p">)</span>      
 </pre></div>
 </div>
 <p>These fits are very fast — a small fraction of a second each on a laptop.
@@ -279,7 +279,7 @@ Fit results converge by <code class="docutils literal notranslate"><span class="
 for states above the first three are essentially identical to the prior
 values; the Monte Carlo data are not sufficiently accurate to add any new
 information about these levels. The fits for <code class="docutils literal notranslate"><span class="pre">N&gt;=3</span></code> are excellent, with
-chi-square per degree of freedom (<code class="docutils literal notranslate"><span class="pre">chi2/dof</span></code>) of 0.68. There are only
+<img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> per degree of freedom (<code class="docutils literal notranslate"><span class="pre">chi2/dof</span></code>) of 0.68. There are only
 28 degrees of freedom here because the fitter, taking advantage of the
 periodicity, folded the data about the midpoint in <code class="docutils literal notranslate"><span class="pre">t</span></code> and averaged,
 before fitting. The ground state energy and amplitude are determined to
@@ -358,7 +358,7 @@ multi-exponential fits (note that <code class="docutils literal notranslate"><sp
 <code class="docutils literal notranslate"><span class="pre">fit.a[0]**2</span></code>, which has value 0.047681(79)). <a class="reference internal" href="corrfitter.html#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.fastfit</span></code></a>
 estimates the energy and amplitude for each <code class="docutils literal notranslate"><span class="pre">t</span></code> greater than <code class="docutils literal notranslate"><span class="pre">tmin</span></code>, and
 then  averages the results. The consistency of results from different <code class="docutils literal notranslate"><span class="pre">t</span></code>s
-is  measured by the chi-squared of the averages. The chi-squared per degree of
+is  measured by the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> of the averages. The <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> per degree of
 freedom is reported here to be 0.8 for the <code class="docutils literal notranslate"><span class="pre">E</span></code> average and 0.9 for the
 <code class="docutils literal notranslate"><span class="pre">ampl</span></code> average, indicating that there is good agreement between different
 <code class="docutils literal notranslate"><span class="pre">t</span></code>s.</p>
@@ -485,7 +485,7 @@ are non-Gaussian (because of insufficient statistics).</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2010-18, G.P. Lepage.
+        &#169; Copyright 2010-19, G.P. Lepage.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
   </body>

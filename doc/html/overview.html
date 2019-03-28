@@ -429,14 +429,14 @@ by a single term, <code class="docutils literal notranslate"><span class="pre">A
 actually necessary since the functional form is so simple.  <code class="xref py py-class docutils literal notranslate"><span class="pre">fastfit</span></code>
 averages estimates for <code class="docutils literal notranslate"><span class="pre">E[0]</span></code> and <code class="docutils literal notranslate"><span class="pre">A[0]</span></code> from all <code class="docutils literal notranslate"><span class="pre">t</span></code>s larger than
 <code class="docutils literal notranslate"><span class="pre">tmin</span></code>. It is important to verify that these estimates agree  with each
-other, by checking the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.png" alt="\chi^2" style="vertical-align: -4px"/> of the average. Try increasing <code class="docutils literal notranslate"><span class="pre">tmin</span></code> if
-the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.png" alt="\chi^2" style="vertical-align: -4px"/> is too large; or introduce an SVD cut.</p>
+other, by checking the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> of the average. Try increasing <code class="docutils literal notranslate"><span class="pre">tmin</span></code> if
+the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> is too large; or introduce an SVD cut.</p>
 <p>The energies from <code class="xref py py-class docutils literal notranslate"><span class="pre">fastfit</span></code> are closely related to standard <em>effective
 masses</em>. The key difference is <code class="xref py py-class docutils literal notranslate"><span class="pre">fastfit</span></code>’s marginalization of terms
 from excited states (<code class="docutils literal notranslate"><span class="pre">i&gt;0</span></code> above). This allows <code class="xref py py-class docutils literal notranslate"><span class="pre">fastfit</span></code> to use
 information from much smaller <code class="docutils literal notranslate"><span class="pre">t</span></code>s than otherwise, increasing precision. It
 also quantifies the uncertainty caused by the existence of excited states,
-and gives a simple criterion for how small <code class="docutils literal notranslate"><span class="pre">tmin</span></code> can be (the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.png" alt="\chi^2" style="vertical-align: -4px"/>).
+and gives a simple criterion for how small <code class="docutils literal notranslate"><span class="pre">tmin</span></code> can be (the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/>).
 Results are typically as accurate as results obtained from a full
 multi-exponential fit that uses the same priors for <code class="docutils literal notranslate"><span class="pre">A[i]</span></code> and <code class="docutils literal notranslate"><span class="pre">E[i]</span></code>,
 and the same <code class="docutils literal notranslate"><span class="pre">tmin</span></code>. <code class="xref py py-class docutils literal notranslate"><span class="pre">fastfit</span></code> can also be used for periodic and
@@ -550,7 +550,7 @@ where <code class="docutils literal notranslate"><span class="pre">N</span></cod
 <code class="docutils literal notranslate"><span class="pre">a[i]</span></code>s).</p>
 </div>
 <div class="section" id="testing-fits-with-simulated-data">
-<h2>Testing Fits with Simulated Data<a class="headerlink" href="#testing-fits-with-simulated-data" title="Permalink to this headline">¶</a></h2>
+<span id="simulated-fits"></span><h2>Testing Fits with Simulated Data<a class="headerlink" href="#testing-fits-with-simulated-data" title="Permalink to this headline">¶</a></h2>
 <p>Large fits are complicated and often involve nontrivial choices about
 algorithms (<em>e.g.</em>, chained fits versus regular fits), priors, and
 SVD cuts — choices that affect the values and errors for the fit
@@ -558,34 +558,35 @@ parameters. In such situations it is often a good idea to test the
 fit protocol that has been selected. This can be done by fitting simulated
 data. Simulated data looks almost identical to the original fit
 data but has means that have been adjusted to correspond to fluctuations
-around a correlator with known (before the fit) parameter values: <code class="docutils literal notranslate"><span class="pre">p=pexact</span></code>.
+around a correlator with known (before the fit) parameter values: <code class="docutils literal notranslate"><span class="pre">p=p_exact</span></code>.
 The <a class="reference internal" href="corrfitter.html#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.CorrFitter</span></code></a> iterator <code class="docutils literal notranslate"><span class="pre">simulated_pdata_iter</span></code> creates any number of
 different simulated data sets of this kind. Fitting any of these with
 a particular fit protocol tests the reliability of that protocol since
-the fit results should agree with <code class="docutils literal notranslate"><span class="pre">pexact</span></code>
+the fit results should agree with <code class="docutils literal notranslate"><span class="pre">p_exact</span></code>
 to within the (simulated) fit’s errors. One or two fit simulations of this
 sort are usually enough to establish the validity of a protocol. It is also
 easy to compare the performance of different fit options by applying these in
-fits of simulated data, again because we know the correct answers (<code class="docutils literal notranslate"><span class="pre">pexact</span></code>)
+fits of simulated data, again because we know the correct answers (<code class="docutils literal notranslate"><span class="pre">p_exact</span></code>)
 ahead of time.</p>
-<p>Typically one obtains reasonable values for <code class="docutils literal notranslate"><span class="pre">pexact</span></code> from a fit to the
-real data. Assuming these have been dumped into a file named <code class="docutils literal notranslate"><span class="pre">&quot;pexact_file&quot;</span></code>
-(using, for example, <code class="docutils literal notranslate"><span class="pre">fit.dump_pmean(&quot;pexact_file&quot;)</span></code>), a testing script
+<p>Typically one obtains reasonable values for <code class="docutils literal notranslate"><span class="pre">p_exact</span></code> from a fit to the
+real data. Assuming these have been dumped into a file named <code class="docutils literal notranslate"><span class="pre">&quot;p_exact_file&quot;</span></code>
+(using, for example, Python’s <code class="xref py py-mod docutils literal notranslate"><span class="pre">pickle</span></code> module), a testing script
 might look something like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gvar</span> <span class="k">as</span> <span class="nn">gv</span>
 <span class="kn">import</span> <span class="nn">lsqfit</span>
 <span class="kn">import</span> <span class="nn">corrfitter</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>       <span class="c1"># from original fit code</span>
     <span class="n">prior</span> <span class="o">=</span> <span class="n">make_prior</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
     <span class="n">fitter</span> <span class="o">=</span> <span class="n">corrfitter</span><span class="o">.</span><span class="n">CorrFitter</span><span class="p">(</span><span class="n">models</span> <span class="o">=</span> <span class="n">make_models</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
     <span class="n">n</span> <span class="o">=</span> <span class="mi">2</span>                                   <span class="c1"># number of simulations</span>
-    <span class="n">pexact</span> <span class="o">=</span> <span class="n">lsqfit</span><span class="o">.</span><span class="n">nonlinear_fit</span><span class="o">.</span><span class="n">load_parameters</span><span class="p">(</span><span class="s2">&quot;pexact_file&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">spdata</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">simulated_pdata_iter</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">pexact</span><span class="o">=</span><span class="n">pexact</span><span class="p">):</span>
+    <span class="n">p_exact</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;p_exact_file&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">spdata</span> <span class="ow">in</span> <span class="n">fitter</span><span class="o">.</span><span class="n">simulated_pdata_iter</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">p_exact</span><span class="o">=</span><span class="n">p_exact</span><span class="p">):</span>
         <span class="c1"># sfit = fit to the simulated data sdata</span>
-        <span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">pdata</span><span class="o">=</span><span class="n">spdata</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">pexact</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="o">...</span><span class="p">)</span>
-        <span class="o">...</span> <span class="n">check</span> <span class="n">that</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span> <span class="n">values</span> <span class="n">agree</span> <span class="k">with</span> <span class="n">pexact</span> <span class="n">to</span> <span class="n">within</span> <span class="n">sfit</span><span class="o">.</span><span class="n">psdev</span> <span class="o">...</span>
+        <span class="n">sfit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span><span class="n">pdata</span><span class="o">=</span><span class="n">spdata</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p_exact</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="o">...</span><span class="p">)</span>
+        <span class="o">...</span> <span class="n">check</span> <span class="n">that</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span> <span class="n">values</span> <span class="n">agree</span> <span class="k">with</span> <span class="n">p_exact</span> <span class="n">to</span> <span class="n">within</span> <span class="n">sfit</span><span class="o">.</span><span class="n">psdev</span> <span class="o">...</span>
 </pre></div>
 </div>
 </div>
@@ -730,7 +731,7 @@ C. Bouchard et al, Phys.Rev. D90 (2014) 054506.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2010-18, G.P. Lepage.
+        &#169; Copyright 2010-19, G.P. Lepage.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
   </body>

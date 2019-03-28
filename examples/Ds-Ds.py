@@ -3,10 +3,11 @@ from __future__ import print_function # makes this work for python2 and python3
 import collections
 import h5py
 import gvar as gv
-import numpy as np
 import corrfitter as cf
 
 SHOWPLOTS = False        # display plots at end?
+SVDCUT = 0.002
+
 try:
     import matplotlib
 except ImportError:
@@ -19,16 +20,50 @@ def main():
     for N in [1, 2, 3, 4]:
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N)
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0)
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=SVDCUT)
         print(fit.format(pstyle=None if N < 4 else 'v'))
         p0 = fit.pmean
     print_results(fit, prior, data)
     if SHOWPLOTS:
         fit.show_plots(save='Ds-Ds.{}.png', view='ratio')
 
+    # check fit quality by adding noise
+    print('\n==================== add svd, prior noise')
+    noisy_fit = fitter.lsqfit(
+        data=data, prior=prior, p0=fit.pmean, svdcut=SVDCUT,
+        add_svdnoise=True, add_priornoise=True,
+        )
+    print(noisy_fit.format(pstyle=None))
+    p = key_parameters(fit.p)
+    noisy_p = key_parameters(noisy_fit.p)
+    print('      fit:', p)
+    print('noisy fit:', noisy_p)
+    print('          ', gv.fmt_chi2(gv.chi2(p - noisy_p)))
+
+    # simulated fit
+    for sim_pdata in fitter.simulated_pdata_iter(
+        n=2, dataset=h5py.File('Ds-Ds.h5'), p_exact=fit.pmean
+        ):
+        print('\n==================== simulation')
+        sim_fit = fitter.lsqfit(
+            pdata=sim_pdata, prior=prior, p0=fit.pmean, svdcut=SVDCUT,
+            )
+        print(sim_fit.format(pstyle=None))
+        p = key_parameters(fit.pmean)
+        sim_p = key_parameters(sim_fit.p)
+        print('simulated - exact:', sim_p - p)
+        print('          ', gv.fmt_chi2(gv.chi2(p - sim_p)))
+
+def key_parameters(p):
+    """ collect key fit parameters in dictionary """
+    ans = gv.BufferDict()
+    for k in ['a', 'dE', 'Vnn']:
+        ans[k] = p[k][0]
+    return ans
+
 def make_data(filename):
     """ Read data from file and average it. """
-    return gv.svd(gv.dataset.avg_data(h5py.File(filename)), svdcut=0.014)
+    return gv.dataset.avg_data(h5py.File(filename))
 
 def make_models():
     """ Create models to fit data. """
@@ -95,4 +130,5 @@ def print_results(fit, prior, data):
 
 
 if __name__ == '__main__':
+    gv.ranseed(123456)
     main()

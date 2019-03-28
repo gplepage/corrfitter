@@ -1,6 +1,18 @@
+Version 8.0.2 2019-03-28
+=========================
+Minor update.
+
+- Fixes bug in CorrFitter __init__ routine.  Caused crashes under unusual
+  conditions but otherwise had no effect. Concerns conversion nterm->mopt.
+
+- Fixes documentation on various examples. More information about how to
+  choose SVD cuts and about evaluating fit quality.
+
+- Works with gvar 9.1 and lsqfit 11.2.
+
 Version 8.0 2018-07-27
 ======================
-Adapted to work with v11 of lsqfit. Keyword extend disappears (but is
+Adapted to work with v11 of lsqfit. Keyword 'extend' disappears (but is
 no longer needed).
 
 Version 7.0.1 2018-07-21

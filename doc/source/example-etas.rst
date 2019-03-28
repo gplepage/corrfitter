@@ -8,6 +8,7 @@ Annotated Example: Two-Point Correlator
 .. |Corr3| replace:: :class:`corrfitter.Corr3`
 .. |Dataset| replace:: :class:`gvar.dataset.Dataset`
 .. |GVar| replace:: :class:`gvar.GVar`
+.. |chi2| replace:: :math:`\chi^2`
 
 .. |~| unicode:: U+00A0
    :trim:
@@ -114,7 +115,7 @@ Fit results converge by ``N=3`` states. The amplitudes and energy differences
 for states above the first three are essentially identical to the prior
 values; the Monte Carlo data are not sufficiently accurate to add any new
 information about these levels. The fits for ``N>=3`` are excellent, with
-chi-square per degree of freedom (``chi2/dof``) of 0.68. There are only
+|chi2| per degree of freedom (``chi2/dof``) of 0.68. There are only
 28 degrees of freedom here because the fitter, taking advantage of the
 periodicity, folded the data about the midpoint in ``t`` and averaged,
 before fitting. The ground state energy and amplitude are determined to
@@ -176,7 +177,7 @@ multi-exponential fits (note that ``fastfit.ampl`` is the same  as
 ``fit.a[0]**2``, which has value 0.047681(79)). :class:`corrfitter.fastfit`
 estimates the energy and amplitude for each ``t`` greater than ``tmin``, and
 then  averages the results. The consistency of results from different ``t``\s
-is  measured by the chi-squared of the averages. The chi-squared per degree of
+is  measured by the |chi2| of the averages. The |chi2| per degree of
 freedom is reported here to be 0.8 for the ``E`` average and 0.9 for the
 ``ampl`` average, indicating that there is good agreement between different
 ``t``\s.

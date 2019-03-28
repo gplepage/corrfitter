@@ -8,6 +8,7 @@ Annotated Example: Transition Form Factor and Mixing
 .. |Corr3| replace:: :class:`corrfitter.Corr3`
 .. |Dataset| replace:: :class:`gvar.dataset.Dataset`
 .. |GVar| replace:: :class:`gvar.GVar`
+.. |chi2| replace:: :math:`\chi^2`
 .. |~| unicode:: U+00A0
    :trim:
 
@@ -45,7 +46,7 @@ The ``main`` method for the form-factor code follows the pattern described
 in :ref:`basic-fits`:
 
 .. literalinclude:: examples/etas-Ds.py
-    :lines: 1-24
+    :lines: 1-23
 
 The Monte Carlo data are in a file named ``'etas-Ds.h5'``. We are doing
 four fits, with 1, 2, 3, and 4 terms in the fit function. Each fit starts its
@@ -59,7 +60,8 @@ are displayed by ``fit.show_plots()``, provided
 :mod:`matplotlib` is installed. A plot is made for each correlator, and the
 ratios should equal one to within errors. To
 move from one plot to the next press "n" on the keyboard; to move to a
-previous plot press "p"; to quit the plots press "q".
+previous plot press "p"; to cycle through different views of the data and fit
+press "v"; and to quit the plots press "q".
 
 We now look at each other major routine in turn.
 
@@ -69,7 +71,7 @@ Method ``make_data('etas-Ds.h5')`` reads in the Monte Carlo data, averages
 it, and formats it for use by |CorrFitter|:
 
 .. literalinclude:: examples/etas-Ds.py
-    :lines: 51-54
+    :lines: 60-63
 
 The data file ``etas-Ds.h5`` is in hdf5 format. It contains four datasets::
 
@@ -101,8 +103,6 @@ in this data.
 
 Function ``gv.dataset.avg_data(dset)`` averages over the Monte Carlo samples
 for all the correlators to compute their means and covariance matrix.
-We also introduce an SVD cut (see :ref:`svd-cuts`) to account for the fact
-that we have only 225 Monte Carlo samples for each piece of data.
 The end result is a dictionary whose keys are the keys used to
 label the hdf5 datasets: for example, ::
 
@@ -132,7 +132,7 @@ Method ``make_models()`` specifies the theoretical models that will be used
 to fit the data:
 
 .. literalinclude:: examples/etas-Ds.py
-    :lines: 56-83
+    :lines: 65-92
 
 Four models are specified, one for each correlator to be fit. The first two
 are for the |etas| and |Ds| two-point correlators, corresponding to
@@ -159,7 +159,7 @@ Method ``make_prior(N)`` creates *a priori* estimates for each fit
 parameter, to be used as  priors in the fitter:
 
 .. literalinclude:: examples/etas-Ds.py
-    :lines: 85-108
+    :lines: 94-117
 
 Parameter ``N`` specifies how many terms are kept in the fit functions. The
 priors are stored in a dictionary ``prior``. Each entry is an array, of
@@ -216,7 +216,7 @@ Method ``print_results(fit, prior, data)`` reports on the best-fit values
 for the fit parameters from the last fit:
 
 .. literalinclude:: examples/etas-Ds.py
-    :lines: 110-153
+    :lines: 119-159
 
 The best-fit parameter values are stored in dictionary ``p=fit.p``,
 as are the exponentials of the log-normal parameters.
@@ -224,30 +224,57 @@ We also turn energy differences into energies using :mod:`numpy`'s cummulative
 sum function :func:`numpy.cumsum`. The final output is:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 112-123
+    :lines: 112-122
 
 Finally we  create an error budget for the |etas|
-and |Ds| masses, for the mass difference between the |Ds| and its
-opposite-parity partner, and for the ground-state transition amplitudes
-``Vnn`` and ``Vno``. The quantities of interest are specified in dictionary
+and |Ds| masses, and for the ground-state transition amplitude
+``Vnn``. The quantities of interest are specified in dictionary
 ``outputs``. For the error budget, we need another dictionary, ``inputs``,
-specifying various inputs to the calculation, here the Monte Carlo data and the
+specifying various inputs to the calculation, here the Monte Carlo data,
+the SVD corrections, and the
 priors. Each of these inputs
-contributes to the errors in the final results, as detailed in the
+contributes to the errors in the  final results, as detailed in the
 error budget:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 125-146
+    :lines: 124-143
 
 The error budget shows, for example, that the largest sources of uncertainty
 in every quantity are the statistical errors in the input data.
+
+e) SVD Cut
+_____________________
+The fits need an SVD cut, ``svdcut=8e-5``, because there are
+only 225 |~| random samples for
+each of 69 |~| data points. Following the recipe in :ref:`svd-cuts`,
+we determine the value of the SVD cut using a separate
+script consisting of
+
+.. literalinclude:: examples/etas-Ds-svdcut.py
+    :lines: 3-10
+
+together with the ``make_models()`` method described above.
+Running this script outputs a single line, telling us
+to use ``svdcut=8e-5``::
+
+    svdcut = 7.897481075407619e-05
+
+It also displays a plot that shows how eigenvalues
+of the data's correlation matrix that are below the SVD cutoff (dotted
+red line) are significantly underestimated:
+
+.. image:: examples/etas-Ds-svdcut.png
+    :width: 70%
+
+The SVD cut adds additional uncertainty to the data to increase
+these eigenvalues so they do not cause trouble with the fit.
 
 Results
 --------------
 The output from running the code is as follows:
 
 .. literalinclude:: examples/etas-Ds.out
-    :lines: 1-146
+    :lines: 1-143
 
 Note:
 
@@ -258,17 +285,18 @@ Note:
   ``chi2/dof``\s that are significantly larger than one.
 
 - Fits with three terms work well, and adding futher terms has almost no
-  impact. The chi-squared does not improve and parameters for the
+  impact. The |chi2| does not improve and parameters for the
   added terms differ little from their prior values (since the data are
   not sufficiently accurate to add new information).
 
 - The quality of the fit is confirmed by the fit plots displayed at the
   end (press the 'n' and 'p' keys to cycle through the various plots,
+  the 'v' key to cycle through different views of the data and fit,
   and the 'q' key to quit the plot). The plot for the |Ds| correlator,
   for example, shows correlator data divided by fit result as a
   function of ``t``:
 
-  .. image:: examples/Ds.*
+  .. image:: examples/Ds.png
       :width: 70%
 
   The points with error bars are the correlator data points; the fit
@@ -286,6 +314,50 @@ Note:
   is replicated with various different combinations of sources and
   sinks (one entry for each combination).
 
+Testing the Fit
+----------------
+The |chi2| for the fit above is low for a fit to 69 |~| data points.
+This would normally be evidence of a good fit, but, as
+discussed in :ref:`goodness-of-fit`,
+our SVD cut means that we need
+to refit with added noise if we want to use |chi2| as a measure of
+fit quality.
+We implement this test by adding the following code at the end of the
+``main()`` method  above:
+
+.. literalinclude:: examples/etas-Ds.py
+    :lines: 25-36, 51-58
+
+This reruns the fit but with random noise (associated with the SVD cut
+and priors) added to the data. The result is still a good fit, but with
+a signficantly higher |chi2|, as expected:
+
+.. literalinclude:: examples/etas-Ds.out
+    :lines: 148-157
+
+The noisy fit also agrees with the original fit about the most important
+parameters from the fit. This test provides further evidence that
+our fit is good.
+
+A more complex test of the fitting protocol is obtained by using
+simulated fits: see :ref:`simulated-fits`. We do this by adding
+
+.. literalinclude:: examples/etas-Ds.py
+    :lines: 38-50
+
+to the end of the ``main()`` method. This code does ``n=2`` |~| simulations
+of the full fit, using the means ``fit.pmean`` from the last fit
+as ``p_exact``.
+The code compares fit results with ``p_exact`` in each case,
+and computes the |chi2| of the difference between the leading parameters
+and ``p_exact``. The output is:
+
+.. literalinclude:: examples/etas-Ds.out
+    :lines: 159-177
+
+This again confirms that the fit is working well.
+
+
 Variation: Marginalization
 --------------------------
 Marginalization (see :ref:`marginalization`) can speed up fits like
@@ -293,14 +365,15 @@ this one. To use an 8-term fit function, while tuning parameters for only
 ``N`` terms, we change only four lines in the main program:
 
 .. literalinclude:: examples/etas-Ds-marginalize.py
-    :lines: 15-27
+    :lines: 12-26
 
-The first modification (``#1``)
+The first modification (``#1``) sets the prior to eight terms,
+no matter what value ``N`` has.
+The second modification (``#2``)
 limits the
 fits to ``N=1,2``, because that is all that will be needed to get good
 values for the leading term.
-The second modification (``#2``) sets the prior to eight terms, no matter what value
-``N`` has. The third (``#3``) tells ``fitter.lsqfit`` to fit parameters from
+The third (``#3``) tells ``fitter.lsqfit`` to fit parameters from
 only the first ``N`` terms in the fit function; parts of the prior that are
 not being fit are incorporated (*marginalized*) into the fit data.
 The last modification (``#4``) changes what is printed out.
@@ -310,7 +383,17 @@ results for the leading term have converged by ``N=2`` (and even ``N=1`` is
 pretty good):
 
 .. literalinclude:: examples/etas-Ds-marginalize.out
-    :lines: 1-101
+    :lines: 1-98
+
+The tests applied to the first fit can be used here as well. For example,
+setting ``add_svdnoise=True`` and ``add_priornoise=True`` in the
+fit results in
+
+.. literalinclude:: examples/etas-Ds-marginalize.out
+    :lines: 103-112
+
+This suggests a good fit. The results are consistent with the original
+fit.
 
 
 Variation: Chained Fit
@@ -322,104 +405,57 @@ fits with marginalization. Three parts of our original code need
 modifications:
 
 .. literalinclude:: examples/etas-Ds-chained.py
-    :lines: 14-28
+    :lines: 14-34
 
 The first modification (``#1``) replaces the original list of models with
 a structured list that instructs the (chained) fitter sequentially to:
 
-  a) fit the ``etas`` 2-point correlator described in ``models[0]``;
+  a) fit the ``etas`` 2-point correlator described in ``models[0]`` (``#1b``);
 
-  b) fit the ``Ds`` 2-point correlator described in ``models[1]``;
+  b) fit the ``Ds`` 2-point correlator described in ``models[1]``  (``#1b``);
 
-  c) reset fit parameter ``nterm=(1,0)``, causing the fitter to
-     marginalize all states other than the (non-oscillating) ground
-     state in subsequent fits;
+  c) reset fit parameters ``nterm=(2, 1)`` (marginalize all but the
+     first three states) and ``svdcut=6.3e-5`` for
+     subsequent fits (``#1c``);
 
   d) fit simultaneously the two 3-point correlators described
-     in ``(models[2],models[3])``.
+     in ``(models[2],models[3])``  (``#1d``).
 
 The second modification (``#2``) replaces ``lsqfit`` by ``chained_lsqfit``.
-The third modification (``#3``) changes what is listed by the code: results
-from all the fits in the chain are displayed.
+It also removes the SVD cutfrom the 2-point fits;
+as discussed above (``1c``), the SVD cut is reintroduced for the 3-point
+fits.
 
 The output for ``N=4`` terms is substantially shorter than for our
 original code:
 
 .. literalinclude:: examples/etas-Ds-chained.out
-    :lines: 67-188
+    :lines: 52-153
 
-Note:
-
-  - Fit results are listed from each step in the chain: first just
-    the ``etas`` 2-point correlator, then the ``Ds`` 2-point
-    correlator, and finally a combined fit of both 3-point
-    correlators.
-
-  - The last fit (3-point correlators) has only five fit parameters
-    because all of the other parameters have been folded into the
-    data using marginalization. The priors for the energies and
-    amplitudes are the outputs from the preceding 2-point fits. The results
-    for these are changed only slightly by the last fit.
-
-  - One might try less marginalization (e.g., ``nterm=(1,1)``) to
-    check that results are stable.
-
-  - Final results are very similar to before except that there is
-    no information about ``Vno`` since it was marginalized out of
-    the fit. The value quoted for ``Vno`` is just that specified in
-    the prior.
+Again the results agree well with the original fit.
+Fit results are listed from each step in the chain: first just
+the ``etas`` 2-point correlator, then the ``Ds`` 2-point
+correlator, and finally a combined fit of both 3-point
+correlators. One might try less marginalization (e.g.,
+``nterm=(1,1)``) to check that results are stable. Also one might
+test the fits, as above.
 
 Chained fits are particularly useful for very large data sets
 (much larger than this one). Also marginalizing extraneous variables in the
 3-point fits can make fitting more robust (because it is simpler).
 
-Test the Analysis
----------------------
-We can test our analysis by adding ::
-
-  test_fit(fitter=fitter, p_exact=fit.pmean, prior=prior, datafile='etas-Ds.h5')
-
-to the ``main`` method, where:
-
-.. literalinclude:: examples/etas-Ds.py
-    :lines: 29-51
-
-This code does ``n=2`` simulations of the full fit, using the means
-``fit.pmean`` from the last fit as ``p_exact``.
-The code compares fit results with ``p_exact`` in each case,
-and computes the chi-squared of the difference between the leading
-parameters and ``p_exact``. The output is:
-
-.. literalinclude:: examples/etas-Ds.out
-    :lines: 152-
-
-This shows that the fit is working well.
-
-Other options are easily checked. For example,
-only one line need be changed in ``test_fit`` in order to test
-a marginalized fit::
-
-    sfit = fitter.lsqfit(pdata=spdata, prior=prior, p0=p_exact, nterm=(2,2))
-
-Running this code gives:
-
-.. literalinclude:: examples/etas-Ds-marginalize.out
-    :lines: 107-
-
-This is also fine and confirms that ``nterm=(2,2)`` marginalized fits
-are a useful, faster substitute for full fits in this case.
 
 Mixing
 ----------
 Code to analyze |Ds|-|Ds| mixing is very similar to the code above for
 a transition form factor. The ``main()`` and ``make_data()`` functions are
 identical, except that here data are read from file ``'Ds-Ds.h5'`` and
-the appropriate SVD cut is ``svdcut=0.014`` (see :ref:`svd-cuts`).
+the appropriate SVD cut is ``svdcut=0.003`` (see :ref:`svd-cuts`).
 We need models for the two-point |Ds| correlator, and for two three-point
 correlators describing the |Ds| to |Ds| transition:
 
 .. literalinclude:: examples/Ds-Ds.py
-    :lines: 33-55
+    :lines: 68-90
 
 The initial and final states in the three-point correlators are the same
 here so we set parameter ``symmetricV=True`` in :class:`corrfitter.Corr3`.
@@ -427,7 +463,7 @@ here so we set parameter ``symmetricV=True`` in :class:`corrfitter.Corr3`.
 The prior is also similar to the previous case:
 
 .. literalinclude:: examples/Ds-Ds.py
-    :lines: 57-76
+    :lines: 92-111
 
 We use log-normal distributions for the energy differences, and
 amplitudes.
@@ -437,17 +473,17 @@ since they are symmetrical (because ``symmetricV=True`` is set).
 A minimal ``print_results()`` function is:
 
 .. literalinclude:: examples/Ds-Ds.py
-    :lines: 78-94
+    :lines: 113-129
 
-Running the mixing code gives the following output:
+Running the mixing code gives the following output for ``N=4``:
 
 .. literalinclude:: examples/Ds-Ds.out
-    :lines: 1-
+    :lines: 22-112
 
 The fits for individual correlators look good:
 
-==============================  =================================== ===================================
-==============================  =================================== ===================================
-.. image:: examples/Ds-Ds.Ds.*  .. image:: examples/Ds-Ds.DsDsT15.* .. image:: examples/Ds-Ds.DsDsT18.*
-==============================  =================================== ===================================
+================================  ===================================== =====================================
+================================  ===================================== =====================================
+.. image:: examples/Ds-Ds.Ds.png  .. image:: examples/Ds-Ds.DsDsT15.png .. image:: examples/Ds-Ds.DsDsT18.png
+================================  ===================================== =====================================
 

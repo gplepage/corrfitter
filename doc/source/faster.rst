@@ -9,6 +9,8 @@ Faster, More Accurate Fits
 .. |Dataset| replace:: :class:`gvar.dataset.Dataset`
 .. |GVar| replace:: :class:`gvar.GVar`
 .. |chi2| replace:: :math:`\chi^2`
+.. |~| unicode:: U+00A0
+   :trim:
 
 .. _faster-fits:
 
@@ -346,7 +348,7 @@ These problems tend show up as an unexpectedly large |chi2|\s,
 for example, in fits where the |chi2| per degree of freedom remains
 substantially larger than one no matter how many fit terms are
 employed. Such situations are usually improved by introducing an
-SVD cut::
+SVD cut: e.g., ::
 
     fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=1e-2)
 
@@ -357,59 +359,86 @@ conservative move.
 
 The method :meth:`gvar.dataset.svd_diagnoisis` in module :mod:`gvar` is
 useful for assessing whether an SVD cut is needed, and for setting
-its value. One way to use it is in the ``make_pdata``
-routine when creating processed data (see :ref:`processed-datasets`)::
+its value. One way to use it is to write a separate script to read
+the fit data (from a file named ``'datafile'``) into a dataset, which then
+is passed it to :meth:`svd_diagnosis` for analysis::
 
     import gvar as gv
     import corrfitter as cf
 
-    GENERATE_SVD = True
+    def main():
+        dset = cf.read_dataset('datafile')
+        s = gv.dataset.svd_diagnosis(dset, models=make_models())
+        print('svdcut =', s.svdcut)
+        s.plot_ratio(show=True)
 
-    def make_pdata(filename, models):
-        dset = cf.read_dataset(filename)
-        pdata = cf.process_dataset(dset, models)
-        if GENERATE_SVD:
-            s = gv.dataset.svd_diagnosis(dset, models=models)
-            print('suggested svdcut =', s.svdcut)
-            s.plot_ratio(show=True)
-            svdcut = s.svdcut
-        else:
-            svdcut = 0.1
-        return gv.svd(pdata, svdcut=svdcut)
+Method ``make_models()``, from the fit code, should also be added to
+the script (see :ref:`basic-fits`); it returns
+the list of the models used by the fit (to tell ``svd_diagnosis()`` exactly
+which data points are going to be fit). The script prints out a suggested
+value for ``svdcut``.
 
-Here ``gv.dataset.svd_diagnosis(dset, models)`` uses a bootstrap
-simulation (see :ref:`bootstrap-analyses`) to test the reliability
+``gv.dataset.svd_diagnosis(dset, models...)`` uses a bootstrap
+simulation to test the reliability
 of the eigenvalues determined from the
 Monte Carlo data in ``dset``. It places the SVD cut at the point
-where the bootstrapped eigenvalues fall well below the actual values.
+where the bootstrapped eigenvalues fall significantly below the actual values.
 A plot showing the ratio of bootstrapped to actual eigenvalues is
 displayed by ``s.plot_ratio(show=True)``. The following are
 sample plots from two
-otherwise identical simulations of 3 correlators (66 data points in all),
+otherwise identical simulations of 3 correlators (63 data points in all),
 one with 100 configurations and the
 other with 10,000 configurations:
 
-==============================  ==============================
-==============================  ==============================
-.. image:: svd-bootstrap-1e2.*  .. image:: svd-bootstrap-1e4.*
-==============================  ==============================
+================================  ================================
+================================  ================================
+.. image:: svd-bootstrap-1e2.png  .. image:: svd-bootstrap-1e4.png
+================================  ================================
 
 With only 100 configurations, three quarters of the eigenvalues are too
 small in the bootstrap simulation, and therefore also
 likely too small for the real data. Simulated and actual eigenvalues come into
-agreement around 0.1 (red dashed line),
+agreement around 0.07 (red dashed line),
 which is the suggested value for ``svdcut``. With 10,000 configurations,
 all of the eigenvalues are robust and no SVD cut is needed. Both data
-sets produce good fits (using the appropriate ``svdcut`` for each). The
-fits agree with each other, with uncertainties from the high-statistics
-case that are 10 times smaller, as expected.
+sets produce good fits (using the appropriate ``svdcut`` for each).
 
-In ``make_pdata()`` above, the SVD cut is applied directly to the
-data (``gv.svd(pdata, svdcut=svdcut)``) before it is fit,
-and so need not be supplied to the fitter. This is convenient when
-using processed data because both the Monte Carlo data (``dset``) and
-the :mod:`corrfitter` models are available.
-Another option is to do the SVD diagnosis just before fitting and pass the
-value of ``svdcut`` to :mod:`corrfitter`.
+On average, individual terms in the |chi2| should contribute
+:math:`1 \pm \sqrt{2/N_d}`, where again :math:`N_d` is
+the number of data points.
+Underestimating eigenvalues artificially increases the size of the
+corresponding terms in the |chi2|, and therefore eigenvalues
+that are smaller than  :math:`1 - \sqrt{2/N_d}`
+times the correct value cause problems. The
+dotted horizontal line shows where this threshold is located. The
+SVD cut is placed where the blue data points (the ratios of bootstrapped
+to exact eigenvalues) cross that  threshold.
 
+Having determined the SVD cut, we modify the data by setting keywoard
+argument ``svdcut`` in the fits, or by using :meth:`gvar.svd` to apply
+the SVD cut explicitly.
 
+.. _goodness-of-fit:
+
+Goodness of Fit
+-----------------
+A small |chi2| is generally a sign of a good fit, but |chi2| becomes
+unreliable as an indicator of fit quality when using significant SVD cuts.
+The SVD cut increases uncertainties in the fit data without increasing
+the fluctuations in the data's mean values. As a result contributions
+to the |chi2| from terms affected by the SVD cut tend to be much smaller
+than expected, artificially pulling the total |chi2| down.
+A similar issue is created
+by using broad priors. (For more discussion,
+see the section on goodness of fit in the
+documentation with moduled :mod:`lsqfit`.)
+
+To check the goodness of fit using a fit's |chi2| we must add random
+fluctuations to the data means associated with the SVD cut and the priors.
+This is done by refitting the data but with parameters
+``add_svdnoise=True`` and ``add_priornoise=True``. A good fit will still have
+a |chi2| of order one or less per degree freedom even with the added
+noise. The fit parameters from the noisy fit should also agree within errors
+with best-fit parameters from the original fit.
+
+See the Case Studies for examples.

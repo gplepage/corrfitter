@@ -1,13 +1,12 @@
 from __future__ import print_function   # makes this work for python2 and 3
 
 import collections
-import sys
-import h5py
 import gvar as gv
 import numpy as np
 import corrfitter as cf
 
 SHOWPLOTS = True
+SVDCUT = 8e-5
 
 def main():
     data = make_data('etas-Ds.h5')
@@ -16,44 +15,52 @@ def main():
     for N in [1, 2, 3, 4]:
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N)
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0)
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=SVDCUT)
         print(fit.format(pstyle=None if N < 4 else 'v'))
         p0 = fit.pmean
     print_results(fit, prior, data)
     if SHOWPLOTS:
         fit.show_plots()
-    test_fit(
-        fitter=fitter, p_exact=fit.pmean, prior=prior, datafile='etas-Ds.h5'
+
+    # check fit quality by adding noise
+    print('\n==================== add svd, prior noise')
+    noisy_fit = fitter.lsqfit(
+        data=data, prior=prior, p0=fit.pmean, svdcut=SVDCUT,
+        add_svdnoise=True, add_priornoise=True,
         )
+    print(noisy_fit.format(pstyle=None))
+    p = key_parameters(fit.p)
+    noisy_p = key_parameters(noisy_fit.p)
+    print('      fit:', p)
+    print('noisy fit:', noisy_p)
+    print('          ', gv.fmt_chi2(gv.chi2(p - noisy_p)))
 
-def test_fit(fitter, p_exact, prior, datafile):
-    """ Test the fit with simulated data """
-    gv.ranseed(9876)
-    print('\nRandom seed:', gv.ranseed.seed)
-    dataset = h5py.File(datafile)
-    for spdata in fitter.simulated_pdata_iter(
-        n=2, dataset=dataset, p_exact=p_exact
+    # simulated fit
+    for sim_pdata in fitter.simulated_pdata_iter(
+        n=2, dataset=cf.read_dataset('etas-Ds.h5'), p_exact=fit.pmean
         ):
-        print('\n============================== simulation')
-        sfit = fitter.lsqfit(pdata=spdata, prior=prior, p0=p_exact)
-        print(sfit.format(pstyle=None))
-        # check chi**2 for key parameters
-        diff = {}
-        for k in ['etas:a', 'etas:dE', 'Ds:a', 'Ds:dE', 'Vnn']:
-            p_k = sfit.p[k].flat[0]
-            pex_k = p_exact[k].flat[0]
-            print(
-                '{:>10}:  fit = {:<11}    exact = {:<9.5}    diff = {}'
-                    .format(k, p_k, pex_k, p_k - pex_k)
-                )
+        print('\n==================== simulation')
+        sim_fit = fitter.lsqfit(
+            pdata=sim_pdata, prior=prior, p0=fit.pmean, svdcut=SVDCUT,
+            )
+        print(sim_fit.format(pstyle=None))
+        p = key_parameters(fit.pmean)
+        sim_p = key_parameters(sim_fit.p)
+        print('simulated - exact:', sim_p - p)
+        print('          ', gv.fmt_chi2(gv.chi2(p - sim_p)))
 
-            diff[k] = p_k - pex_k
-        print('\nAccuracy of key parameters: ' + gv.fmt_chi2(gv.chi2(diff)))
+def key_parameters(p):
+    """ collect key fit parameters in dictionary """
+    ans = gv.BufferDict()
+    for k in ['etas:a', 'etas:dE', 'Ds:a', 'Ds:dE']:
+        ans[k] = p[k][0]
+    ans['Vnn'] = p['Vnn'][0, 0]
+    return ans
 
 def make_data(datafile):
     """ Read data from datafile and average it. """
     dset = cf.read_dataset(datafile)
-    return gv.svd(gv.dataset.avg_data(dset), svdcut=0.0004)
+    return gv.dataset.avg_data(dset)
 
 def make_models():
     """ Create models to fit data. """
@@ -134,27 +141,24 @@ def print_results(fit, prior, data):
 
     # V
     Vnn = p['Vnn']
-    Vno = p['Vno']
     print('\n  etas->V->Ds  =', Vnn[0, 0])
-    print('  etas->V->Dso =', Vno[0, 0])
 
     # error budget
     outputs = collections.OrderedDict()
     outputs['metas'] = E_etas[0]
     outputs['mDs'] = E_Ds[0]
-    outputs['mDso-mDs'] = E_Dso[0] - E_Ds[0]
     outputs['Vnn'] = Vnn[0, 0]
-    outputs['Vno'] = Vno[0, 0]
 
     inputs = collections.OrderedDict()
-    inputs['statistics'] = data                 # statistical errors in data
-    inputs.update(prior)                        # all entries in prior
+    inputs['statistics'] = data         # statistical errors in data
+    inputs['svd'] = fit.svdcorrection
+    inputs.update(prior)                # all entries in prior
 
     print('\n' + gv.fmt_values(outputs))
     print(gv.fmt_errorbudget(outputs, inputs))
     print('\n')
 
-
+import sys
 if sys.argv[1:]:
     SHOWPLOTS = eval(sys.argv[1]) # show plots at end of fitting?
 
@@ -165,6 +169,7 @@ if SHOWPLOTS:
         SHOWPLOTS = False
 
 if __name__ == '__main__':
+    gv.ranseed(123456)
     main()
     # if True:
     #     main()

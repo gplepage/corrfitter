@@ -7,13 +7,14 @@ Annotated Example: Matrix Correlator
 .. |EigenBasis| replace:: :class:`corrfitter.EigenBasis`
 .. |Dataset| replace:: :class:`gvar.dataset.Dataset`
 .. |GVar| replace:: :class:`gvar.GVar`
+.. |chi2| replace:: :math:`\chi^2`
 .. |~| unicode:: U+00A0
    :trim:
 
 
 Introduction
 ------------
-Matrix correlators, built from multiple sources and sinks,
+Matrix correlators, built  from multiple sources and sinks,
 greatly improve results for the excited states in the correlators.
 Here we analyze |etab| correlators using 4 sources/sinks using
 a prior designed by |EigenBasis|.
@@ -48,12 +49,12 @@ The main method follows the template in :ref:`basic-fits`, but
 modified to handle the |EigenBasis| object ``basis``:
 
 .. literalinclude:: examples/etab.py
-    :lines: 1-8, 13-26
+    :lines: 1-14, 20-32
 
 The eigen-basis is created by ``make_data('etab.h5')``:
 
 .. literalinclude:: examples/etab.py
-    :lines: 28-34
+    :lines: 47-53
 
 It reads Monte Carlo
 data from file ``'etab.h5'``, which is an hdf5-format file that
@@ -95,10 +96,11 @@ different correlator evaluated at times ``t=1,2...23``::
 
 The sixteen different correlators have tags given by::
 
-    '1s0.{s1}{s2}'.format(s1=s1, s2=s2)
+    KEYFMT.format(s1=s1, s2=s2)
 
-where ``s1`` and ``s2`` are  drawn from the list
-``['l', 'g', 'd', 'e']`` which labels the sources and sinks used
+where ``KEYFMT='1s0.{s1}{s2}'``, and ``s1`` and ``s2`` are
+drawn from the list
+``SOURCES=['l', 'g', 'd', 'e']``, which labels the sources and sinks used
 to create the correlators.
 
 The data are read in, and their means and covariance matrix computed
@@ -113,10 +115,10 @@ lowest four states in the correlator, and weakly with all the others.
 This eigen-basis is used later to construct the prior.
 
 A correlator fitter, called ``fitter``, is created from the list of correlator
-models returned by ``make_models(basis)``:
+models returned by ``make_models()``:
 
 .. literalinclude:: examples/etab.py
-    :lines: 36-48
+    :lines: 55-69
 
 There is one model for each correlator to be fit, so 16 in all. The keys
 (``datatag``) for the correlator data are constructed from information
@@ -129,12 +131,12 @@ different correlators, and therefore somewhat redundant. The
 amplitudes are labeled by ``'etab.l'``, ``'etab.g'``, ``'etab.d'``, and
 ``'etab.e'`` in the prior. The energy differences are labeled by ``'etab.dE'``.
 
-We try fits with ``N=1,2..9`` terms in the fit function. The number of
+We try fits with ``N=1,2..7`` terms in the fit function.  The number of
 terms is encoded in the prior, which is constructed by
 ``make_prior(N, basis)``:
 
 .. literalinclude:: examples/etab.py
-    :lines: 50-51
+    :lines: 71-72
 
 The prior looks complicated ::
 
@@ -172,24 +174,19 @@ while for the other states it equals ``dE1(dE1)``,  where
 ``etab.dE`` and so replaces it by ``log(etab.dE)``.
 
 The fit is done by ``fitter.lsqfit(...)``. An SVD cut is needed
-(``svdcut=0.0004``) because the data are highly correlated.  The data are also
-over-binned, to keep down the size of the  :mod:`corrfitter` distribution, and
-this mandates an SVD cut, as well. Fit stability is sometimes improved by
-applying the SVD cut to the data in the  eigen-basis rather than in the
-original source basis. Here this could be done by replacing the last line of
-``make_data(...)`` with::
-
-        return basis.svd(data, svdcut=5e-3), basis
-
-and dropping the ``svdcut=0.0004`` from ``fitter.lsqfit(...)``. The size
-of the ``svdcut`` is usually different.
+(``SVDCUT=0.007``) because the data are
+heavily binned (to reduce the size of the  :mod:`corrfitter` distribution).
+The binning means there are too few random samples for
+each data point to provide a good estimate of the data's correlation
+matrix without an SVD cut.
+See :ref:`svd-cuts` and the discussion below for more information.
 
 
 Final results are printed out by ``print_results(...)``
 after the last fit is finished:
 
 .. literalinclude:: examples/etab.py
-    :lines: 53-67
+    :lines: 74-99
 
 This method first writes out two tables listing energies and amplitudes for
 the first 4 states in the correlator. The first table shows results for the
@@ -197,8 +194,8 @@ original sources, while the second is for the eigen-sources. The correlators
 are from NRQCD so only energy differences are physical. The energy differences
 for each of the first two excited states relative to the ground states are
 stored in dictionary ``outputs``. These are in lattice units. ``outputs``
-also contains the ratio of ``3s-1s`` difference to the ``2s-1s`` difference,
-and here the lattice spacing cancels out. The code automatically handles
+also contains the ratio of 3s-1s difference to the 2s-1s difference,
+and here the lattice spacing cancels out.  The code automatically handles
 statistical correlations between different energies as it does the arithmetic
 for ``outputs`` --- the fit results are all |GVar|\s. The ``outputs``
 are tabulated using :func:`gvar.fmt_values`. An error budget is also
@@ -211,14 +208,14 @@ displayed (optionally).
 
 Results
 ----------
-Running the code produces the following output for the last fit (``N=7``):
+Running the code produces the  following output for the last fit (``N=7``):
 
 .. literalinclude:: examples/etab.out
     :lines: 43-93
 
-This is a good fit, with a chi-squared per degree of freedom of 1.0 for
-260 degrees of freedom (the number of data points fit); the *Q* or *p*-value
-is 0.51. This fit required 97 iterations, but took only a few seconds
+The |chi2| per degree of freedom is unusually small because of the
+large SVD cut (see below). This fit required 169 iterations,
+but took only a couple of seconds
 on a laptop. The results are almost identical to those from ``N=6`` and ``N=8``.
 
 The final energies and amplitudes for the original sources are listed as
@@ -236,8 +233,8 @@ four states, as hoped. The errors, especially for the first three states,
 are much smaller than the prior errors, which indicates strong signals for
 these states.
 
-Finally values and an error budget are presented for the ``2s-1s`` and
-``3s-1s`` energy differences (in lattice units) and the ratio of the two:
+Finally values and an error budget are presented for the 2s-1s and
+3s-1s energy differences (in lattice units) and the ratio of the two:
 
 .. literalinclude:: examples/etab.out
     :lines: 111-123
@@ -254,13 +251,13 @@ errors in the data.
 Summary plots showing the data divided by the fit as a function of ``t``
 for each of the 16 |~| correlators is shown below:
 
-=================================   =================================   =================================   =================================
-=================================   =================================   =================================   =================================
-.. image:: examples/etab.1s0.ll.*   .. image:: examples/etab.1s0.lg.*   .. image:: examples/etab.1s0.ld.*   .. image:: examples/etab.1s0.le.*
-.. image:: examples/etab.1s0.gl.*   .. image:: examples/etab.1s0.gg.*   .. image:: examples/etab.1s0.gd.*   .. image:: examples/etab.1s0.ge.*
-.. image:: examples/etab.1s0.dl.*   .. image:: examples/etab.1s0.dg.*   .. image:: examples/etab.1s0.dd.*   .. image:: examples/etab.1s0.de.*
-.. image:: examples/etab.1s0.el.*   .. image:: examples/etab.1s0.eg.*   .. image:: examples/etab.1s0.ed.*   .. image:: examples/etab.1s0.ee.*
-=================================   =================================   =================================   =================================
+===================================   ===================================   ===================================   ===================================
+===================================   ===================================   ===================================   ===================================
+.. image:: examples/etab.1s0.ll.png   .. image:: examples/etab.1s0.lg.png   .. image:: examples/etab.1s0.ld.png   .. image:: examples/etab.1s0.le.png
+.. image:: examples/etab.1s0.gl.png   .. image:: examples/etab.1s0.gg.png   .. image:: examples/etab.1s0.gd.png   .. image:: examples/etab.1s0.ge.png
+.. image:: examples/etab.1s0.dl.png   .. image:: examples/etab.1s0.dg.png   .. image:: examples/etab.1s0.dd.png   .. image:: examples/etab.1s0.de.png
+.. image:: examples/etab.1s0.el.png   .. image:: examples/etab.1s0.eg.png   .. image:: examples/etab.1s0.ed.png   .. image:: examples/etab.1s0.ee.png
+===================================   ===================================   ===================================   ===================================
 
 These plots are displayed by the code above if flag
 ``DISPLAYPLOTS = True`` is set at the beginning of the code. The points with
@@ -270,11 +267,58 @@ values for the best-fit parameters. Fit and data agree well for
 all correlators and all ``t`` values. As expected, strong correlations
 exist between points with near-by ``t``\s.
 
+Setting the SVD Cut
+--------------------
+As mentioned above, an SVD cut (``SVDCUT=0.007``)
+was needed for this fit because there
+are too few random samples of the correlators. The problem is that
+the smallest eigenvalues of the data's correlation matrix
+are then underestimated, making the correlation matrix
+too singular for use in the fit (see
+:ref:`svd-cuts`). The SVD cut adds extra uncertainty to the fit data
+to correct for these eigenvalues, making the correlation matrix usable.
+
+The value of the SVD cut was determined
+using a short script that combines
+
+.. literalinclude:: examples/etab-svdcut.py
+    :lines: 3-9
+
+with the code for ``make_models()`` described above.
+Here ``gv.dataset.svd_diagnosis(...)`` compares the exact eigenvalues of the
+correlation matrix with bootstrap estimates of the eigenvalues. The ratio of
+bootstrap estimates to exact values is shown in the plot (from
+``s.plot_ratio(show=True)``):
+
+.. image:: examples/etab-svdcut.png
+    :scale: 75 %
+
+This shows that the SVD cut should be around 0.007, which is where the
+ratio falls below one.
+
+This is a relatively large SVD cut affecting many of the correlation
+matrice's eigenmodes (233 out of 260). As a result the fit's |chi2|
+is quite small. As discussed in :ref:`goodness-of-fit`, we need to add
+extra noise to the data if we want to use |chi2| to evaluate fit quality.
+Adding the following code
+
+.. literalinclude:: examples/etab.py
+    :lines: 34-45
+
+to the end of the ``main()`` method results in a second fit with noise
+associated with both the SVD cut and the prior. The result is a good fit,
+even with the additional noise:
+
+.. literalinclude:: examples/etab.out
+    :lines: 137-146
+
+
+
 Fit Stability
 ---------------
 It is a good idea in fits like this one to test the stability of the
 results to significant changes in the prior. This is especially true for
-quantities like the ``3s-1s`` splitting that involve more highly excited
+quantities like the 3s-1s splitting that involve more highly excited
 states. The default prior in effect assigns each of the four sources in the
 new basis to one of the four states in the correlator with the lowest
 energies. Typically the actual correspondence between source and low-energy
@@ -283,12 +327,12 @@ fit but with a prior that associates states with only three of the sources,
 leaving the fourth source unconstrained. This is done by replacing
 
 .. literalinclude:: examples/etab.py
-    :lines: 50-51
+    :lines: 71-72
 
 with
 
 .. literalinclude:: examples/etab-stab.py
-    :lines: 50-51
+    :lines: 8-9
 
 in the code. The ``states`` option in the second ``basis.make_prior(...)``
 assigns the three lowest lying states (in order of increasing energy)
@@ -317,11 +361,11 @@ The energies and amplitudes for the first three states are almost unchanged,
 which gives us confidence in the original results.
 Results for the fourth and higher states have larger errors, as expected.
 
-Note that while the chi-squared value for this last fit is almost identical to
+Note that while the |chi2| value for this last fit is almost identical to
 that in the  original fit, the Bayes Factor (from ``logGBF``) is
-exp(2175.1-2160.9)=1,469,000 times larger for the original fit. The Bayes Factor
+exp(1277.1-1270.3)=899 times larger for the original fit. The Bayes Factor
 gives us a sense of which prior the data prefer. Specifically it says that
-our Monte Carlo data are 1,469,000 times more likely to have come from a model
+our Monte Carlo data are 899 times more likely to have come from a model
 with the original prior than from one with the more conservative prior. This
 further reinforces our confidence in the original results.
 
@@ -337,16 +381,20 @@ results since the SVD cut  enters differently. A version of the code above
 that uses this approach is:
 
 .. literalinclude:: examples/etab-alt.py
-    :lines: 1-8, 13-
+    :lines: 1-15, 21-
 
-Only five lines in this code differ from the original:
-the SVD cut is different (``#1``); the data are projected onto the
-eigen-basis (``#2``); the models are defined in terms
-of the eigen-sources (``#3`` and ``#4``); and the prior is defined
-for the eigen-sources (``#5``).
+This code has four changes from the original: it uses the eigen-sources for
+building the models (``#1``); the SVD cut is different (``#2``); the data
+are projected onto the eigen-basis (``#3``); and the prior is defined
+for the eigen-sources (``#4``).
 
 The fit results from the new code are very similar to before; there is
 little difference between the two approaches in this case:
 
 .. literalinclude:: examples/etab-alt.out
     :lines: 43-123
+
+Projecting the correlators onto the eigen-basis makes off-diagonal
+correlators much less important to the fit. Results are essentially
+unchanged if only the diagonal elements of the matrix of correlators
+are used in the fit.

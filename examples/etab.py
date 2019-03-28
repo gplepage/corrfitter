@@ -6,6 +6,12 @@ import numpy as np
 import corrfitter as cf
 
 SHOWPLOTS = False         # display plots at end of fits?
+
+SOURCES = ['l', 'g', 'd', 'e']
+KEYFMT = '1s0.{s1}{s2}'
+TDATA = range(1, 24)
+SVDCUT = 0.007
+
 try:
     import matplotlib
 except ImportError:
@@ -13,36 +19,51 @@ except ImportError:
 
 def main():
     data, basis = make_data('etab.h5')
-    fitter = cf.CorrFitter(models=make_models(basis))
+    fitter = cf.CorrFitter(models=make_models())
     p0 = None
     for N in range(1, 8):
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N, basis)
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=0.0004)
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=SVDCUT)
         print(fit.format(pstyle=None if N < 7 else 'v'))
         p0 = fit.pmean
     print_results(fit, basis, prior, data)
     if SHOWPLOTS:
         fit.show_plots(save='etab.{}.png', view='ratio')
 
+    # check fit quality by adding noise
+    print('\n==================== add svd, prior noise')
+    noisy_fit = fitter.lsqfit(
+        data=data, prior=prior, p0=fit.pmean, svdcut=SVDCUT,
+        add_svdnoise=True, add_priornoise=True,
+        )
+    print(noisy_fit.format(pstyle=None))
+    dE = fit.p['etab.dE'][:3]
+    noisy_dE = noisy_fit.p['etab.dE'][:3]
+    print('      dE:', dE)
+    print('noisy dE:', noisy_dE)
+    print('          ', gv.fmt_chi2(gv.chi2(dE - noisy_dE)))
+
 def make_data(filename):
     data = gv.dataset.avg_data(cf.read_dataset(filename, grep='1s0'))
     basis = cf.EigenBasis(
-        data, keyfmt='1s0.{s1}{s2}', srcs=['l', 'g', 'd', 'e'],
-        t=(1, 2), tdata=range(1, 24),
+        data, keyfmt=KEYFMT, srcs=SOURCES,
+        t=(1, 2), tdata=TDATA,
         )
     return data, basis
 
-def make_models(basis):
+def make_models():
     models = []
-    for s1 in basis.srcs:
-        for s2 in basis.srcs:
-            tfit = basis.tdata if s1 == s2 else basis.tdata[:14]
+    for i, s1 in enumerate(SOURCES):
+        for s2 in SOURCES[i:]:
+            tfit = TDATA if s1 == s2 else TDATA[:12]
+            otherdata = None if s1 == s2 else KEYFMT.format(s1=s2, s2=s1)
             models.append(
                 cf.Corr2(
-                    datatag=basis.keyfmt.format(s1=s1, s2=s2),
-                    tdata=basis.tdata, tfit=tfit,
+                    datatag=KEYFMT.format(s1=s1, s2=s2),
+                    tdata=TDATA, tfit=tfit,
                     a='etab.' + s1, b='etab.' + s2, dE='etab.dE',
+                    otherdata=otherdata,
                     )
                 )
     return models
@@ -78,6 +99,7 @@ def print_results(fit, basis, prior, data):
             )
 
 if __name__ == '__main__':
+    gv.ranseed(1234)
     if True:
         main()
     else:
