@@ -5,7 +5,7 @@
 
 PYTHON = python
 PIP = $(PYTHON) -m pip
-VERSION = `cd ..; python -c 'import corrfitter; print corrfitter.__version__'`
+VERSION = `cd ..; python -c 'import corrfitter; print (corrfitter.__version__)'`
 
 DOCFILES :=  $(shell ls doc/source/*.{rst,py,png} examples/*.png)
 SRCFILES := $(shell ls setup.py src/*.py)
