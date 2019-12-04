@@ -1,3 +1,12 @@
+Version 8.0.3  2019-12-04
+=========================
+
+- Fixes incompatibility between EigenBasis.svd and gvar.svd. Return result
+  has an attribute svdcorrection which should be an array or dictionary
+  but was previously the sum of all the entries in the array or dictionary.
+  This should have no effect otherwise.
+
+
 Version 8.0.2 2019-03-28
 =========================
 Minor update.

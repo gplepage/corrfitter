@@ -1226,7 +1226,7 @@ class test_eigenbasis(unittest.TestCase):
             )
         Gsvd = basis.svd(G, svdcut=0.9)
         self.assertEqual(basis.svdn, 15)
-        self.assertEqual(str(basis.svdcorrection), '0.000(30)')
+        self.assertEqual(str(sum(basis.svdcorrection)), '0.000(30)')
         for k in G:
             np.testing.assert_allclose(gv.mean(G[k]), gv.mean(Gsvd[k]))
             self.assertTrue(np.all(gv.sdev(Gsvd[k]) > gv.sdev(G[k])))

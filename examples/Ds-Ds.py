@@ -42,7 +42,7 @@ def main():
 
     # simulated fit
     for sim_pdata in fitter.simulated_pdata_iter(
-        n=2, dataset=h5py.File('Ds-Ds.h5'), p_exact=fit.pmean
+        n=2, dataset=h5py.File('Ds-Ds.h5', 'r'), p_exact=fit.pmean
         ):
         print('\n==================== simulation')
         sim_fit = fitter.lsqfit(
@@ -63,7 +63,7 @@ def key_parameters(p):
 
 def make_data(filename):
     """ Read data from file and average it. """
-    return gv.dataset.avg_data(h5py.File(filename))
+    return gv.dataset.avg_data(h5py.File(filename, 'r'))
 
 def make_models():
     """ Create models to fit data. """

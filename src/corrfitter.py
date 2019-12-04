@@ -1780,7 +1780,7 @@ class EigenBasis(object):
             keyfmt = [keyfmt]
         newdata = self.apply(data, keyfmt=keyfmt)
         newdata = _gvar.svd(newdata, svdcut=svdcut)
-        self.svdcorrection = numpy.sum(_gvar.svd.correction)
+        self.svdcorrection = _gvar.svd.correction
         self.svdn = _gvar.svd.nmod
         newdata = self.unapply(newdata, keyfmt=keyfmt)
         for i in data:
