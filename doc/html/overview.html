@@ -1,18 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Overview &#8212; corrfitter 8.0.2 documentation</title>
+    <meta charset="utf-8" />
+    <title>Overview &#8212; corrfitter 8.0.3 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Faster, More Accurate Fits" href="faster.html" />
@@ -40,7 +39,7 @@
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -78,7 +77,7 @@ directly to these examples.</p>
 <p><em>About Printing:</em> The examples in this tutorial use the <code class="docutils literal notranslate"><span class="pre">print</span></code> function
 as it is used in Python 3. Drop the outermost parenthesis in each <code class="docutils literal notranslate"><span class="pre">print</span></code>
 statement if using Python 2; or add</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 </pre></div>
 </div>
 <p>at the start of your file.</p>
@@ -401,7 +400,7 @@ we want to calculate energy <code class="docutils literal notranslate"><span cla
 </pre></div>
 </div>
 <p>This is done using the following code</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">corrfitter</span> <span class="k">import</span> <span class="n">fastfit</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">fastfit</span>
 
 <span class="c1"># Gdata = array containing G(t) for t=0,1,2...</span>
 <span class="n">fit</span> <span class="o">=</span> <span class="n">fastfit</span><span class="p">(</span><span class="n">Gdata</span><span class="p">,</span> <span class="n">ampl</span><span class="o">=</span><span class="s1">&#39;0(1)&#39;</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s1">&#39;0.5(5)&#39;</span><span class="p">,</span> <span class="n">tmin</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -429,14 +428,14 @@ by a single term, <code class="docutils literal notranslate"><span class="pre">A
 actually necessary since the functional form is so simple.  <code class="xref py py-class docutils literal notranslate"><span class="pre">fastfit</span></code>
 averages estimates for <code class="docutils literal notranslate"><span class="pre">E[0]</span></code> and <code class="docutils literal notranslate"><span class="pre">A[0]</span></code> from all <code class="docutils literal notranslate"><span class="pre">t</span></code>s larger than
 <code class="docutils literal notranslate"><span class="pre">tmin</span></code>. It is important to verify that these estimates agree  with each
-other, by checking the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> of the average. Try increasing <code class="docutils literal notranslate"><span class="pre">tmin</span></code> if
-the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> is too large; or introduce an SVD cut.</p>
+other, by checking the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> of the average. Try increasing <code class="docutils literal notranslate"><span class="pre">tmin</span></code> if
+the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> is too large; or introduce an SVD cut.</p>
 <p>The energies from <code class="xref py py-class docutils literal notranslate"><span class="pre">fastfit</span></code> are closely related to standard <em>effective
 masses</em>. The key difference is <code class="xref py py-class docutils literal notranslate"><span class="pre">fastfit</span></code>’s marginalization of terms
 from excited states (<code class="docutils literal notranslate"><span class="pre">i&gt;0</span></code> above). This allows <code class="xref py py-class docutils literal notranslate"><span class="pre">fastfit</span></code> to use
 information from much smaller <code class="docutils literal notranslate"><span class="pre">t</span></code>s than otherwise, increasing precision. It
 also quantifies the uncertainty caused by the existence of excited states,
-and gives a simple criterion for how small <code class="docutils literal notranslate"><span class="pre">tmin</span></code> can be (the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/>).
+and gives a simple criterion for how small <code class="docutils literal notranslate"><span class="pre">tmin</span></code> can be (the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/>).
 Results are typically as accurate as results obtained from a full
 multi-exponential fit that uses the same priors for <code class="docutils literal notranslate"><span class="pre">A[i]</span></code> and <code class="docutils literal notranslate"><span class="pre">E[i]</span></code>,
 and the same <code class="docutils literal notranslate"><span class="pre">tmin</span></code>. <code class="xref py py-class docutils literal notranslate"><span class="pre">fastfit</span></code> can also be used for periodic and
@@ -597,7 +596,7 @@ and functions of fit parameters than the conventional fit when errors are
 large, or fluctuations are non-Gaussian. A typical code looks something like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gvar</span> <span class="k">as</span> <span class="nn">gv</span>
 <span class="kn">import</span> <span class="nn">gvar.dataset</span> <span class="k">as</span> <span class="nn">ds</span>
-<span class="kn">from</span> <span class="nn">corrfitter</span> <span class="k">import</span> <span class="n">CorrFitter</span>
+<span class="kn">from</span> <span class="nn">corrfitter</span> <span class="kn">import</span> <span class="n">CorrFitter</span>
 <span class="c1"># fit</span>
 <span class="n">dset</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s1">&#39;mcfile&#39;</span><span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span>            <span class="c1"># create fit data</span>
@@ -662,7 +661,7 @@ C. Bouchard et al, Phys.Rev. D90 (2014) 054506.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Overview</a><ul>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
@@ -697,13 +696,11 @@ C. Bouchard et al, Phys.Rev. D90 (2014) 054506.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -727,12 +724,12 @@ C. Bouchard et al, Phys.Rev. D90 (2014) 054506.</p>
         <li class="right" >
           <a href="index.html" title="corrfitter Documentation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2010-19, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
   </body>
 </html>

@@ -1,18 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Faster, More Accurate Fits &#8212; corrfitter 8.0.2 documentation</title>
+    <meta charset="utf-8" />
+    <title>Faster, More Accurate Fits &#8212; corrfitter 8.0.3 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Annotated Example: Two-Point Correlator" href="example-etas.html" />
@@ -40,7 +39,7 @@
         <li class="right" >
           <a href="overview.html" title="Overview"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -194,7 +193,7 @@ help.</p>
 can  take a very long time. This is especially true if there are strong
 correlations in the data. Such correlations can also cause  problems from
 numerical roundoff errors when the inverse of the data’s covariance matrix is
-computed for the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> function, requiring large SVD cuts which can
+computed for the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> function, requiring large SVD cuts which can
 degrade precision (see below). An alternative approach is to use <em>chained</em>
 fits.  In a chained fit, each model is fit by itself in sequence, but with the
 best-fit parameters from each fit serving as priors for fit parameters in  the
@@ -344,16 +343,16 @@ simultaneously, taking account of the statistical correlations between
 correlators at different times and between
 different correlators. Information about the correlations typically comes from
 Monte Carlo samples of the correlators. Problems arise, however, when the
-number <img class="math" src="_images/math/9ba7b5bdc8a670f44aae1154ae53f027ad35781c.svg" alt="N_s"/> of samples is not much larger than
-the number <img class="math" src="_images/math/0ecdb5b3af198a718e6efdf57f4c369fb3df2777.svg" alt="N_d"/> of data points being fit. Specifically the smallest
+number <img class="math" src="_images/math/f22fcbb49df821728b9de5b3c3914ae787e08135.svg" alt="N_s" style="vertical-align: -3px"/> of samples is not much larger than
+the number <img class="math" src="_images/math/eb1ff6874174be5019a5120a9882e4109221ec36.svg" alt="N_d" style="vertical-align: -3px"/> of data points being fit. Specifically the smallest
 eigenvalues of the correlation matrix can be substantially underestimated if
-<img class="math" src="_images/math/9ba7b5bdc8a670f44aae1154ae53f027ad35781c.svg" alt="N_s"/> is not sufficiently large (10 or 100 times larger than <img class="math" src="_images/math/0ecdb5b3af198a718e6efdf57f4c369fb3df2777.svg" alt="N_d"/>).
-Indeed there must be <img class="math" src="_images/math/5b24b9f1b117f884a7316994385cf289bb50bffb.svg" alt="N_d-N_s"/> zero eigenvalues
-when <img class="math" src="_images/math/aa1947375ad5bad072c448cc8ed9e33eadc8e0ac.svg" alt="N_s\le N_d"/>. The underestimated
+<img class="math" src="_images/math/f22fcbb49df821728b9de5b3c3914ae787e08135.svg" alt="N_s" style="vertical-align: -3px"/> is not sufficiently large (10 or 100 times larger than <img class="math" src="_images/math/eb1ff6874174be5019a5120a9882e4109221ec36.svg" alt="N_d" style="vertical-align: -3px"/>).
+Indeed there must be <img class="math" src="_images/math/4a15cf2799c1ac962bb6f6773b9569b1f53954fb.svg" alt="N_d-N_s" style="vertical-align: -3px"/> zero eigenvalues
+when <img class="math" src="_images/math/f50170553d1d4a0523935ab7876a5bbfca66affe.svg" alt="N_s\le N_d" style="vertical-align: -3px"/>. The underestimated
 (or zero) eigenvalues lead to incorrect and large (or infinite) contributions
-to the fit’s <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> function, invalidating the fit results.</p>
-<p>These problems tend show up as an unexpectedly large <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/>s,
-for example, in fits where the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> per degree of freedom remains
+to the fit’s <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> function, invalidating the fit results.</p>
+<p>These problems tend show up as an unexpectedly large <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/>s,
+for example, in fits where the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> per degree of freedom remains
 substantially larger than one no matter how many fit terms are
 employed. Such situations are usually improved by introducing an
 SVD cut: e.g.,</p>
@@ -395,20 +394,20 @@ sample plots from two
 otherwise identical simulations of 3 correlators (63 data points in all),
 one with 100 configurations and the
 other with 10,000 configurations:</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col style="width: 50%" />
+<col style="width: 50%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">&#160;</th>
-<th class="head">&#160;</th>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><img alt="_images/svd-bootstrap-1e2.png" class="first last" src="_images/svd-bootstrap-1e2.png" />
+<tbody>
+<tr class="row-even"><td><img alt="_images/svd-bootstrap-1e2.png" src="_images/svd-bootstrap-1e2.png" />
 </td>
-<td><img alt="_images/svd-bootstrap-1e4.png" class="first last" src="_images/svd-bootstrap-1e4.png" />
+<td><img alt="_images/svd-bootstrap-1e4.png" src="_images/svd-bootstrap-1e4.png" />
 </td>
 </tr>
 </tbody>
@@ -420,12 +419,12 @@ agreement around 0.07 (red dashed line),
 which is the suggested value for <code class="docutils literal notranslate"><span class="pre">svdcut</span></code>. With 10,000 configurations,
 all of the eigenvalues are robust and no SVD cut is needed. Both data
 sets produce good fits (using the appropriate <code class="docutils literal notranslate"><span class="pre">svdcut</span></code> for each).</p>
-<p>On average, individual terms in the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> should contribute
-<img class="math" src="_images/math/30cbeeeb6716f116ac3f773b6a8023f71afbf1b5.svg" alt="1 \pm \sqrt{2/N_d}"/>, where again <img class="math" src="_images/math/0ecdb5b3af198a718e6efdf57f4c369fb3df2777.svg" alt="N_d"/> is
+<p>On average, individual terms in the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> should contribute
+<img class="math" src="_images/math/db15e790511f5a51ca7e1d8296ef749b10e5b4bc.svg" alt="1 \pm \sqrt{2/N_d}" style="vertical-align: -3px"/>, where again <img class="math" src="_images/math/eb1ff6874174be5019a5120a9882e4109221ec36.svg" alt="N_d" style="vertical-align: -3px"/> is
 the number of data points.
 Underestimating eigenvalues artificially increases the size of the
-corresponding terms in the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/>, and therefore eigenvalues
-that are smaller than  <img class="math" src="_images/math/a918482ec0140027a4d3f3c1a649338b23206f7f.svg" alt="1 - \sqrt{2/N_d}"/>
+corresponding terms in the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/>, and therefore eigenvalues
+that are smaller than  <img class="math" src="_images/math/5e3347d6777f6f98e9fd9892a08e6543b9951cd9.svg" alt="1 - \sqrt{2/N_d}" style="vertical-align: -3px"/>
 times the correct value cause problems. The
 dotted horizontal line shows where this threshold is located. The
 SVD cut is placed where the blue data points (the ratios of bootstrapped
@@ -436,21 +435,21 @@ the SVD cut explicitly.</p>
 </div>
 <div class="section" id="goodness-of-fit">
 <span id="id4"></span><h2>Goodness of Fit<a class="headerlink" href="#goodness-of-fit" title="Permalink to this headline">¶</a></h2>
-<p>A small <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> is generally a sign of a good fit, but <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> becomes
+<p>A small <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> is generally a sign of a good fit, but <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> becomes
 unreliable as an indicator of fit quality when using significant SVD cuts.
 The SVD cut increases uncertainties in the fit data without increasing
 the fluctuations in the data’s mean values. As a result contributions
-to the <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> from terms affected by the SVD cut tend to be much smaller
-than expected, artificially pulling the total <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> down.
+to the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> from terms affected by the SVD cut tend to be much smaller
+than expected, artificially pulling the total <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> down.
 A similar issue is created
 by using broad priors. (For more discussion,
 see the section on goodness of fit in the
 documentation with moduled <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit</span></code>.)</p>
-<p>To check the goodness of fit using a fit’s <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> we must add random
+<p>To check the goodness of fit using a fit’s <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> we must add random
 fluctuations to the data means associated with the SVD cut and the priors.
 This is done by refitting the data but with parameters
 <code class="docutils literal notranslate"><span class="pre">add_svdnoise=True</span></code> and <code class="docutils literal notranslate"><span class="pre">add_priornoise=True</span></code>. A good fit will still have
-a <img class="math" src="_images/math/c3009dc638909a74a78a7f5fee27f154c33da1eb.svg" alt="\chi^2"/> of order one or less per degree freedom even with the added
+a <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> of order one or less per degree freedom even with the added
 noise. The fit parameters from the noisy fit should also agree within errors
 with best-fit parameters from the original fit.</p>
 <p>See the Case Studies for examples.</p>
@@ -463,7 +462,7 @@ with best-fit parameters from the original fit.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Faster, More Accurate Fits</a><ul>
 <li><a class="reference internal" href="#priming-fits">Priming Fits</a></li>
@@ -492,13 +491,11 @@ with best-fit parameters from the original fit.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -522,12 +519,12 @@ with best-fit parameters from the original fit.</p>
         <li class="right" >
           <a href="overview.html" title="Overview"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2010-19, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
   </body>
 </html>

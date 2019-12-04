@@ -28,7 +28,7 @@ import corrfitter
 extensions = ['sphinx.ext.autodoc','sphinx.ext.napoleon', 'sphinx.ext.imgmath']
 imgmath_image_format = 'svg' # "png"
 imgmath_use_preview = True
-imgmath_latex_preamble = "\usepackage{arev}"
+imgmath_latex_preamble = r"\usepackage{arev}"
 # imgmath_dvipng_args = ['-gamma', '0.35', '-D', '110', '-bg', 'Transparent']
 # imgmath_dvipng_args = ['-gamma', '0.5', '-D', '100', '-bg', 'Transparent']
 

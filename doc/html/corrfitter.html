@@ -1,18 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>corrfitter - Least-Squares Fit to Correlators &#8212; corrfitter 8.0.2 documentation</title>
+    <meta charset="utf-8" />
+    <title>corrfitter - Least-Squares Fit to Correlators &#8212; corrfitter 8.0.3 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Annotated Example: Matrix Correlator" href="example-etab.html" />
@@ -36,7 +35,7 @@
         <li class="right" >
           <a href="example-etab.html" title="Annotated Example: Matrix Correlator"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,7 +59,7 @@ object.</p>
 identified by the data tag that labels it in the input file or <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.dataset.Dataset</span></code>.</p>
 <dl class="class">
 <dt id="corrfitter.Corr2">
-<em class="property">class </em><code class="descclassname">corrfitter.</code><code class="descname">Corr2</code><span class="sig-paren">(</span><em>datatag</em>, <em>a</em>, <em>b</em>, <em>dE</em>, <em>s=1.0</em>, <em>tp=None</em>, <em>tmin=None</em>, <em>tmax=None</em>, <em>tdata=None</em>, <em>tfit=None</em>, <em>reverse=False</em>, <em>reverseddata=[]</em>, <em>otherdata=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">corrfitter.</code><code class="sig-name descname">Corr2</code><span class="sig-paren">(</span><em class="sig-param">datatag</em>, <em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">dE</em>, <em class="sig-param">s=1.0</em>, <em class="sig-param">tp=None</em>, <em class="sig-param">tmin=None</em>, <em class="sig-param">tmax=None</em>, <em class="sig-param">tdata=None</em>, <em class="sig-param">tfit=None</em>, <em class="sig-param">reverse=False</em>, <em class="sig-param">reverseddata=[]</em>, <em class="sig-param">otherdata=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Two-point correlators <code class="docutils literal notranslate"><span class="pre">Gab(t)</span> <span class="pre">=</span> <span class="pre">&lt;b(t)</span> <span class="pre">a(0)&gt;</span></code>.</p>
 <p><a class="reference internal" href="#corrfitter.Corr2" title="corrfitter.Corr2"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.Corr2</span></code></a> models the <code class="docutils literal notranslate"><span class="pre">t</span></code> dependence of a 2-point correlator <code class="docutils literal notranslate"><span class="pre">Gab(t)</span></code>
 using</p>
@@ -99,15 +98,13 @@ symmetrical about <code class="docutils literal notranslate"><span class="pre">t
 <code class="docutils literal notranslate"><span class="pre">t&gt;tp/2</span></code> is averaged with the corresponding data from <code class="docutils literal notranslate"><span class="pre">t&lt;tp/2</span></code>
 before fitting. When <code class="docutils literal notranslate"><span class="pre">tp</span></code> is negative, the correlator is assumed to
 be anti-symetrical about <code class="docutils literal notranslate"><span class="pre">-tp/2</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>datatag</strong> (<em>str</em>) – Key used to access correlator data in the input data
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datatag</strong> (<em>str</em>) – Key used to access correlator data in the input data
 dictionary (see <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.CorrFitter</span></code></a>): <code class="docutils literal notranslate"><span class="pre">data[self.datatag]</span></code> is a (1-d)
-array containing the correlator values (<code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>s).</li>
-<li><strong>a</strong> (<em>str</em><em> or </em><em>tuple</em>) – Key identifying the fit parameters for the source
+array containing the correlator values (<code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>s).</p></li>
+<li><p><strong>a</strong> (<em>str</em><em> or </em><em>tuple</em>) – Key identifying the fit parameters for the source
 amplitudes <code class="docutils literal notranslate"><span class="pre">an</span></code> in the dictionary of priors provided to
 <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.CorrFitter</span></code></a>; or a two-tuple of keys for the source amplitudes
 <code class="docutils literal notranslate"><span class="pre">(an,</span> <span class="pre">ao)</span></code>. The corresponding values in the dictionary of priors
@@ -115,10 +112,10 @@ are (1-d) arrays of prior values with one term for each <code class="docutils li
 or <code class="docutils literal notranslate"><span class="pre">ao[i]</span></code>. Replacing either key by <code class="docutils literal notranslate"><span class="pre">None</span></code> causes the
 corresponding term to be dropped from the fit function. These keys
 are used to label  the corresponding parameter arrays in the fit
-results as well as  in the prior.</li>
-<li><strong>b</strong> (<em>str</em><em> or </em><em>tuple</em>) – Same as <code class="docutils literal notranslate"><span class="pre">self.a</span></code> but for the sinks <code class="docutils literal notranslate"><span class="pre">(bn,</span> <span class="pre">bo)</span></code>
-instead of the sources <code class="docutils literal notranslate"><span class="pre">(an,</span> <span class="pre">ao)</span></code>.</li>
-<li><strong>dE</strong> (<em>str</em>) – Key identifying the fit parameters for the energy
+results as well as  in the prior.</p></li>
+<li><p><strong>b</strong> (<em>str</em><em> or </em><em>tuple</em>) – Same as <code class="docutils literal notranslate"><span class="pre">self.a</span></code> but for the sinks <code class="docutils literal notranslate"><span class="pre">(bn,</span> <span class="pre">bo)</span></code>
+instead of the sources <code class="docutils literal notranslate"><span class="pre">(an,</span> <span class="pre">ao)</span></code>.</p></li>
+<li><p><strong>dE</strong> (<em>str</em>) – Key identifying the fit parameters for the energy
 differences <code class="docutils literal notranslate"><span class="pre">dEn</span></code> in the dictionary of priors provided by
 <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.CorrFitter</span></code></a>; or a two-tuple of keys for the energy differences
 <code class="docutils literal notranslate"><span class="pre">(dEn,</span> <span class="pre">dEo)</span></code>. The corresponding values in the dictionary of
@@ -126,99 +123,93 @@ priors are (1-d) arrays of prior values with one term for each
 <code class="docutils literal notranslate"><span class="pre">dEn[i]</span></code> or <code class="docutils literal notranslate"><span class="pre">dEo[i]</span></code>. Replacing either key by <code class="docutils literal notranslate"><span class="pre">None</span></code> causes
 the corresponding term to be dropped from the fit function. These
 keys are used to label the corresponding parameter arrays in the
-fit results as well as in the prior.</li>
-<li><strong>s</strong> (<em>float</em><em> or </em><em>tuple</em>) – Overall factor <code class="docutils literal notranslate"><span class="pre">sn</span></code> for non-oscillating part
+fit results as well as in the prior.</p></li>
+<li><p><strong>s</strong> (<em>float</em><em> or </em><em>tuple</em>) – Overall factor <code class="docutils literal notranslate"><span class="pre">sn</span></code> for non-oscillating part
 of fit function, or two-tuple of overall factors <code class="docutils literal notranslate"><span class="pre">(sn,</span> <span class="pre">so)</span></code>
-for both pieces.</li>
-<li><strong>tdata</strong> (<em>list of ints</em>) – The <code class="docutils literal notranslate"><span class="pre">t</span></code>s corresponding to data
+for both pieces.</p></li>
+<li><p><strong>tdata</strong> (<em>list of ints</em>) – The <code class="docutils literal notranslate"><span class="pre">t</span></code>s corresponding to data
 entries in the input data. Note that <code class="docutils literal notranslate"><span class="pre">len(self.tdata)</span></code>
 should equal <code class="docutils literal notranslate"><span class="pre">len(data[self.datatag])</span></code>. If <code class="docutils literal notranslate"><span class="pre">tdata</span></code> is
 omitted, <code class="docutils literal notranslate"><span class="pre">tdata=numpy.arange(tp)</span></code> is assumed, or
-<code class="docutils literal notranslate"><span class="pre">tdata=numpy.arange(tmax)</span></code> if <code class="docutils literal notranslate"><span class="pre">tp</span></code> is not specified.</li>
-<li><strong>tfit</strong> (<em>list of ints</em>) – List of <code class="docutils literal notranslate"><span class="pre">t</span></code>s to use in the fit. Only data
+<code class="docutils literal notranslate"><span class="pre">tdata=numpy.arange(tmax)</span></code> if <code class="docutils literal notranslate"><span class="pre">tp</span></code> is not specified.</p></li>
+<li><p><strong>tfit</strong> (<em>list of ints</em>) – List of <code class="docutils literal notranslate"><span class="pre">t</span></code>s to use in the fit. Only data
 with these <code class="docutils literal notranslate"><span class="pre">t</span></code>s (all of which should be in <code class="docutils literal notranslate"><span class="pre">tdata</span></code>) is  used
 in the fit. If <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is omitted, it is assumed to be all <code class="docutils literal notranslate"><span class="pre">t</span></code>
 values from <code class="docutils literal notranslate"><span class="pre">tdata</span></code> that are larger than or equal to <code class="docutils literal notranslate"><span class="pre">tmin</span></code>
 (if specified) and smaller than or equal to <code class="docutils literal notranslate"><span class="pre">tmax</span></code> (if
-specified).</li>
-<li><strong>tp</strong> (int or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – If <code class="docutils literal notranslate"><span class="pre">tp</span></code> is positive, the correlator
+specified).</p></li>
+<li><p><strong>tp</strong> (int or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – If <code class="docutils literal notranslate"><span class="pre">tp</span></code> is positive, the correlator
 is assumed to be periodic with <code class="docutils literal notranslate"><span class="pre">Gab(t)=Gab(tp-t)</span></code>.
 If negative, the correlator is assumed to be anti-periodic
 with <code class="docutils literal notranslate"><span class="pre">Gab(t)=-Gab(-tp-t)</span></code>. Setting <code class="docutils literal notranslate"><span class="pre">tp=None</span></code> implies that
 the correlator is not periodic, but rather continues
-to fall exponentially as <code class="docutils literal notranslate"><span class="pre">t</span></code> is increased indefinitely.</li>
-<li><strong>tmin</strong> (int or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – If <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is omitted, it is assumed
+to fall exponentially as <code class="docutils literal notranslate"><span class="pre">t</span></code> is increased indefinitely.</p></li>
+<li><p><strong>tmin</strong> (int or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – If <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is omitted, it is assumed
 to be all <code class="docutils literal notranslate"><span class="pre">t</span></code> values from <code class="docutils literal notranslate"><span class="pre">tdata</span></code> that are larger than or
 equal to <code class="docutils literal notranslate"><span class="pre">tmin</span></code> and smaller than or equal to <code class="docutils literal notranslate"><span class="pre">tmax</span></code>
-(if specified). <code class="docutils literal notranslate"><span class="pre">tmin</span></code> is ignored if <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is specified.</li>
-<li><strong>tmax</strong> (int or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – If <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is omitted, it is assumed
+(if specified). <code class="docutils literal notranslate"><span class="pre">tmin</span></code> is ignored if <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is specified.</p></li>
+<li><p><strong>tmax</strong> (int or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – If <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is omitted, it is assumed
 to be all <code class="docutils literal notranslate"><span class="pre">t</span></code> values from <code class="docutils literal notranslate"><span class="pre">tdata</span></code> that are larger than or
 equal to <code class="docutils literal notranslate"><span class="pre">tmin</span></code> (if specified) and smaller than or
 equal to <code class="docutils literal notranslate"><span class="pre">tmax</span></code>. <code class="docutils literal notranslate"><span class="pre">tmin</span></code> is ignored if <code class="docutils literal notranslate"><span class="pre">tfit</span></code> and <code class="docutils literal notranslate"><span class="pre">tdata</span></code>
-are specified.</li>
-<li><strong>ncg</strong> (<em>int</em>) – Width of bins used to coarse-grain the correlator before
+are specified.</p></li>
+<li><p><strong>ncg</strong> (<em>int</em>) – Width of bins used to coarse-grain the correlator before
 fitting. Each bin of <code class="docutils literal notranslate"><span class="pre">ncg</span></code> correlator values is replaced by
-its average. Default is <code class="docutils literal notranslate"><span class="pre">ncg=1</span></code> (ie, no coarse-graining).</li>
-<li><strong>reverse</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the data associated with <code class="docutils literal notranslate"><span class="pre">self.datatag</span></code>
+its average. Default is <code class="docutils literal notranslate"><span class="pre">ncg=1</span></code> (ie, no coarse-graining).</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the data associated with <code class="docutils literal notranslate"><span class="pre">self.datatag</span></code>
 is time-reversed (<code class="docutils literal notranslate"><span class="pre">data</span> <span class="pre">-&gt;</span> <span class="pre">[data[0],</span> <span class="pre">data[-1],</span> <span class="pre">data[-2]...data[1]]</span></code>).
-Ignored otherwise.</li>
-<li><strong>otherdata</strong> (str or list or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Data tag or list of data tags for
+Ignored otherwise.</p></li>
+<li><p><strong>otherdata</strong> (str or list or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Data tag or list of data tags for
 additional data that are averaged with the <code class="docutils literal notranslate"><span class="pre">self.datatag</span></code>
 data before fitting. This is useful including data
 from correlators with the source and sink interchanged.
-Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
-<li><strong>reverseddata</strong> (str or list or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Data tag or list of data tags
+Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>reverseddata</strong> (str or list or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Data tag or list of data tags
 for data that is time-reversed and then averaged with
-the <code class="docutils literal notranslate"><span class="pre">self.datatag</span></code> data before fitting. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+the <code class="docutils literal notranslate"><span class="pre">self.datatag</span></code> data before fitting. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="corrfitter.Corr2.builddata">
-<code class="descname">builddata</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2.builddata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">builddata</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2.builddata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assemble fit data from dictionary <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.Corr2.builddataset">
-<code class="descname">builddataset</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2.builddataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">builddataset</code><span class="sig-paren">(</span><em class="sig-param">dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2.builddataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assemble fit data from data set dictionary <code class="docutils literal notranslate"><span class="pre">dataset</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.Corr2.buildprior">
-<code class="descname">buildprior</code><span class="sig-paren">(</span><em>prior</em>, <em>nterm=None</em>, <em>mopt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2.buildprior" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">buildprior</code><span class="sig-paren">(</span><em class="sig-param">prior</em>, <em class="sig-param">nterm=None</em>, <em class="sig-param">mopt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2.buildprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create fit prior by extracting relevant pieces from <code class="docutils literal notranslate"><span class="pre">prior</span></code>.</p>
 <p>This routine selects the entries in dictionary <code class="docutils literal notranslate"><span class="pre">prior</span></code>
 corresponding to the model’s fit parameters. If <code class="docutils literal notranslate"><span class="pre">nterm</span></code> is
 not <code class="docutils literal notranslate"><span class="pre">None</span></code>, it also adjusts the number of terms that are
 retained.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>prior</strong> (<em>dictionary</em>) – Dictionary containing priors for fit
-parameters.</li>
-<li><strong>nterm</strong> (<code class="docutils literal notranslate"><span class="pre">None</span></code> or int or two-tuple) – Setting <code class="docutils literal notranslate"><span class="pre">nterm=(n,no)</span></code>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prior</strong> (<em>dictionary</em>) – Dictionary containing priors for fit
+parameters.</p></li>
+<li><p><strong>nterm</strong> (<code class="docutils literal notranslate"><span class="pre">None</span></code> or int or two-tuple) – Setting <code class="docutils literal notranslate"><span class="pre">nterm=(n,no)</span></code>
 restricts the number of terms to <code class="docutils literal notranslate"><span class="pre">n</span></code> in the
 non-oscillating part and <code class="docutils literal notranslate"><span class="pre">no</span></code> in the oscillating part
 of the fit function. Replacing either or both by
 <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps all terms, as does setting <code class="docutils literal notranslate"><span class="pre">nterm=None</span></code>.
 This optional argument is used to implement
-marginalization.</li>
+marginalization.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.Corr2.fitfcn">
-<code class="descname">fitfcn</code><span class="sig-paren">(</span><em>p</em>, <em>t=None</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2.fitfcn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fitfcn</code><span class="sig-paren">(</span><em class="sig-param">p</em>, <em class="sig-param">t=None</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr2.fitfcn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return fit function for parameters <code class="docutils literal notranslate"><span class="pre">p</span></code>.</p>
 </dd></dl>
 
@@ -226,7 +217,7 @@ marginalization.</li>
 
 <dl class="class">
 <dt id="corrfitter.Corr3">
-<em class="property">class </em><code class="descclassname">corrfitter.</code><code class="descname">Corr3</code><span class="sig-paren">(</span><em>datatag</em>, <em>T</em>, <em>Vnn</em>, <em>a</em>, <em>b</em>, <em>dEa</em>, <em>dEb</em>, <em>sa=1.0</em>, <em>sb=1.0</em>, <em>Vno=None</em>, <em>Von=None</em>, <em>Voo=None</em>, <em>tdata=None</em>, <em>tfit=None</em>, <em>tmin=None. reverse=False</em>, <em>symmetric_V=False</em>, <em>reverseddata=[]</em>, <em>otherdata=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">corrfitter.</code><code class="sig-name descname">Corr3</code><span class="sig-paren">(</span><em class="sig-param">datatag</em>, <em class="sig-param">T</em>, <em class="sig-param">Vnn</em>, <em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">dEa</em>, <em class="sig-param">dEb</em>, <em class="sig-param">sa=1.0</em>, <em class="sig-param">sb=1.0</em>, <em class="sig-param">Vno=None</em>, <em class="sig-param">Von=None</em>, <em class="sig-param">Voo=None</em>, <em class="sig-param">tdata=None</em>, <em class="sig-param">tfit=None</em>, <em class="sig-param">tmin=None. reverse=False</em>, <em class="sig-param">symmetric_V=False</em>, <em class="sig-param">reverseddata=[]</em>, <em class="sig-param">otherdata=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3" title="Permalink to this definition">¶</a></dt>
 <dd><p>Three-point correlators <code class="docutils literal notranslate"><span class="pre">Gavb(t,</span> <span class="pre">T)</span> <span class="pre">=</span> <span class="pre">&lt;b(T)</span> <span class="pre">V(t)</span> <span class="pre">a(0)&gt;</span></code>.</p>
 <p><a class="reference internal" href="#corrfitter.Corr3" title="corrfitter.Corr3"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.Corr3</span></code></a> models the <code class="docutils literal notranslate"><span class="pre">t</span></code> dependence of a 3-point correlator
 <code class="docutils literal notranslate"><span class="pre">Gavb(t,</span> <span class="pre">T)</span></code> using</p>
@@ -251,13 +242,11 @@ for example:</p>
 </div>
 <p>and therefore <code class="docutils literal notranslate"><span class="pre">Ean[i]</span> <span class="pre">=</span> <span class="pre">sum_j=0..i</span> <span class="pre">dEan[j]</span></code>. The parameters for the
 other terms are similarly defined.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>datatag</strong> (<em>str</em>) – Tag used to label correlator in the input data.</li>
-<li><strong>a</strong> (<em>str</em><em> or </em><em>tuple</em>) – Key identifying the fit parameters for the source
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datatag</strong> (<em>str</em>) – Tag used to label correlator in the input data.</p></li>
+<li><p><strong>a</strong> (<em>str</em><em> or </em><em>tuple</em>) – Key identifying the fit parameters for the source
 amplitudes <code class="docutils literal notranslate"><span class="pre">an</span></code>, for <code class="docutils literal notranslate"><span class="pre">a-&gt;V</span></code>, in the dictionary of priors
 provided to <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.CorrFitter</span></code></a>; or a two-tuple of keys for the source
 amplitudes <code class="docutils literal notranslate"><span class="pre">(an,</span> <span class="pre">ao)</span></code>. The corresponding values in the
@@ -265,25 +254,25 @@ dictionary of priors are (1-d) arrays of prior values with one
 term for each <code class="docutils literal notranslate"><span class="pre">an[i]</span></code> or <code class="docutils literal notranslate"><span class="pre">ao[i]</span></code>. Replacing either key by
 <code class="docutils literal notranslate"><span class="pre">None</span></code> causes the corresponding term to be dropped from the fit
 function. These keys are used to label the corresponding parameter
-arrays in the fit results as well as in the prior.</li>
-<li><strong>b</strong> (<em>str</em><em> or </em><em>tuple</em>) – Same as <code class="docutils literal notranslate"><span class="pre">self.a</span></code> but  for the <code class="docutils literal notranslate"><span class="pre">V-&gt;b</span></code> sink
-amplitudes <code class="docutils literal notranslate"><span class="pre">(bn,</span> <span class="pre">bo)</span></code>.</li>
-<li><strong>dEa</strong> (<em>str</em><em> or </em><em>tuple</em>) – Fit-parameter label for <code class="docutils literal notranslate"><span class="pre">a-&gt;V</span></code>
+arrays in the fit results as well as in the prior.</p></li>
+<li><p><strong>b</strong> (<em>str</em><em> or </em><em>tuple</em>) – Same as <code class="docutils literal notranslate"><span class="pre">self.a</span></code> but  for the <code class="docutils literal notranslate"><span class="pre">V-&gt;b</span></code> sink
+amplitudes <code class="docutils literal notranslate"><span class="pre">(bn,</span> <span class="pre">bo)</span></code>.</p></li>
+<li><p><strong>dEa</strong> (<em>str</em><em> or </em><em>tuple</em>) – Fit-parameter label for <code class="docutils literal notranslate"><span class="pre">a-&gt;V</span></code>
 intermediate-state energy differences <code class="docutils literal notranslate"><span class="pre">dEan</span></code>, or two-tuple of
 labels for the differences <code class="docutils literal notranslate"><span class="pre">(dEan,</span> <span class="pre">dEao)</span></code>. Each label represents
 an array of energy differences. Replacing either label by <code class="docutils literal notranslate"><span class="pre">None</span></code>
 causes the corresponding term in the correlator function to be
 dropped. These keys are used to label the corresponding parameter
-arrays in the fit results as well as in the prior.</li>
-<li><strong>dEb</strong> (<em>str</em><em> or </em><em>tuple</em>) – Same as <code class="docutils literal notranslate"><span class="pre">self.dEa</span></code> but for <code class="docutils literal notranslate"><span class="pre">V-&gt;b</span></code> sink
-energies <code class="docutils literal notranslate"><span class="pre">(dEbn,</span> <span class="pre">dEbo)</span></code>.</li>
-<li><strong>sa</strong> (<em>float</em><em> or </em><em>tuple</em>) – Overall factor <code class="docutils literal notranslate"><span class="pre">san</span></code> for the non-oscillating
+arrays in the fit results as well as in the prior.</p></li>
+<li><p><strong>dEb</strong> (<em>str</em><em> or </em><em>tuple</em>) – Same as <code class="docutils literal notranslate"><span class="pre">self.dEa</span></code> but for <code class="docutils literal notranslate"><span class="pre">V-&gt;b</span></code> sink
+energies <code class="docutils literal notranslate"><span class="pre">(dEbn,</span> <span class="pre">dEbo)</span></code>.</p></li>
+<li><p><strong>sa</strong> (<em>float</em><em> or </em><em>tuple</em>) – Overall factor <code class="docutils literal notranslate"><span class="pre">san</span></code> for the non-oscillating
 <code class="docutils literal notranslate"><span class="pre">a-&gt;V</span></code> terms in the correlator, or two-tuple containing
 the overall factors <code class="docutils literal notranslate"><span class="pre">(san,</span> <span class="pre">sao)</span></code> for the non-oscillating and
-oscillating terms. Default is <code class="docutils literal notranslate"><span class="pre">(1,-1)</span></code>.</li>
-<li><strong>sb</strong> (<em>float</em><em> or </em><em>tuple</em>) – Same as <code class="docutils literal notranslate"><span class="pre">self.sa</span></code> but for <code class="docutils literal notranslate"><span class="pre">V-&gt;b</span></code> sink
-overall factors <code class="docutils literal notranslate"><span class="pre">(sbn,</span> <span class="pre">sbo)</span></code>.</li>
-<li><strong>Vnn</strong> (str or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – <p>Fit-parameter label for the matrix of current
+oscillating terms. Default is <code class="docutils literal notranslate"><span class="pre">(1,-1)</span></code>.</p></li>
+<li><p><strong>sb</strong> (<em>float</em><em> or </em><em>tuple</em>) – Same as <code class="docutils literal notranslate"><span class="pre">self.sa</span></code> but for <code class="docutils literal notranslate"><span class="pre">V-&gt;b</span></code> sink
+overall factors <code class="docutils literal notranslate"><span class="pre">(sbn,</span> <span class="pre">sbo)</span></code>.</p></li>
+<li><p><strong>Vnn</strong> (str or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – <p>Fit-parameter label for the matrix of current
 matrix elements <code class="docutils literal notranslate"><span class="pre">Vnn[i,j]</span></code> connecting non-oscillating states.
 The matrix must be square and symmetric if <code class="docutils literal notranslate"><span class="pre">symmetric_V=True</span></code>,
 and only the elements <code class="docutils literal notranslate"><span class="pre">V[i,j]</span></code> for <code class="docutils literal notranslate"><span class="pre">j&gt;=i</span></code> are specified, using
@@ -299,18 +288,18 @@ a 1-d array <code class="docutils literal notranslate"><span class="pre">V_sym</
 </div>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">V[i,j]</span> <span class="pre">=</span> <span class="pre">V_symm[i*N</span> <span class="pre">+</span> <span class="pre">j</span> <span class="pre">-</span> <span class="pre">i</span> <span class="pre">*</span> <span class="pre">(i+1)</span> <span class="pre">/</span> <span class="pre">2]</span></code> for
 <code class="docutils literal notranslate"><span class="pre">j&gt;=i</span></code>. Set <code class="docutils literal notranslate"><span class="pre">Vnn=None</span></code> to omit it.</p>
-</li>
-<li><strong>Vno</strong> (str or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Fit-parameter label for the matrix of current
+</p></li>
+<li><p><strong>Vno</strong> (str or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Fit-parameter label for the matrix of current
 matrix elements <code class="docutils literal notranslate"><span class="pre">Vno[i,j]</span></code> connecting non-oscillating to
 oscillating states. Only one of <code class="docutils literal notranslate"><span class="pre">Von</span></code> and <code class="docutils literal notranslate"><span class="pre">Vno</span></code> can be
 specified if <code class="docutils literal notranslate"><span class="pre">symmetric_V=True</span></code>; the other is defined to be its
-transform. Set <code class="docutils literal notranslate"><span class="pre">Vno=None</span></code> to omit it.</li>
-<li><strong>Von</strong> (str or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Fit-parameter label for the matrix of current
+transform. Set <code class="docutils literal notranslate"><span class="pre">Vno=None</span></code> to omit it.</p></li>
+<li><p><strong>Von</strong> (str or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Fit-parameter label for the matrix of current
 matrix elements <code class="docutils literal notranslate"><span class="pre">Vno[i,j]</span></code> connecting oscillating to non-
 oscillating states. Only one of <code class="docutils literal notranslate"><span class="pre">Von</span></code> and <code class="docutils literal notranslate"><span class="pre">Vno</span></code> can be
 specified if <code class="docutils literal notranslate"><span class="pre">symmetric_V=True</span></code>; the other is defined to be its
-transform. Set <code class="docutils literal notranslate"><span class="pre">Von=None</span></code> to omit it.</li>
-<li><strong>Voo</strong> (str or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – <p>Fit-parameter label for the matrix of current
+transform. Set <code class="docutils literal notranslate"><span class="pre">Von=None</span></code> to omit it.</p></li>
+<li><p><strong>Voo</strong> (str or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – <p>Fit-parameter label for the matrix of current
 matrix elements <code class="docutils literal notranslate"><span class="pre">Voo[i,j]</span></code> connecting oscillating states. The
 matrix must be square and symmetric if <code class="docutils literal notranslate"><span class="pre">symmetric_V=True</span></code>, and
 only the elements <code class="docutils literal notranslate"><span class="pre">V[i,j]</span></code> for <code class="docutils literal notranslate"><span class="pre">j&gt;=i</span></code> are specified, using a
@@ -326,8 +315,8 @@ only the elements <code class="docutils literal notranslate"><span class="pre">V
 </div>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">V[i,j]</span> <span class="pre">=</span> <span class="pre">V_symm[i*N</span> <span class="pre">+</span> <span class="pre">j</span> <span class="pre">-</span> <span class="pre">i</span> <span class="pre">*</span> <span class="pre">(i+1)</span> <span class="pre">/</span> <span class="pre">2]</span></code> for
 <code class="docutils literal notranslate"><span class="pre">j&gt;=i</span></code>. Set <code class="docutils literal notranslate"><span class="pre">Voo=None</span></code> to omit it.</p>
-</li>
-<li><strong>reverse</strong> (<em>bool</em>) – <p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the data associated with <code class="docutils literal notranslate"><span class="pre">self.datatag</span></code>
+</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – <p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the data associated with <code class="docutils literal notranslate"><span class="pre">self.datatag</span></code>
 is time-reversed before fitting (interchanging <code class="docutils literal notranslate"><span class="pre">t=0</span></code> with
 <code class="docutils literal notranslate"><span class="pre">t=T</span></code>). This is useful for doing simultaneous fits to
 <code class="docutils literal notranslate"><span class="pre">a-&gt;V-&gt;b</span></code> and <code class="docutils literal notranslate"><span class="pre">b-&gt;V-&gt;a</span></code>, where one is time-reversed relative
@@ -353,29 +342,29 @@ to the other: <em>e.g.</em>,</p>
 <p>Another (faster) strategy for such situations is to average
 data from the second process with that from the  first, before
 fitting, using keyword <code class="docutils literal notranslate"><span class="pre">reverseddata</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
-</li>
-<li><strong>symmetric_V</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the fit function for <code class="docutils literal notranslate"><span class="pre">a-&gt;V-&gt;b</span></code> is
+</p></li>
+<li><p><strong>symmetric_V</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the fit function for <code class="docutils literal notranslate"><span class="pre">a-&gt;V-&gt;b</span></code> is
 unchanged (symmetrical) under the the interchange of <code class="docutils literal notranslate"><span class="pre">a</span></code> and
 <code class="docutils literal notranslate"><span class="pre">b</span></code>. Then <code class="docutils literal notranslate"><span class="pre">Vnn</span></code> and <code class="docutils literal notranslate"><span class="pre">Voo</span></code> are square, symmetric matrices
 and their priors are one-dimensional arrays containing only
 elements <code class="docutils literal notranslate"><span class="pre">V[i,j]</span></code> with <code class="docutils literal notranslate"><span class="pre">j&gt;=i</span></code>, as discussed above.
 Only one of <code class="docutils literal notranslate"><span class="pre">Von</span></code> and <code class="docutils literal notranslate"><span class="pre">Vno</span></code> can be specified if
-<code class="docutils literal notranslate"><span class="pre">symmetric_V=True</span></code>; the other is defined to be its transform.</li>
-<li><strong>T</strong> (<em>int</em>) – Separation between source and sink.</li>
-<li><strong>tdata</strong> (<em>list of ints</em>) – The <code class="docutils literal notranslate"><span class="pre">t</span></code>s corresponding to data entries
+<code class="docutils literal notranslate"><span class="pre">symmetric_V=True</span></code>; the other is defined to be its transform.</p></li>
+<li><p><strong>T</strong> (<em>int</em>) – Separation between source and sink.</p></li>
+<li><p><strong>tdata</strong> (<em>list of ints</em>) – The <code class="docutils literal notranslate"><span class="pre">t</span></code>s corresponding to data entries
 in the input data. If omitted, is assumed equal to
-<code class="docutils literal notranslate"><span class="pre">numpy.arange(T</span> <span class="pre">+</span> <span class="pre">1)</span></code>.</li>
-<li><strong>tfit</strong> (<em>list of ints</em>) – List of <code class="docutils literal notranslate"><span class="pre">t</span></code>s to use in the fit. Only data
+<code class="docutils literal notranslate"><span class="pre">numpy.arange(T</span> <span class="pre">+</span> <span class="pre">1)</span></code>.</p></li>
+<li><p><strong>tfit</strong> (<em>list of ints</em>) – List of <code class="docutils literal notranslate"><span class="pre">t</span></code>s to use in the fit. Only data
 with these <code class="docutils literal notranslate"><span class="pre">t</span></code>s (all of which should be in <code class="docutils literal notranslate"><span class="pre">tdata</span></code>)
 is used in the fit. If omitted, is assumed equal to
-<code class="docutils literal notranslate"><span class="pre">numpy.arange(tmin,</span> <span class="pre">T</span> <span class="pre">-</span> <span class="pre">tmin</span> <span class="pre">+</span> <span class="pre">1)</span></code>.</li>
-<li><strong>tmin</strong> (int or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – If <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is omitted, it is set equal
+<code class="docutils literal notranslate"><span class="pre">numpy.arange(tmin,</span> <span class="pre">T</span> <span class="pre">-</span> <span class="pre">tmin</span> <span class="pre">+</span> <span class="pre">1)</span></code>.</p></li>
+<li><p><strong>tmin</strong> (int or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – If <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is omitted, it is set equal
 to <code class="docutils literal notranslate"><span class="pre">numpy.arange(tmin,</span> <span class="pre">T</span> <span class="pre">-</span> <span class="pre">tmin</span> <span class="pre">+</span> <span class="pre">1)</span></code>. <code class="docutils literal notranslate"><span class="pre">tmin</span></code> is ignored
-if <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is specified.</li>
-<li><strong>ncg</strong> (<em>int</em>) – Width of bins used to coarse-grain the correlator before
+if <code class="docutils literal notranslate"><span class="pre">tfit</span></code> is specified.</p></li>
+<li><p><strong>ncg</strong> (<em>int</em>) – Width of bins used to coarse-grain the correlator before
 fitting. Each bin of <code class="docutils literal notranslate"><span class="pre">ncg</span></code> correlator values is replaced by
-its average. Default is <code class="docutils literal notranslate"><span class="pre">ncg=1</span></code> (ie, no coarse-graining).</li>
-<li><strong>reverseddata</strong> (str or list or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – <p>Data tag or list of data tags
+its average. Default is <code class="docutils literal notranslate"><span class="pre">ncg=1</span></code> (ie, no coarse-graining).</p></li>
+<li><p><strong>reverseddata</strong> (str or list or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – <p>Data tag or list of data tags
 for additional data that are time-reversed and then averaged with
 the <code class="docutils literal notranslate"><span class="pre">self.datatag</span></code> data before fitting. This is useful for
 folding data from <code class="docutils literal notranslate"><span class="pre">b-&gt;V-&gt;a</span></code> into a fit for <code class="docutils literal notranslate"><span class="pre">a-&gt;V-&gt;b</span></code>:
@@ -391,36 +380,31 @@ folding data from <code class="docutils literal notranslate"><span class="pre">b
 </div>
 <p>This is faster than using a separate model with <code class="docutils literal notranslate"><span class="pre">reverse=True</span></code>.
 Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
-</li>
-<li><strong>otherdata</strong> (str or list or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Data tag or list of data tags
+</p></li>
+<li><p><strong>otherdata</strong> (str or list or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Data tag or list of data tags
 for additional data that are averaged with the <code class="docutils literal notranslate"><span class="pre">self.datatag</span></code>
-data before fitting. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+data before fitting. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="corrfitter.Corr3.builddata">
-<code class="descname">builddata</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3.builddata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">builddata</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3.builddata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract fit data corresponding to this model from data set <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
 <p>The fit data is returned in a 1-dimensional array;
 the fitfcn must return arrays of the same length.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> – Data set containing the fit data for all models. This
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – Data set containing the fit data for all models. This
 is typically a dictionary, whose keys are the <code class="docutils literal notranslate"><span class="pre">datatag</span></code>s
-of the models.</td>
-</tr>
-</tbody>
-</table>
+of the models.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.Corr3.builddataset">
-<code class="descname">builddataset</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3.builddataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">builddataset</code><span class="sig-paren">(</span><em class="sig-param">dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3.builddataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract fit dataset from <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.dataset.Dataset</span></code> <code class="docutils literal notranslate"><span class="pre">dataset</span></code>.</p>
 <p>The code</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gvar</span> <span class="k">as</span> <span class="nn">gv</span>
@@ -437,22 +421,19 @@ equivalent to</p>
 </div>
 <p>This method is optional. It is used only by
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">MultiFitter.process_dataset()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dataset</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.dataset.Dataset</span></code> (or similar dictionary)
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.dataset.Dataset</span></code> (or similar dictionary)
 dataset containing the fit data for all models. This is
 typically a dictionary, whose keys are the <code class="docutils literal notranslate"><span class="pre">datatag</span></code>s of
-the models.</td>
-</tr>
-</tbody>
-</table>
+the models.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.Corr3.buildprior">
-<code class="descname">buildprior</code><span class="sig-paren">(</span><em>prior</em>, <em>mopt=None</em>, <em>nterm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3.buildprior" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">buildprior</code><span class="sig-paren">(</span><em class="sig-param">prior</em>, <em class="sig-param">mopt=None</em>, <em class="sig-param">nterm=None</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3.buildprior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract fit prior from <code class="docutils literal notranslate"><span class="pre">prior</span></code>.</p>
 <p>Returns a dictionary containing the  part of dictionary
 <code class="docutils literal notranslate"><span class="pre">prior</span></code> that is relevant to this model’s fit. The code could
@@ -480,41 +461,34 @@ requires a slight modification: e.g.,</p>
 model’s prior. <code class="docutils literal notranslate"><span class="pre">mopt=None</span></code> implies no marginalization. Otherwise
 <code class="docutils literal notranslate"><span class="pre">mopt</span></code> will typically contain information about what and how much
 to marginalize.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>prior</strong> – Dictionary containing <em>a priori</em> estimates of all
-fit parameters.</li>
-<li><strong>mopt</strong> (<em>object</em>) – Marginalization options. Ignore if <code class="docutils literal notranslate"><span class="pre">None</span></code>.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prior</strong> – Dictionary containing <em>a priori</em> estimates of all
+fit parameters.</p></li>
+<li><p><strong>mopt</strong> (<em>object</em>) – Marginalization options. Ignore if <code class="docutils literal notranslate"><span class="pre">None</span></code>.
 Otherwise marginalize fit parameters as specified by <code class="docutils literal notranslate"><span class="pre">mopt</span></code>.
 <code class="docutils literal notranslate"><span class="pre">mopt</span></code> can be any type of Python object; it is used only
-in <code class="docutils literal notranslate"><span class="pre">buildprior</span></code> and is passed through to it unchanged.</li>
+in <code class="docutils literal notranslate"><span class="pre">buildprior</span></code> and is passed through to it unchanged.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.Corr3.fitfcn">
-<code class="descname">fitfcn</code><span class="sig-paren">(</span><em>p</em>, <em>t=None</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3.fitfcn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fitfcn</code><span class="sig-paren">(</span><em class="sig-param">p</em>, <em class="sig-param">t=None</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.Corr3.fitfcn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute fit function fit for parameters <code class="docutils literal notranslate"><span class="pre">p</span></code>.</p>
 <p>Results are returned in a 1-dimensional array the
 same length as (and corresponding to) the fit data
 returned by <code class="docutils literal notranslate"><span class="pre">self.builddata(data)</span></code>.</p>
 <p>If marginalization is supported, <code class="docutils literal notranslate"><span class="pre">fitfcn</span></code> must work
 with or without the marginalized parameters.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>p</strong> – Dictionary of parameter values.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> – Dictionary of parameter values.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -526,128 +500,116 @@ with or without the marginalized parameters.</p>
 is used to fit a collection of models to a collection of Monte Carlo data.</p>
 <dl class="class">
 <dt id="corrfitter.CorrFitter">
-<em class="property">class </em><code class="descclassname">corrfitter.</code><code class="descname">CorrFitter</code><span class="sig-paren">(</span><em>models</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">corrfitter.</code><code class="sig-name descname">CorrFitter</code><span class="sig-paren">(</span><em class="sig-param">models</em>, <em class="sig-param">**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Nonlinear least-squares fitter for a collection of correlator models.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>models</strong> – List of models, derived from <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit.MultiFitterModel</span></code>,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models</strong> – List of models, derived from <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit.MultiFitterModel</span></code>,
 to be fit to the data. Individual models in the list can
-be replaced by lists of models or tuples of models; see below.</li>
-<li><strong>nterm</strong> (<em>tuple</em><em> or </em><em>int</em><em> or </em><em>None</em>) – Number of terms fit in the
+be replaced by lists of models or tuples of models; see below.</p></li>
+<li><p><strong>nterm</strong> (<em>tuple</em><em> or </em><em>int</em><em> or </em><em>None</em>) – Number of terms fit in the
 non-oscillating part of fit functions; or a two-tuple of
 numbers indicating how many terms to fit in each of the
 non-oscillating and oscillating parts. Terms  omitted from the
 fit are marginalized (<em>i.e.</em>, included as corrections to the
 fit data). If set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, all parameters in the
-prior are fit, and none are marginalized.</li>
-<li><strong>mopt</strong> – Marginalization options; alias for <code class="docutils literal notranslate"><span class="pre">nterm</span></code>.</li>
-<li><strong>ratio</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, implement marginalization using
+prior are fit, and none are marginalized.</p></li>
+<li><p><strong>mopt</strong> – Marginalization options; alias for <code class="docutils literal notranslate"><span class="pre">nterm</span></code>.</p></li>
+<li><p><strong>ratio</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, implement marginalization using
 ratios: <code class="docutils literal notranslate"><span class="pre">data_marg</span> <span class="pre">=</span> <span class="pre">data</span> <span class="pre">*</span> <span class="pre">fitfcn(prior_marg)</span> <span class="pre">/</span> <span class="pre">fitfcn(prior)</span></code>.
 If <code class="docutils literal notranslate"><span class="pre">False</span></code> (default), implement using differences:
-<code class="docutils literal notranslate"><span class="pre">data_marg</span> <span class="pre">=</span> <span class="pre">data</span> <span class="pre">+</span> <span class="pre">(fitfcn(prior_marg)</span> <span class="pre">-</span> <span class="pre">fitfcn(prior))</span></code>.</li>
-<li><strong>fast</strong> (<em>bool</em>) – Setting <code class="docutils literal notranslate"><span class="pre">fast=True</span></code> (default) strips any variable
+<code class="docutils literal notranslate"><span class="pre">data_marg</span> <span class="pre">=</span> <span class="pre">data</span> <span class="pre">+</span> <span class="pre">(fitfcn(prior_marg)</span> <span class="pre">-</span> <span class="pre">fitfcn(prior))</span></code>.</p></li>
+<li><p><strong>fast</strong> (<em>bool</em>) – Setting <code class="docutils literal notranslate"><span class="pre">fast=True</span></code> (default) strips any variable
 not required by the fit from the prior. This speeds
 fits but loses information about correlations between
-variables in the fit and those that are not.</li>
-<li><strong>fitterargs</strong> – Additional arguments for the <code class="xref py py-class docutils literal notranslate"><span class="pre">lsqfit.nonlinear_fit</span></code>,
-such as <code class="docutils literal notranslate"><span class="pre">tol</span></code>, <code class="docutils literal notranslate"><span class="pre">maxit</span></code>, <code class="docutils literal notranslate"><span class="pre">svdcut</span></code>, <code class="docutils literal notranslate"><span class="pre">fitter</span></code>, etc., as needed.</li>
+variables in the fit and those that are not.</p></li>
+<li><p><strong>fitterargs</strong> – Additional arguments for the <code class="xref py py-class docutils literal notranslate"><span class="pre">lsqfit.nonlinear_fit</span></code>,
+such as <code class="docutils literal notranslate"><span class="pre">tol</span></code>, <code class="docutils literal notranslate"><span class="pre">maxit</span></code>, <code class="docutils literal notranslate"><span class="pre">svdcut</span></code>, <code class="docutils literal notranslate"><span class="pre">fitter</span></code>, etc., as needed.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="corrfitter.CorrFitter.lsqfit">
-<code class="descname">lsqfit</code><span class="sig-paren">(</span><em>data=None</em>, <em>prior=None</em>, <em>pdata=None</em>, <em>p0=None</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.lsqfit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">lsqfit</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">prior=None</em>, <em class="sig-param">pdata=None</em>, <em class="sig-param">p0=None</em>, <em class="sig-param">**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.lsqfit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute least-squares fit of models to data.</p>
 <p><a class="reference internal" href="#corrfitter.CorrFitter.lsqfit" title="corrfitter.CorrFitter.lsqfit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.lsqfit()</span></code></a> fits all of the models together, in
 a single fit. It returns the <code class="xref py py-class docutils literal notranslate"><span class="pre">lsqfit.nonlinear_fit</span></code> object
 from the fit.</p>
 <p>See documentation for <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit.MultiFitter.lsqfit</span></code> for
 more information.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> – Input data. One of <code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be
-specified but not both.</li>
-<li><strong>pdata</strong> – Input data that has been processed by the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – Input data. One of <code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be
+specified but not both.</p></li>
+<li><p><strong>pdata</strong> – Input data that has been processed by the
 models using <code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.process_data()</span></code> or
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.process_dataset()</span></code>. One of
 <code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be  specified but not both.
 <code class="docutils literal notranslate"><span class="pre">pdata</span></code> is obtained from <code class="docutils literal notranslate"><span class="pre">data</span></code> by collecting the output
 from <code class="docutils literal notranslate"><span class="pre">m.builddata(data)</span></code> for each model <code class="docutils literal notranslate"><span class="pre">m</span></code> and storing it
-in a dictionary with key <code class="docutils literal notranslate"><span class="pre">m.datatag</span></code>.</li>
-<li><strong>prior</strong> – Bayesian prior for fit parameters used by the models.</li>
-<li><strong>p0</strong> – Dictionary , indexed by parameter labels, containing
+in a dictionary with key <code class="docutils literal notranslate"><span class="pre">m.datatag</span></code>.</p></li>
+<li><p><strong>prior</strong> – Bayesian prior for fit parameters used by the models.</p></li>
+<li><p><strong>p0</strong> – Dictionary , indexed by parameter labels, containing
 initial values for the parameters in the fit. Setting
 <code class="docutils literal notranslate"><span class="pre">p0=None</span></code> implies that initial values are extracted from the
 prior. Setting <code class="docutils literal notranslate"><span class="pre">p0=&quot;filename&quot;</span></code> causes the fitter to look in
 the file with name <code class="docutils literal notranslate"><span class="pre">&quot;filename&quot;</span></code> for initial values and to
 write out best-fit parameter values after the fit (for the
-next call to <code class="docutils literal notranslate"><span class="pre">self.lsqfit()</span></code>).</li>
-<li><strong>wavg_svdcut</strong> (<em>float</em>) – SVD cut used in weighted averages for
-parallel fits.</li>
-<li><strong>kargs</strong> – Arguments that override parameters specified when
+next call to <code class="docutils literal notranslate"><span class="pre">self.lsqfit()</span></code>).</p></li>
+<li><p><strong>wavg_svdcut</strong> (<em>float</em>) – SVD cut used in weighted averages for
+parallel fits.</p></li>
+<li><p><strong>kargs</strong> – Arguments that override parameters specified when
 the <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrFitter</span></code></a> was created. Can also include
 additional arguments to be passed through to
-the <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit</span></code> fitter.</li>
+the <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit</span></code> fitter.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.chained_lsqfit">
-<code class="descname">chained_lsqfit</code><span class="sig-paren">(</span><em>data=None</em>, <em>prior=None</em>, <em>pdata=None</em>, <em>p0=None</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.chained_lsqfit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">chained_lsqfit</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">prior=None</em>, <em class="sig-param">pdata=None</em>, <em class="sig-param">p0=None</em>, <em class="sig-param">**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.chained_lsqfit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute chained least-squares fit of models to data.</p>
 <p><a class="reference internal" href="#corrfitter.CorrFitter.chained_lsqfit" title="corrfitter.CorrFitter.chained_lsqfit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.chained_lsqfit()</span></code></a> fits the models specified
 in <code class="docutils literal notranslate"><span class="pre">models</span></code> one at a time, in sequence, with the fit output
 from one being fed into the prior for the next.</p>
 <p>See documentation for <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit.MultiFitter.chained_lsqfit</span></code> for
 (much) more information.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> – Input data. One of <code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – Input data. One of <code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be
 specified but not both. <code class="docutils literal notranslate"><span class="pre">pdata</span></code> is obtained from <code class="docutils literal notranslate"><span class="pre">data</span></code>
 by collecting the output from <code class="docutils literal notranslate"><span class="pre">m.builddata(data)</span></code>
 for each model <code class="docutils literal notranslate"><span class="pre">m</span></code> and storing it in a dictionary
-with key <code class="docutils literal notranslate"><span class="pre">m.datatag</span></code>.</li>
-<li><strong>pdata</strong> – Input data that has been processed by the
+with key <code class="docutils literal notranslate"><span class="pre">m.datatag</span></code>.</p></li>
+<li><p><strong>pdata</strong> – Input data that has been processed by the
 models using <code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.process_data()</span></code> or
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">CorrFitter.process_dataset()</span></code>. One of
-<code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be  specified but not both.</li>
-<li><strong>prior</strong> – Bayesian prior for fit parameters used by the models.</li>
-<li><strong>p0</strong> – Dictionary , indexed by parameter labels, containing
+<code class="docutils literal notranslate"><span class="pre">data</span></code> or <code class="docutils literal notranslate"><span class="pre">pdata</span></code> must be  specified but not both.</p></li>
+<li><p><strong>prior</strong> – Bayesian prior for fit parameters used by the models.</p></li>
+<li><p><strong>p0</strong> – Dictionary , indexed by parameter labels, containing
 initial values for the parameters in the fit. Setting
 <code class="docutils literal notranslate"><span class="pre">p0=None</span></code> implies that initial values are extracted from the
 prior. Setting <code class="docutils literal notranslate"><span class="pre">p0=&quot;filename&quot;</span></code> causes the fitter to look in
 the file with name <code class="docutils literal notranslate"><span class="pre">&quot;filename&quot;</span></code> for initial values and to
 write out best-fit parameter values after the fit (for the
-next call to <code class="docutils literal notranslate"><span class="pre">self.lsqfit()</span></code>).</li>
-<li><strong>kargs</strong> – Arguments that override parameters specified when
+next call to <code class="docutils literal notranslate"><span class="pre">self.lsqfit()</span></code>).</p></li>
+<li><p><strong>kargs</strong> – Arguments that override parameters specified when
 the <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrFitter</span></code></a> was created. Can also include
 additional arguments to be passed through to
-the <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit</span></code> fitter.</li>
+the <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit</span></code> fitter.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.set">
-<code class="descname">set</code><span class="sig-paren">(</span><em>**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.set" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set</code><span class="sig-paren">(</span><em class="sig-param">**kargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset default keyword parameters.</p>
 <p>Assigns new default values from dictionary <code class="docutils literal notranslate"><span class="pre">kargs</span></code> to the fitter’s
 keyword parameters. Keywords for the underlying <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsqfit</span></code> fitters
@@ -660,9 +622,9 @@ keywords. Use <code class="docutils literal notranslate"><span class="pre">fitte
 values.</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="corrfitter.CorrFitter.read_dataset">
-<em class="property">static </em><code class="descname">read_dataset</code><span class="sig-paren">(</span><em>inputfiles</em>, <em>grep=None</em>, <em>keys=None</em>, <em>h5group='/'</em>, <em>binsize=1</em>, <em>tcol=0</em>, <em>Gcol=1</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.read_dataset" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">read_dataset</code><span class="sig-paren">(</span><em class="sig-param">inputfiles</em>, <em class="sig-param">grep=None</em>, <em class="sig-param">keys=None</em>, <em class="sig-param">h5group='/'</em>, <em class="sig-param">binsize=1</em>, <em class="sig-param">tcol=0</em>, <em class="sig-param">Gcol=1</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.read_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read correlator Monte Carlo data from files into a <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.dataset.Dataset</span></code>.</p>
 <p>Three files formats are supported by <a class="reference internal" href="#corrfitter.CorrFitter.read_dataset" title="corrfitter.CorrFitter.read_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_dataset()</span></code></a>, depending
 upon <code class="docutils literal notranslate"><span class="pre">inputfiles</span></code>.</p>
@@ -723,7 +685,7 @@ are retained; others are discarded.</p>
 
 <dl class="method">
 <dt id="corrfitter.CorrFitter.simulated_pdata_iter">
-<code class="descname">simulated_pdata_iter</code><span class="sig-paren">(</span><em>n</em>, <em>dataset</em>, <em>p_exact=None</em>, <em>rescale=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.simulated_pdata_iter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">simulated_pdata_iter</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">dataset</em>, <em class="sig-param">p_exact=None</em>, <em class="sig-param">rescale=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.CorrFitter.simulated_pdata_iter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create iterator that returns simulated fit pdata from <code class="docutils literal notranslate"><span class="pre">dataset</span></code>.</p>
 <p>Simulated fit data has the same covariance matrix as
 <code class="docutils literal notranslate"><span class="pre">pdata=self.process_dataset(dataset)</span></code>, but mean values that
@@ -759,29 +721,25 @@ Typical usage is as follows:</p>
     <span class="o">...</span> <span class="k">with</span> <span class="n">p_exact</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">pmean</span> <span class="n">to</span> <span class="n">within</span> <span class="n">sfit</span><span class="o">.</span><span class="n">p</span><span class="s1">&#39;s errors      ...</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n</strong> (<em>int</em>) – Maximum number of simulated data sets made by iterator.</li>
-<li><strong>dataset</strong> (<em>dictionary</em>) – Dataset containing Monte Carlo copies of
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Maximum number of simulated data sets made by iterator.</p></li>
+<li><p><strong>dataset</strong> (<em>dictionary</em>) – Dataset containing Monte Carlo copies of
 the correlators. <code class="docutils literal notranslate"><span class="pre">dataset[datatag]</span></code> is a two-dimensional
 array for the correlator corresponding to <code class="docutils literal notranslate"><span class="pre">datatag</span></code>,
 where the first index labels the Monte Carlo copy
-and the second index labels time.</li>
-<li><strong>p_exact</strong> (dictionary or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Correct parameter values for
+and the second index labels time.</p></li>
+<li><p><strong>p_exact</strong> (dictionary or <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Correct parameter values for
 fits to the simulated data — fit results should agree
 with <code class="docutils literal notranslate"><span class="pre">p_exact</span></code> to within errors. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses
-<code class="docutils literal notranslate"><span class="pre">self.fit.pmean</span></code> from the last fit.</li>
-<li><strong>rescale</strong> (<em>float</em>) – Rescale errors in simulated data by <code class="docutils literal notranslate"><span class="pre">rescale</span></code>
+<code class="docutils literal notranslate"><span class="pre">self.fit.pmean</span></code> from the last fit.</p></li>
+<li><p><strong>rescale</strong> (<em>float</em>) – Rescale errors in simulated data by <code class="docutils literal notranslate"><span class="pre">rescale</span></code>
 (<em>i.e.</em>, multiply covariance matrix by <code class="docutils literal notranslate"><span class="pre">rescale</span> <span class="pre">**</span> <span class="pre">2</span></code>).
-Default is one, which implies no rescaling.</li>
+Default is one, which implies no rescaling.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -796,25 +754,25 @@ It may change in the near future, as experience
 accumulates from its use.</p>
 <dl class="class">
 <dt id="corrfitter.EigenBasis">
-<em class="property">class </em><code class="descclassname">corrfitter.</code><code class="descname">EigenBasis</code><span class="sig-paren">(</span><em>data</em>, <em>srcs</em>, <em>t</em>, <em>keyfmt='{s1}.{s2}'</em>, <em>tdata=None</em>, <em>osc=False</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">corrfitter.</code><code class="sig-name descname">EigenBasis</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">srcs</em>, <em class="sig-param">t</em>, <em class="sig-param">keyfmt='{s1}.{s2}'</em>, <em class="sig-param">tdata=None</em>, <em class="sig-param">osc=False</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Eigen-basis of correlator sources/sinks.</p>
-<p>Given <img class="math" src="_images/math/5bb69647d7bd1889219c5b6df1c84e698dc2e9cc.svg" alt="N"/> sources/sinks and the <img class="math" src="_images/math/338323ed4f4fbb758300f93609944c4d9b9a1ace.svg" alt="N \times N"/>
-matrix <img class="math" src="_images/math/e4e6afd477915cbbb917f6465a282fc55b5899e2.svg" alt="G_{ij}(t)"/> of 2-point correlators created from every
+<p>Given <img class="math" src="_images/math/bc507cdb5b3ecbd3916d3e9ba31c409a8e530e13.svg" alt="N" style="vertical-align: 0px"/> sources/sinks and the <img class="math" src="_images/math/3750be4bc2465cc50b6d8a125f3ad0ed46ef573e.svg" alt="N \times N" style="vertical-align: -1px"/>
+matrix <img class="math" src="_images/math/c28e18b27a579a4321783e78dfab9caa7ea28fa1.svg" alt="G_{ij}(t)" style="vertical-align: -5px"/> of 2-point correlators created from every
 combination of source and sink, we can define a new basis
 of sources that makes the matrix correlator approximately
 diagonal. Each source in the new basis is associated with
-an eigenvector <img class="math" src="_images/math/ea60b3633de4abcae6b43f16d0924e2b2c283449.svg" alt="v^{(a)}"/> defined by the matrix equation</p>
+an eigenvector <img class="math" src="_images/math/d1096bd7b480136223a484d7df2b430d064335b7.svg" alt="v^{(a)}" style="vertical-align: 0px"/> defined by the matrix equation</p>
 <div class="math">
-<p><img src="_images/math/ff2fd5fa7ae6b6695a45e0794e8f8cdb6e7aa4b7.svg" alt="G(t_1) v^{(a)} = \lambda^{(a)}(t_1-t_0) G(t_0) v^{(a)},"/></p>
-</div><p>for some <img class="math" src="_images/math/88db33fa1c91c63a2b58c16b751178f452c42995.svg" alt="t_0, t_1"/>. As <img class="math" src="_images/math/88db33fa1c91c63a2b58c16b751178f452c42995.svg" alt="t_0, t_1"/> increase, fewer
-and fewer states couple to <img class="math" src="_images/math/c74d6a03908f9629e4454dddd23c951c47cfff14.svg" alt="G(t)"/>. In the limit where
-only <img class="math" src="_images/math/5bb69647d7bd1889219c5b6df1c84e698dc2e9cc.svg" alt="N"/> states couple, the correlator</p>
+<p><img src="_images/math/40e958d182f2b94e4e01248fbd317dc6e2609dfb.svg" alt="G(t_1) v^{(a)} = \lambda^{(a)}(t_1-t_0) G(t_0) v^{(a)},"/></p>
+</div><p>for some <img class="math" src="_images/math/85be51820a52f8744f71ceede2b479e257af0a81.svg" alt="t_0, t_1" style="vertical-align: -3px"/>. As <img class="math" src="_images/math/85be51820a52f8744f71ceede2b479e257af0a81.svg" alt="t_0, t_1" style="vertical-align: -3px"/> increase, fewer
+and fewer states couple to <img class="math" src="_images/math/8592fc7c86e6b328d8d4fbb3a7a72df91fbec4a7.svg" alt="G(t)" style="vertical-align: -3px"/>. In the limit where
+only <img class="math" src="_images/math/bc507cdb5b3ecbd3916d3e9ba31c409a8e530e13.svg" alt="N" style="vertical-align: 0px"/> states couple, the correlator</p>
 <div class="math">
-<p><img src="_images/math/00a4201b32966eaa3308b44dd3e76e8a5febb884.svg" alt="\overline{G}_{ab}(t) \equiv v^{(a)T} G(t) v^{(b)}"/></p>
+<p><img src="_images/math/b3faa75e11ef7144726d316536ec357a60e5dcc3.svg" alt="\overline{G}_{ab}(t) \equiv v^{(a)T} G(t) v^{(b)}"/></p>
 </div><p>becomes diagonal, and each diagonal element couples to
 only a single state.</p>
 <p>In practice, this condition is only approximate: that is,
-<img class="math" src="_images/math/2cfdf4ab58a1cfaf6759938bd62a60821a6fb661.svg" alt="\overline G(t)"/>  is approximately diagonal, with diagonal elements
+<img class="math" src="_images/math/86c5554b707a76e8f6ccfa04f96344f8937a8568.svg" alt="\overline G(t)" style="vertical-align: -2px"/>  is approximately diagonal, with diagonal elements
 that overlap strongly with the lowest lying states, but
 somewhat with other states. These new sources are nevertheless useful
 for fits because there is an obvious prior for their amplitudes: <code class="docutils literal notranslate"><span class="pre">prior[a][b]</span></code>
@@ -823,7 +781,7 @@ when <code class="docutils literal notranslate"><span class="pre">b!=a</span></c
 <p>Such a prior can significantly enhance the stability of a multi-source fit,
 making it easier to extract reliable results for excited states.
 It encodes the fact that only a small number of states couple strongly
-to <img class="math" src="_images/math/c74d6a03908f9629e4454dddd23c951c47cfff14.svg" alt="G(t)"/> by time <img class="math" src="_images/math/31611d4c08a497f622d22c8132ae0b292f57958b.svg" alt="t_0"/>, without being overly
+to <img class="math" src="_images/math/8592fc7c86e6b328d8d4fbb3a7a72df91fbec4a7.svg" alt="G(t)" style="vertical-align: -3px"/> by time <img class="math" src="_images/math/9641c4bddca79a7c8fcf9b8be811a6fc142ca907.svg" alt="t_0" style="vertical-align: -3px"/>, without being overly
 prescriptive about what their energies are. We can easilty project our
 correlator onto the new eigen-basis (using <a class="reference internal" href="#corrfitter.EigenBasis.apply" title="corrfitter.EigenBasis.apply"><code class="xref py py-func docutils literal notranslate"><span class="pre">EigenBasis.apply()</span></code></a>)
 in order to use this prior, but this is unnecessary.
@@ -848,8 +806,8 @@ to the original sources.</p>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">data</span></code> is a dictionary containing all the correlators. Parameter
-<code class="docutils literal notranslate"><span class="pre">t</span></code> specifies the times used for the diagonalization: <img class="math" src="_images/math/c0276319c9d5547dc4ede6ab06f2ef2c7d4128a5.svg" alt="t_0=5"/>
-and <img class="math" src="_images/math/412d89d8d0fe2ad6acdf8303ebe701c0a6530388.svg" alt="t_1=7"/>. Parameter <code class="docutils literal notranslate"><span class="pre">nterm</span></code> specifies the number of terms
+<code class="docutils literal notranslate"><span class="pre">t</span></code> specifies the times used for the diagonalization: <img class="math" src="_images/math/b2e3d699d79d9cdffdfc4b1559abc638c4d3305e.svg" alt="t_0=5" style="vertical-align: -3px"/>
+and <img class="math" src="_images/math/7e7a4f2eff5a4a74563bfbe1c1a9a6a04d263e44.svg" alt="t_1=7" style="vertical-align: -2px"/>. Parameter <code class="docutils literal notranslate"><span class="pre">nterm</span></code> specifies the number of terms
 in the fit. <code class="docutils literal notranslate"><span class="pre">basis.make_prior(...)</span></code> creates priors
 <code class="docutils literal notranslate"><span class="pre">prior['m.local']</span></code> and <code class="docutils literal notranslate"><span class="pre">prior['m.smeared']</span></code>
 for the amplitudes corresponding to the local and smeared source,
@@ -889,23 +847,21 @@ for the original sources:</p>
 </pre></div>
 </div>
 <p><a class="reference internal" href="#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.EigenBasis</span></code></a> requires the scipy library in Python.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> – Dictionary containing the matrix correlator
-using the original basis of sources and sinks.</li>
-<li><strong>keyfmt</strong> – Format string used to generate the keys
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – Dictionary containing the matrix correlator
+using the original basis of sources and sinks.</p></li>
+<li><p><strong>keyfmt</strong> – Format string used to generate the keys
 in dictionary <code class="docutils literal notranslate"><span class="pre">data</span></code> corresponding to different
 components of the matrix of correlators. The
-key for <img class="math" src="_images/math/73a91fae0f84c471244326900c17fe045aba0260.svg" alt="G_{ij}"/> is assumed to be
+key for <img class="math" src="_images/math/810647e7e6de9ba76ee78f09e2e8b03df58776fd.svg" alt="G_{ij}" style="vertical-align: -5px"/> is assumed to be
 <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=i,</span> <span class="pre">s2=j)</span></code> where <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">j</span></code>
-are drawn from the list of sources, <code class="docutils literal notranslate"><span class="pre">srcs</span></code>.</li>
-<li><strong>srcs</strong> – List of source names used with <code class="docutils literal notranslate"><span class="pre">keyfmt</span></code>
+are drawn from the list of sources, <code class="docutils literal notranslate"><span class="pre">srcs</span></code>.</p></li>
+<li><p><strong>srcs</strong> – List of source names used with <code class="docutils literal notranslate"><span class="pre">keyfmt</span></code>
 to create the keys for finding correlator
-components <img class="math" src="_images/math/73a91fae0f84c471244326900c17fe045aba0260.svg" alt="G_{ij}"/> in the data dictionary.</li>
-<li><strong>t</strong> – <code class="docutils literal notranslate"><span class="pre">t=(t0,</span> <span class="pre">t1)</span></code> specifies the <code class="docutils literal notranslate"><span class="pre">t</span></code> values
+components <img class="math" src="_images/math/810647e7e6de9ba76ee78f09e2e8b03df58776fd.svg" alt="G_{ij}" style="vertical-align: -5px"/> in the data dictionary.</p></li>
+<li><p><strong>t</strong> – <code class="docutils literal notranslate"><span class="pre">t=(t0,</span> <span class="pre">t1)</span></code> specifies the <code class="docutils literal notranslate"><span class="pre">t</span></code> values
 used to diagonalize the correlation function.
 Larger <code class="docutils literal notranslate"><span class="pre">t</span></code> values are better than smaller ones,
 but only if the statistics are adequate.
@@ -914,16 +870,14 @@ components, choose <code class="docutils literal notranslate"><span class="pre">
 the oscillating pieces are positive (typically odd <code class="docutils literal notranslate"><span class="pre">t</span></code>).
 If only one <code class="docutils literal notranslate"><span class="pre">t</span></code> is given, <code class="docutils literal notranslate"><span class="pre">t=t0</span></code>, then <code class="docutils literal notranslate"><span class="pre">t1=t0+2</span></code>
 is used with it. Fits that use <a class="reference internal" href="#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.EigenBasis</span></code></a> typically
-depend only weakly on the choice of <code class="docutils literal notranslate"><span class="pre">t</span></code>.</li>
-<li><strong>tdata</strong> – Array containing the times for which there is
+depend only weakly on the choice of <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p></li>
+<li><p><strong>tdata</strong> – Array containing the times for which there is
 correlator data. <code class="docutils literal notranslate"><span class="pre">tdata</span></code> is set equal to
 <code class="docutils literal notranslate"><span class="pre">numpy.arange(len(G_ij))</span></code> if it is not specified
-(or equals <code class="docutils literal notranslate"><span class="pre">None</span></code>).</li>
+(or equals <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>The interface for <a class="reference internal" href="#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">EigenBasis</span></code></a> is experimental.
 It may change in the near future, as experience
 accumulates from its use.</p>
@@ -931,40 +885,40 @@ accumulates from its use.</p>
 the main attributes are:</p>
 <dl class="attribute">
 <dt id="corrfitter.EigenBasis.E">
-<code class="descname">E</code><a class="headerlink" href="#corrfitter.EigenBasis.E" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">E</code><a class="headerlink" href="#corrfitter.EigenBasis.E" title="Permalink to this definition">¶</a></dt>
 <dd><p>Array of approximate energies obtained from the eigenanalysis.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="corrfitter.EigenBasis.eig_srcs">
-<code class="descname">eig_srcs</code><a class="headerlink" href="#corrfitter.EigenBasis.eig_srcs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">eig_srcs</code><a class="headerlink" href="#corrfitter.EigenBasis.eig_srcs" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of labels for the sources in the eigen-basis: <code class="docutils literal notranslate"><span class="pre">'0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'1'</span></code> …</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="corrfitter.EigenBasis.svdcorrection">
-<code class="descname">svdcorrection</code><a class="headerlink" href="#corrfitter.EigenBasis.svdcorrection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">svdcorrection</code><a class="headerlink" href="#corrfitter.EigenBasis.svdcorrection" title="Permalink to this definition">¶</a></dt>
 <dd><p>The sum of the SVD corrections added to the data by the last call
 to <a class="reference internal" href="#corrfitter.EigenBasis.svd" title="corrfitter.EigenBasis.svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">EigenBasis.svd()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="corrfitter.EigenBasis.svdn">
-<code class="descname">svdn</code><a class="headerlink" href="#corrfitter.EigenBasis.svdn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">svdn</code><a class="headerlink" href="#corrfitter.EigenBasis.svdn" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of degrees of freedom modified by the SVD correction
 in the last call to <a class="reference internal" href="#corrfitter.EigenBasis.svd" title="corrfitter.EigenBasis.svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">EigenBasis.svd()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="corrfitter.EigenBasis.v">
-<code class="descname">v</code><a class="headerlink" href="#corrfitter.EigenBasis.v" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">v</code><a class="headerlink" href="#corrfitter.EigenBasis.v" title="Permalink to this definition">¶</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">v[a]</span></code> is the eigenvector corresponding to source <code class="docutils literal notranslate"><span class="pre">a</span></code>
 in the new basis, where <code class="docutils literal notranslate"><span class="pre">a=0,1...</span></code>.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="corrfitter.EigenBasis.v_inv">
-<code class="descname">v_inv</code><a class="headerlink" href="#corrfitter.EigenBasis.v_inv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">v_inv</code><a class="headerlink" href="#corrfitter.EigenBasis.v_inv" title="Permalink to this definition">¶</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">v_inv[i]</span></code> is the inverse-eigenvector for transforming from the
 new basis back to the original basis.</p>
 </dd></dl>
@@ -972,7 +926,7 @@ new basis back to the original basis.</p>
 <p>The main methods are:</p>
 <dl class="method">
 <dt id="corrfitter.EigenBasis.apply">
-<code class="descname">apply</code><span class="sig-paren">(</span><em>data</em>, <em>keyfmt='{s1}'</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.apply" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">keyfmt='{s1}'</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.apply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform <code class="docutils literal notranslate"><span class="pre">data</span></code> to the eigen-basis.</p>
 <p>The data to be transformed is <code class="docutils literal notranslate"><span class="pre">data[k]</span></code> where key <code class="docutils literal notranslate"><span class="pre">k</span></code>
 equals <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=s1)</span></code> for vector data,
@@ -990,15 +944,13 @@ in both two-point and three-point correlators).</p>
 
 <dl class="method">
 <dt id="corrfitter.EigenBasis.make_prior">
-<code class="descname">make_prior</code><span class="sig-paren">(</span><em>nterm</em>, <em>keyfmt='{s1}'</em>, <em>dEfac='1(1)'</em>, <em>ampl=('1.0(3)'</em>, <em>'0.03(10)'</em>, <em>'0.2(1.0)')</em>, <em>states=None</em>, <em>eig_srcs=False</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.make_prior" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_prior</code><span class="sig-paren">(</span><em class="sig-param">nterm</em>, <em class="sig-param">keyfmt='{s1}'</em>, <em class="sig-param">dEfac='1(1)'</em>, <em class="sig-param">ampl=('1.0(3)'</em>, <em class="sig-param">'0.03(10)'</em>, <em class="sig-param">'0.2(1.0)')</em>, <em class="sig-param">states=None</em>, <em class="sig-param">eig_srcs=False</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.make_prior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create prior from eigen-basis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>nterm</strong> (<em>int</em>) – Number of terms in fit function.</li>
-<li><strong>keyfmt</strong> (<em>str</em>) – Format string usded to generate keys for
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nterm</strong> (<em>int</em>) – Number of terms in fit function.</p></li>
+<li><p><strong>keyfmt</strong> (<em>str</em>) – Format string usded to generate keys for
 amplitudes and energies in the prior (a dictionary):
 keys are obtained from <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=a)</span></code> where
 <code class="docutils literal notranslate"><span class="pre">a</span></code> is one of the original sources, <code class="docutils literal notranslate"><span class="pre">self.srcs</span></code>,
@@ -1006,8 +958,8 @@ if <code class="docutils literal notranslate"><span class="pre">eig_srcs=False</
 eigen-sources, <code class="docutils literal notranslate"><span class="pre">self.eig_srcs</span></code>, if <code class="docutils literal notranslate"><span class="pre">eig_srcs=True</span></code>.
 The key for the energy differences is generated by
 <code class="docutils literal notranslate"><span class="pre">'log({})'.format(keyfmt.format(s1='dE'))</span></code>. The default
-is <code class="docutils literal notranslate"><span class="pre">keyfmt={s1}</span></code>.</li>
-<li><strong>dEfac</strong> (str or <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>) – A string or <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>
+is <code class="docutils literal notranslate"><span class="pre">keyfmt={s1}</span></code>.</p></li>
+<li><p><strong>dEfac</strong> (str or <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>) – A string or <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>
 from which the priors for energy differences <code class="docutils literal notranslate"><span class="pre">dE[i]</span></code> are
 constructed. The mean value for <code class="docutils literal notranslate"><span class="pre">dE[0]</span></code> is set equal to the
 lowest energy obtained from the diagonalization. The mean
@@ -1017,8 +969,8 @@ diagonalization (or to the lowest energy if there is only
 one). These central values are then multiplied by
 <code class="docutils literal notranslate"><span class="pre">gvar.gvar(dEfac)</span></code>. The default value, <cite>1(1)</cite>, sets the
 width equal to the mean value. The prior is the logarithm of
-the resulting values.</li>
-<li><strong>ampl</strong> (<em>tuple</em>) – A 3-tuple of strings or <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>s from
+the resulting values.</p></li>
+<li><p><strong>ampl</strong> (<em>tuple</em>) – A 3-tuple of strings or <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>s from
 which priors are contructed for amplitudes corresponding to
 the eigen-sources. <code class="docutils literal notranslate"><span class="pre">gvar.gvar(ampl[0])</span></code> is used for
 for source components where the overlap with a particular
@@ -1027,8 +979,8 @@ state is expected to be large; <code class="docutils literal notranslate"><span 
 to have little overlap with the source; <code class="docutils literal notranslate"><span class="pre">0.03(10)</span></code> is
 the default value. <code class="docutils literal notranslate"><span class="pre">gvar.gvar(ampl[2])</span></code> is used where
 there is nothing known about the overlap of a state with
-the source; <code class="docutils literal notranslate"><span class="pre">0(1)</span></code> is the default value.</li>
-<li><strong>states</strong> (<em>list</em>) – A list of the states in the correlator corresponding
+the source; <code class="docutils literal notranslate"><span class="pre">0(1)</span></code> is the default value.</p></li>
+<li><p><strong>states</strong> (<em>list</em>) – A list of the states in the correlator corresponding
 to successive eigen-sources, where <code class="docutils literal notranslate"><span class="pre">states[i]</span></code> is the state
 corresponding to <code class="docutils literal notranslate"><span class="pre">i</span></code>-th source. The correspondence between
 sources and states is strong for the first sources, but
@@ -1045,20 +997,18 @@ actual states: for example, <code class="docutils literal notranslate"><span cla
 eigen-sources with the first, second and fourth states in the
 correlator. The default value, <code class="docutils literal notranslate"><span class="pre">states=[0,</span> <span class="pre">1</span> <span class="pre">...</span> <span class="pre">N-1]</span></code> where
 <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of sources, assumes that sources
-and states are aligned.</li>
-<li><strong>eig_srcs</strong> (<em>bool</em>) – Amplitudes for the eigen-sources are
+and states are aligned.</p></li>
+<li><p><strong>eig_srcs</strong> (<em>bool</em>) – Amplitudes for the eigen-sources are
 tabulated if <code class="docutils literal notranslate"><span class="pre">eig_srcs=True</span></code>; otherwise amplitudes
-for the original basis of sources are tabulated (default).</li>
+for the original basis of sources are tabulated (default).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.EigenBasis.svd">
-<code class="descname">svd</code><span class="sig-paren">(</span><em>data</em>, <em>keyfmt=None</em>, <em>svdcut=1e-15</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.svd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">svd</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">keyfmt=None</em>, <em class="sig-param">svdcut=1e-15</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.svd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply SVD cut to data in the eigen-basis.</p>
 <p>The SVD cut is applied to <code class="docutils literal notranslate"><span class="pre">data[k]</span></code> where key <code class="docutils literal notranslate"><span class="pre">k</span></code>
 equals <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=s1)</span></code> for vector data,
@@ -1076,7 +1026,7 @@ format. The defaul value for <code class="docutils literal notranslate"><span cl
 
 <dl class="method">
 <dt id="corrfitter.EigenBasis.tabulate">
-<code class="descname">tabulate</code><span class="sig-paren">(</span><em>p</em>, <em>keyfmt='{s1}'</em>, <em>nterm=None</em>, <em>nsrcs=None</em>, <em>eig_srcs=False</em>, <em>indent='    '</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.tabulate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">tabulate</code><span class="sig-paren">(</span><em class="sig-param">p</em>, <em class="sig-param">keyfmt='{s1}'</em>, <em class="sig-param">nterm=None</em>, <em class="sig-param">nsrcs=None</em>, <em class="sig-param">eig_srcs=False</em>, <em class="sig-param">indent='    '</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.tabulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create table containing energies and amplitudes for <code class="docutils literal notranslate"><span class="pre">nterm</span></code> states.</p>
 <p>Given a correlator-fit result <code class="docutils literal notranslate"><span class="pre">fit</span></code> and a corresponding
 <a class="reference internal" href="#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">EigenBasis</span></code></a> object <code class="docutils literal notranslate"><span class="pre">basis</span></code>, a table listing the energies
@@ -1090,37 +1040,33 @@ using</p>
 original sources unless parameter <code class="docutils literal notranslate"><span class="pre">eig_srcs=True</span></code>, in which
 case the amplitudes are projected onto the the eigen-basis
 defined by <code class="docutils literal notranslate"><span class="pre">basis</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>p</strong> – Dictionary containing parameters values.</li>
-<li><strong>keyfmt</strong> – Parameters are <code class="docutils literal notranslate"><span class="pre">p[k]</span></code> where keys <code class="docutils literal notranslate"><span class="pre">k</span></code> are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> – Dictionary containing parameters values.</p></li>
+<li><p><strong>keyfmt</strong> – Parameters are <code class="docutils literal notranslate"><span class="pre">p[k]</span></code> where keys <code class="docutils literal notranslate"><span class="pre">k</span></code> are
 obtained from <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=s)</span></code> where <code class="docutils literal notranslate"><span class="pre">s</span></code> is one
 of the original sources (<code class="docutils literal notranslate"><span class="pre">basis.srcs</span></code>) or one of the
 eigen-sources (<code class="docutils literal notranslate"><span class="pre">basis.eig_srcs</span></code>). The
-default definition is <code class="docutils literal notranslate"><span class="pre">'{s1}'</span></code>.</li>
-<li><strong>nterm</strong> – The number of states from the fit  tabulated.
+default definition is <code class="docutils literal notranslate"><span class="pre">'{s1}'</span></code>.</p></li>
+<li><p><strong>nterm</strong> – The number of states from the fit  tabulated.
 The default sets <code class="docutils literal notranslate"><span class="pre">nterm</span></code> equal to the number of
-sources in the basis.</li>
-<li><strong>nsrcs</strong> – The number of sources tabulated. The default
-causes all sources to be tabulated.</li>
-<li><strong>eig_srcs</strong> – Amplitudes for the eigen-sources are
+sources in the basis.</p></li>
+<li><p><strong>nsrcs</strong> – The number of sources tabulated. The default
+causes all sources to be tabulated.</p></li>
+<li><p><strong>eig_srcs</strong> – Amplitudes for the eigen-sources are
 tabulated if <code class="docutils literal notranslate"><span class="pre">eig_srcs=True</span></code>; otherwise amplitudes
-for the original basis of sources are tabulated (default).</li>
-<li><strong>indent</strong> – A string prepended to each line of the table.
-Default is <code class="docutils literal notranslate"><span class="pre">4</span> <span class="pre">*</span> <span class="pre">'</span> <span class="pre">'</span></code>.</li>
+for the original basis of sources are tabulated (default).</p></li>
+<li><p><strong>indent</strong> – A string prepended to each line of the table.
+Default is <code class="docutils literal notranslate"><span class="pre">4</span> <span class="pre">*</span> <span class="pre">'</span> <span class="pre">'</span></code>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="corrfitter.EigenBasis.unapply">
-<code class="descname">unapply</code><span class="sig-paren">(</span><em>data</em>, <em>keyfmt='{s1}'</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.unapply" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unapply</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">keyfmt='{s1}'</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.unapply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform <code class="docutils literal notranslate"><span class="pre">data</span></code> from the eigen-basis to the original basis.</p>
 <p>The data to be transformed is <code class="docutils literal notranslate"><span class="pre">data[k]</span></code> where key <code class="docutils literal notranslate"><span class="pre">k</span></code>
 equals <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=s1)</span></code> for vector data,
@@ -1142,7 +1088,7 @@ in both two-point and three-point correlators).</p>
 <h2>Fast Fit Objects<a class="headerlink" href="#fast-fit-objects" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="corrfitter.fastfit">
-<em class="property">class </em><code class="descclassname">corrfitter.</code><code class="descname">fastfit</code><span class="sig-paren">(</span><em>G</em>, <em>ampl='0(1)'</em>, <em>dE='1(1)'</em>, <em>E=None</em>, <em>s=(1</em>, <em>-1)</em>, <em>tp=None</em>, <em>tmin=6</em>, <em>svdcut=1e-06</em>, <em>osc=False</em>, <em>nterm=10</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.fastfit" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">corrfitter.</code><code class="sig-name descname">fastfit</code><span class="sig-paren">(</span><em class="sig-param">G</em>, <em class="sig-param">ampl='0(1)'</em>, <em class="sig-param">dE='1(1)'</em>, <em class="sig-param">E=None</em>, <em class="sig-param">s=(1</em>, <em class="sig-param">-1)</em>, <em class="sig-param">tp=None</em>, <em class="sig-param">tmin=6</em>, <em class="sig-param">svdcut=1e-06</em>, <em class="sig-param">osc=False</em>, <em class="sig-param">nterm=10</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.fastfit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fast fit of a two-point correlator.</p>
 <p>This function class estimates <code class="docutils literal notranslate"><span class="pre">E=En[0]</span></code> and <code class="docutils literal notranslate"><span class="pre">ampl=an[0]*bn[0]</span></code>
 for a two-point correlator modeled by</p>
@@ -1214,21 +1160,19 @@ the energy and the amplitude using</p>
 such cases the priors should be adjusted, and/or <code class="docutils literal notranslate"><span class="pre">tmin</span></code> increased,
 and/or an SVD cut introduced. The averages in the example above
 have good values for <code class="docutils literal notranslate"><span class="pre">chi2/dof</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>G</strong> – An array of <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>s containing the two-point correlator. <code class="docutils literal notranslate"><span class="pre">G[j]</span></code>
-is assumed to correspond to time <code class="docutils literal notranslate"><span class="pre">t=j</span></code>, where <code class="docutils literal notranslate"><span class="pre">j=0...</span></code>.</li>
-<li><strong>ampl</strong> – A <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code> or its string representation giving an estimate for
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>G</strong> – An array of <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>s containing the two-point correlator. <code class="docutils literal notranslate"><span class="pre">G[j]</span></code>
+is assumed to correspond to time <code class="docutils literal notranslate"><span class="pre">t=j</span></code>, where <code class="docutils literal notranslate"><span class="pre">j=0...</span></code>.</p></li>
+<li><p><strong>ampl</strong> – A <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code> or its string representation giving an estimate for
 the amplitudes of the ground state and the excited states.  Use
 <code class="docutils literal notranslate"><span class="pre">ampl=(ampln,</span> <span class="pre">amplo)</span></code> when the  correlator contains oscillating
 states; <code class="docutils literal notranslate"><span class="pre">ampln</span></code> is the  estimate for non-oscillating states, and
 <code class="docutils literal notranslate"><span class="pre">amplo</span></code> for  oscillating states; setting one or the other to
 <code class="docutils literal notranslate"><span class="pre">None</span></code>  causes the corresponding terms to be dropped.  Default
-value is <code class="docutils literal notranslate"><span class="pre">'0(1)'</span></code>.</li>
-<li><strong>dE</strong> – A <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code> or its string representation giving an estimate for the
+value is <code class="docutils literal notranslate"><span class="pre">'0(1)'</span></code>.</p></li>
+<li><p><strong>dE</strong> – A <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code> or its string representation giving an estimate for the
 energy separation between successive states. This estimate is
 also used to provide an estimate for the lowest energy
 when parameter <code class="docutils literal notranslate"><span class="pre">E</span></code> is not specified. Use  <code class="docutils literal notranslate"><span class="pre">dE=(dEn,</span> <span class="pre">dEo)</span></code>
@@ -1236,34 +1180,32 @@ when the correlator contains oscillating states: <code class="docutils literal n
 estimate for non-oscillating states, and <code class="docutils literal notranslate"><span class="pre">dEo</span></code> for
 oscillating states; setting one or the other to <code class="docutils literal notranslate"><span class="pre">None</span></code>
 causes the corresponding terms to be dropped.
-Default value is <code class="docutils literal notranslate"><span class="pre">'1(1)'</span></code>.</li>
-<li><strong>E</strong> – A <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code> or its string representation giving an estimate for the
+Default value is <code class="docutils literal notranslate"><span class="pre">'1(1)'</span></code>.</p></li>
+<li><p><strong>E</strong> – A <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code> or its string representation giving an estimate for the
 energy of the lowest-lying state. Use  <code class="docutils literal notranslate"><span class="pre">E=(En,</span> <span class="pre">Eo)</span></code>
 when the correlator contains oscillating states: <code class="docutils literal notranslate"><span class="pre">En</span></code> is the
 estimate for the lowest non-oscillating state, and <code class="docutils literal notranslate"><span class="pre">Eo</span></code> for
 lowest oscillating state. Setting <code class="docutils literal notranslate"><span class="pre">E=None</span></code> causes
-<code class="docutils literal notranslate"><span class="pre">E</span></code> to be set equal to <code class="docutils literal notranslate"><span class="pre">dE</span></code>. Default value is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
-<li><strong>s</strong> – A tuple containing overall factors <code class="docutils literal notranslate"><span class="pre">(sn,</span> <span class="pre">so)</span></code> multiplying
+<code class="docutils literal notranslate"><span class="pre">E</span></code> to be set equal to <code class="docutils literal notranslate"><span class="pre">dE</span></code>. Default value is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>s</strong> – A tuple containing overall factors <code class="docutils literal notranslate"><span class="pre">(sn,</span> <span class="pre">so)</span></code> multiplying
 contributions from the normal and oscillating states.
-Default is <code class="docutils literal notranslate"><span class="pre">(1,-1)</span></code>.</li>
-<li><strong>tp</strong> (<em>int</em><em> or </em><em>None</em>) – When not <code class="docutils literal notranslate"><span class="pre">None</span></code>, the correlator is periodic
+Default is <code class="docutils literal notranslate"><span class="pre">(1,-1)</span></code>.</p></li>
+<li><p><strong>tp</strong> (<em>int</em><em> or </em><em>None</em>) – When not <code class="docutils literal notranslate"><span class="pre">None</span></code>, the correlator is periodic
 with period <code class="docutils literal notranslate"><span class="pre">tp</span></code> when <code class="docutils literal notranslate"><span class="pre">tp&gt;0</span></code>, or anti-periodic with
 period <code class="docutils literal notranslate"><span class="pre">-tp</span></code> when <code class="docutils literal notranslate"><span class="pre">tp&lt;0</span></code>. Setting <code class="docutils literal notranslate"><span class="pre">tp=None</span></code> implies
 that the correlator is neither periodic nor anti-periodic.
-Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
-<li><strong>tmin</strong> (<em>int</em>) – Only <code class="docutils literal notranslate"><span class="pre">G(t)</span></code> with <code class="docutils literal notranslate"><span class="pre">t</span> <span class="pre">&gt;=</span> <span class="pre">tmin</span></code> are used. Default
-value is <code class="docutils literal notranslate"><span class="pre">6</span></code>.</li>
-<li><strong>svdcut</strong> (<em>float</em><em> or </em><em>None</em>) – SVD cut used in the weighted average
+Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>tmin</strong> (<em>int</em>) – Only <code class="docutils literal notranslate"><span class="pre">G(t)</span></code> with <code class="docutils literal notranslate"><span class="pre">t</span> <span class="pre">&gt;=</span> <span class="pre">tmin</span></code> are used. Default
+value is <code class="docutils literal notranslate"><span class="pre">6</span></code>.</p></li>
+<li><p><strong>svdcut</strong> (<em>float</em><em> or </em><em>None</em>) – SVD cut used in the weighted average
 of results from different times. (See the
 <a class="reference internal" href="#corrfitter.CorrFitter" title="corrfitter.CorrFitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.CorrFitter</span></code></a> documentation for a discussion
-of SVD cuts.) Default is <code class="docutils literal notranslate"><span class="pre">1e-6</span></code>.</li>
-<li><strong>osc</strong> (<em>bool</em>) – Set <code class="docutils literal notranslate"><span class="pre">osc=True</span></code> if the lowest-lying state is an
-oscillating state. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</li>
+of SVD cuts.) Default is <code class="docutils literal notranslate"><span class="pre">1e-6</span></code>.</p></li>
+<li><p><strong>osc</strong> (<em>bool</em>) – Set <code class="docutils literal notranslate"><span class="pre">osc=True</span></code> if the lowest-lying state is an
+oscillating state. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>Note that specifying a single <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code> <code class="docutils literal notranslate"><span class="pre">g</span></code> (as opposed to a tuple) for any
 of parameters  <code class="docutils literal notranslate"><span class="pre">ampl</span></code>, <code class="docutils literal notranslate"><span class="pre">dE</span></code>, or <code class="docutils literal notranslate"><span class="pre">E</span></code> is equivalent to specifying the
 tuple  <code class="docutils literal notranslate"><span class="pre">(g,</span> <span class="pre">None)</span></code> when <code class="docutils literal notranslate"><span class="pre">osc=False</span></code>, or the tuple <code class="docutils literal notranslate"><span class="pre">(None,</span> <span class="pre">g)</span></code> when
@@ -1271,13 +1213,13 @@ tuple  <code class="docutils literal notranslate"><span class="pre">(g,</span> <
 <p><a class="reference internal" href="#corrfitter.fastfit" title="corrfitter.fastfit"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.fastfit</span></code></a> objects have the following attributes:</p>
 <dl class="attribute">
 <dt id="corrfitter.fastfit.E">
-<code class="descname">E</code><a class="headerlink" href="#corrfitter.fastfit.E" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">E</code><a class="headerlink" href="#corrfitter.fastfit.E" title="Permalink to this definition">¶</a></dt>
 <dd><p>Energy of the lowest-lying state (<code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="corrfitter.fastfit.ampl">
-<code class="descname">ampl</code><a class="headerlink" href="#corrfitter.fastfit.ampl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ampl</code><a class="headerlink" href="#corrfitter.fastfit.ampl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Amplitude of the lowest-lying state (<code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>).</p>
 </dd></dl>
 
@@ -1288,20 +1230,20 @@ is measured by the chi-squared of the average. Each of <code class="docutils lit
 has the following extra attributes:</p>
 <dl class="attribute">
 <dt id="corrfitter.fastfit.chi2">
-<code class="descname">chi2</code><a class="headerlink" href="#corrfitter.fastfit.chi2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">chi2</code><a class="headerlink" href="#corrfitter.fastfit.chi2" title="Permalink to this definition">¶</a></dt>
 <dd><p>chi-squared for the weighted average.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="corrfitter.fastfit.dof">
-<code class="descname">dof</code><a class="headerlink" href="#corrfitter.fastfit.dof" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dof</code><a class="headerlink" href="#corrfitter.fastfit.dof" title="Permalink to this definition">¶</a></dt>
 <dd><p>The effective number of degrees of freedom in the weighted
 average.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="corrfitter.fastfit.Q">
-<code class="descname">Q</code><a class="headerlink" href="#corrfitter.fastfit.Q" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Q</code><a class="headerlink" href="#corrfitter.fastfit.Q" title="Permalink to this definition">¶</a></dt>
 <dd><p>The probability that the chi-squared could have been larger,
 by chance, assuming that the data are all Gaussain and consistent
 with each other. Values smaller than 0.05 or 0.1 suggest
@@ -1323,12 +1265,12 @@ and the <code class="docutils literal notranslate"><span class="pre">Q</span></c
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">corrfitter</span></code> - Least-Squares Fit to Correlators</a><ul>
+<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">corrfitter</span></code> - Least-Squares Fit to Correlators</a><ul>
 <li><a class="reference internal" href="#correlator-model-objects">Correlator Model Objects</a></li>
-<li><a class="reference internal" href="#corrfitter-objects"><code class="docutils literal notranslate"><span class="pre">corrfitter.CorrFitter</span></code> Objects</a></li>
-<li><a class="reference internal" href="#corrfitter-eigenbasis-objects"><code class="docutils literal notranslate"><span class="pre">corrfitter.EigenBasis</span></code> Objects</a></li>
+<li><a class="reference internal" href="#corrfitter-objects"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.CorrFitter</span></code> Objects</a></li>
+<li><a class="reference internal" href="#corrfitter-eigenbasis-objects"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.EigenBasis</span></code> Objects</a></li>
 <li><a class="reference internal" href="#fast-fit-objects">Fast Fit Objects</a></li>
 </ul>
 </li>
@@ -1345,13 +1287,11 @@ and the <code class="docutils literal notranslate"><span class="pre">Q</span></c
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -1372,12 +1312,12 @@ and the <code class="docutils literal notranslate"><span class="pre">Q</span></c
         <li class="right" >
           <a href="example-etab.html" title="Annotated Example: Matrix Correlator"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2010-19, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
     </div>
   </body>
 </html>
