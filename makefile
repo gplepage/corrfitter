@@ -23,6 +23,9 @@ install install-sys:
 uninstall:
 	$(PIP) uninstall corrfitter
 
+update:
+	make uninstall install 
+
 #	- cat files-corrfitter.$(PYTHON) | xargs rm -rf
 #	- cat files-dataset.$(PYTHON) | xargs rm -rf
 

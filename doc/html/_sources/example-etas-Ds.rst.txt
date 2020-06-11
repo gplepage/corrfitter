@@ -386,7 +386,7 @@ pretty good):
     :lines: 1-98
 
 The tests applied to the first fit can be used here as well. For example,
-setting ``add_svdnoise=True`` and ``add_priornoise=True`` in the
+setting ``noise=True`` in the
 fit results in
 
 .. literalinclude:: examples/etas-Ds-marginalize.out
@@ -405,7 +405,7 @@ fits with marginalization. Three parts of our original code need
 modifications:
 
 .. literalinclude:: examples/etas-Ds-chained.py
-    :lines: 14-34
+    :lines: 14-32
 
 The first modification (``#1``) replaces the original list of models with
 a structured list that instructs the (chained) fitter sequentially to:

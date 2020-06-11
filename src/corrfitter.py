@@ -1433,7 +1433,8 @@ class EigenBasis(object):
         self.keyfmt = keyfmt
         self.srcs = srcs
         self.eig_srcs = [str(s) for s in numpy.arange(len(self.srcs))]
-        self.svdcorrection = _gvar.gvar('0(0)')
+        self.correction = 0 * _gvar.gvar(0, 1)
+        self.svdcorrection = self.correction   # legacy
         self.svdn = 0
         self.osc = osc
         G = EigenBasis.assemble_data(
@@ -1757,6 +1758,52 @@ class EigenBasis(object):
             ans += fmt.format(*line)
         return ans
 
+    def regulate(self, data, keyfmt=None, svdcut=None, eps=None):
+        """ Regulate singular correlation matrices in eigen-basis.
+
+        :func:`gvar.regulate` is used to regulate singularities in
+        ``data[k]`` where key ``k``  equals ``keyfmt.format(s1=s1)`` 
+        for vector data, or ``keyfmt.format(s1=s1, s2=s2)`` for 
+        matrix data with sources ``s1`` and ``s2`` drawn 
+        from ``self.srcs``. The data are transformed to the 
+        eigen-basis of sources/sinks before a cutoff is introduced
+        (``svdcut`` or ``eps``). and then transformed back to the 
+        original basis of sources. Results are returned in a 
+        dictionary containing the modified correlators.
+
+        If ``keyfmt`` is a list of formats, the cutoff is
+        applied to the collection of data formed from each
+        format. The defaul value for ``keyfmt`` is
+        ``self.keyfmt``.
+
+        Args:
+            data: Eigen-basis data dictionary. 
+            keyfmt (str): Data keys are either ``keyfmt.format(s1=s1)`` for
+                vector data or ``keyfmt.format(s1=s1, s2=s2)`` for matrix 
+                data, where ``s1`` and ``s2`` are sources drawn from 
+                ``self.srcs``.
+            eps (float): If positive, singularities in the correlation matrix 
+                for ``data[k]`` are regulated using :func:`gvar.regulate` 
+                with cutoff ``eps``. Ignored if ``svdcut`` is specified (and 
+                not ``None``).
+            svdcut (float): If nonzero, singularities in the correlation 
+                matrix for ``data[k]`` are regulated using :func:`gvar.regulate`
+                with an SVD cutoff ``svdcut``. Default is ``svdcut=1e-12``.
+        """
+        if keyfmt is None:
+            keyfmt = [self.keyfmt]
+        elif isinstance(keyfmt, str):
+            keyfmt = [keyfmt]
+        newdata = self.apply(data, keyfmt=keyfmt)
+        newdata = _gvar.regulate(newdata, svdcut=svdcut, eps=eps)
+        self.correction = newdata.correction
+        self.nmod = newdata.nmod
+        newdata = self.unapply(newdata, keyfmt=keyfmt)
+        for i in data:
+            if i not in newdata:
+                newdata[i] = data[i]
+        return newdata
+
     def svd(self, data, keyfmt=None, svdcut=1e-15):
         """ Apply SVD cut to data in the eigen-basis.
 
@@ -1780,8 +1827,9 @@ class EigenBasis(object):
             keyfmt = [keyfmt]
         newdata = self.apply(data, keyfmt=keyfmt)
         newdata = _gvar.svd(newdata, svdcut=svdcut)
-        self.svdcorrection = _gvar.svd.correction
-        self.svdn = _gvar.svd.nmod
+        self.correction = newdata.correction
+        self.svdcorrection = self.correction   # legacy name
+        self.nmod = newdata.nmod
         newdata = self.unapply(newdata, keyfmt=keyfmt)
         for i in data:
             if i not in newdata:

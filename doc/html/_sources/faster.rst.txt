@@ -415,7 +415,7 @@ SVD cut is placed where the blue data points (the ratios of bootstrapped
 to exact eigenvalues) cross that  threshold.
 
 Having determined the SVD cut, we modify the data by setting keywoard
-argument ``svdcut`` in the fits, or by using :meth:`gvar.svd` to apply
+argument ``svdcut`` in the fits, or by using :meth:`gvar.regulate` to apply
 the SVD cut explicitly.
 
 .. _goodness-of-fit:
@@ -435,8 +435,8 @@ documentation with moduled :mod:`lsqfit`.)
 
 To check the goodness of fit using a fit's |chi2| we must add random
 fluctuations to the data means associated with the SVD cut and the priors.
-This is done by refitting the data but with parameters
-``add_svdnoise=True`` and ``add_priornoise=True``. A good fit will still have
+This is done by refitting the data but with parameter
+``noise=True``. A good fit will still have
 a |chi2| of order one or less per degree freedom even with the added
 noise. The fit parameters from the noisy fit should also agree within errors
 with best-fit parameters from the original fit.

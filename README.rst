@@ -47,3 +47,6 @@ signals bug fixes.
 
 | Created by G. Peter Lepage (Cornell University) on 2008-02-12.
 | Copyright (c) 2008-18 G. Peter Lepage.
+
+.. image:: https://zenodo.org/badge/4618836.svg
+   :target: https://zenodo.org/badge/latestdoi/4618836

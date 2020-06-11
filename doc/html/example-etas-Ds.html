@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Annotated Example: Transition Form Factor and Mixing &#8212; corrfitter 8.0.3 documentation</title>
+    <title>Annotated Example: Transition Form Factor and Mixing &#8212; corrfitter 8.1 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="example-etas.html" title="Annotated Example: Two-Point Correlator"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,8 +54,8 @@
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>Here we describe a complete Python code that uses <a class="reference internal" href="corrfitter.html#module-corrfitter" title="corrfitter: Least-Squares Fit to Correlators."><code class="xref py py-mod docutils literal notranslate"><span class="pre">corrfitter</span></code></a>
 to calculate the transition matrix element or form factor from
-an <img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s" style="vertical-align: -3px"/> meson to a <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> meson, together with the masses and amplitudes
-of these mesons. A very similar code, for (speculative) <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/>-<img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> mixing,
+an <img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s"/> meson to a <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> meson, together with the masses and amplitudes
+of these mesons. A very similar code, for (speculative) <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/>-<img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> mixing,
 is described at the end.</p>
 <p>The form factor example combines data from two-point correlators, for the
 amplitudes and energies, with data from three-point correlators,
@@ -68,7 +68,7 @@ calculate correlations or their impact on quantities derived
 from the fit parameters. The best-fit parameters (in <code class="docutils literal notranslate"><span class="pre">fit.p</span></code>)
 are objects of type <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>.</p>
 <p>Staggered quarks are used in
-this simulation, so the <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> has oscillating components as well as
+this simulation, so the <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> has oscillating components as well as
 normal components in its correlators.</p>
 <p>The source codes (<code class="docutils literal notranslate"><span class="pre">etas-Ds.py</span></code>, <code class="docutils literal notranslate"><span class="pre">Ds-Ds.py</span></code>) and data files
 (<code class="docutils literal notranslate"><span class="pre">etas-Ds.h5</span></code>, <code class="docutils literal notranslate"><span class="pre">Ds-Ds.h5</span></code>) are included with
@@ -79,7 +79,7 @@ The data are from the HPQCD collaboration.</p>
 <h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">main</span></code> method for the form-factor code follows the pattern described
 in <a class="reference internal" href="overview.html#basic-fits"><span class="std std-ref">Basic Fits</span></a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>   <span class="c1"># makes this work for python2 and 3</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>   <span class="c1"># makes this work for python2 and 3</span>
 
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">gvar</span> <span class="k">as</span> <span class="nn">gv</span>
@@ -151,7 +151,7 @@ time. For example,</p>
 <span class="go"> [ 0.305365   0.079379   0.033445  ...,  0.0164506  0.0332284  0.0792884]]</span>
 </pre></div>
 </div>
-<p>is data for a two-point correlator describing the <img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s" style="vertical-align: -3px"/>  meson. Each
+<p>is data for a two-point correlator describing the <img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s"/>  meson. Each
 of the 225 lines is a different Monte Carlo sample for the correlator, and
 has 64 entries corresponding to <code class="docutils literal notranslate"><span class="pre">t=0,1...63</span></code>. Note the periodicity
 in this data.</p>
@@ -177,8 +177,8 @@ are correlated with each other: for example,</p>
 <span class="go"> [ 0.96432174  1.        ]]</span>
 </pre></div>
 </div>
-<p>shows a 96% correlation between the <code class="docutils literal notranslate"><span class="pre">t=0</span></code> values in the <img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s" style="vertical-align: -3px"/> and
-<img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> correlators.</p>
+<p>shows a 96% correlation between the <code class="docutils literal notranslate"><span class="pre">t=0</span></code> values in the <img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s"/> and
+<img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> correlators.</p>
 </div>
 <div class="section" id="b-make-models">
 <h3>b) make_models<a class="headerlink" href="#b-make-models" title="Permalink to this headline">¶</a></h3>
@@ -215,7 +215,7 @@ to fit the data:</p>
 </pre></div>
 </div>
 <p>Four models are specified, one for each correlator to be fit. The first two
-are for the <img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s" style="vertical-align: -3px"/> and <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> two-point correlators, corresponding to
+are for the <img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s"/> and <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> two-point correlators, corresponding to
 entries in the data dictionary with keys <code class="docutils literal notranslate"><span class="pre">'etas'</span></code> and <code class="docutils literal notranslate"><span class="pre">'Ds'</span></code>,
 respectively.
 These are periodic propagators, with period 64 (<code class="docutils literal notranslate"><span class="pre">tp</span></code>), and we want to
@@ -223,7 +223,7 @@ omit the first and last 5 (<code class="docutils literal notranslate"><span clas
 Labels for the fit parameters corresponding to the
 sources (and sinks) are specified for each, <code class="docutils literal notranslate"><span class="pre">'etas:a'</span></code> and <code class="docutils literal notranslate"><span class="pre">'Ds:a'</span></code>, as
 are labels for the energy differences, <code class="docutils literal notranslate"><span class="pre">'etas:dE'</span></code> and <code class="docutils literal notranslate"><span class="pre">'Ds:dE'</span></code>.  The
-<img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> propagator also has an oscillating piece because this data comes from
+<img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> propagator also has an oscillating piece because this data comes from
 a staggered-quark analysis. Sources/sinks and energy differences are
 specified for these as well: <code class="docutils literal notranslate"><span class="pre">'Dso:a'</span></code> and <code class="docutils literal notranslate"><span class="pre">'Dso:dE'</span></code>.</p>
 <p>Finally three-point models are specified for the data corresponding to
@@ -284,12 +284,12 @@ while the actual fit parameters, <code class="docutils literal notranslate"><spa
 <code class="docutils literal notranslate"><span class="pre">log(0.3(3))</span> <span class="pre">=</span> <span class="pre">-1.2(1.0)</span></code>.</p>
 <p>We override the default priors for the ground-state energies in each case.
 This is not unusual since <code class="docutils literal notranslate"><span class="pre">dE[0]</span></code>, unlike the other <code class="docutils literal notranslate"><span class="pre">dE</span></code>s,  is an energy,
-not an energy difference. For the oscillating <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> state, we require
-that its mass be <code class="docutils literal notranslate"><span class="pre">0.3(3)</span></code> larger than the <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> mass. One could  put
+not an energy difference. For the oscillating <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> state, we require
+that its mass be <code class="docutils literal notranslate"><span class="pre">0.3(3)</span></code> larger than the <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> mass. One could  put
 more precise information into the priors if that made sense given the goals
 of the simulation. For example, if the main objective is a value for <code class="docutils literal notranslate"><span class="pre">Vnn</span></code>,
-one might include fairly exact information about the <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> and
-<img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s" style="vertical-align: -3px"/> masses in the prior, using results from experiment or from
+one might include fairly exact information about the <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> and
+<img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s"/> masses in the prior, using results from experiment or from
 earlier simulations. This would make no sense, however, if the goal is to
 verify that simulations gives correct masses.</p>
 <p>Note, finally, that a statement like</p>
@@ -348,7 +348,7 @@ for the fit parameters from the last fit:</p>
 
     <span class="n">inputs</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
     <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;statistics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>         <span class="c1"># statistical errors in data</span>
-    <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;svd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">svdcorrection</span>
+    <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;svd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">correction</span>
     <span class="n">inputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">prior</span><span class="p">)</span>                <span class="c1"># all entries in prior</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">gv</span><span class="o">.</span><span class="n">fmt_values</span><span class="p">(</span><span class="n">outputs</span><span class="p">))</span>
@@ -373,8 +373,8 @@ sum function <code class="xref py py-func docutils literal notranslate"><span cl
   <span class="n">etas</span><span class="o">-&gt;</span><span class="n">V</span><span class="o">-&gt;</span><span class="n">Ds</span>  <span class="o">=</span> <span class="mf">0.76716</span><span class="p">(</span><span class="mi">85</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Finally we  create an error budget for the <img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s" style="vertical-align: -3px"/>
-and <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> masses, and for the ground-state transition amplitude
+<p>Finally we  create an error budget for the <img class="math" src="_images/math/474c72d29e9964d5dd5bd959e4b1d0bfc66a4a53.svg" alt="\eta_s"/>
+and <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> masses, and for the ground-state transition amplitude
 <code class="docutils literal notranslate"><span class="pre">Vnn</span></code>. The quantities of interest are specified in dictionary
 <code class="docutils literal notranslate"><span class="pre">outputs</span></code>. For the error budget, we need another dictionary, <code class="docutils literal notranslate"><span class="pre">inputs</span></code>,
 specifying various inputs to the calculation, here the Monte Carlo data,
@@ -446,21 +446,21 @@ these eigenvalues so they do not cause trouble with the fit.</p>
   <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5.8e+03</span> <span class="p">[</span><span class="mi">69</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mi">0</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.9877e+05</span>
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">22</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">26</span><span class="o">/</span><span class="mf">0.1</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">22</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">28</span><span class="o">/</span><span class="mf">0.1</span><span class="p">)</span>
 
 <span class="o">==============================</span> <span class="n">nterm</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">Least</span> <span class="n">Square</span> <span class="n">Fit</span><span class="p">:</span>
   <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.2</span> <span class="p">[</span><span class="mi">69</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">2.8e-08</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1546.1</span>
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">22</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">32</span><span class="o">/</span><span class="mf">0.1</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">22</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">29</span><span class="o">/</span><span class="mf">0.1</span><span class="p">)</span>
 
 <span class="o">==============================</span> <span class="n">nterm</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="n">Least</span> <span class="n">Square</span> <span class="n">Fit</span><span class="p">:</span>
   <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.58</span> <span class="p">[</span><span class="mi">69</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mi">1</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1593.5</span>
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">22</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">47</span><span class="o">/</span><span class="mf">0.2</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">22</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">49</span><span class="o">/</span><span class="mf">0.2</span><span class="p">)</span>
 
 <span class="o">==============================</span> <span class="n">nterm</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">Least</span> <span class="n">Square</span> <span class="n">Fit</span><span class="p">:</span>
@@ -550,7 +550,7 @@ these eigenvalues so they do not cause trouble with the fit.</p>
               <span class="mi">3</span>         <span class="mf">0.49</span> <span class="p">(</span><span class="mi">48</span><span class="p">)</span>       <span class="p">[</span>  <span class="mf">0.50</span> <span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">22</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">19</span><span class="o">/</span><span class="mf">0.1</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">22</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">20</span><span class="o">/</span><span class="mf">0.1</span><span class="p">)</span>
 
 <span class="n">Fit</span> <span class="n">results</span><span class="p">:</span>
   <span class="n">Eetas</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.41618</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="mf">1.013</span><span class="p">(</span><span class="mi">83</span><span class="p">)</span> <span class="mf">1.46</span><span class="p">(</span><span class="mi">36</span><span class="p">)]</span>
@@ -593,13 +593,13 @@ laptop.</p></li>
 <li><p>Fits with only one or two terms in the fit function are poor, with
 <code class="docutils literal notranslate"><span class="pre">chi2/dof</span></code>s that are significantly larger than one.</p></li>
 <li><p>Fits with three terms work well, and adding futher terms has almost no
-impact. The <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> does not improve and parameters for the
+impact. The <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2"/> does not improve and parameters for the
 added terms differ little from their prior values (since the data are
 not sufficiently accurate to add new information).</p></li>
 <li><p>The quality of the fit is confirmed by the fit plots displayed at the
 end (press the ‘n’ and ‘p’ keys to cycle through the various plots,
 the ‘v’ key to cycle through different views of the data and fit,
-and the ‘q’ key to quit the plot). The plot for the <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> correlator,
+and the ‘q’ key to quit the plot). The plot for the <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> correlator,
 for example, shows correlator data divided by fit result as a
 function of <code class="docutils literal notranslate"><span class="pre">t</span></code>:</p>
 <a class="reference internal image-reference" href="_images/Ds.png"><img alt="_images/Ds.png" src="_images/Ds.png" style="width: 70%;" /></a>
@@ -621,11 +621,11 @@ sinks (one entry for each combination).</p></li>
 </div>
 <div class="section" id="testing-the-fit">
 <h2>Testing the Fit<a class="headerlink" href="#testing-the-fit" title="Permalink to this headline">¶</a></h2>
-<p>The <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> for the fit above is low for a fit to 69 data points.
+<p>The <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2"/> for the fit above is low for a fit to 69 data points.
 This would normally be evidence of a good fit, but, as
 discussed in <a class="reference internal" href="faster.html#goodness-of-fit"><span class="std std-ref">Goodness of Fit</span></a>,
 our SVD cut means that we need
-to refit with added noise if we want to use <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> as a measure of
+to refit with added noise if we want to use <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2"/> as a measure of
 fit quality.
 We implement this test by adding the following code at the end of the
 <code class="docutils literal notranslate"><span class="pre">main()</span></code> method  above:</p>
@@ -633,7 +633,7 @@ We implement this test by adding the following code at the end of the
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">==================== add svd, prior noise&#39;</span><span class="p">)</span>
     <span class="n">noisy_fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">pmean</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="n">SVDCUT</span><span class="p">,</span>
-        <span class="n">add_svdnoise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">add_priornoise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">noisy_fit</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pstyle</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">key_parameters</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
@@ -653,17 +653,17 @@ We implement this test by adding the following code at the end of the
 </div>
 <p>This reruns the fit but with random noise (associated with the SVD cut
 and priors) added to the data. The result is still a good fit, but with
-a signficantly higher <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/>, as expected:</p>
+a signficantly higher <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2"/>, as expected:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">====================</span> <span class="n">add</span> <span class="n">svd</span><span class="p">,</span> <span class="n">prior</span> <span class="n">noise</span>
 <span class="n">Least</span> <span class="n">Square</span> <span class="n">Fit</span><span class="p">:</span>
-  <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.93</span> <span class="p">[</span><span class="mi">69</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.63</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mi">1581</span>
+  <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.94</span> <span class="p">[</span><span class="mi">69</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.63</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1580.5</span>
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">22</span><span class="o">*</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">201</span><span class="o">/</span><span class="mf">0.8</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">22</span><span class="o">*</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">260</span><span class="o">/</span><span class="mf">1.1</span><span class="p">)</span>
 
       <span class="n">fit</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;etas:a&#39;</span><span class="p">:</span> <span class="mf">0.21834</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span><span class="s1">&#39;etas:dE&#39;</span><span class="p">:</span> <span class="mf">0.41618</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="s1">&#39;Ds:a&#39;</span><span class="p">:</span> <span class="mf">0.21467</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span><span class="s1">&#39;Ds:dE&#39;</span><span class="p">:</span> <span class="mf">1.20165</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span><span class="s1">&#39;Vnn&#39;</span><span class="p">:</span> <span class="mf">0.76716</span><span class="p">(</span><span class="mi">85</span><span class="p">)}</span>
-<span class="n">noisy</span> <span class="n">fit</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;etas:a&#39;</span><span class="p">:</span> <span class="mf">0.21834</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span><span class="s1">&#39;etas:dE&#39;</span><span class="p">:</span> <span class="mf">0.41619</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="s1">&#39;Ds:a&#39;</span><span class="p">:</span> <span class="mf">0.21459</span><span class="p">(</span><span class="mi">27</span><span class="p">),</span><span class="s1">&#39;Ds:dE&#39;</span><span class="p">:</span> <span class="mf">1.20162</span><span class="p">(</span><span class="mi">18</span><span class="p">),</span><span class="s1">&#39;Vnn&#39;</span><span class="p">:</span> <span class="mf">0.7656</span><span class="p">(</span><span class="mi">16</span><span class="p">)}</span>
-           <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="o">=</span> <span class="mf">0.4</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.85</span>
+<span class="n">noisy</span> <span class="n">fit</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;etas:a&#39;</span><span class="p">:</span> <span class="mf">0.21831</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span><span class="s1">&#39;etas:dE&#39;</span><span class="p">:</span> <span class="mf">0.41619</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="s1">&#39;Ds:a&#39;</span><span class="p">:</span> <span class="mf">0.21457</span><span class="p">(</span><span class="mi">27</span><span class="p">),</span><span class="s1">&#39;Ds:dE&#39;</span><span class="p">:</span> <span class="mf">1.20162</span><span class="p">(</span><span class="mi">18</span><span class="p">),</span><span class="s1">&#39;Vnn&#39;</span><span class="p">:</span> <span class="mf">0.7660</span><span class="p">(</span><span class="mi">16</span><span class="p">)}</span>
+           <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="o">=</span> <span class="mf">0.72</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.61</span>
 </pre></div>
 </div>
 <p>The noisy fit also agrees with the original fit about the most important
@@ -690,14 +690,14 @@ simulated fits: see <a class="reference internal" href="overview.html#simulated-
 of the full fit, using the means <code class="docutils literal notranslate"><span class="pre">fit.pmean</span></code> from the last fit
 as <code class="docutils literal notranslate"><span class="pre">p_exact</span></code>.
 The code compares fit results with <code class="docutils literal notranslate"><span class="pre">p_exact</span></code> in each case,
-and computes the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> of the difference between the leading parameters
+and computes the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2"/> of the difference between the leading parameters
 and <code class="docutils literal notranslate"><span class="pre">p_exact</span></code>. The output is:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">====================</span> <span class="n">simulation</span>
 <span class="n">Least</span> <span class="n">Square</span> <span class="n">Fit</span><span class="p">:</span>
   <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.35</span> <span class="p">[</span><span class="mi">69</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mi">1</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1601.6</span>
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">24</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">58</span><span class="o">/</span><span class="mf">0.3</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">24</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">58</span><span class="o">/</span><span class="mf">0.2</span><span class="p">)</span>
 
 <span class="n">simulated</span> <span class="o">-</span> <span class="n">exact</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;etas:a&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.00009</span><span class="p">(</span><span class="mi">17</span><span class="p">),</span><span class="s1">&#39;etas:dE&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.00007</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="s1">&#39;Ds:a&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span><span class="n">e</span><span class="o">-</span><span class="mi">06</span><span class="p">,</span><span class="s1">&#39;Ds:dE&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.00002</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span><span class="s1">&#39;Vnn&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.0003</span><span class="p">(</span><span class="mi">11</span><span class="p">)}</span>
            <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="o">=</span> <span class="mf">0.11</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.99</span>
@@ -707,7 +707,7 @@ and <code class="docutils literal notranslate"><span class="pre">p_exact</span><
   <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.66</span> <span class="p">[</span><span class="mi">69</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.99</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1591.1</span>
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">24</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">49</span><span class="o">/</span><span class="mf">0.2</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">24</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">50</span><span class="o">/</span><span class="mf">0.2</span><span class="p">)</span>
 
 <span class="n">simulated</span> <span class="o">-</span> <span class="n">exact</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;etas:a&#39;</span><span class="p">:</span> <span class="mf">0.00008</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span><span class="s1">&#39;etas:dE&#39;</span><span class="p">:</span> <span class="mf">0.00007</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="s1">&#39;Ds:a&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.00003</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span><span class="s1">&#39;Ds:dE&#39;</span><span class="p">:</span> <span class="mf">0.00006</span><span class="p">(</span><span class="mi">18</span><span class="p">),</span><span class="s1">&#39;Vnn&#39;</span><span class="p">:</span> <span class="mf">0.0003</span><span class="p">(</span><span class="mi">13</span><span class="p">)}</span>
            <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="o">=</span> <span class="mf">0.21</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.96</span>
@@ -815,7 +815,7 @@ pretty good):</p>
               <span class="mi">1</span>      <span class="mf">0.244</span> <span class="p">(</span><span class="mi">84</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.50</span> <span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">24</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">21</span><span class="o">/</span><span class="mf">0.1</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">24</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">20</span><span class="o">/</span><span class="mf">0.1</span><span class="p">)</span>
 
 <span class="n">Fit</span> <span class="n">results</span><span class="p">:</span>
   <span class="n">Eetas</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.41618</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="mf">1.02</span><span class="p">(</span><span class="mi">11</span><span class="p">)]</span>
@@ -852,18 +852,18 @@ pretty good):</p>
 </pre></div>
 </div>
 <p>The tests applied to the first fit can be used here as well. For example,
-setting <code class="docutils literal notranslate"><span class="pre">add_svdnoise=True</span></code> and <code class="docutils literal notranslate"><span class="pre">add_priornoise=True</span></code> in the
+setting <code class="docutils literal notranslate"><span class="pre">noise=True</span></code> in the
 fit results in</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">====================</span> <span class="n">add</span> <span class="n">svd</span><span class="p">,</span> <span class="n">prior</span> <span class="n">noise</span>
 <span class="n">Least</span> <span class="n">Square</span> <span class="n">Fit</span><span class="p">:</span>
-  <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.1</span> <span class="p">[</span><span class="mi">69</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.32</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1570.2</span>
+  <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">69</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.37</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1569.9</span>
 
 <span class="n">Settings</span><span class="p">:</span>
   <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">8e-05</span><span class="o">/</span><span class="mi">24</span><span class="o">*</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">18</span><span class="o">/</span><span class="mf">0.1</span><span class="p">)</span>
 
       <span class="n">fit</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;etas:a&#39;</span><span class="p">:</span> <span class="mf">0.21833</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span><span class="s1">&#39;etas:dE&#39;</span><span class="p">:</span> <span class="mf">0.41618</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="s1">&#39;Ds:a&#39;</span><span class="p">:</span> <span class="mf">0.21463</span><span class="p">(</span><span class="mi">24</span><span class="p">),</span><span class="s1">&#39;Ds:dE&#39;</span><span class="p">:</span> <span class="mf">1.20163</span><span class="p">(</span><span class="mi">18</span><span class="p">),</span><span class="s1">&#39;Vnn&#39;</span><span class="p">:</span> <span class="mf">0.76702</span><span class="p">(</span><span class="mi">94</span><span class="p">)}</span>
-<span class="n">noisy</span> <span class="n">fit</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;etas:a&#39;</span><span class="p">:</span> <span class="mf">0.21834</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span><span class="s1">&#39;etas:dE&#39;</span><span class="p">:</span> <span class="mf">0.41617</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="s1">&#39;Ds:a&#39;</span><span class="p">:</span> <span class="mf">0.21473</span><span class="p">(</span><span class="mi">23</span><span class="p">),</span><span class="s1">&#39;Ds:dE&#39;</span><span class="p">:</span> <span class="mf">1.20168</span><span class="p">(</span><span class="mi">17</span><span class="p">),</span><span class="s1">&#39;Vnn&#39;</span><span class="p">:</span> <span class="mf">0.76732</span><span class="p">(</span><span class="mi">88</span><span class="p">)}</span>
-           <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="o">=</span> <span class="mf">0.71</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.61</span>
+<span class="n">noisy</span> <span class="n">fit</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;etas:a&#39;</span><span class="p">:</span> <span class="mf">0.21834</span><span class="p">(</span><span class="mi">16</span><span class="p">),</span><span class="s1">&#39;etas:dE&#39;</span><span class="p">:</span> <span class="mf">0.41617</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="s1">&#39;Ds:a&#39;</span><span class="p">:</span> <span class="mf">0.21470</span><span class="p">(</span><span class="mi">23</span><span class="p">),</span><span class="s1">&#39;Ds:dE&#39;</span><span class="p">:</span> <span class="mf">1.20166</span><span class="p">(</span><span class="mi">17</span><span class="p">),</span><span class="s1">&#39;Vnn&#39;</span><span class="p">:</span> <span class="mf">0.76743</span><span class="p">(</span><span class="mi">88</span><span class="p">)}</span>
+           <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="o">=</span> <span class="mf">0.74</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.6</span>
 </pre></div>
 </div>
 <p>This suggests a good fit. The results are consistent with the original
@@ -895,8 +895,6 @@ modifications:</p>
     <span class="n">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">DISPLAYPLOTS</span><span class="p">:</span>
         <span class="n">fit</span><span class="o">.</span><span class="n">show_plots</span><span class="p">()</span>
-
-    <span class="c1"># check fit quality by adding noise</span>
 </pre></div>
 </div>
 <p>The first modification (<code class="docutils literal notranslate"><span class="pre">#1</span></code>) replaces the original list of models with
@@ -982,9 +980,9 @@ original code:</p>
 <span class="n">Chained</span> <span class="n">Fits</span><span class="p">:</span>
   <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span>       <span class="n">Q</span>     <span class="n">logGBF</span>  <span class="n">svd</span><span class="o">-</span><span class="n">n</span>    <span class="n">itns</span><span class="o">/</span><span class="n">time</span>  <span class="n">fit</span>            
 <span class="o">------------------------------------------------------------------------</span>
-       <span class="mf">0.69</span> <span class="p">[</span><span class="mi">28</span><span class="p">]</span>    <span class="mf">0.88</span>     <span class="mf">488.06</span>      <span class="mi">0</span>        <span class="mi">9</span><span class="o">/</span><span class="mf">0.0</span>  <span class="n">etas</span>
-       <span class="mf">0.75</span> <span class="p">[</span><span class="mi">28</span><span class="p">]</span>    <span class="mf">0.83</span>     <span class="mf">850.45</span>      <span class="mi">0</span>       <span class="mi">18</span><span class="o">/</span><span class="mf">0.0</span>  <span class="n">Ds</span>
-       <span class="mf">0.52</span> <span class="p">[</span><span class="mi">13</span><span class="p">]</span>    <span class="mf">0.91</span>     <span class="mf">261.41</span>      <span class="mi">3</span>        <span class="mi">7</span><span class="o">/</span><span class="mf">0.0</span>  <span class="p">(</span><span class="mi">3</span><span class="n">ptT15</span><span class="p">,</span><span class="mi">3</span><span class="n">ptT16</span><span class="p">)</span>
+       <span class="mf">0.69</span> <span class="p">[</span><span class="mi">28</span><span class="p">]</span>    <span class="mf">0.88</span>     <span class="mf">488.06</span>      <span class="mi">0</span>       <span class="mi">12</span><span class="o">/</span><span class="mf">0.0</span>  <span class="n">etas</span>
+       <span class="mf">0.75</span> <span class="p">[</span><span class="mi">28</span><span class="p">]</span>    <span class="mf">0.83</span>     <span class="mf">850.45</span>      <span class="mi">0</span>       <span class="mi">16</span><span class="o">/</span><span class="mf">0.0</span>  <span class="n">Ds</span>
+       <span class="mf">0.52</span> <span class="p">[</span><span class="mi">13</span><span class="p">]</span>    <span class="mf">0.91</span>     <span class="mf">261.41</span>      <span class="mi">3</span>        <span class="mi">6</span><span class="o">/</span><span class="mf">0.0</span>  <span class="p">(</span><span class="mi">3</span><span class="n">ptT15</span><span class="p">,</span><span class="mi">3</span><span class="n">ptT16</span><span class="p">)</span>
 <span class="o">------------------------------------------------------------------------</span>
        <span class="mf">0.68</span> <span class="p">[</span><span class="mi">69</span><span class="p">]</span>    <span class="mf">0.98</span>     <span class="mf">1599.9</span>      <span class="mi">3</span>       <span class="mi">34</span><span class="o">/</span><span class="mf">0.1</span>  <span class="nb">all</span>
 
@@ -1035,12 +1033,12 @@ test the fits, as above.</p>
 </div>
 <div class="section" id="mixing">
 <h2>Mixing<a class="headerlink" href="#mixing" title="Permalink to this headline">¶</a></h2>
-<p>Code to analyze <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/>-<img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> mixing is very similar to the code above for
+<p>Code to analyze <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/>-<img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> mixing is very similar to the code above for
 a transition form factor. The <code class="docutils literal notranslate"><span class="pre">main()</span></code> and <code class="docutils literal notranslate"><span class="pre">make_data()</span></code> functions are
 identical, except that here data are read from file <code class="docutils literal notranslate"><span class="pre">'Ds-Ds.h5'</span></code> and
 the appropriate SVD cut is <code class="docutils literal notranslate"><span class="pre">svdcut=0.003</span></code> (see <a class="reference internal" href="faster.html#svd-cuts"><span class="std std-ref">Accurate Fits — SVD Cuts</span></a>).
-We need models for the two-point <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> correlator, and for two three-point
-correlators describing the <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> to <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s" style="vertical-align: -3px"/> transition:</p>
+We need models for the two-point <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> correlator, and for two three-point
+correlators describing the <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> to <img class="math" src="_images/math/516b34b50bd893feebe0aa136f82e521322cb385.svg" alt="D_s"/> transition:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot; Create models to fit data. &quot;&quot;&quot;</span>
     <span class="n">tmin</span> <span class="o">=</span> <span class="mi">3</span>
@@ -1192,7 +1190,7 @@ since they are symmetrical (because <code class="docutils literal notranslate"><
               <span class="mi">3</span>         <span class="mf">0.56</span> <span class="p">(</span><span class="mi">55</span><span class="p">)</span>       <span class="p">[</span>  <span class="mf">0.50</span> <span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.002</span><span class="o">/</span><span class="mi">9</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">79</span><span class="o">/</span><span class="mf">0.4</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.002</span><span class="o">/</span><span class="mi">9</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">81</span><span class="o">/</span><span class="mf">0.4</span><span class="p">)</span>
 
 
 <span class="n">Values</span><span class="p">:</span>
@@ -1304,12 +1302,12 @@ since they are symmetrical (because <code class="docutils literal notranslate"><
         <li class="right" >
           <a href="example-etas.html" title="Annotated Example: Two-Point Correlator"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2010-19, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

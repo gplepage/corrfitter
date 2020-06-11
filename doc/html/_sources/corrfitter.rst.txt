@@ -76,15 +76,15 @@ accumulates from its use.
 
         List of labels for the sources in the eigen-basis: ``'0'``, ``'1'`` ...
 
-    .. attribute:: svdcorrection
+    .. attribute:: correction
 
-        The sum of the SVD corrections added to the data by the last call
-        to :func:`EigenBasis.svd`.
+        The sum of the :func:`gvar.regulate`` corrections added to the 
+        data by the last call to :func:`EigenBasis.regulate`.
 
-    .. attribute:: svdn
+    .. attribute:: nmod
 
-        The number of degrees of freedom modified by the SVD correction
-        in the last call to :func:`EigenBasis.svd`.
+        The number of degrees of freedom modified
+        in the last call to :func:`EigenBasis.regulate`.
 
     .. attribute:: v
 
@@ -102,6 +102,8 @@ accumulates from its use.
     .. automethod:: apply
 
     .. automethod:: make_prior
+
+    .. automethod:: regulate
 
     .. automethod:: svd
 

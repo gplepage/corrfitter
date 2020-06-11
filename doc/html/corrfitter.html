@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>corrfitter - Least-Squares Fit to Correlators &#8212; corrfitter 8.0.3 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &#8212; corrfitter 8.1 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="example-etab.html" title="Annotated Example: Matrix Correlator"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -756,23 +756,23 @@ accumulates from its use.</p>
 <dt id="corrfitter.EigenBasis">
 <em class="property">class </em><code class="sig-prename descclassname">corrfitter.</code><code class="sig-name descname">EigenBasis</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">srcs</em>, <em class="sig-param">t</em>, <em class="sig-param">keyfmt='{s1}.{s2}'</em>, <em class="sig-param">tdata=None</em>, <em class="sig-param">osc=False</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Eigen-basis of correlator sources/sinks.</p>
-<p>Given <img class="math" src="_images/math/bc507cdb5b3ecbd3916d3e9ba31c409a8e530e13.svg" alt="N" style="vertical-align: 0px"/> sources/sinks and the <img class="math" src="_images/math/3750be4bc2465cc50b6d8a125f3ad0ed46ef573e.svg" alt="N \times N" style="vertical-align: -1px"/>
-matrix <img class="math" src="_images/math/c28e18b27a579a4321783e78dfab9caa7ea28fa1.svg" alt="G_{ij}(t)" style="vertical-align: -5px"/> of 2-point correlators created from every
+<p>Given <img class="math" src="_images/math/bc507cdb5b3ecbd3916d3e9ba31c409a8e530e13.svg" alt="N"/> sources/sinks and the <img class="math" src="_images/math/3750be4bc2465cc50b6d8a125f3ad0ed46ef573e.svg" alt="N \times N"/>
+matrix <img class="math" src="_images/math/c28e18b27a579a4321783e78dfab9caa7ea28fa1.svg" alt="G_{ij}(t)"/> of 2-point correlators created from every
 combination of source and sink, we can define a new basis
 of sources that makes the matrix correlator approximately
 diagonal. Each source in the new basis is associated with
-an eigenvector <img class="math" src="_images/math/d1096bd7b480136223a484d7df2b430d064335b7.svg" alt="v^{(a)}" style="vertical-align: 0px"/> defined by the matrix equation</p>
+an eigenvector <img class="math" src="_images/math/d1096bd7b480136223a484d7df2b430d064335b7.svg" alt="v^{(a)}"/> defined by the matrix equation</p>
 <div class="math">
 <p><img src="_images/math/40e958d182f2b94e4e01248fbd317dc6e2609dfb.svg" alt="G(t_1) v^{(a)} = \lambda^{(a)}(t_1-t_0) G(t_0) v^{(a)},"/></p>
-</div><p>for some <img class="math" src="_images/math/85be51820a52f8744f71ceede2b479e257af0a81.svg" alt="t_0, t_1" style="vertical-align: -3px"/>. As <img class="math" src="_images/math/85be51820a52f8744f71ceede2b479e257af0a81.svg" alt="t_0, t_1" style="vertical-align: -3px"/> increase, fewer
-and fewer states couple to <img class="math" src="_images/math/8592fc7c86e6b328d8d4fbb3a7a72df91fbec4a7.svg" alt="G(t)" style="vertical-align: -3px"/>. In the limit where
-only <img class="math" src="_images/math/bc507cdb5b3ecbd3916d3e9ba31c409a8e530e13.svg" alt="N" style="vertical-align: 0px"/> states couple, the correlator</p>
+</div><p>for some <img class="math" src="_images/math/85be51820a52f8744f71ceede2b479e257af0a81.svg" alt="t_0, t_1"/>. As <img class="math" src="_images/math/85be51820a52f8744f71ceede2b479e257af0a81.svg" alt="t_0, t_1"/> increase, fewer
+and fewer states couple to <img class="math" src="_images/math/8592fc7c86e6b328d8d4fbb3a7a72df91fbec4a7.svg" alt="G(t)"/>. In the limit where
+only <img class="math" src="_images/math/bc507cdb5b3ecbd3916d3e9ba31c409a8e530e13.svg" alt="N"/> states couple, the correlator</p>
 <div class="math">
 <p><img src="_images/math/b3faa75e11ef7144726d316536ec357a60e5dcc3.svg" alt="\overline{G}_{ab}(t) \equiv v^{(a)T} G(t) v^{(b)}"/></p>
 </div><p>becomes diagonal, and each diagonal element couples to
 only a single state.</p>
 <p>In practice, this condition is only approximate: that is,
-<img class="math" src="_images/math/86c5554b707a76e8f6ccfa04f96344f8937a8568.svg" alt="\overline G(t)" style="vertical-align: -2px"/>  is approximately diagonal, with diagonal elements
+<img class="math" src="_images/math/86c5554b707a76e8f6ccfa04f96344f8937a8568.svg" alt="\overline G(t)"/>  is approximately diagonal, with diagonal elements
 that overlap strongly with the lowest lying states, but
 somewhat with other states. These new sources are nevertheless useful
 for fits because there is an obvious prior for their amplitudes: <code class="docutils literal notranslate"><span class="pre">prior[a][b]</span></code>
@@ -781,7 +781,7 @@ when <code class="docutils literal notranslate"><span class="pre">b!=a</span></c
 <p>Such a prior can significantly enhance the stability of a multi-source fit,
 making it easier to extract reliable results for excited states.
 It encodes the fact that only a small number of states couple strongly
-to <img class="math" src="_images/math/8592fc7c86e6b328d8d4fbb3a7a72df91fbec4a7.svg" alt="G(t)" style="vertical-align: -3px"/> by time <img class="math" src="_images/math/9641c4bddca79a7c8fcf9b8be811a6fc142ca907.svg" alt="t_0" style="vertical-align: -3px"/>, without being overly
+to <img class="math" src="_images/math/8592fc7c86e6b328d8d4fbb3a7a72df91fbec4a7.svg" alt="G(t)"/> by time <img class="math" src="_images/math/9641c4bddca79a7c8fcf9b8be811a6fc142ca907.svg" alt="t_0"/>, without being overly
 prescriptive about what their energies are. We can easilty project our
 correlator onto the new eigen-basis (using <a class="reference internal" href="#corrfitter.EigenBasis.apply" title="corrfitter.EigenBasis.apply"><code class="xref py py-func docutils literal notranslate"><span class="pre">EigenBasis.apply()</span></code></a>)
 in order to use this prior, but this is unnecessary.
@@ -806,8 +806,8 @@ to the original sources.</p>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">data</span></code> is a dictionary containing all the correlators. Parameter
-<code class="docutils literal notranslate"><span class="pre">t</span></code> specifies the times used for the diagonalization: <img class="math" src="_images/math/b2e3d699d79d9cdffdfc4b1559abc638c4d3305e.svg" alt="t_0=5" style="vertical-align: -3px"/>
-and <img class="math" src="_images/math/7e7a4f2eff5a4a74563bfbe1c1a9a6a04d263e44.svg" alt="t_1=7" style="vertical-align: -2px"/>. Parameter <code class="docutils literal notranslate"><span class="pre">nterm</span></code> specifies the number of terms
+<code class="docutils literal notranslate"><span class="pre">t</span></code> specifies the times used for the diagonalization: <img class="math" src="_images/math/b2e3d699d79d9cdffdfc4b1559abc638c4d3305e.svg" alt="t_0=5"/>
+and <img class="math" src="_images/math/7e7a4f2eff5a4a74563bfbe1c1a9a6a04d263e44.svg" alt="t_1=7"/>. Parameter <code class="docutils literal notranslate"><span class="pre">nterm</span></code> specifies the number of terms
 in the fit. <code class="docutils literal notranslate"><span class="pre">basis.make_prior(...)</span></code> creates priors
 <code class="docutils literal notranslate"><span class="pre">prior['m.local']</span></code> and <code class="docutils literal notranslate"><span class="pre">prior['m.smeared']</span></code>
 for the amplitudes corresponding to the local and smeared source,
@@ -855,12 +855,12 @@ using the original basis of sources and sinks.</p></li>
 <li><p><strong>keyfmt</strong> – Format string used to generate the keys
 in dictionary <code class="docutils literal notranslate"><span class="pre">data</span></code> corresponding to different
 components of the matrix of correlators. The
-key for <img class="math" src="_images/math/810647e7e6de9ba76ee78f09e2e8b03df58776fd.svg" alt="G_{ij}" style="vertical-align: -5px"/> is assumed to be
+key for <img class="math" src="_images/math/810647e7e6de9ba76ee78f09e2e8b03df58776fd.svg" alt="G_{ij}"/> is assumed to be
 <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=i,</span> <span class="pre">s2=j)</span></code> where <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">j</span></code>
 are drawn from the list of sources, <code class="docutils literal notranslate"><span class="pre">srcs</span></code>.</p></li>
 <li><p><strong>srcs</strong> – List of source names used with <code class="docutils literal notranslate"><span class="pre">keyfmt</span></code>
 to create the keys for finding correlator
-components <img class="math" src="_images/math/810647e7e6de9ba76ee78f09e2e8b03df58776fd.svg" alt="G_{ij}" style="vertical-align: -5px"/> in the data dictionary.</p></li>
+components <img class="math" src="_images/math/810647e7e6de9ba76ee78f09e2e8b03df58776fd.svg" alt="G_{ij}"/> in the data dictionary.</p></li>
 <li><p><strong>t</strong> – <code class="docutils literal notranslate"><span class="pre">t=(t0,</span> <span class="pre">t1)</span></code> specifies the <code class="docutils literal notranslate"><span class="pre">t</span></code> values
 used to diagonalize the correlation function.
 Larger <code class="docutils literal notranslate"><span class="pre">t</span></code> values are better than smaller ones,
@@ -896,17 +896,17 @@ the main attributes are:</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="corrfitter.EigenBasis.svdcorrection">
-<code class="sig-name descname">svdcorrection</code><a class="headerlink" href="#corrfitter.EigenBasis.svdcorrection" title="Permalink to this definition">¶</a></dt>
-<dd><p>The sum of the SVD corrections added to the data by the last call
-to <a class="reference internal" href="#corrfitter.EigenBasis.svd" title="corrfitter.EigenBasis.svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">EigenBasis.svd()</span></code></a>.</p>
+<dt id="corrfitter.EigenBasis.correction">
+<code class="sig-name descname">correction</code><a class="headerlink" href="#corrfitter.EigenBasis.correction" title="Permalink to this definition">¶</a></dt>
+<dd><p>The sum of the <code class="xref py py-func docutils literal notranslate"><span class="pre">gvar.regulate`()</span></code> corrections added to the
+data by the last call to <a class="reference internal" href="#corrfitter.EigenBasis.regulate" title="corrfitter.EigenBasis.regulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">EigenBasis.regulate()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="corrfitter.EigenBasis.svdn">
-<code class="sig-name descname">svdn</code><a class="headerlink" href="#corrfitter.EigenBasis.svdn" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of degrees of freedom modified by the SVD correction
-in the last call to <a class="reference internal" href="#corrfitter.EigenBasis.svd" title="corrfitter.EigenBasis.svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">EigenBasis.svd()</span></code></a>.</p>
+<dt id="corrfitter.EigenBasis.nmod">
+<code class="sig-name descname">nmod</code><a class="headerlink" href="#corrfitter.EigenBasis.nmod" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of degrees of freedom modified
+in the last call to <a class="reference internal" href="#corrfitter.EigenBasis.regulate" title="corrfitter.EigenBasis.regulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">EigenBasis.regulate()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1001,6 +1001,43 @@ and states are aligned.</p></li>
 <li><p><strong>eig_srcs</strong> (<em>bool</em>) – Amplitudes for the eigen-sources are
 tabulated if <code class="docutils literal notranslate"><span class="pre">eig_srcs=True</span></code>; otherwise amplitudes
 for the original basis of sources are tabulated (default).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="corrfitter.EigenBasis.regulate">
+<code class="sig-name descname">regulate</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">keyfmt=None</em>, <em class="sig-param">svdcut=None</em>, <em class="sig-param">eps=None</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.regulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regulate singular correlation matrices in eigen-basis.</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">gvar.regulate()</span></code> is used to regulate singularities in
+<code class="docutils literal notranslate"><span class="pre">data[k]</span></code> where key <code class="docutils literal notranslate"><span class="pre">k</span></code>  equals <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=s1)</span></code>
+for vector data, or <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=s1,</span> <span class="pre">s2=s2)</span></code> for
+matrix data with sources <code class="docutils literal notranslate"><span class="pre">s1</span></code> and <code class="docutils literal notranslate"><span class="pre">s2</span></code> drawn
+from <code class="docutils literal notranslate"><span class="pre">self.srcs</span></code>. The data are transformed to the
+eigen-basis of sources/sinks before a cutoff is introduced
+(<code class="docutils literal notranslate"><span class="pre">svdcut</span></code> or <code class="docutils literal notranslate"><span class="pre">eps</span></code>). and then transformed back to the
+original basis of sources. Results are returned in a
+dictionary containing the modified correlators.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">keyfmt</span></code> is a list of formats, the cutoff is
+applied to the collection of data formed from each
+format. The defaul value for <code class="docutils literal notranslate"><span class="pre">keyfmt</span></code> is
+<code class="docutils literal notranslate"><span class="pre">self.keyfmt</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – Eigen-basis data dictionary.</p></li>
+<li><p><strong>keyfmt</strong> (<em>str</em>) – Data keys are either <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=s1)</span></code> for
+vector data or <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=s1,</span> <span class="pre">s2=s2)</span></code> for matrix
+data, where <code class="docutils literal notranslate"><span class="pre">s1</span></code> and <code class="docutils literal notranslate"><span class="pre">s2</span></code> are sources drawn from
+<code class="docutils literal notranslate"><span class="pre">self.srcs</span></code>.</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – If positive, singularities in the correlation matrix
+for <code class="docutils literal notranslate"><span class="pre">data[k]</span></code> are regulated using <code class="xref py py-func docutils literal notranslate"><span class="pre">gvar.regulate()</span></code>
+with cutoff <code class="docutils literal notranslate"><span class="pre">eps</span></code>. Ignored if <code class="docutils literal notranslate"><span class="pre">svdcut</span></code> is specified (and
+not <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
+<li><p><strong>svdcut</strong> (<em>float</em>) – If nonzero, singularities in the correlation
+matrix for <code class="docutils literal notranslate"><span class="pre">data[k]</span></code> are regulated using <code class="xref py py-func docutils literal notranslate"><span class="pre">gvar.regulate()</span></code>
+with an SVD cutoff <code class="docutils literal notranslate"><span class="pre">svdcut</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">svdcut=1e-12</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1312,12 +1349,12 @@ and the <code class="docutils literal notranslate"><span class="pre">Q</span></c
         <li class="right" >
           <a href="example-etab.html" title="Annotated Example: Matrix Correlator"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2010-19, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

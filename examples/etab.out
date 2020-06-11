@@ -3,28 +3,28 @@ Least Square Fit:
   chi2/dof [dof] = 7.3e+02 [164]    Q = 0    logGBF = -58336
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 19/0.2)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 19/0.1)
 
 ============================== nterm = 2
 Least Square Fit:
   chi2/dof [dof] = 1.1e+02 [164]    Q = 0    logGBF = -7719.3
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 18/0.2)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 18/0.1)
 
 ============================== nterm = 3
 Least Square Fit:
   chi2/dof [dof] = 5.7 [164]    Q = 6.5e-109    logGBF = 868.59
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 18/0.2)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 18/0.1)
 
 ============================== nterm = 4
 Least Square Fit:
   chi2/dof [dof] = 1.5 [164]    Q = 7.6e-05    logGBF = 1208.2
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 35/0.3)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 34/0.2)
 
 ============================== nterm = 5
 Least Square Fit:
@@ -38,7 +38,7 @@ Least Square Fit:
   chi2/dof [dof] = 0.38 [164]    Q = 1    logGBF = 1277.2
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 54/0.4)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 56/0.4)
 
 ============================== nterm = 7
 Least Square Fit:
@@ -90,7 +90,7 @@ Parameters:
               6       0.55 (54)      [   0.62 (62) ]  
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 80/0.6)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 82/0.6)
 
 ============================== Results
 
@@ -136,11 +136,11 @@ etab.3       [0.03(10), 0.03(10), 0.03(10), 1.00(30), 0.2(1.0), 0.2(1.0), 0.2(1.
 
 ==================== add svd, prior noise
 Least Square Fit:
-  chi2/dof [dof] = 0.95 [164]    Q = 0.65    logGBF = 1226.2
+  chi2/dof [dof] = 1 [164]    Q = 0.34    logGBF = 1221.6
 
 Settings:
-  svdcut/n = 0.007/130*    tol = (1e-08*,1e-10,1e-10)    (itns/time = 93/0.7)
+  svdcut/n = 0.007/130*    tol = (1e-08*,1e-10,1e-10)    (itns/time = 91/0.7)
 
       dE: [0.25616(28) 0.531(11) 0.338(32)]
-noisy dE: [0.25628(28) 0.525(12) 0.349(27)]
-           chi2/dof = 0.31 [3]    Q = 0.82
+noisy dE: [0.25617(28) 0.5415(90) 0.345(31)]
+           chi2/dof = 0.38 [3]    Q = 0.77

@@ -1,3 +1,11 @@
+Version 8.1 2020-06-11
+========================
+Minor update to make corrfitter consistent with gvar/lsqfit version 11.6.
+
+- corrfitter.EigenBasis has new method, regulate, based on gvar.regulate.
+
+- Documentation updates to reflect changes in gvar and lsqfit.
+
 Version 8.0.3  2019-12-04
 =========================
 

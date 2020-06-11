@@ -62,7 +62,7 @@ Parameters:
               1      0.244 (84)      [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 8e-05/24    tol = (1e-08*,1e-10,1e-10)    (itns/time = 21/0.1)
+  svdcut/n = 8e-05/24    tol = (1e-08*,1e-10,1e-10)    (itns/time = 20/0.1)
 
 Fit results:
   Eetas: [0.41618(12) 1.02(11)]
@@ -102,14 +102,14 @@ log(etas:dE):      0.00      0.00      0.00
 
 ==================== add svd, prior noise
 Least Square Fit:
-  chi2/dof [dof] = 1.1 [69]    Q = 0.32    logGBF = 1570.2
+  chi2/dof [dof] = 1 [69]    Q = 0.37    logGBF = 1569.9
 
 Settings:
   svdcut/n = 8e-05/24*    tol = (1e-08*,1e-10,1e-10)    (itns/time = 18/0.1)
 
       fit: {'etas:a': 0.21833(16),'etas:dE': 0.41618(12),'Ds:a': 0.21463(24),'Ds:dE': 1.20163(18),'Vnn': 0.76702(94)}
-noisy fit: {'etas:a': 0.21834(16),'etas:dE': 0.41617(12),'Ds:a': 0.21473(23),'Ds:dE': 1.20168(17),'Vnn': 0.76732(88)}
-           chi2/dof = 0.71 [5]    Q = 0.61
+noisy fit: {'etas:a': 0.21834(16),'etas:dE': 0.41617(12),'Ds:a': 0.21470(23),'Ds:dE': 1.20166(17),'Vnn': 0.76743(88)}
+           chi2/dof = 0.74 [5]    Q = 0.6
 
 ==================== simulation
 Least Square Fit:
@@ -126,7 +126,7 @@ Least Square Fit:
   chi2/dof [dof] = 0.52 [69]    Q = 1    logGBF = 1590.4
 
 Settings:
-  svdcut/n = 8e-05/25    tol = (1e-08*,1e-10,1e-10)    (itns/time = 15/0.1)
+  svdcut/n = 8e-05/25    tol = (1e-08*,1e-10,1e-10)    (itns/time = 13/0.0)
 
 simulated - exact: {'etas:a': 0.00004(16),'etas:dE': 0.00002(12),'Ds:a': -5(2469)e-07,'Ds:dE': 0.00002(18),'Vnn': 0.00007(102)}
            chi2/dof = 0.031 [5]    Q = 1

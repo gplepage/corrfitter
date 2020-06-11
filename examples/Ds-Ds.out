@@ -10,14 +10,14 @@ Least Square Fit:
   chi2/dof [dof] = 6.5 [53]    Q = 2.1e-44    logGBF = 1417.8
 
 Settings:
-  svdcut/n = 0.002/9    tol = (1e-08*,1e-10,1e-10)    (itns/time = 49/0.2)
+  svdcut/n = 0.002/9    tol = (1e-08*,1e-10,1e-10)    (itns/time = 47/0.1)
 
 ============================== nterm = 3
 Least Square Fit:
   chi2/dof [dof] = 0.68 [53]    Q = 0.97    logGBF = 1559.9
 
 Settings:
-  svdcut/n = 0.002/9    tol = (1e-08*,1e-10,1e-10)    (itns/time = 117/0.4)
+  svdcut/n = 0.002/9    tol = (1e-08*,1e-10,1e-10)    (itns/time = 122/0.4)
 
 ============================== nterm = 4
 Least Square Fit:
@@ -95,7 +95,7 @@ Parameters:
               3         0.56 (55)       [  0.50 (50) ]  
 
 Settings:
-  svdcut/n = 0.002/9    tol = (1e-08*,1e-10,1e-10)    (itns/time = 79/0.4)
+  svdcut/n = 0.002/9    tol = (1e-08*,1e-10,1e-10)    (itns/time = 81/0.4)
 
 
 Values:
@@ -114,31 +114,31 @@ statistics:      0.05      1.16
 
 ==================== add svd, prior noise
 Least Square Fit:
-  chi2/dof [dof] = 0.94 [53]    Q = 0.6    logGBF = 1552.8
+  chi2/dof [dof] = 0.89 [53]    Q = 0.69    logGBF = 1552
 
 Settings:
-  svdcut/n = 0.002/9*    tol = (1e-08*,1e-10,1e-10)    (itns/time = 237/1.1)
+  svdcut/n = 0.002/9*    tol = (1e-08*,1e-10,1e-10)    (itns/time = 141/0.7)
 
       fit: {'a': 0.2111(12),'dE': 1.31164(72),'Vnn': 0.1065(20)}
-noisy fit: {'a': 0.2109(11),'dE': 1.31155(69),'Vnn': 0.1080(29)}
-           chi2/dof = 0.47 [3]    Q = 0.7
+noisy fit: {'a': 0.2109(13),'dE': 1.31155(74),'Vnn': 0.1102(40)}
+           chi2/dof = 0.42 [3]    Q = 0.74
 
 ==================== simulation
 Least Square Fit:
-  chi2/dof [dof] = 0.61 [53]    Q = 0.99    logGBF = 1562.9
+  chi2/dof [dof] = 0.67 [53]    Q = 0.97    logGBF = 1560
 
 Settings:
-  svdcut/n = 0.002/9    tol = (1e-08*,1e-10,1e-10)    (itns/time = 84/0.4)
+  svdcut/n = 0.002/9    tol = (1e-08*,1e-10,1e-10)    (itns/time = 54/0.2)
 
-simulated - exact: {'a': 0.0001(10),'dE': -0.00019(64),'Vnn': -0.0004(18)}
-           chi2/dof = 1.4 [3]    Q = 0.25
+simulated - exact: {'a': 0.0013(11),'dE': 0.00092(65),'Vnn': -0.0007(20)}
+           chi2/dof = 0.94 [3]    Q = 0.42
 
 ==================== simulation
 Least Square Fit:
-  chi2/dof [dof] = 0.64 [53]    Q = 0.98    logGBF = 1561.2
+  chi2/dof [dof] = 0.63 [53]    Q = 0.98    logGBF = 1560.3
 
 Settings:
-  svdcut/n = 0.002/9    tol = (1e-08*,1e-10,1e-10)    (itns/time = 94/0.4)
+  svdcut/n = 0.002/9    tol = (1e-08*,1e-10,1e-10)    (itns/time = 41/0.2)
 
-simulated - exact: {'a': -0.0002(13),'dE': -0.00020(74),'Vnn': 0.0018(30)}
-           chi2/dof = 0.27 [3]    Q = 0.85
+simulated - exact: {'a': -0.0005(15),'dE': -0.00009(83),'Vnn': -0.0017(29)}
+           chi2/dof = 0.55 [3]    Q = 0.65

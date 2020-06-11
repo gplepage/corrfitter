@@ -6,6 +6,9 @@
 corrfitter Documentation
 ===================================
 
+.. image:: https://zenodo.org/badge/4618836.svg
+   :target: https://zenodo.org/badge/latestdoi/4618836
+   
 Contents:
 
 .. toctree::

@@ -3,28 +3,28 @@ Least Square Fit:
   chi2/dof [dof] = 7.3e+02 [164]    Q = 0    logGBF = -58336
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 19/0.2)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 19/0.1)
 
 ============================== nterm = 2
 Least Square Fit:
   chi2/dof [dof] = 1.1e+02 [164]    Q = 0    logGBF = -7719.3
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 18/0.2)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 18/0.1)
 
 ============================== nterm = 3
 Least Square Fit:
   chi2/dof [dof] = 5.7 [164]    Q = 6.5e-109    logGBF = 868.59
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 18/0.2)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 18/0.1)
 
 ============================== nterm = 4
 Least Square Fit:
   chi2/dof [dof] = 1.2 [164]    Q = 0.047    logGBF = 1223
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 34/0.3)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 34/0.2)
 
 ============================== nterm = 5
 Least Square Fit:
@@ -38,7 +38,7 @@ Least Square Fit:
   chi2/dof [dof] = 0.37 [164]    Q = 1    logGBF = 1270.5
 
 Settings:
-  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 117/0.8)
+  svdcut/n = 0.007/130    tol = (1e-08*,1e-10,1e-10)    (itns/time = 116/0.8)
 
 ============================== nterm = 7
 Least Square Fit:
@@ -136,11 +136,11 @@ etab.3       [0.03(10), 0.03(10), 0.03(10), 0.2(1.0), 0.2(1.0), 0.2(1.0), 0.2(1.
 
 ==================== add svd, prior noise
 Least Square Fit:
-  chi2/dof [dof] = 0.83 [164]    Q = 0.95    logGBF = 1229.3
+  chi2/dof [dof] = 0.93 [164]    Q = 0.74    logGBF = 1220.7
 
 Settings:
-  svdcut/n = 0.007/130*    tol = (1e-08*,1e-10,1e-10)    (itns/time = 110/0.8)
+  svdcut/n = 0.007/130*    tol = (1e-08*,1e-10,1e-10)    (itns/time = 153/1.1)
 
       dE: [0.25613(29) 0.532(10) 0.333(34)]
-noisy dE: [0.25627(28) 0.522(13) 0.339(49)]
-           chi2/dof = 0.46 [3]    Q = 0.71
+noisy dE: [0.25628(28) 0.519(11) 0.371(29)]
+           chi2/dof = 0.86 [3]    Q = 0.46

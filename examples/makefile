@@ -9,7 +9,7 @@ run run-all run-examples:
 	-$(PYTHON) etas-Ds-marginalize.py > etas-Ds-marginalize.tmp
 	-diff -w -I 't=' -I svdcut etas-Ds-marginalize.tmp etas-Ds-marginalize.out
 	-$(PYTHON) etas-Ds-chained.py > etas-Ds-chained.tmp
-	-diff -w -I 't=' -I svdcut etas-Ds-chained.tmp etas-Ds-chained.out
+	-diff -w -I 't=' -I svdcut -I etas -I Ds -I all -I 3ptT -I Ds etas-Ds-chained.tmp etas-Ds-chained.out
 	-$(PYTHON) Ds-Ds.py > Ds-Ds.tmp
 	-diff -w -I 't=' -I svdcut Ds-Ds.tmp Ds-Ds.out
 	-$(PYTHON) etab.py > etab.tmp

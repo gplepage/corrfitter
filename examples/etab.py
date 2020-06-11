@@ -35,7 +35,7 @@ def main():
     print('\n==================== add svd, prior noise')
     noisy_fit = fitter.lsqfit(
         data=data, prior=prior, p0=fit.pmean, svdcut=SVDCUT,
-        add_svdnoise=True, add_priornoise=True,
+        noise=True,
         )
     print(noisy_fit.format(pstyle=None))
     dE = fit.p['etab.dE'][:3]
@@ -43,6 +43,8 @@ def main():
     print('      dE:', dE)
     print('noisy dE:', noisy_dE)
     print('          ', gv.fmt_chi2(gv.chi2(dE - noisy_dE)))
+    if SHOWPLOTS:
+        fit.qqplot_residuals().show()
 
 def make_data(filename):
     data = gv.dataset.avg_data(cf.read_dataset(filename, grep='1s0'))
@@ -83,7 +85,7 @@ def print_results(fit, basis, prior, data):
     inputs = collections.OrderedDict()
     inputs['prior'] = prior
     inputs['data'] = data
-    inputs['svdcut'] = fit.svdcorrection
+    inputs['svdcut'] = fit.correction
     print(gv.fmt_values(outputs))
     print(gv.fmt_errorbudget(outputs, inputs, colwidth=18))
     print('Prior:\n')

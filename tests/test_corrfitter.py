@@ -1037,12 +1037,12 @@ class test_corrfitter(unittest.TestCase):
         # fit with lsqfit
         fit = fitter.lsqfit(pdata=pdata, prior=prior)
         chi2 = gv.chi2(fit.p, p)
-        self.assertTrue(chi2.Q > 0.2)
+        self.assertTrue(chi2.Q > 0.1)
 
         # fit with chained_lsqfit
         fit = fitter.chained_lsqfit(pdata=pdata, prior=prior)
         chi2 = gv.chi2(fit.p, p)
-        self.assertTrue(chi2.Q > 0.2)
+        self.assertTrue(chi2.Q > 0.1)
 
     def test_lsqfit_3pt_symm(self):
         " CorrFitter.lsqfit and chained_lsqfit 2pt+3pt amplitudes symm_V "
@@ -1073,12 +1073,12 @@ class test_corrfitter(unittest.TestCase):
         # fit with lsqfit
         fit = fitter.lsqfit(pdata=pdata, prior=prior)
         chi2 = gv.chi2(fit.p, p)
-        self.assertTrue(chi2.Q > 0.2)
+        self.assertTrue(chi2.Q > 0.1)
 
         # fit with chained_lsqfit
         fit = fitter.chained_lsqfit(pdata=pdata, prior=prior)
         chi2 = gv.chi2(fit.p, p)
-        self.assertTrue(chi2.Q > 0.2)
+        self.assertTrue(chi2.Q > 0.1)
 
     def test_lsqfit_3pt_osc(self):
         " CorrFitter.lsqfit and chained_lsqfit 2pt+3pt amplitudes "
@@ -1216,6 +1216,21 @@ class test_eigenbasis(unittest.TestCase):
                 np.testing.assert_allclose(gv.mean(oldG[k] - G[k]), 0, atol=1e-10)
                 np.testing.assert_allclose(gv.sdev(oldG[k] - G[k]), 0, atol=1e-10)
 
+    def test_regulate(self):
+        " EigenBasis.regulate "
+        tdata = [1,2,3,4]
+        G = self.make_G(tdata, keyfmt='{s1}{s2}', srcs='ab')
+        basis = EigenBasis(
+            data=G, keyfmt='{s1}{s2}', srcs='ab',
+            t=2, tdata=tdata,
+            )
+        Gsvd = basis.regulate(G, eps=0.9)
+        self.assertEqual(basis.nmod, 16)
+        self.assertEqual(str(sum(basis.correction.flat)), '0.000(30)')
+        for k in G:
+            np.testing.assert_allclose(gv.mean(G[k]), gv.mean(Gsvd[k]))
+            self.assertTrue(np.all(gv.sdev(Gsvd[k]) > gv.sdev(G[k])))
+    
     def test_svd(self):
         " EigenBasis.svd "
         tdata = [1,2,3,4]
@@ -1225,8 +1240,8 @@ class test_eigenbasis(unittest.TestCase):
             t=2, tdata=tdata,
             )
         Gsvd = basis.svd(G, svdcut=0.9)
-        self.assertEqual(basis.svdn, 15)
-        self.assertEqual(str(sum(basis.svdcorrection)), '0.000(30)')
+        self.assertEqual(basis.nmod, 15)
+        self.assertEqual(str(sum(basis.correction.flat)), '0.000(30)')
         for k in G:
             np.testing.assert_allclose(gv.mean(G[k]), gv.mean(Gsvd[k]))
             self.assertTrue(np.all(gv.sdev(Gsvd[k]) > gv.sdev(G[k])))

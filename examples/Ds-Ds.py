@@ -31,7 +31,7 @@ def main():
     print('\n==================== add svd, prior noise')
     noisy_fit = fitter.lsqfit(
         data=data, prior=prior, p0=fit.pmean, svdcut=SVDCUT,
-        add_svdnoise=True, add_priornoise=True,
+        noise=True,
         )
     print(noisy_fit.format(pstyle=None))
     p = key_parameters(fit.p)
@@ -130,5 +130,5 @@ def print_results(fit, prior, data):
 
 
 if __name__ == '__main__':
-    gv.ranseed(123456)
+    gv.ranseed(1234)
     main()

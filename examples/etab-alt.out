@@ -3,42 +3,42 @@ Least Square Fit:
   chi2/dof [dof] = 1.2e+02 [164]    Q = 0    logGBF = -8399.2
 
 Settings:
-  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 9/1.0)
+  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 9/0.1)
 
 ============================== nterm = 2
 Least Square Fit:
   chi2/dof [dof] = 43 [164]    Q = 0    logGBF = -2339.8
 
 Settings:
-  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 33/1.1)
+  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 33/0.2)
 
 ============================== nterm = 3
 Least Square Fit:
   chi2/dof [dof] = 1.8 [164]    Q = 4.3e-09    logGBF = 1054
 
 Settings:
-  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 12/1.1)
+  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 11/0.1)
 
 ============================== nterm = 4
 Least Square Fit:
   chi2/dof [dof] = 0.72 [164]    Q = 1    logGBF = 1131.1
 
 Settings:
-  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 12/1.0)
+  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 13/0.1)
 
 ============================== nterm = 5
 Least Square Fit:
   chi2/dof [dof] = 0.43 [164]    Q = 1    logGBF = 1144.4
 
 Settings:
-  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 94/1.6)
+  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 96/0.5)
 
 ============================== nterm = 6
 Least Square Fit:
   chi2/dof [dof] = 0.37 [164]    Q = 1    logGBF = 1142.6
 
 Settings:
-  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 58/1.3)
+  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 58/0.3)
 
 ============================== nterm = 7
 Least Square Fit:
@@ -90,7 +90,7 @@ Parameters:
               6       0.53 (51)      [  0.62 (62) ]  
 
 Settings:
-  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 75/1.5)
+  svdcut/n = 0.06/133    tol = (1e-08*,1e-10,1e-10)    (itns/time = 72/0.5)
 
 ============================== Results
 
@@ -125,11 +125,11 @@ Partial % Errors:
 
 ==================== add svd, prior noise
 Least Square Fit:
-  chi2/dof [dof] = 0.89 [164]    Q = 0.84    logGBF = 1091.8
+  chi2/dof [dof] = 0.95 [164]    Q = 0.66    logGBF = 1087.7
 
 Settings:
-  svdcut/n = 0.06/133*    tol = (1e-08*,1e-10,1e-10)    (itns/time = 57/1.4)
+  svdcut/n = 0.06/133*    tol = (1e-08*,1e-10,1e-10)    (itns/time = 80/0.5)
 
       dE: [0.25602(35) 0.534(12) 0.319(36)]
-noisy dE: [0.25572(36) 0.525(17) 0.291(37)]
-           chi2/dof = 0.77 [3]    Q = 0.51
+noisy dE: [0.25590(36) 0.517(14) 0.338(33)]
+           chi2/dof = 0.5 [3]    Q = 0.68

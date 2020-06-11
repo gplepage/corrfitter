@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Annotated Example: Matrix Correlator &#8212; corrfitter 8.0.3 documentation</title>
+    <title>Annotated Example: Matrix Correlator &#8212; corrfitter 8.1 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,7 +54,7 @@
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>Matrix correlators, built  from multiple sources and sinks,
 greatly improve results for the excited states in the correlators.
-Here we analyze <img class="math" src="_images/math/796bef5908cc057118322358f951a56a1bc1ae36.svg" alt="\eta_b" style="vertical-align: -3px"/> correlators using 4 sources/sinks using
+Here we analyze <img class="math" src="_images/math/796bef5908cc057118322358f951a56a1bc1ae36.svg" alt="\eta_b"/> correlators using 4 sources/sinks using
 a prior designed by <a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.EigenBasis</span></code></a>.</p>
 <p>A major challenge when studying excited states with multi-source
 fits is the appearance in the fit of spurious states, with amplitudes that
@@ -82,7 +82,7 @@ The data are from the HPQCD collaboration.</p>
 <h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
 <p>The main method follows the template in <a class="reference internal" href="overview.html#basic-fits"><span class="std std-ref">Basic Fits</span></a>, but
 modified to handle the <a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.EigenBasis</span></code></a> object <code class="docutils literal notranslate"><span class="pre">basis</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>   <span class="c1"># makes this work for python2 and 3</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>   <span class="c1"># makes this work for python2 and 3</span>
 
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">gvar</span> <span class="k">as</span> <span class="nn">gv</span>
@@ -112,13 +112,13 @@ modified to handle the <a class="reference internal" href="corrfitter.html#corrf
 </pre></div>
 </div>
 <p>The eigen-basis is created by <code class="docutils literal notranslate"><span class="pre">make_data('etab.h5')</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        <span class="n">fit</span><span class="o">.</span><span class="n">qqplot_residuals</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">grep</span><span class="o">=</span><span class="s1">&#39;1s0&#39;</span><span class="p">))</span>
     <span class="n">basis</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">EigenBasis</span><span class="p">(</span>
         <span class="n">data</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="n">KEYFMT</span><span class="p">,</span> <span class="n">srcs</span><span class="o">=</span><span class="n">SOURCES</span><span class="p">,</span>
         <span class="n">t</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">tdata</span><span class="o">=</span><span class="n">TDATA</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">basis</span>
 </pre></div>
 </div>
 <p>It reads Monte Carlo
@@ -179,7 +179,9 @@ lowest four states in the correlator, and weakly with all the others.
 This eigen-basis is used later to construct the prior.</p>
 <p>A correlator fitter, called <code class="docutils literal notranslate"><span class="pre">fitter</span></code>, is created from the list of correlator
 models returned by <code class="docutils literal notranslate"><span class="pre">make_models()</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">basis</span>
+
+<span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
     <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">SOURCES</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">SOURCES</span><span class="p">[</span><span class="n">i</span><span class="p">:]:</span>
@@ -192,8 +194,6 @@ models returned by <code class="docutils literal notranslate"><span class="pre">
                     <span class="n">a</span><span class="o">=</span><span class="s1">&#39;etab.&#39;</span> <span class="o">+</span> <span class="n">s1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s1">&#39;etab.&#39;</span> <span class="o">+</span> <span class="n">s2</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s1">&#39;etab.dE&#39;</span><span class="p">,</span>
                     <span class="n">otherdata</span><span class="o">=</span><span class="n">otherdata</span><span class="p">,</span>
                     <span class="p">)</span>
-                <span class="p">)</span>
-    <span class="k">return</span> <span class="n">models</span>
 </pre></div>
 </div>
 <p>There is one model for each correlator to be fit, so 16 in all. The keys
@@ -209,8 +209,8 @@ amplitudes are labeled by <code class="docutils literal notranslate"><span class
 <p>We try fits with <code class="docutils literal notranslate"><span class="pre">N=1,2..7</span></code> terms in the fit function.  The number of
 terms is encoded in the prior, which is constructed by
 <code class="docutils literal notranslate"><span class="pre">make_prior(N,</span> <span class="pre">basis)</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">return</span> <span class="n">models</span>
+
 </pre></div>
 </div>
 <p>The prior looks complicated</p>
@@ -254,7 +254,9 @@ matrix without an SVD cut.
 See <a class="reference internal" href="faster.html#svd-cuts"><span class="std std-ref">Accurate Fits — SVD Cuts</span></a> and the discussion below for more information.</p>
 <p>Final results are printed out by <code class="docutils literal notranslate"><span class="pre">print_results(...)</span></code>
 after the last fit is finished:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;Results</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">eig_srcs</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
@@ -266,7 +268,7 @@ after the last fit is finished:</p>
     <span class="n">inputs</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
     <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;prior&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prior</span>
     <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
-    <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;svdcut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">svdcorrection</span>
+    <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;svdcut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">correction</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_values</span><span class="p">(</span><span class="n">outputs</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_errorbudget</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">colwidth</span><span class="o">=</span><span class="mi">18</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Prior:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -278,8 +280,6 @@ after the last fit is finished:</p>
     <span class="n">prior_eig</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;etab.0&#39;</span><span class="p">,</span> <span class="s1">&#39;etab.1&#39;</span><span class="p">,</span> <span class="s1">&#39;etab.2&#39;</span><span class="p">,</span> <span class="s1">&#39;etab.3&#39;</span><span class="p">]:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="s1">&#39;</span><span class="si">{:13}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">prior_eig</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
-            <span class="p">)</span>
 </pre></div>
 </div>
 <p>This method first writes out two tables listing energies and amplitudes for
@@ -352,10 +352,10 @@ displayed (optionally).</p>
               <span class="mi">6</span>       <span class="mf">0.55</span> <span class="p">(</span><span class="mi">54</span><span class="p">)</span>      <span class="p">[</span>   <span class="mf">0.62</span> <span class="p">(</span><span class="mi">62</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.007</span><span class="o">/</span><span class="mi">130</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">80</span><span class="o">/</span><span class="mf">0.6</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.007</span><span class="o">/</span><span class="mi">130</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">82</span><span class="o">/</span><span class="mf">0.6</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> per degree of freedom is unusually small because of the
+<p>The <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2"/> per degree of freedom is unusually small because of the
 large SVD cut (see below). This fit required 169 iterations,
 but took only a couple of seconds
 on a laptop. The results are almost identical to those from <code class="docutils literal notranslate"><span class="pre">N=6</span></code> and <code class="docutils literal notranslate"><span class="pre">N=8</span></code>.</p>
@@ -499,15 +499,15 @@ bootstrap estimates to exact values is shown in the plot (from
 <p>This shows that the SVD cut should be around 0.007, which is where the
 ratio falls below one.</p>
 <p>This is a relatively large SVD cut affecting many of the correlation
-matrice’s eigenmodes (233 out of 260). As a result the fit’s <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/>
+matrice’s eigenmodes (233 out of 260). As a result the fit’s <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2"/>
 is quite small. As discussed in <a class="reference internal" href="faster.html#goodness-of-fit"><span class="std std-ref">Goodness of Fit</span></a>, we need to add
-extra noise to the data if we want to use <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> to evaluate fit quality.
+extra noise to the data if we want to use <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2"/> to evaluate fit quality.
 Adding the following code</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># check fit quality by adding noise</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">==================== add svd, prior noise&#39;</span><span class="p">)</span>
     <span class="n">noisy_fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">pmean</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="n">SVDCUT</span><span class="p">,</span>
-        <span class="n">add_svdnoise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">add_priornoise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">noisy_fit</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pstyle</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
     <span class="n">dE</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;etab.dE&#39;</span><span class="p">][:</span><span class="mi">3</span><span class="p">]</span>
@@ -522,14 +522,14 @@ associated with both the SVD cut and the prior. The result is a good fit,
 even with the additional noise:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">====================</span> <span class="n">add</span> <span class="n">svd</span><span class="p">,</span> <span class="n">prior</span> <span class="n">noise</span>
 <span class="n">Least</span> <span class="n">Square</span> <span class="n">Fit</span><span class="p">:</span>
-  <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.95</span> <span class="p">[</span><span class="mi">164</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.65</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1226.2</span>
+  <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">164</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.34</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1221.6</span>
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.007</span><span class="o">/</span><span class="mi">130</span><span class="o">*</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">93</span><span class="o">/</span><span class="mf">0.7</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.007</span><span class="o">/</span><span class="mi">130</span><span class="o">*</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">91</span><span class="o">/</span><span class="mf">0.7</span><span class="p">)</span>
 
       <span class="n">dE</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.25616</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span> <span class="mf">0.531</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="mf">0.338</span><span class="p">(</span><span class="mi">32</span><span class="p">)]</span>
-<span class="n">noisy</span> <span class="n">dE</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.25628</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span> <span class="mf">0.525</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="mf">0.349</span><span class="p">(</span><span class="mi">27</span><span class="p">)]</span>
-           <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="o">=</span> <span class="mf">0.31</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.82</span>
+<span class="n">noisy</span> <span class="n">dE</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.25617</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span> <span class="mf">0.5415</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span> <span class="mf">0.345</span><span class="p">(</span><span class="mi">31</span><span class="p">)]</span>
+           <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="o">=</span> <span class="mf">0.38</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.77</span>
 </pre></div>
 </div>
 </div>
@@ -544,8 +544,8 @@ energies. Typically the actual correspondence between source and low-energy
 state weakens as the energy increases. So an obvious test is to rerun the
 fit but with a prior that associates states with only three of the sources,
 leaving the fourth source unconstrained. This is done by replacing</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">return</span> <span class="n">models</span>
+
 </pre></div>
 </div>
 <p>with</p>
@@ -656,7 +656,7 @@ the following results for the last fit and summary:</p>
 <p>The energies and amplitudes for the first three states are almost unchanged,
 which gives us confidence in the original results.
 Results for the fourth and higher states have larger errors, as expected.</p>
-<p>Note that while the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2" style="vertical-align: -4px"/> value for this last fit is almost identical to
+<p>Note that while the <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2"/> value for this last fit is almost identical to
 that in the  original fit, the Bayes Factor (from <code class="docutils literal notranslate"><span class="pre">logGBF</span></code>) is
 exp(1277.1-1270.3)=899 times larger for the original fit. The Bayes Factor
 gives us a sense of which prior the data prefer. Specifically it says that
@@ -666,14 +666,14 @@ further reinforces our confidence in the original results.</p>
 </div>
 <div class="section" id="alternative-organization">
 <h2>Alternative Organization<a class="headerlink" href="#alternative-organization" title="Permalink to this headline">¶</a></h2>
-<p>Our <img class="math" src="_images/math/796bef5908cc057118322358f951a56a1bc1ae36.svg" alt="\eta_b" style="vertical-align: -3px"/> fit uses the <a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.EigenBasis</span></code></a> to construct a special prior for the fit,
+<p>Our <img class="math" src="_images/math/796bef5908cc057118322358f951a56a1bc1ae36.svg" alt="\eta_b"/> fit uses the <a class="reference internal" href="corrfitter.html#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.EigenBasis</span></code></a> to construct a special prior for the fit,
 but leaves the correlators unchanged. An alternative approach is  to project
 the correlators unto the eigen-basis, and then to fit them with a fit function
 defined directly in terms of the eigen-basis. This approach is conceptually
 identical to that above, but in practice it gives somewhat different
 results since the SVD cut  enters differently. A version of the code above
 that uses this approach is:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>   <span class="c1"># makes this work for python2 and 3</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>   <span class="c1"># makes this work for python2 and 3</span>
 
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">gvar</span> <span class="k">as</span> <span class="nn">gv</span>
@@ -704,7 +704,7 @@ that uses this approach is:</p>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">==================== add svd, prior noise&#39;</span><span class="p">)</span>
     <span class="n">noisy_fit</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">lsqfit</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">pmean</span><span class="p">,</span> <span class="n">svdcut</span><span class="o">=</span><span class="n">SVDCUT</span><span class="p">,</span>
-        <span class="n">add_svdnoise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">add_priornoise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">noisy_fit</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pstyle</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
     <span class="n">dE</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;etab.dE&#39;</span><span class="p">][:</span><span class="mi">3</span><span class="p">]</span>
@@ -752,7 +752,7 @@ that uses this approach is:</p>
     <span class="n">inputs</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
     <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;prior&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prior</span>
     <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
-    <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;svdcut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">svdcorrection</span>
+    <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;svdcut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">correction</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_values</span><span class="p">(</span><span class="n">outputs</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">gv</span><span class="o">.</span><span class="n">fmt_errorbudget</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">colwidth</span><span class="o">=</span><span class="mi">18</span><span class="p">))</span>
 
@@ -817,7 +817,7 @@ little difference between the two approaches in this case:</p>
               <span class="mi">6</span>       <span class="mf">0.53</span> <span class="p">(</span><span class="mi">51</span><span class="p">)</span>      <span class="p">[</span>  <span class="mf">0.62</span> <span class="p">(</span><span class="mi">62</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.06</span><span class="o">/</span><span class="mi">133</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">75</span><span class="o">/</span><span class="mf">1.5</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.06</span><span class="o">/</span><span class="mi">133</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">72</span><span class="o">/</span><span class="mf">0.5</span><span class="p">)</span>
 
 <span class="o">==============================</span> <span class="n">Results</span>
 
@@ -918,12 +918,12 @@ are used in the fit.</p>
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.0.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2010-19, G.P. Lepage.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>
