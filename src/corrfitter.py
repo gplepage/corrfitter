@@ -866,7 +866,6 @@ class Corr3(lsqfit.MultiFitterModel):
             aprop.append(
                 ofaci * p[ai][:, None] * _gvar.exp(-ta[None, :] * sumdE[:, None])
                 )
-        aprop = numpy.array(aprop)
 
         # final propagators
         # bprop[i][j][t] where i = n or o and j = excitation level
@@ -883,7 +882,6 @@ class Corr3(lsqfit.MultiFitterModel):
             bprop.append(
                 ofacj * p[bj][:, None] * _gvar.exp(-tb[None, :] * sumdE[:, None])
                 )
-        bprop = numpy.array(bprop)
 
         # combine with vertices
         # combine propagators with vertices
