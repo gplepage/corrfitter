@@ -1,14 +1,7 @@
-from distutils.command.build_py import build_py as _build_py
+# from distutils.command.build_py import build_py
 from distutils.core import setup
 
-CORRFITTER_VERSION = '8.1.1'
-
-class build_py(_build_py):
-    def run(self):
-        """ Append version number to corrfitter.py """
-        with open('src/corrfitter.py', 'a') as cffile:
-            cffile.write("\n__version__ = '%s'\n" % CORRFITTER_VERSION)
-        _build_py.run(self)
+CORRFITTER_VERSION = open('src/corrfitter/_version.py', 'r').readlines()[0].split("'")[1]
 
 # pypi
 with open('README.rst', 'r') as file:
@@ -20,9 +13,9 @@ setup(name='corrfitter',
     author='G. Peter Lepage, Cornell University',
     author_email='g.p.lepage@cornell.edu',
     license='GPLv3+',
-    packages={''},
-    package_dir={'':'src'},
-    cmdclass={'build_py': build_py},
+    packages={'corrfitter'},
+    package_dir={'corrfitter':'src/corrfitter'},
+    # cmdclass={'build_py': build_py},
     requires=["lsqfit (>=11.6)", 'numpy (>=1.7)', 'gvar (>=11.6)'],
     install_requires=['lsqfit>=11.6', 'gvar>=11.6', 'numpy>=1.7'],
     platforms="Any",

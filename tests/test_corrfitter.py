@@ -19,6 +19,7 @@ import unittest
 import numpy as np
 import gvar as gv
 from corrfitter import *
+import corrfitter as cf
 
 try:
     import h5py
@@ -1369,7 +1370,7 @@ class test_eigenbasis(unittest.TestCase):
         srcs = 'ab'
         G = self.make_G(tdata=tdata, keyfmt=datafmt, srcs=srcs, f=[-1., 1.])
         basis = EigenBasis(
-            data=G, keyfmt=datafmt, srcs=srcs, t=(1,2), osc=osc
+            data=G, keyfmt=datafmt, srcs=srcs, t=(0,2), osc=osc
             )
         nterm = 4
         ampl = '1.0(2)', '0.03(20)', '0.2(2.0)'
@@ -1379,7 +1380,7 @@ class test_eigenbasis(unittest.TestCase):
         # case 1 - canonical
         prior = basis.make_prior(
             nterm=nterm, keyfmt=('a.{s1}','ao.{s1}'),
-            ampl=ampl, dEfac=dEfac, eig_srcs=True, #states=[0,1,2]
+            ampl=ampl, dEfac=dEfac, eig_srcs=True,
             )
         self.assertEqual(
             str(gv.exp(prior['log(a.dE)'])),
@@ -1392,12 +1393,142 @@ class test_eigenbasis(unittest.TestCase):
         a0 = gv.gvar(nterm * [big])
         a0[0] = gv.gvar(one)
         self.assertEqual(str(prior['a.0']), str(a0))
+        a0 = gv.gvar(nterm * [big])
+        a0[0] = gv.gvar(small)
         self.assertEqual(str(prior['ao.0']), str(a0))
         a1 = gv.gvar(nterm * [big])
         a1[0] = gv.gvar(small)
         self.assertEqual(str(prior['a.1']), str(a1))
+        a1 = gv.gvar(nterm * [big])
+        a1[0] = gv.gvar(one)
         self.assertEqual(str(prior['ao.1']), str(a1))
 
+class test_eigenbasis2(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def make_psidata(self, psi, srcs):
+        # print(psi)
+        # print(srcs)
+        data = dict()
+        for i in range(2):
+            if len(psi[i]) > 0:
+                for i1, s1 in enumerate(srcs[i]):
+                    data[s1] = []
+                    for psin in psi[i]:
+                        data[s1].append(psin[i1])
+        for k in data:
+            data[k] = np.array(data[k])
+        return data
+        
+    def make_data_srcs(self, psi, E, tdata, srcs='abcdefghijklmnopqrstuvwxyz'):
+        psi, psio = psi 
+        E, Eo = E 
+        nsrc = len(psi[0]) if len(E) > 0 else  len(psio[0])
+        srcs = [s for s in srcs[:nsrc]]
+        G = dict()
+        for i1, s1 in enumerate(srcs):
+            for i2, s2 in enumerate(srcs):
+                key = s1 + '.' + s2
+                G[key] = 0.0
+                for n, En in enumerate(E):
+                    G[key] += psi[n][i1] * psi[n][i2] * np.exp(-En * tdata)
+                for n, Eon in enumerate(Eo):
+                    G[key] += (-1)**tdata * psio[n][i1] * psio[n][i2] * np.exp(-Eon * tdata)
+        return G, srcs
+
+    def test_apply_unapply_prior(self):
+        for osc in [True, False]:
+            if osc:
+                psi = ([[2.,-2, 0.1], [0.1, 0, 3]], [[1., 2, -0.1]])
+                E = ([0.6, 1.3], [0.75])
+                keyfmt = ('{s1}', '{s1}o')
+                t = (2, 4)
+                states = ([0,2], [1])
+                # alternative
+                # psi = ([[2.,-2, 0.1]], [[1., 2, -0.1], [0.1, 0, 3]])
+                # E = ([0.6], [0.75, 1.3])
+                # states = ([0], [1, 2])   # or ([0], [1])
+            else:
+                psi = ([[2.,-2, 0.1], [1.,1, -0.2], [0.3, 0.0, -1.5]], [])
+                E = ([0.6, 0.8, 1.1], [])
+                keyfmt = '{s1}'
+                t = (1, 2)
+                states = ([1, 0], [])
+            tdata = np.arange(5)
+            data, srcs = self.make_data_srcs(psi, E, tdata)
+            srcs = (srcs, [s + 'o' for s in srcs])
+            eig_srcs = [str(i) for i in range(len(psi[0][0]))]
+            eig_srcs = (eig_srcs, [s + 'o' for s in eig_srcs])
+ 
+            # create basis 
+            basis = cf.EigenBasis(data=data, srcs=srcs[0], t=t, osc=osc)
+
+            # test energies
+            np.testing.assert_allclose(basis.E[:basis.neig[0]], E[0])
+            np.testing.assert_allclose(basis.E[basis.neig[0]:], E[1])
+
+            # test apply and unapply on vector
+            psid = self.make_psidata(psi, srcs)
+            # double check make_psi
+            for i, k in enumerate(srcs[0]): 
+                np.testing.assert_allclose(psid[k], [pj[i] for pj in psi[0]], atol=1e-10)
+            if osc:
+                for i, k in enumerate(srcs[1]): 
+                    np.testing.assert_allclose(psid[k], [pj[i] for pj in psi[1]], atol=1e-10)
+            # eig_basis
+            eig_psi = basis.apply(psid, keyfmt=keyfmt)
+            for i, k in enumerate(eig_srcs[0]):
+                p = np.zeros(len(eig_psi[k])) 
+                if i < basis.neig[0]:
+                    p[i] = 1.0
+                np.testing.assert_allclose(np.fabs(eig_psi[k]), p, atol=1e-10)
+            if osc:
+                offset = basis.neig[0]
+                for i, k in enumerate(eig_srcs[1]):
+                    p = np.zeros(len(eig_psi[k])) 
+                    if i >= basis.neig[0]:
+                        p[i - offset] = 1.0
+                    np.testing.assert_allclose(np.fabs(eig_psi[k]), p, atol=1e-10)
+            # back to original basis
+            npsid = basis.unapply(eig_psi, keyfmt=keyfmt)
+            for i, k in enumerate(srcs[0]): 
+                np.testing.assert_allclose(npsid[k], [pj[i] for pj in psi[0]], atol=1e-10)
+            if osc:
+                for i, k in enumerate(srcs[1]): 
+                    np.testing.assert_allclose(npsid[k], [pj[i] for pj in psi[1]], atol=1e-10)
+            
+            # test apply and unapply on data[s1.s2]
+            eig_data = basis.apply(data, keyfmt='{s1}.{s2}')
+            for k in eig_data:
+                s1, s2 = k.split('.')
+                if s1 == s2:
+                    self.assertFalse(np.allclose(eig_data[k], len(eig_data[k]) * [0], atol=1e-10))
+                else:
+                    self.assertTrue(np.allclose(eig_data[k], len(eig_data[k]) * [0], atol=1e-10))
+            ndata = basis.unapply(eig_data, keyfmt='{s1}.{s2}')
+            for k in ndata:
+                np.testing.assert_allclose(data[k], ndata[k], atol=1e-10)
+
+            # prior
+            prior = basis.make_prior(nterm=4, keyfmt=keyfmt, states=states)
+            eig_prior = basis.apply(prior, keyfmt=keyfmt)
+            # print(gv.tabulate(eig_prior))
+            one, small, big = gv.gvar(['1.0(3)', '0.03(10)', '0.2(1.0)'])
+            for i, k in enumerate(eig_srcs[0]):
+                p = np.array(len(eig_prior[k]) * [big])
+                for j, s in enumerate(states[0]):
+                    p[s] = one if j==i else small
+                self.assertEqual(str(eig_prior[k]), str(p))
+            if osc:
+                offset = basis.neig[0]
+                for i, k in enumerate(eig_srcs[1]):
+                    p = np.array(len(eig_prior[k]) * [big])
+                    for j, s in enumerate(states[1]):
+                        p[s] = one if j==(i - offset) else small
+                    self.assertEqual(str(eig_prior[k]), str(p))
+
+            
 class test_read_dataset(unittest.TestCase):
     def setUp(self):
         pass

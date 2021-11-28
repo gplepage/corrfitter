@@ -54,7 +54,7 @@ modified to handle the |EigenBasis| object ``basis``:
 The eigen-basis is created by ``make_data('etab.h5')``:
 
 .. literalinclude:: examples/etab.py
-    :lines: 47-53
+    :lines: 49-55
 
 It reads Monte Carlo
 data from file ``'etab.h5'``, which is an hdf5-format file that
@@ -118,7 +118,7 @@ A correlator fitter, called ``fitter``, is created from the list of correlator
 models returned by ``make_models()``:
 
 .. literalinclude:: examples/etab.py
-    :lines: 55-69
+    :lines: 57-71
 
 There is one model for each correlator to be fit, so 16 in all. The keys
 (``datatag``) for the correlator data are constructed from information
@@ -136,7 +136,7 @@ terms is encoded in the prior, which is constructed by
 ``make_prior(N, basis)``:
 
 .. literalinclude:: examples/etab.py
-    :lines: 71-72
+    :lines: 73-74
 
 The prior looks complicated ::
 
@@ -186,7 +186,7 @@ Final results are printed out by ``print_results(...)``
 after the last fit is finished:
 
 .. literalinclude:: examples/etab.py
-    :lines: 74-99
+    :lines: 76-101
 
 This method first writes out two tables listing energies and amplitudes for
 the first 4 states in the correlator. The first table shows results for the
@@ -282,7 +282,7 @@ The value of the SVD cut was determined
 using a short script that combines
 
 .. literalinclude:: examples/etab-svdcut.py
-    :lines: 3-9
+    :lines: 3-10
 
 with the code for ``make_models()`` described above.
 Here ``gv.dataset.svd_diagnosis(...)`` compares the exact eigenvalues of the
@@ -327,7 +327,7 @@ fit but with a prior that associates states with only three of the sources,
 leaving the fourth source unconstrained. This is done by replacing
 
 .. literalinclude:: examples/etab.py
-    :lines: 71-72
+    :lines: 73-74
 
 with
 

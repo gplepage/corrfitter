@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Annotated Example: Matrix Correlator &#8212; corrfitter 8.1.1 documentation</title>
+    <title>Annotated Example: Matrix Correlator &#8212; corrfitter 8.2 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.1.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -112,13 +112,13 @@ modified to handle the <a class="reference internal" href="corrfitter.html#corrf
 </pre></div>
 </div>
 <p>The eigen-basis is created by <code class="docutils literal notranslate"><span class="pre">make_data('etab.h5')</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        <span class="n">fit</span><span class="o">.</span><span class="n">qqplot_residuals</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">avg_data</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">read_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">grep</span><span class="o">=</span><span class="s1">&#39;1s0&#39;</span><span class="p">))</span>
     <span class="n">basis</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">EigenBasis</span><span class="p">(</span>
         <span class="n">data</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="n">KEYFMT</span><span class="p">,</span> <span class="n">srcs</span><span class="o">=</span><span class="n">SOURCES</span><span class="p">,</span>
         <span class="n">t</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">tdata</span><span class="o">=</span><span class="n">TDATA</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">basis</span>
 </pre></div>
 </div>
 <p>It reads Monte Carlo
@@ -179,9 +179,7 @@ lowest four states in the correlator, and weakly with all the others.
 This eigen-basis is used later to construct the prior.</p>
 <p>A correlator fitter, called <code class="docutils literal notranslate"><span class="pre">fitter</span></code>, is created from the list of correlator
 models returned by <code class="docutils literal notranslate"><span class="pre">make_models()</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">basis</span>
-
-<span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_models</span><span class="p">():</span>
     <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">SOURCES</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">SOURCES</span><span class="p">[</span><span class="n">i</span><span class="p">:]:</span>
@@ -194,6 +192,8 @@ models returned by <code class="docutils literal notranslate"><span class="pre">
                     <span class="n">a</span><span class="o">=</span><span class="s1">&#39;etab.&#39;</span> <span class="o">+</span> <span class="n">s1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s1">&#39;etab.&#39;</span> <span class="o">+</span> <span class="n">s2</span><span class="p">,</span> <span class="n">dE</span><span class="o">=</span><span class="s1">&#39;etab.dE&#39;</span><span class="p">,</span>
                     <span class="n">otherdata</span><span class="o">=</span><span class="n">otherdata</span><span class="p">,</span>
                     <span class="p">)</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">models</span>
 </pre></div>
 </div>
 <p>There is one model for each correlator to be fit, so 16 in all. The keys
@@ -209,8 +209,8 @@ amplitudes are labeled by <code class="docutils literal notranslate"><span class
 <p>We try fits with <code class="docutils literal notranslate"><span class="pre">N=1,2..7</span></code> terms in the fit function.  The number of
 terms is encoded in the prior, which is constructed by
 <code class="docutils literal notranslate"><span class="pre">make_prior(N,</span> <span class="pre">basis)</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">return</span> <span class="n">models</span>
-
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The prior looks complicated</p>
@@ -254,9 +254,7 @@ matrix without an SVD cut.
 See <a class="reference internal" href="faster.html#svd-cuts"><span class="std std-ref">Accurate Fits — SVD Cuts</span></a> and the discussion below for more information.</p>
 <p>Final results are printed out by <code class="docutils literal notranslate"><span class="pre">print_results(...)</span></code>
 after the last fit is finished:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">basis</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;Results</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">eig_srcs</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
@@ -280,6 +278,8 @@ after the last fit is finished:</p>
     <span class="n">prior_eig</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;etab.0&#39;</span><span class="p">,</span> <span class="s1">&#39;etab.1&#39;</span><span class="p">,</span> <span class="s1">&#39;etab.2&#39;</span><span class="p">,</span> <span class="s1">&#39;etab.3&#39;</span><span class="p">]:</span>
         <span class="nb">print</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">{:13}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">prior_eig</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+            <span class="p">)</span>
 </pre></div>
 </div>
 <p>This method first writes out two tables listing energies and amplitudes for
@@ -352,7 +352,7 @@ displayed (optionally).</p>
               <span class="mi">6</span>       <span class="mf">0.55</span> <span class="p">(</span><span class="mi">54</span><span class="p">)</span>      <span class="p">[</span>   <span class="mf">0.62</span> <span class="p">(</span><span class="mi">62</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.007</span><span class="o">/</span><span class="mi">130</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">82</span><span class="o">/</span><span class="mf">0.6</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.007</span><span class="o">/</span><span class="mi">130</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">82</span><span class="o">/</span><span class="mf">0.5</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <img class="math" src="_images/math/2b01024bf11fcc819bfbd2bfda455169af2b8cba.svg" alt="\chi^2"/> per degree of freedom is unusually small because of the
@@ -360,7 +360,7 @@ large SVD cut (see below). This fit required 169 iterations,
 but took only a couple of seconds
 on a laptop. The results are almost identical to those from <code class="docutils literal notranslate"><span class="pre">N=6</span></code> and <code class="docutils literal notranslate"><span class="pre">N=8</span></code>.</p>
 <p>The final energies and amplitudes for the original sources are listed as</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>       <span class="n">E</span>            <span class="n">l</span>            <span class="n">g</span>           <span class="n">d</span>            <span class="n">e</span>          
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>       <span class="n">E</span>            <span class="n">etab</span><span class="o">.</span><span class="n">l</span>       <span class="n">etab</span><span class="o">.</span><span class="n">g</span>      <span class="n">etab</span><span class="o">.</span><span class="n">d</span>       <span class="n">etab</span><span class="o">.</span><span class="n">e</span>     
     <span class="o">=================================================================</span>
      <span class="mi">0</span> <span class="mf">0.25616</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.50617</span><span class="p">(</span><span class="mi">88</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.8707</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.21618</span><span class="p">(</span><span class="mi">48</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.19707</span><span class="p">(</span><span class="mi">43</span><span class="p">)</span>
      <span class="mi">1</span> <span class="mf">0.787</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.397</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>    <span class="mf">0.1424</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.416</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.349</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  
@@ -369,7 +369,7 @@ on a laptop. The results are almost identical to those from <code class="docutil
 </pre></div>
 </div>
 <p>while for the eigen-sources they are</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>       <span class="n">E</span>            <span class="mi">0</span>           <span class="mi">1</span>           <span class="mi">2</span>            <span class="mi">3</span>          
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>       <span class="n">E</span>            <span class="n">etab</span><span class="o">.</span><span class="mi">0</span>      <span class="n">etab</span><span class="o">.</span><span class="mi">1</span>      <span class="n">etab</span><span class="o">.</span><span class="mi">2</span>       <span class="n">etab</span><span class="o">.</span><span class="mi">3</span>     
     <span class="o">================================================================</span>
      <span class="mi">0</span> <span class="mf">0.25616</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span>  <span class="mf">0.9817</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>  <span class="mf">0.0068</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.00168</span><span class="p">(</span><span class="mi">66</span><span class="p">)</span>  <span class="mf">0.00156</span><span class="p">(</span><span class="mi">48</span><span class="p">)</span>
      <span class="mi">1</span> <span class="mf">0.787</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.0339</span><span class="p">(</span><span class="mi">81</span><span class="p">)</span>  <span class="mf">0.890</span><span class="p">(</span><span class="mi">17</span><span class="p">)</span>  <span class="o">-</span><span class="mf">0.022</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>    <span class="mf">0.0094</span><span class="p">(</span><span class="mi">97</span><span class="p">)</span> 
@@ -488,6 +488,7 @@ using a short script that combines</p>
     <span class="n">dset</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">read_dataset</span><span class="p">(</span><span class="s1">&#39;etab.h5&#39;</span><span class="p">,</span> <span class="n">grep</span><span class="o">=</span><span class="s1">&#39;1s0&#39;</span><span class="p">)</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">svd_diagnosis</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="n">make_models</span><span class="p">())</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;svdcut =&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">svdcut</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">plot_ratio</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>with the code for <code class="docutils literal notranslate"><span class="pre">make_models()</span></code> described above.
@@ -522,10 +523,10 @@ associated with both the SVD cut and the prior. The result is a good fit,
 even with the additional noise:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">====================</span> <span class="n">add</span> <span class="n">svd</span><span class="p">,</span> <span class="n">prior</span> <span class="n">noise</span>
 <span class="n">Least</span> <span class="n">Square</span> <span class="n">Fit</span><span class="p">:</span>
-  <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">164</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.34</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1221.6</span>
+  <span class="n">chi2</span><span class="o">/</span><span class="n">dof</span> <span class="p">[</span><span class="n">dof</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">[</span><span class="mi">164</span><span class="p">]</span>    <span class="n">Q</span> <span class="o">=</span> <span class="mf">0.33</span>    <span class="n">logGBF</span> <span class="o">=</span> <span class="mf">1221.6</span>
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.007</span><span class="o">/</span><span class="mi">130</span><span class="o">*</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">91</span><span class="o">/</span><span class="mf">0.7</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.007</span><span class="o">/</span><span class="mi">130</span><span class="o">*</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">95</span><span class="o">/</span><span class="mf">0.6</span><span class="p">)</span>
 
       <span class="n">dE</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.25616</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span> <span class="mf">0.531</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="mf">0.338</span><span class="p">(</span><span class="mi">32</span><span class="p">)]</span>
 <span class="n">noisy</span> <span class="n">dE</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.25617</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span> <span class="mf">0.5415</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span> <span class="mf">0.345</span><span class="p">(</span><span class="mi">31</span><span class="p">)]</span>
@@ -544,8 +545,8 @@ energies. Typically the actual correspondence between source and low-energy
 state weakens as the energy increases. So an obvious test is to rerun the
 fit but with a prior that associates states with only three of the sources,
 leaving the fourth source unconstrained. This is done by replacing</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="k">return</span> <span class="n">models</span>
-
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">make_prior</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">basis</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;etab.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>with</p>
@@ -620,18 +621,18 @@ the following results for the last fit and summary:</p>
               <span class="mi">6</span>       <span class="mf">0.55</span> <span class="p">(</span><span class="mi">53</span><span class="p">)</span>      <span class="p">[</span>   <span class="mf">0.62</span> <span class="p">(</span><span class="mi">62</span><span class="p">)</span> <span class="p">]</span>  
 
 <span class="n">Settings</span><span class="p">:</span>
-  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.007</span><span class="o">/</span><span class="mi">130</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">60</span><span class="o">/</span><span class="mf">0.5</span><span class="p">)</span>
+  <span class="n">svdcut</span><span class="o">/</span><span class="n">n</span> <span class="o">=</span> <span class="mf">0.007</span><span class="o">/</span><span class="mi">130</span>    <span class="n">tol</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-08</span><span class="o">*</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">,</span><span class="mf">1e-10</span><span class="p">)</span>    <span class="p">(</span><span class="n">itns</span><span class="o">/</span><span class="n">time</span> <span class="o">=</span> <span class="mi">58</span><span class="o">/</span><span class="mf">0.4</span><span class="p">)</span>
 
 <span class="o">==============================</span> <span class="n">Results</span>
 
-       <span class="n">E</span>            <span class="n">l</span>            <span class="n">g</span>           <span class="n">d</span>            <span class="n">e</span>          
+       <span class="n">E</span>            <span class="n">etab</span><span class="o">.</span><span class="n">l</span>       <span class="n">etab</span><span class="o">.</span><span class="n">g</span>      <span class="n">etab</span><span class="o">.</span><span class="n">d</span>       <span class="n">etab</span><span class="o">.</span><span class="n">e</span>     
     <span class="o">=================================================================</span>
      <span class="mi">0</span> <span class="mf">0.25613</span><span class="p">(</span><span class="mi">29</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.50587</span><span class="p">(</span><span class="mi">94</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.8701</span><span class="p">(</span><span class="mi">17</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.21609</span><span class="p">(</span><span class="mi">51</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.19697</span><span class="p">(</span><span class="mi">46</span><span class="p">)</span>
      <span class="mi">1</span> <span class="mf">0.788</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.395</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>    <span class="mf">0.146</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="o">-</span><span class="mf">0.4168</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>  <span class="o">-</span><span class="mf">0.347</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  
      <span class="mi">2</span> <span class="mf">1.121</span><span class="p">(</span><span class="mi">37</span><span class="p">)</span>    <span class="mf">0.417</span><span class="p">(</span><span class="mi">44</span><span class="p">)</span>    <span class="mf">0.061</span><span class="p">(</span><span class="mi">33</span><span class="p">)</span>  <span class="o">-</span><span class="mf">0.240</span><span class="p">(</span><span class="mi">35</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.275</span><span class="p">(</span><span class="mi">38</span><span class="p">)</span>  
      <span class="mi">3</span> <span class="mf">1.55</span><span class="p">(</span><span class="mi">29</span><span class="p">)</span>    <span class="o">-</span><span class="mf">0.18</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span>    <span class="o">-</span><span class="mf">0.201</span><span class="p">(</span><span class="mi">62</span><span class="p">)</span>  <span class="o">-</span><span class="mf">0.12</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>    <span class="o">-</span><span class="mf">0.19</span><span class="p">(</span><span class="mi">19</span><span class="p">)</span>   
 
-       <span class="n">E</span>            <span class="mi">0</span>           <span class="mi">1</span>           <span class="mi">2</span>            <span class="mi">3</span>          
+       <span class="n">E</span>            <span class="n">etab</span><span class="o">.</span><span class="mi">0</span>      <span class="n">etab</span><span class="o">.</span><span class="mi">1</span>      <span class="n">etab</span><span class="o">.</span><span class="mi">2</span>       <span class="n">etab</span><span class="o">.</span><span class="mi">3</span>     
     <span class="o">================================================================</span>
      <span class="mi">0</span> <span class="mf">0.25613</span><span class="p">(</span><span class="mi">29</span><span class="p">)</span>  <span class="mf">0.9810</span><span class="p">(</span><span class="mi">19</span><span class="p">)</span>  <span class="mf">0.0069</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.00168</span><span class="p">(</span><span class="mi">66</span><span class="p">)</span>  <span class="mf">0.00156</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
      <span class="mi">1</span> <span class="mf">0.788</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.038</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>   <span class="mf">0.891</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>  <span class="o">-</span><span class="mf">0.022</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>    <span class="mf">0.014</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>  
@@ -821,14 +822,14 @@ little difference between the two approaches in this case:</p>
 
 <span class="o">==============================</span> <span class="n">Results</span>
 
-       <span class="n">E</span>            <span class="n">l</span>           <span class="n">g</span>           <span class="n">d</span>            <span class="n">e</span>          
+       <span class="n">E</span>            <span class="n">etab</span><span class="o">.</span><span class="n">l</span>      <span class="n">etab</span><span class="o">.</span><span class="n">g</span>      <span class="n">etab</span><span class="o">.</span><span class="n">d</span>       <span class="n">etab</span><span class="o">.</span><span class="n">e</span>     
     <span class="o">================================================================</span>
      <span class="mi">0</span> <span class="mf">0.25602</span><span class="p">(</span><span class="mi">35</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.5060</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.8703</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.21562</span><span class="p">(</span><span class="mi">61</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.19652</span><span class="p">(</span><span class="mi">54</span><span class="p">)</span>
      <span class="mi">1</span> <span class="mf">0.790</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.400</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span>   <span class="mf">0.1416</span><span class="p">(</span><span class="mi">73</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.420</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.352</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>  
      <span class="mi">2</span> <span class="mf">1.109</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span>    <span class="mf">0.404</span><span class="p">(</span><span class="mi">39</span><span class="p">)</span>   <span class="mf">0.042</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>  <span class="o">-</span><span class="mf">0.237</span><span class="p">(</span><span class="mi">29</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.275</span><span class="p">(</span><span class="mi">27</span><span class="p">)</span>  
      <span class="mi">3</span> <span class="mf">1.76</span><span class="p">(</span><span class="mi">19</span><span class="p">)</span>     <span class="mf">0.176</span><span class="p">(</span><span class="mi">66</span><span class="p">)</span>   <span class="mf">0.053</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span>  <span class="o">-</span><span class="mf">0.093</span><span class="p">(</span><span class="mi">45</span><span class="p">)</span>    <span class="mf">0.296</span><span class="p">(</span><span class="mi">52</span><span class="p">)</span>  
 
-       <span class="n">E</span>            <span class="mi">0</span>           <span class="mi">1</span>            <span class="mi">2</span>            <span class="mi">3</span>          
+       <span class="n">E</span>            <span class="n">etab</span><span class="o">.</span><span class="mi">0</span>      <span class="n">etab</span><span class="o">.</span><span class="mi">1</span>       <span class="n">etab</span><span class="o">.</span><span class="mi">2</span>       <span class="n">etab</span><span class="o">.</span><span class="mi">3</span>     
     <span class="o">=================================================================</span>
      <span class="mi">0</span> <span class="mf">0.25602</span><span class="p">(</span><span class="mi">35</span><span class="p">)</span>  <span class="mf">0.9811</span><span class="p">(</span><span class="mi">23</span><span class="p">)</span>  <span class="mf">0.00625</span><span class="p">(</span><span class="mi">92</span><span class="p">)</span> <span class="o">-</span><span class="mf">0.00238</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>  <span class="mf">0.00155</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>
      <span class="mi">1</span> <span class="mf">0.790</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.0320</span><span class="p">(</span><span class="mi">83</span><span class="p">)</span>  <span class="mf">0.896</span><span class="p">(</span><span class="mi">19</span><span class="p">)</span>   <span class="o">-</span><span class="mf">0.021</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>    <span class="mf">0.0082</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span> 
@@ -918,7 +919,7 @@ are used in the fit.</p>
         <li class="right" >
           <a href="example-etas-Ds.html" title="Annotated Example: Transition Form Factor and Mixing"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.1.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

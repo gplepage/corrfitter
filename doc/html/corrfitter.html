@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>corrfitter - Least-Squares Fit to Correlators &#8212; corrfitter 8.1.1 documentation</title>
+    <title>corrfitter - Least-Squares Fit to Correlators &#8212; corrfitter 8.2 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="example-etab.html" title="Annotated Example: Matrix Correlator"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.1.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -794,7 +794,7 @@ to the original sources.</p>
     <span class="n">data</span><span class="p">,</span>                           <span class="c1"># data dictionary</span>
     <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;G.</span><span class="si">{s1}</span><span class="s1">.</span><span class="si">{s2}</span><span class="s1">&#39;</span><span class="p">,</span>           <span class="c1"># key format for dictionary entries</span>
     <span class="n">srcs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;smeared&#39;</span><span class="p">],</span>      <span class="c1"># names of sources/sinks</span>
-    <span class="n">t</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>                       <span class="c1"># t0, t1 used for diagonalization</span>
+    <span class="n">t</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>                       <span class="c1"># t0, t1 used for diagonalization</span>
     <span class="p">)</span>
 <span class="n">prior</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">make_prior</span><span class="p">(</span><span class="n">nterm</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;m.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
@@ -817,7 +817,7 @@ energy differences between successive levels.</p>
 complicated, with strong correlations between local and smeared entries
 for the same state. Projecting the prior unto the eigen-basis,
 however, reveals its underlying structure:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p_eig</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">prior</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p_eig</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;m.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>implies</p>
@@ -846,6 +846,17 @@ for the original sources:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">basis</span><span class="o">.</span><span class="n">tabulate</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">keyfmt</span><span class="o">=</span><span class="s1">&#39;m.</span><span class="si">{s1}</span><span class="s1">&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
+<p>The example above assumed there were no oscillating states (from staggered
+quarks) in the correlator. Two modifications to the code above are needed
+if there are oscillating states: 1) <a class="reference internal" href="#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">EigenBasis</span></code></a> parameter <code class="docutils literal notranslate"><span class="pre">osc</span></code>
+must be set to <code class="docutils literal notranslate"><span class="pre">osc=True</span></code>; and 2) <code class="docutils literal notranslate"><span class="pre">keyfmt</span></code> for <code class="docutils literal notranslate"><span class="pre">basis.make_prior()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">basis.apply()</span></code>, <code class="docutils literal notranslate"><span class="pre">basis.unapply()</span></code>, and <code class="docutils literal notranslate"><span class="pre">basis.tabulate()</span></code> needs to
+be a tuple where <code class="docutils literal notranslate"><span class="pre">keyfmt[0]</span></code> is the key format for non-oscillating states
+and <code class="docutils literal notranslate"><span class="pre">keyfmt[1]</span></code> is for oscillating states (e.g., <code class="docutils literal notranslate"><span class="pre">('m.{s1}',</span> <span class="pre">'mo.{s1}')</span></code>).
+The energies obtained from the eigenvalue analysis are collected in
+array <code class="docutils literal notranslate"><span class="pre">basis.E</span></code> where <code class="docutils literal notranslate"><span class="pre">basis.E[:basis.neig[0]]</span></code> are the energies for
+the non-oscillating states, and <code class="docutils literal notranslate"><span class="pre">basis.E[basis.neig[0]:]</span></code> are the
+energies for the oscillating states.</p>
 <p><a class="reference internal" href="#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">corrfitter.EigenBasis</span></code></a> requires the scipy library in Python.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -944,21 +955,25 @@ in both two-point and three-point correlators).</p>
 
 <dl class="method">
 <dt id="corrfitter.EigenBasis.make_prior">
-<code class="sig-name descname">make_prior</code><span class="sig-paren">(</span><em class="sig-param">nterm</em>, <em class="sig-param">keyfmt='{s1}'</em>, <em class="sig-param">dEfac='1(1)'</em>, <em class="sig-param">ampl=('1.0(3)'</em>, <em class="sig-param">'0.03(10)'</em>, <em class="sig-param">'0.2(1.0)')</em>, <em class="sig-param">states=None</em>, <em class="sig-param">eig_srcs=False</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.make_prior" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_prior</code><span class="sig-paren">(</span><em class="sig-param">nterm</em>, <em class="sig-param">keyfmt=('{s1}'</em>, <em class="sig-param">'o.{s1}')</em>, <em class="sig-param">dEfac='1(1)'</em>, <em class="sig-param">ampl=('1.0(3)'</em>, <em class="sig-param">'0.03(10)'</em>, <em class="sig-param">'0.2(1.0)')</em>, <em class="sig-param">states=None</em>, <em class="sig-param">eig_srcs=False</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.EigenBasis.make_prior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create prior from eigen-basis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nterm</strong> (<em>int</em>) – Number of terms in fit function.</p></li>
-<li><p><strong>keyfmt</strong> (<em>str</em>) – Format string usded to generate keys for
+<li><p><strong>keyfmt</strong> (<em>str</em><em> or </em><em>tuple</em>) – Format string usded to generate keys for
 amplitudes and energies in the prior (a dictionary):
 keys are obtained from <code class="docutils literal notranslate"><span class="pre">keyfmt.format(s1=a)</span></code> where
 <code class="docutils literal notranslate"><span class="pre">a</span></code> is one of the original sources, <code class="docutils literal notranslate"><span class="pre">self.srcs</span></code>,
 if <code class="docutils literal notranslate"><span class="pre">eig_srcs=False</span></code> (default), or one of the
 eigen-sources, <code class="docutils literal notranslate"><span class="pre">self.eig_srcs</span></code>, if <code class="docutils literal notranslate"><span class="pre">eig_srcs=True</span></code>.
 The key for the energy differences is generated by
-<code class="docutils literal notranslate"><span class="pre">'log({})'.format(keyfmt.format(s1='dE'))</span></code>. The default
-is <code class="docutils literal notranslate"><span class="pre">keyfmt={s1}</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">'log({})'.format(keyfmt.format(s1='dE'))</span></code>. <code class="docutils literal notranslate"><span class="pre">keyfmt</span></code>
+should be a tuple of strings when <code class="docutils literal notranslate"><span class="pre">osc==True</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">keyfmt[0]</span></code> is used for the non-oscillating states and
+<code class="docutils literal notranslate"><span class="pre">keyfmt[1]</span></code> for the oscillating states. <code class="docutils literal notranslate"><span class="pre">keyfmt[1]</span></code> is
+ignored (if present) when <code class="docutils literal notranslate"><span class="pre">osc==False</span></code>. The default
+is <code class="docutils literal notranslate"><span class="pre">keyfmt=('{s1}',</span> <span class="pre">'o.{s1}')</span></code>.</p></li>
 <li><p><strong>dEfac</strong> (str or <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>) – A string or <code class="xref py py-class docutils literal notranslate"><span class="pre">gvar.GVar</span></code>
 from which the priors for energy differences <code class="docutils literal notranslate"><span class="pre">dE[i]</span></code> are
 constructed. The mean value for <code class="docutils literal notranslate"><span class="pre">dE[0]</span></code> is set equal to the
@@ -980,7 +995,7 @@ to have little overlap with the source; <code class="docutils literal notranslat
 the default value. <code class="docutils literal notranslate"><span class="pre">gvar.gvar(ampl[2])</span></code> is used where
 there is nothing known about the overlap of a state with
 the source; <code class="docutils literal notranslate"><span class="pre">0(1)</span></code> is the default value.</p></li>
-<li><p><strong>states</strong> (<em>list</em>) – A list of the states in the correlator corresponding
+<li><p><strong>states</strong> (<em>list</em><em> or </em><em>tuple</em>) – A list of the states in the correlator corresponding
 to successive eigen-sources, where <code class="docutils literal notranslate"><span class="pre">states[i]</span></code> is the state
 corresponding to <code class="docutils literal notranslate"><span class="pre">i</span></code>-th source. The correspondence between
 sources and states is strong for the first sources, but
@@ -995,7 +1010,10 @@ used to deal with situations where the order
 of later sources is not aligned with that of the
 actual states: for example, <code class="docutils literal notranslate"><span class="pre">states=[0,1,3]</span></code> connects the
 eigen-sources with the first, second and fourth states in the
-correlator. The default value, <code class="docutils literal notranslate"><span class="pre">states=[0,</span> <span class="pre">1</span> <span class="pre">...</span> <span class="pre">N-1]</span></code> where
+correlator. If <code class="docutils literal notranslate"><span class="pre">states</span></code> is a tuple of lists,
+list <code class="docutils literal notranslate"><span class="pre">states[0]</span></code> is used for non-oscillating states while
+list <code class="docutils literal notranslate"><span class="pre">states[1]</span></code> is used for oscillating states (if there are
+any). The default value, <code class="docutils literal notranslate"><span class="pre">states=[0,</span> <span class="pre">1</span> <span class="pre">...</span> <span class="pre">N-1]</span></code> where
 <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of sources, assumes that sources
 and states are aligned.</p></li>
 <li><p><strong>eig_srcs</strong> (<em>bool</em>) – Amplitudes for the eigen-sources are
@@ -1125,7 +1143,7 @@ in both two-point and three-point correlators).</p>
 <h2>Fast Fit Objects<a class="headerlink" href="#fast-fit-objects" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="corrfitter.fastfit">
-<em class="property">class </em><code class="sig-prename descclassname">corrfitter.</code><code class="sig-name descname">fastfit</code><span class="sig-paren">(</span><em class="sig-param">G</em>, <em class="sig-param">ampl='0(1)'</em>, <em class="sig-param">dE='1(1)'</em>, <em class="sig-param">E=None</em>, <em class="sig-param">s=(1</em>, <em class="sig-param">-1)</em>, <em class="sig-param">tp=None</em>, <em class="sig-param">tmin=6</em>, <em class="sig-param">svdcut=1e-06</em>, <em class="sig-param">osc=False</em>, <em class="sig-param">nterm=10</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.fastfit" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">corrfitter.</code><code class="sig-name descname">fastfit</code><span class="sig-paren">(</span><em class="sig-param">G</em>, <em class="sig-param">ampl='0(1)'</em>, <em class="sig-param">dE='1(1)'</em>, <em class="sig-param">E=None</em>, <em class="sig-param">s=(1</em>, <em class="sig-param">-1)</em>, <em class="sig-param">tp=None</em>, <em class="sig-param">tmin=6</em>, <em class="sig-param">svdcut=1e-06</em>, <em class="sig-param">osc=False</em>, <em class="sig-param">nterm=10</em>, <em class="sig-param">**fitterargs</em><span class="sig-paren">)</span><a class="headerlink" href="#corrfitter.fastfit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fast fit of a two-point correlator.</p>
 <p>This function class estimates <code class="docutils literal notranslate"><span class="pre">E=En[0]</span></code> and <code class="docutils literal notranslate"><span class="pre">ampl=an[0]*bn[0]</span></code>
 for a two-point correlator modeled by</p>
@@ -1349,7 +1367,7 @@ and the <code class="docutils literal notranslate"><span class="pre">Q</span></c
         <li class="right" >
           <a href="example-etab.html" title="Annotated Example: Matrix Correlator"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.1.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">corrfitter 8.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

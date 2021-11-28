@@ -1,7 +1,6 @@
 Verion 8.1.1 2020-11-19
 =======================
-Again a very minor bug fix to remove a deprecation message that numpy 
-has started generating.
+Again a very minor bug fix to remove a deprecation message that numpy has started generating.
 
 Version 8.1 2020-06-11
 ========================
