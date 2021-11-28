@@ -886,12 +886,12 @@ depend only weakly on the choice of <code class="docutils literal notranslate"><
 correlator data. <code class="docutils literal notranslate"><span class="pre">tdata</span></code> is set equal to
 <code class="docutils literal notranslate"><span class="pre">numpy.arange(len(G_ij))</span></code> if it is not specified
 (or equals <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
+<li><p><strong>osc</strong> (<em>bool</em>) – Set <code class="docutils literal notranslate"><span class="pre">osc=True</span></code> when the correlator contains
+states that oscillate in sign (<code class="docutils literal notranslate"><span class="pre">(-1)**t</span></code>); otherwise
+<code class="docutils literal notranslate"><span class="pre">osc=False</span></code> (default).</p></li>
 </ul>
 </dd>
 </dl>
-<p>The interface for <a class="reference internal" href="#corrfitter.EigenBasis" title="corrfitter.EigenBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">EigenBasis</span></code></a> is experimental.
-It may change in the near future, as experience
-accumulates from its use.</p>
 <p>In addition to <code class="docutils literal notranslate"><span class="pre">keyfmt</span></code>, <code class="docutils literal notranslate"><span class="pre">srcs</span></code>, <code class="docutils literal notranslate"><span class="pre">t</span></code> and <code class="docutils literal notranslate"><span class="pre">tdata</span></code> above,
 the main attributes are:</p>
 <dl class="attribute">
