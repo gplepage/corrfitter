@@ -39,7 +39,7 @@ given in the tutorial documentation for |CorrFitter|.
 """
 
 # Created by G. Peter Lepage, Cornell University, on 2010-11-26.
-# Copyright (c) 2010-2018 G. Peter Lepage.
+# Copyright (c) 2010-2021 G. Peter Lepage.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1332,7 +1332,7 @@ class EigenBasis(object):
             data,                           # data dictionary
             keyfmt='G.{s1}.{s2}',           # key format for dictionary entries
             srcs=['local', 'smeared'],      # names of sources/sinks
-            t=(5, 7),                       # t0, t1 used for diagonalization
+            t=(5, 6),                       # t0, t1 used for diagonalization
             )
         prior = basis.make_prior(nterm=4, keyfmt='m.{s1}')
 
@@ -1356,7 +1356,7 @@ class EigenBasis(object):
     for the same state. Projecting the prior unto the eigen-basis,
     however, reveals its underlying structure::
 
-        p_eig = basis.apply(prior)
+        p_eig = basis.apply(prior, keyfmt='m.{s1}')
 
     implies ::
 
@@ -1385,6 +1385,18 @@ class EigenBasis(object):
     for the original sources::
 
         print(basis.tabulate(fit.p, keyfmt='m.{s1}'))
+
+    The example above assumed there were no oscillating states (from staggered
+    quarks) in the correlator. Two modifications to the code above are needed 
+    if there are oscillating states: 1) :class:`EigenBasis` parameter ``osc`` 
+    must be set to ``osc=True``; and 2) ``keyfmt`` for ``basis.make_prior()``, 
+    ``basis.apply()``, ``basis.unapply()``, and ``basis.tabulate()`` needs to 
+    be a tuple where ``keyfmt[0]`` is the key format for non-oscillating states 
+    and ``keyfmt[1]`` is for oscillating states (e.g., ``('m.{s1}', 'mo.{s1}')``). 
+    The energies obtained from the eigenvalue analysis are collected in 
+    array ``basis.E`` where ``basis.E[:basis.neig[0]]`` are the energies for 
+    the non-oscillating states, and ``basis.E[basis.neig[0]:]`` are the 
+    energies for the oscillating states. 
 
     |EigenBasis| requires the scipy library in Python.
 
@@ -1435,6 +1447,11 @@ class EigenBasis(object):
         self.svdcorrection = self.correction   # legacy
         self.svdn = 0
         self.osc = osc
+        if self.osc:
+            if not isinstance(t, tuple):
+                t = (t, t+2)
+            if (t[1] - t[0]) % 2 != 0:
+                raise ValueError('t1-t0 must be even of osc==True')
         G = EigenBasis.assemble_data(
             data=data,
             keys=EigenBasis.generate_keys(keyfmt, self.srcs),
@@ -1465,77 +1482,107 @@ class EigenBasis(object):
                 raise ValueError('tdata too short: ' + str(tdata))
         t0 = tdata[i0]
         t1 = tdata[i1]
-        if self.osc and (t1 - t0) % 2 == 0:
-            raise ValueError('t1-t0 must be odd of osc==True')
+        if self.osc:
+            if (t1 - t0) % 2 != 0:
+                raise ValueError('t1-t0 must be even of osc==True')
+            t2 = (t1 + t0) // 2
+            i2 = numpy.where(tdata==t2)[0]
+            if len(i2) == 0:
+                raise ValueError('(t[1]+t[0])/2 not in tdata: ' + str(t2))
+            i2 = i2[0]
         self.t = (t0, t1)
 
         G0 = numpy.empty(G.shape[:-1], float)
         G1 = numpy.empty(G.shape[:-1], float)
+        if self.osc:
+            G2 = numpy.empty(G.shape[:-1], float)
         if isinstance(G[0, 0, 0], _gvar.GVar):
             for i in range(G.shape[0]):
                 G0[i, i] = G[i, i, i0].mean
                 G1[i, i] = G[i, i, i1].mean
+                if self.osc:
+                    G2[i, i] = G[i, i, i2].mean
                 for j in range(i + 1, G.shape[1]):
                     G0[i, j] = lsqfit.wavg([G[i, j, i0], G[j, i, i0]], tol=1e-10).mean
                     G1[i, j] = lsqfit.wavg([G[i, j, i1], G[j, i, i1]], tol=1e-10).mean
                     G0[j, i] = G0[i, j]
                     G1[j, i] = G1[i, j]
+                    if self.osc:
+                        G2[i, j] = lsqfit.wavg([G[i, j, i2], G[j, i, i2]], tol=1e-10).mean
+                        G2[j, i] = G2[i, j]
         else:
             for i in range(G.shape[0]):
                 G0[i, i] = G[i, i, i0]
                 G1[i, i] = G[i, i, i1]
+                if self.osc:
+                    G2[i, i] = G[i, i, i2]
                 for j in range(i + 1, G.shape[1]):
                     G0[i, j] = (G[i, j, i0] + G[j, i, i0]) / 2.
                     G1[i, j] = (G[i, j, i1] + G[j, i, i1]) / 2.
                     G0[j, i] = G0[i, j]
                     G1[j, i] = G1[i, j]
+                    if self.osc:
+                        G2[i, j] = (G[i, j, i2] + G[j, i, i2]) / 2.
+                        G2[j, i] = G2[i, j]
 
-        if not self.osc:
+        try:
+            numpy.linalg.cholesky(G0)
+        except numpy.linalg.LinAlgError:
+            raise ValueError('G(t0) not positive definite')
+        try:
+            numpy.linalg.cholesky(G1)
+        except numpy.linalg.LinAlgError:
+            raise ValueError('G(t1) not positive definite')
+        try:
             w, v = scipy.linalg.eigh(G1, G0, eigvals_only=False)
-            v = numpy.array(v.T)
-            E = numpy.log(w) / (t0 - t1)
-            # set normalization so vn.G.vn = exp(-En*t)
-            for i, Ei in enumerate(E):
-                v[i] *= _gvar.exp(-E[i] * t0 / 2.)
+        except numpy.linalg.LinAlgError:
+            try:
+                w, v = scipy.linalg.eigh(G1, G0, eigvals_only=False)
+                w = 1. / w
+            except numpy.linalg.LinAlgError:
+                raise ValueError('cannot diagonalize G(t)')
+        v = numpy.array(v.T)
+        E = numpy.log(w) / (t0 - t1)
+        # set normalization so vn.G.vn = exp(-En*t)
+        for i, Ei in enumerate(E):
+            v[i] *= _gvar.exp(-E[i] * t0 / 2.)
+        if not self.osc:
             E, v = zip(*sorted(zip(E,v)))
-            self.v = numpy.array(v)
+            v = numpy.array(v)
+            v_inv = numpy.linalg.inv(v)
+            self.v = v
             self.E = numpy.array(E)
-            self.v_inv = numpy.linalg.inv(self.v)
+            self._E = (self.E, numpy.array([]))
+            self.v_inv = v_inv
             self.neig = (len(self.E), 0)
         else:
-            try:
-                wall, vall = scipy.linalg.eigh(G1, G0)
-            except numpy.linalg.linalg.LinAlgError:
-                try:
-                    wall, vall = scipy.linalg.eigh(G0, G1)
-                    wall = 1. / wall
-                except numpy.linalg.linalg.LinAlgError:
-                    raise ValueError('cannot diagonalize G(t)')
-            # wall = numpy.array([wi.real for wi in wall])
-            vall = numpy.array(vall.T)
-            w = wall[wall > 0]
-            v = vall[wall > 0]
-            E = numpy.log(w) / (t0 - t1)
-            wo = wall[wall < 0]
-            vo = vall[wall < 0]
-            Eo = numpy.log(-wo) / (t0 - t1)
-            # set normalization so vn.G.vn = exp(-En*t)
-            for i, Ei in enumerate(E):
-                v[i] *= numpy.exp(-Ei * t0 / 2.)
-            for i, Eoi in enumerate(Eo):
-                vo[i] *= numpy.exp(-Eoi * t0 / 2.)
-            if len(E) > 1:
-                E, v = zip(*sorted(zip(E,v)))
+            En = []
+            Eo = []
+            idxn = []
+            idxo = []
+            for i, (Ei,vi) in enumerate(zip(E, v)):
+                if vi.dot(G2.dot(vi)) >= 0:
+                    En.append(Ei)
+                    idxn.append(i)
+                else:
+                    Eo.append(Ei)
+                    idxo.append(i)
+            # order states
+            if len(En) > 1:
+                En, idxn = zip(*sorted(zip(En, idxn)))
             if len(Eo) > 1:
-                Eo, vo = zip(*sorted(zip(Eo,vo)))
-            self.v = numpy.array(numpy.concatenate((v, vo)))
-            self.E = numpy.array(numpy.concatenate((E, Eo)))
+                Eo, idxo = zip(*sorted(zip(Eo, idxo)))
+            self._E = (En, Eo)
+            idx = list(tuple(idxn) + tuple(idxo))
+            # reordered ...
+            self.v = v[idx, :]
             self.v_inv = numpy.linalg.inv(self.v)
-            self.neig = (len(E), len(Eo))
+            self.E = E[idx]
+            self.neig = (len(En), len(Eo))
 
     def make_prior(
         self, nterm,
-        keyfmt='{s1}',
+        keyfmt=('{s1}', 'o.{s1}'),
         dEfac='1(1)',
         ampl=('1.0(3)', '0.03(10)', '0.2(1.0)'),
         states=None,
@@ -1546,15 +1593,19 @@ class EigenBasis(object):
         Args:
             nterm (int): Number of terms in fit function.
 
-            keyfmt (str): Format string usded to generate keys for
+            keyfmt (str or tuple): Format string usded to generate keys for
                 amplitudes and energies in the prior (a dictionary):
                 keys are obtained from ``keyfmt.format(s1=a)`` where
                 ``a`` is one of the original sources, ``self.srcs``,
                 if ``eig_srcs=False`` (default), or one of the
                 eigen-sources, ``self.eig_srcs``, if ``eig_srcs=True``.
                 The key for the energy differences is generated by
-                ``'log({})'.format(keyfmt.format(s1='dE'))``. The default
-                is ``keyfmt={s1}``.
+                ``'log({})'.format(keyfmt.format(s1='dE'))``. ``keyfmt`` 
+                should be a tuple of strings when ``osc==True``, where
+                ``keyfmt[0]`` is used for the non-oscillating states and 
+                ``keyfmt[1]`` for the oscillating states. ``keyfmt[1]`` is 
+                ignored (if present) when ``osc==False``. The default
+                is ``keyfmt=('{s1}', 'o.{s1}')``.
 
             dEfac (str or :class:`gvar.GVar`): A string or :class:`gvar.GVar`
                 from which the priors for energy differences ``dE[i]`` are
@@ -1579,7 +1630,7 @@ class EigenBasis(object):
                 there is nothing known about the overlap of a state with
                 the source; ``0(1)`` is the default value.
 
-            states (list): A list of the states in the correlator corresponding
+            states (list or tuple): A list of the states in the correlator corresponding
                 to successive eigen-sources, where ``states[i]`` is the state
                 corresponding to ``i``-th source. The correspondence between
                 sources and states is strong for the first sources, but
@@ -1594,40 +1645,37 @@ class EigenBasis(object):
                 of later sources is not aligned with that of the
                 actual states: for example, ``states=[0,1,3]`` connects the
                 eigen-sources with the first, second and fourth states in the
-                correlator. The default value, ``states=[0, 1 ... N-1]`` where
+                correlator. If ``states`` is a tuple of lists, 
+                list ``states[0]`` is used for non-oscillating states while
+                list ``states[1]`` is used for oscillating states (if there are
+                any). The default value, ``states=[0, 1 ... N-1]`` where
                 ``N`` is the number of sources, assumes that sources
-                and states are aligned.
+                and states are aligned. 
 
             eig_srcs (bool): Amplitudes for the eigen-sources are
                 tabulated if ``eig_srcs=True``; otherwise amplitudes
                 for the original basis of sources are tabulated (default).
         """
-        def _make_prior(states, keyfmt, E, skip):
+        def _make_prior(states, keyfmt, E, offset):
             # nsrcs can be larger than nstates
             nsrcs = len(states)
             if numpy.any(states >= nterm):
-                n = min(numpy.nonzero(states >= nterm)[0])
+                n = min(numpy.nonzero(states >= nterm)[0]) 
                 states = states[:n]
             if len(states) > nterm:
                 states = states[:nterm]
             one, small, big = ampl
-            prior = collections.OrderedDict()
+            prior = _gvar.BufferDict()
             # amplitudes
             nstates = len(states)
-            nterm_ext = nterm + len(skip)
-            for i, k in enumerate(EigenBasis.generate_keys(keyfmt, srcs=self.eig_srcs)):
-                prior[k] = _gvar.gvar(nterm_ext * [big])
-                if True: # i < nsrcs:
-                    prior[k][states] = _gvar.gvar(nstates * [small])
-                if i < nstates:
-                    prior[k][states[i]] = _gvar.gvar(one)
+            keys = list(EigenBasis.generate_keys(keyfmt, srcs=self.eig_srcs))
+            for k in keys:
+                prior[k] = _gvar.gvar(nterm * [big])
+                prior[k][states] = _gvar.gvar(nstates * [small])
+            for i, s in enumerate(states):
+                prior[keys[i + offset]][s] = _gvar.gvar(one)
             if not eig_srcs:
                 prior = self.unapply(prior, keyfmt=keyfmt)
-            if len(skip) > 0:
-                idx = numpy.array([i for i in range(nterm_ext) if i not in skip])
-                for k in prior:
-                    prior[k] = numpy.array(prior[k][idx])
-            # energies
             if len(E) == 0:
                 E = self.E
             if len(E) >= 2:
@@ -1638,7 +1686,10 @@ class EigenBasis(object):
                 e0 = de
             dE = _gvar.gvar(nterm * [str(dEfac)]) * de
             dE[0] = dE[0] + e0 - dE[0].mean
-            prior['log({})'.format(keyfmt.format(s1='dE'))] = _gvar.log(dE)
+            if numpy.any(dE < 0):
+                prior['{}'.format(keyfmt.format(s1='dE'))] = dE
+            else:
+                prior['log({})'.format(keyfmt.format(s1='dE'))] = _gvar.log(dE)
             return prior
         # main body
         if keyfmt is None:
@@ -1648,8 +1699,10 @@ class EigenBasis(object):
         if states is None:
             states = (numpy.arange(self.neig[0]), numpy.arange(self.neig[1]))
         elif isinstance(states, tuple):
-            states[0] = numpy.asarray(states[0], int)[:self.neig[0]]
-            states[1] = numpy.asarray(states[1], int)[:self.neig[1]]
+            states = (
+                numpy.asarray(states[0], int)[:self.neig[0]],
+                numpy.asarray(states[1], int)[:self.neig[1]],
+                )
         else:
             states = numpy.asarray(states, int)
             states = (
@@ -1658,12 +1711,12 @@ class EigenBasis(object):
                 )
         prior = _make_prior(
             states=states[0], keyfmt=keyfmt[0], E=self.E[:self.neig[0]],
-            skip=range(self.neig[0], self.neig[0] + self.neig[1]),
+            offset=0,
             )
         if self.osc:
             oprior =  _make_prior(
-                states=states[1] + self.neig[0], keyfmt=keyfmt[1], E=self.E[self.neig[0]:],
-                skip=range(0, self.neig[0]),
+                states=states[1], keyfmt=keyfmt[1], E=self.E[self.neig[0]:],
+                offset=self.neig[0]
                 )
             prior.update(oprior)
         return prior
@@ -1702,7 +1755,11 @@ class EigenBasis(object):
             indent: A string prepended to each line of the table.
                 Default is ``4 * ' '``.
         """
-
+        if numpy.size(keyfmt) > 1:
+            ans = ''
+            for fmt in keyfmt:
+                ans += self.tabulate(p=p, keyfmt=fmt, nterm=nterm, nsrcs=nsrcs, eig_srcs=eig_srcs, indent=indent)
+            return ans
         if keyfmt is None:
             keyfmt = '{s1}'
         if nsrcs is None:
@@ -1749,7 +1806,7 @@ class EigenBasis(object):
         # header
         line = ['', 'E']
         for s in srcs:
-            line.append(' ' + str(s))
+            line.append(' ' + keyfmt.format(s1=s))
         ans = fmt.format(*line)
         ans += indent + ((sum(fsize) + len(fsize)) * '=') + '\n'
         for line in all_lines:
@@ -1853,7 +1910,7 @@ class EigenBasis(object):
         """
         if isinstance(keyfmt, str):
             keyfmt = [keyfmt]
-        newdata = collections.OrderedDict()
+        newdata = _gvar.BufferDict() # collections.OrderedDict()
         oldsrcs = self.srcs
         newsrcs = self.eig_srcs
         for fmt in keyfmt:
@@ -1881,7 +1938,7 @@ class EigenBasis(object):
         """
         if isinstance(keyfmt, str):
             keyfmt = [keyfmt]
-        newdata = collections.OrderedDict()
+        newdata = _gvar.BufferDict() # collections.OrderedDict()
         oldsrcs = self.eig_srcs
         newsrcs = self.srcs
         for fmt in keyfmt:
@@ -1930,7 +1987,14 @@ class EigenBasis(object):
         """ Extract array from ``data`` specified by array ``keys``. """
         keys = numpy.asarray(keys, object)
         data_shape = numpy.shape(data[keys.flat[0]])
-        data_type = data[keys.flat[0]].dtype
+        try:
+            d = data[keys.flat[0]] 
+            data_type = float
+            if len(d) > 0:
+                float(d[0])
+        except:
+            data_type = object
+       # data_type = data[keys.flat[0]].dtype                        ############ fix
         ans = numpy.empty(keys.shape + data_shape, data_type)
         for idx in numpy.ndindex(keys.shape):
             ans[idx] = data[keys[idx]]
@@ -2086,7 +2150,7 @@ class fastfit(object):
     and the ``Q`` for each.
     """
     def __init__(self, G, ampl='0(1)', dE='1(1)', E=None, s=(1,-1),
-        tp=None, tmin=6, svdcut=1e-6, osc=False, nterm=10,
+        tp=None, tmin=6, svdcut=1e-6, osc=False, nterm=10, **fitterargs
         ):
         import lsqfit
         if not isinstance(s, tuple):
@@ -2154,7 +2218,7 @@ class fastfit(object):
         G = G - dG
         ratio = lsqfit.wavg(
             (0.5 * (G[2:] + G[:-2]) / G[1:-1]).tolist() + [_gvar.cosh(E[0])],
-            svdcut=svdcut,
+            svdcut=svdcut, **fitterargs
             )
         if ratio >= 1:
             self.E = type(ratio)(_gvar.arccosh(ratio), ratio.fit)
@@ -2164,7 +2228,7 @@ class fastfit(object):
                 )
         self.ampl = lsqfit.wavg(
             (G / g(self.E, t) / s).tolist() +  [a[0]],
-            svdcut=svdcut,
+            svdcut=svdcut, **fitterargs
             )
 
     def __str__(self):
