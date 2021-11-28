@@ -1,3 +1,7 @@
+Version 8.2 2021-11-28
+========================
+corrfitter.EigenBasis, which is corrfitter's implementation of a generalized eigenvalue algorithm (GEVP), is updated so that it runs correctly for correlators that have oscillating states (from staggered quarks). See the appendix on matrix fits to see how it is used, as well as the documentation for EigenBasis.
+
 Verion 8.1.1 2020-11-19
 =======================
 Again a very minor bug fix to remove a deprecation message that numpy has started generating.
