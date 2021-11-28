@@ -1396,9 +1396,6 @@ class EigenBasis(object):
             states that oscillate in sign (``(-1)**t``); otherwise
             ``osc=False`` (default).
 
-    The interface for :class:`EigenBasis` is experimental.
-    It may change in the near future, as experience
-    accumulates from its use.
     """
     def __init__(self, data, srcs, t, keyfmt='{s1}.{s2}', tdata=None, osc=False):
         if keyfmt is None:
