@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'corrfitter'
-copyright = '2010-19, G.P. Lepage'
+copyright = '2010-21, G.P. Lepage'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
